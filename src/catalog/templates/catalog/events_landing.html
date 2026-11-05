@@ -5,7 +5,8 @@
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261104_public_mobile_r2">{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261104_public_mobile_r2">{% include "pages/includes/editorial_styles.html" %}
+{% endblock %}
 {% block content %}
 <div class="events-page-wrap">
   <header class="events-compact-head" id="events-hero">
@@ -134,10 +135,8 @@
         {% for event in events %}
           {% include 'catalog/includes/event_listing_card.html' %}
         {% empty %}
-          <div class="km-state-card km-state-card--filter" role="status">
-            <div class="km-state-card__icon-box">
-              <span class="material-symbols-rounded km-state-card__icon" aria-hidden="true">{% if request.GET %}event_busy{% else %}calendar_today{% endif %}</span>
-            </div>
+          <div class="km-state-card km-state-card--filter km-editorial-empty" role="status">
+            {% include "pages/includes/editorial_art.html" with art="img/editorial/calendar.webp" art_class="km-editorial-empty__art" only %}
             <h2 class="km-state-card__title">
               {% if request.GET %}
                 {% if language == 'az' %}Bu filtrlərə uyğun tədbir yoxdur{% elif language == 'en' %}No events match these filters{% else %}По этим фильтрам событий нет{% endif %}

@@ -6,6 +6,9 @@
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
+{% block extra_head %}{% include "pages/includes/editorial_styles.html" %}
+{% endblock %}
+
 {% block content %}
 <section class="panel place-reviews-page">
   <header class="place-reviews-hero">
@@ -46,7 +49,8 @@
     {% endfor %}
   </div>
   {% else %}
-  <div class="site-reviews-empty">
+  <div class="site-reviews-empty km-review-empty">
+      {% include "pages/includes/editorial_art.html" with art="img/editorial/contact.webp" art_class="km-review-empty__art" only %}
     <p class="site-reviews-empty-title">{% if request.LANGUAGE_CODE == 'az' %}Hələ ki dərc olunmuş rəy yoxdur.{% elif request.LANGUAGE_CODE == 'en' %}No published reviews yet.{% else %}Пока нет опубликованных отзывов.{% endif %}</p>
     <p class="meta">{% if request.LANGUAGE_CODE == 'az' %}Rəylər moderasiyadan sonra burada görünəcək.{% elif request.LANGUAGE_CODE == 'en' %}Reviews will appear here after moderation.{% else %}Отзывы появятся здесь после модерации.{% endif %}</p>
     <a class="btn" href="{% url 'place_list' %}">{% if request.LANGUAGE_CODE == 'az' %}Kataloqa keçin{% elif request.LANGUAGE_CODE == 'en' %}Go to catalog{% else %}Перейти в каталог{% endif %}</a>

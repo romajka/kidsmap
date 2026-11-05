@@ -21,10 +21,10 @@
 {% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/pages/parent_guides.css' %}?v=20261102_links_v1">
+  <link rel="stylesheet" href="{% static 'css/pages/parent_guides.css' %}?v=20261105_choices">
   {% if guide_has_directory %}<link rel="stylesheet" href="{% static 'css/pages/parks_guide.css' %}?v=20261102_links_v1">{% endif %}
-  {% if guide.planning and not guide_has_directory %}<link rel="stylesheet" href="{% static 'css/pages/museums_guide.css' %}">{% endif %}
-  <script src="{% static 'js/parent_guides.js' %}?v=20261102_places_filter" defer></script>
+  <link rel="stylesheet" href="{% static 'css/pages/family_guide.css' %}?v=20261105_no_toggle">
+  <script src="{% static 'js/parent_guides.js' %}?v=20261105_scenes" defer></script>
 {% endblock %}
 
 {% block structured_data %}
@@ -62,10 +62,11 @@
     <span class="pg-toc__label">{{ guide.toc_label }}</span>
     <a href="#guide-places"><span aria-hidden="true">01</span>{{ guide.toc_places }}</a>
     {% if guide_has_directory %}
-    <a href="#guide-districts"><span aria-hidden="true">02</span>{{ guide.toc_directory_label }}</a>
-    <a href="#guide-planning"><span aria-hidden="true">03</span>{{ guide.mobile_topics_label }}</a>
-    {% else %}<a href="#guide-topics"><span aria-hidden="true">02</span><span class="pg-control-full">{{ guide.toc_topics }}</span><span class="pg-control-short">{{ guide.mobile_topics_label }}</span></a>{% endif %}
-    {% if guide.planning and not guide_has_directory %}<a href="#guide-planning"><span aria-hidden="true">03</span>{{ guide.planning_nav }}</a>{% endif %}
+    <a href="#guide-planning"><span aria-hidden="true">02</span>{{ guide.mobile_topics_label }}</a>
+    <a href="#guide-districts"><span aria-hidden="true">03</span>{{ guide.toc_directory_label }}</a>
+    {% else %}
+    {% if guide.planning %}<a href="#guide-planning"><span aria-hidden="true">02</span>{{ guide.planning_nav }}</a>{% endif %}
+    <a href="#guide-topics"><span aria-hidden="true">{% if guide.planning %}03{% else %}02{% endif %}</span><span class="pg-control-full">{{ guide.toc_topics }}</span><span class="pg-control-short">{{ guide.mobile_topics_label }}</span></a>{% endif %}
     <a href="#guide-faq"><span aria-hidden="true">{% if guide_has_directory or guide.planning %}04{% else %}03{% endif %}</span><span class="pg-control-full">{{ guide.toc_faq }}</span><span class="pg-control-short">{{ guide.mobile_faq_label }}</span></a>
   </nav>
 
@@ -76,6 +77,32 @@
       {% for choice in guide_quick_choices %}<a href="{{ choice.url }}">{{ choice.label }}<span aria-hidden="true">↗</span></a>{% endfor %}
     </nav>
     {% endif %}
+    {% if guide_situations %}
+    <section class="pg-situations" aria-labelledby="guide-situations-title">
+      <div class="pg-situations__heading">
+        <div><h3 id="guide-situations-title">{{ guide.situations_title }}</h3>
+        <p class="pg-situations__intro">{{ guide.situations_intro }}</p></div>
+      </div>
+      <div class="pg-situations__grid">
+        {% for item in guide_situations %}
+        <section class="pg-situation pg-situation--{{ item.key }}" aria-labelledby="guide-situation-{{ item.key }}">
+          <div class="pg-situation__body">
+            <span class="pg-situation__number" aria-hidden="true">0{{ forloop.counter }}</span>
+            <h4 id="guide-situation-{{ item.key }}">{{ item.title }}</h4>
+            <p>{{ item.text }}</p>
+            <div class="pg-situation__art" aria-hidden="true">
+              {% with art='img/guides/family-'|add:item.key|add:'.webp' %}<img src="{% static art %}" alt="" width="360" height="240" loading="lazy" decoding="async">{% endwith %}
+            </div>
+          </div>
+          {% if item.places %}<ul class="pg-situation__places">{% for place in item.places %}<li><a href="{{ place.url }}" lang="{{ place.name_language }}"><span>{{ place.name }}</span><span class="pg-situation__arrow" aria-hidden="true">↗</span></a></li>{% endfor %}</ul>
+          {% else %}<p class="pg-situation__empty">{{ guide.situation_empty }}</p>{% endif %}
+        </section>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+    {% if guide.planning %}{% include 'pages/includes/guide_planning_cards.html' %}{% endif %}
+    {% if guide_slug == 'sport' %}{% include 'pages/includes/guide_sport_cards.html' %}{% endif %}
     {% if guide_places %}
     <div class="pg-places__grid">
       {% for place in guide_places %}
@@ -89,6 +116,12 @@
             <span class="pg-place__topics">{% for label in place.topics %}<span>{{ label }}</span>{% endfor %}</span>
             {% if place.location %}<span class="pg-place__location">{{ place.location }}</span>{% endif %}
           </div>
+          {% if guide_slug == 'baku-with-kids' %}
+          <dl class="pg-place__facts" data-guide-facts>
+            <div><dt>{{ guide.age_label }}</dt><dd>{% if place.age_label %}{{ place.age_label }} {{ guide.age_unit }}{% else %}{{ guide.age_unknown }}{% endif %}{% if place.age_hint %}<small>{{ place.age_hint }}</small>{% endif %}</dd></div>
+            <div><dt>{{ guide.price_label }}</dt><dd data-price-kind="{{ place.prices.kind }}">{{ place.prices.label }}</dd></div>
+          </dl>
+          {% endif %}
           {% if place.description %}<span class="pg-place__description" lang="{{ place.description_language }}">{{ place.description }}</span>{% endif %}
           {% if place.address %}<span class="pg-place__address">{{ place.address }}</span>{% endif %}
         </a>
@@ -106,33 +139,7 @@
 
   {% if guide_has_directory %}{% include 'pages/includes/parks_directory.html' %}{% endif %}
 
-  <section id="guide-topics" class="pg-section pg-topics" aria-labelledby="guide-topics-title">
-    <div class="pg-section-heading">
-      <div><h2 id="guide-topics-title">{{ guide.topics_title }}</h2></div>
-      <p>{{ guide.topics_intro }}</p>
-    </div>
-    <div class="pg-topics__grid">
-      {% for topic in guide_topics %}
-      <section class="pg-topic" aria-labelledby="guide-topic-{{ forloop.counter }}">
-        <div class="pg-topic__top">
-          <span class="pg-topic__icon" aria-hidden="true"><img src="{% static topic.icon %}" width="28" height="28" alt="" loading="lazy" decoding="async"></span>
-          <h3 id="guide-topic-{{ forloop.counter }}">{{ topic.title }}</h3>
-        </div>
-        <p class="pg-topic__text">{{ topic.text }}</p>
-        <div class="pg-topic__footer">
-          {% if topic.url %}
-          <a href="{{ topic.url }}"><span class="pg-topic__link-label">{{ guide.topic_link_label }}</span><span class="pg-arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span><span class="visually-hidden">: {{ topic.title }}</span></a>
-          {% else %}
-          <a href="{{ guide_add_url }}"><span class="pg-topic__link-label">{{ guide.suggest_label }}</span><span class="pg-arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span><span class="visually-hidden">: {{ topic.title }}</span></a>
-          {% endif %}
-          {% if topic.count %}<span class="pg-topic__count">{{ guide.availability_label }}: {{ topic.count }}</span>{% endif %}
-        </div>
-      </section>
-      {% endfor %}
-    </div>
-  </section>
-
-  {% if guide.planning and not guide_has_directory %}{% include 'pages/includes/museums_planning.html' %}{% endif %}
+  {% if guide_slug != 'sport' %}{% include 'pages/includes/guide_topics.html' %}{% endif %}
 
   <details class="pg-advice">
     <summary>

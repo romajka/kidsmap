@@ -1,0 +1,23 @@
+{% load static %}
+<section id="guide-topics" class="pg-situations" aria-labelledby="guide-topics-title">
+  <div class="pg-situations__heading">
+    <div><h3 id="guide-topics-title">{{ guide.topics_title }}</h3><p class="pg-situations__intro">{{ guide.topics_intro }}</p></div>
+  </div>
+  <div class="pg-situations__grid">
+    {% for topic in guide_topics %}
+    <section class="pg-situation pg-situation--{% cycle 'rain' 'toddler' 'free' 'schoolchild' %}" aria-labelledby="guide-topic-{{ forloop.counter }}">
+      <div class="pg-situation__body">
+        <span class="pg-situation__number" aria-hidden="true">0{{ forloop.counter }}</span>
+        <h4 id="guide-topic-{{ forloop.counter }}">{{ topic.title }}</h4>
+        <p>{{ topic.text }}</p>
+        <div class="pg-situation__art" aria-hidden="true"><img src="{% static topic.scene_image %}" alt="" width="360" height="240" loading="lazy" decoding="async"></div>
+      </div>
+      <ul class="pg-situation__places"><li>
+        {% if topic.url %}<a href="{{ topic.url }}"><span>{{ guide.topic_link_label }}<span class="visually-hidden">: {{ topic.title }}</span></span><span class="pg-situation__arrow" aria-hidden="true">↗</span></a>
+        {% else %}<a href="{{ guide_add_url }}"><span>{{ guide.suggest_label }}<span class="visually-hidden">: {{ topic.title }}</span></span><span class="pg-situation__arrow" aria-hidden="true">↗</span></a>{% endif %}
+      </li></ul>
+      {% if topic.count %}<p class="pg-situation__count">{{ guide.availability_label }}: {{ topic.count }}</p>{% endif %}
+    </section>
+    {% endfor %}
+  </div>
+</section>

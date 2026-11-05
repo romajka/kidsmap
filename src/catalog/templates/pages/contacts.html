@@ -12,13 +12,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/pages/contacts.css' %}?v=20260928_1" />
+{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
 {% block content %}
 <div class="contacts-page-wrapper">
 
   <!-- 1. Hero Section -->
-  <section class="contacts-hero-card">
+  <section class="contacts-hero-card km-editorial-hero">
+    {% include "pages/includes/editorial_art.html" with art="img/editorial/contact.webp" art_class="km-editorial-hero__art" art_loading="eager" only %}
     <div class="contacts-hero-orb1" aria-hidden="true"></div>
     <div class="contacts-hero-orb2" aria-hidden="true"></div>
 

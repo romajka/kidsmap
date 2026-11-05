@@ -1,0 +1,114 @@
+/* Decorative artwork shared by public pages. Controls and copy remain still. */
+.km-editorial-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  animation: km-editorial-float 5s ease-in-out infinite;
+}
+@keyframes km-editorial-float {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-6px) rotate(1deg); }
+}
+:nth-child(2n) > .km-editorial-art { animation-delay: -1.4s; }
+:nth-child(3n) > .km-editorial-art { animation-delay: -2.8s; }
+
+/* Hero scenes occupy the existing free column, never cover text. */
+.contacts-hero-card.km-editorial-hero,
+.faq-hero.km-editorial-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(220px, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+.km-editorial-hero__art {
+  grid-column: 2;
+  grid-row: 1;
+  max-width: 360px;
+  justify-self: center;
+  position: relative;
+}
+.km-editorial-hero :is(.contacts-hero-inner, .faq-hero-content) {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+.org-hero-aside.org-hero-aside--illustrated {
+  width: 300px;
+  max-width: 36%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.org-hero-aside--illustrated > .km-editorial-art { max-width: 280px; }
+.org-hero-aside--illustrated .org-hero-card { padding: 12px 16px; box-shadow: none; }
+.km-specialists-art { width: 180px; align-self: center; margin: -10px auto 0; }
+
+body.page-home .home-steps-lite .home-step-lite-card { grid-template-columns: 96px minmax(0, 1fr); }
+body.page-home .home-step-lite-visual { width: 96px; height: 76px; display: grid; place-items: center; }
+body.page-home .home-step-lite-number { right: 2px; bottom: 0; }
+
+/* Small scenes replace the old icons in explanatory cards. */
+.about-feature-card .about-card-head { align-items: center; }
+.km-about-art { width: 124px; flex: 0 0 124px; }
+.km-publication-art { width: 144px; }
+.add-place-step-top { align-items: center; }
+
+/* A single empty result must occupy the complete results grid. */
+.km-state-card.km-editorial-empty {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(150px, .75fr) minmax(0, 1.5fr);
+  align-items: center;
+  column-gap: 28px;
+  row-gap: 12px;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  margin: 12px 0;
+  padding: 32px;
+  text-align: left;
+  background: linear-gradient(115deg, #f1f8f3, #fff 72%);
+  box-shadow: none;
+}
+.km-editorial-empty__art { grid-column: 1; grid-row: 1 / 4; max-width: 280px; justify-self: center; }
+.km-editorial-empty :is(.km-state-card__title, .km-state-card__desc, .km-state-card__actions) {
+  grid-column: 2;
+  max-width: 540px;
+  margin: 0;
+  justify-content: flex-start;
+}
+.km-review-empty { position: relative; padding: 24px; text-align: center; }
+.km-review-empty__art { width: 180px; margin: 0 auto 12px; }
+
+@media (max-width: 959px) {
+  .km-specialists-catalog .km-specialists-hero-stats { position: relative; }
+  .km-specialists-art { display: none; }
+  .org-hero-aside.org-hero-aside--illustrated { width: 230px; }
+}
+@media (max-width: 640px) {
+  .contacts-hero-card.km-editorial-hero,
+  .faq-hero.km-editorial-hero { display: block; }
+  .km-editorial-hero__art { position: absolute; width: 100px; right: 10px; top: 8px; }
+  .km-editorial-hero :is(.contacts-hero-badge, .faq-hero-badge) { max-width: calc(100% - 75px); }
+  .km-editorial-hero :is(.contacts-hero-title, h1) { padding-right: 30px; }
+  .org-hero { flex-direction: column; align-items: stretch; gap: 12px; }
+  .org-hero-copy { width: 100%; }
+  .org-hero-aside.org-hero-aside--illustrated { width: 100%; max-width: none; flex-direction: row; gap: 0; }
+  .org-hero-aside--illustrated > .km-editorial-art { width: 120px; flex: 0 0 120px; }
+  .org-hero-aside--illustrated .org-hero-card { padding: 8px; flex: 1; }
+  .org-hero-aside--illustrated .org-hero-card-icon { display: none; }
+  body.page-home .home-steps-lite .home-step-lite-card { grid-template-columns: 82px minmax(0, 1fr); gap: 12px; }
+  body.page-home .home-step-lite-visual { width: 82px; height: 68px; }
+  .km-about-art { width: 94px; flex-basis: 94px; }
+  .km-publication-art { width: 120px; }
+  .km-state-card.km-editorial-empty { grid-template-columns: minmax(0, 1fr); padding: 24px 18px; gap: 12px; text-align: center; }
+  .km-editorial-empty__art { grid-column: 1; grid-row: auto; width: 180px; }
+  .km-editorial-empty :is(.km-state-card__title, .km-state-card__desc, .km-state-card__actions) { grid-column: 1; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .km-editorial-art { animation: none; }
+}

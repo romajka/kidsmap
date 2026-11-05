@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261103_mobile_compact" />
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261104_hero_framing" />
 <script defer src="{% static 'js/mappy.js' %}?v=20261102_copy"></script>
+{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
 {% block content %}
@@ -186,32 +187,6 @@
 
 {% include "catalog/includes/home_places_rail.html" %}
 
-{% if home_categories %}
-<section class="home-discover" aria-labelledby="home-discover-title">
-  <div class="home-discover-head">
-    <div class="home-discover-head-text">
-      <span class="home-redesign-kicker">{% if request.LANGUAGE_CODE == 'az' %}MARAQLARDAN BAŞLAYIN{% elif request.LANGUAGE_CODE == 'en' %}FOLLOW THEIR CURIOSITY{% else %}НАЧНИТЕ С ИНТЕРЕСОВ{% endif %}</span>
-      <h2 id="home-discover-title">{% if request.LANGUAGE_CODE == 'az' %}Uşağınız nəyi sevir?{% elif request.LANGUAGE_CODE == 'en' %}What do they love doing?{% else %}Чем увлечён ваш ребёнок?{% endif %}</h2>
-    </div>
-    <a class="home-discover-all-link" href="{% url 'place_list' %}">
-      <span>{% trans "Все категории" %}</span>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-    </a>
-  </div>
-  <nav class="home-discover-cloud" aria-labelledby="home-discover-title">
-    {% for item in home_categories %}
-    <span class="km-bubble-wrap" style="--bubble-accent:{{ item.color_text|default:'#10b981' }};--bubble-bg:{{ item.color_bg|default:'#ecfdf5' }};">
-      <a class="km-category-bubble" href="{% url 'place_list' %}?category={{ item.value|urlencode }}"
-         title="{{ item.label }}">
-        <span class="hdb-icon" style="background:{{ item.color_bg|default:'#F3F4F6' }};color:{{ item.color_text|default:'#6B7280' }};" aria-hidden="true">{% include "catalog/includes/category_visual_icon.html" with code=item.value icon_file_url=item.icon_file_url icon_is_svg=item.icon_is_svg icon_is_font=item.icon_is_font icon_name=item.icon_name %}</span>
-        <span class="hdb-label">{{ item.label }}</span>{% if item.count %}<span class="hdb-count">{{ item.count }}</span>{% endif %}
-      </a>
-    </span>
-    {% endfor %}
-  </nav>
-</section>
-{% endif %}
-
 {% include "pages/includes/home_parent_guide.html" %}
 
 {% if map_places %}
@@ -233,14 +208,7 @@
   <div class="home-steps-lite-grid">
     <article class="home-step-lite-card">
       <div class="home-step-lite-visual" aria-hidden="true">
-        <span class="home-step-lite-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M4 6h16M7 12h10M10 18h4" />
-            <circle cx="8" cy="6" r="1.5" />
-            <circle cx="15" cy="12" r="1.5" />
-            <circle cx="12" cy="18" r="1.5" />
-          </svg>
-        </span>
+        {% include "pages/includes/editorial_art.html" with art="img/editorial/discover.webp" art_class="" only %}
         <span class="home-step-lite-number">1</span>
       </div>
       <div class="home-step-lite-content">
@@ -250,11 +218,7 @@
     </article>
     <article class="home-step-lite-card">
       <div class="home-step-lite-visual" aria-hidden="true">
-        <span class="home-step-lite-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M4 5h6v14H4zM14 5h6v14h-6zM7 9h0M17 9h0M7 13h0M17 13h0" />
-          </svg>
-        </span>
+        {% include "pages/includes/editorial_art.html" with art="img/editorial/compare.webp" art_class="" only %}
         <span class="home-step-lite-number">2</span>
       </div>
       <div class="home-step-lite-content">
@@ -264,12 +228,7 @@
     </article>
     <article class="home-step-lite-card">
       <div class="home-step-lite-visual" aria-hidden="true">
-        <span class="home-step-lite-icon">
-          <svg viewBox="0 0 24 24">
-            <path
-              d="M8.4 3.8 6 5.2c-.8.5-1.1 1.4-.8 2.3 1.6 5.2 5.5 9.1 10.7 10.7.9.3 1.8 0 2.3-.8l1.4-2.4-4-2-1.2 1.5c-2.2-.9-4-2.7-4.9-4.9L11 8.4z" />
-          </svg>
-        </span>
+        {% include "pages/includes/editorial_art.html" with art="img/editorial/contact.webp" art_class="" only %}
         <span class="home-step-lite-number">3</span>
       </div>
       <div class="home-step-lite-content">
@@ -2639,16 +2598,5 @@
   referrerpolicy="no-referrer"></script>
 
 
-{% if home_categories %}
-<script>
-(function () {
-  'use strict';
-  /* Pause floating animation while a bubble has keyboard focus */
-  var cloud = document.querySelector('.home-discover-cloud');
-  if (!cloud) return;
-  cloud.addEventListener('focusin',  function () { cloud.style.setProperty('--bubble-global-play', 'paused'); });
-  cloud.addEventListener('focusout', function () { cloud.style.removeProperty('--bubble-global-play'); });
-})();
-</script>
-{% endif %}
+
 {% endblock %}

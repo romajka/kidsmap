@@ -17,6 +17,7 @@ from django.views.decorators.http import require_safe
 
 from catalog.models import Category, Place, Subcategory
 from catalog.parent_guide_content import GUIDE_PAGES
+from catalog.parent_guide_family import family_situations
 from catalog.services.content_quality import public_place_queryset
 from catalog.services.filtering import PlaceListFilters
 from catalog.services.locations import get_location_translation
@@ -146,6 +147,7 @@ def parent_guide(request, slug):
         matching = PlaceListFilters(category=topic['category'], district='baku',
             subcategory=str(params.get('subcategory', ''))).apply(public_places) if available else public_places.none()
         topics.append({**topic, 'place_ids': list(matching.order_by('-updated_at', '-pk').values_list('pk', flat=True)[:6]),
+            'choice_ids': list(matching.order_by('pk').values_list('pk', flat=True)) if slug == 'baku-with-kids' else [],
             'count': matching.count(), 'url':
             reverse('place_list') + '?' + urlencode(params) if available else None})
 
@@ -156,10 +158,12 @@ def parent_guide(request, slug):
             matching_categories |= Q(pk__in=Subquery(ids))
     candidates = prepare_cards(public_places.filter(matching_categories).order_by('-updated_at', '-pk'), language)
     candidates = [place for place in candidates if place._card_presentation['visible']]
-    venue_ids = _guide_venue_ids(candidates)
+    venue_ids = _guide_venue_ids(sorted(candidates, key=lambda place: place.pk)
+        if slug == 'baku-with-kids' else candidates)
     by_id = {place.pk: place for place in candidates if venue_ids[place.pk] == place.pk}
     for topic in topics:
         topic['place_ids'] = list(dict.fromkeys(venue_ids[pk] for pk in topic['place_ids'] if pk in venue_ids))
+        topic['choice_ids'] = list(dict.fromkeys(venue_ids[pk] for pk in topic['choice_ids'] if pk in venue_ids))
 
     # Give each direction a turn; duplicate database rows must not displace
     # another venue, and new museums must not displace all other directions.
@@ -179,6 +183,21 @@ def parent_guide(request, slug):
         # Editorial choices remain subject to current public visibility and geography.
         selected_ids = list(dict.fromkeys(venue_ids[pk] for pk in definition['featured_ids']
             if pk in venue_ids and venue_ids[pk] in by_id))[:6]
+    if slug == 'baku-with-kids':
+        preferred_ids = list(dict.fromkeys(venue_ids[pk] for pk in definition.get('preferred_ids', ())
+            if pk in venue_ids and venue_ids[pk] in by_id))
+        selected_ids = preferred_ids[:6]
+        for rank in range(6):
+            for topic in topics:
+                if rank < len(topic['choice_ids']):
+                    pk = topic['choice_ids'][rank]
+                    if pk not in selected_ids and len(selected_ids) < 6:
+                        selected_ids.append(pk)
+        selected_ids.extend(pk for pk in sorted(by_id) if pk not in selected_ids)
+        selected_ids = selected_ids[:6]
+        situations = family_situations(guide, topics, by_id, preferred_ids)
+    else:
+        situations = []
     # Answers use the same public visibility and taxonomy as the venue cards.
     # A missing price is never evidence of free admission.
     faq_selections = []
@@ -203,6 +222,8 @@ def parent_guide(request, slug):
             editorial_note = guide.get('venue_notes', {}).get(pk, '')
             places.append({'id': place.pk, 'name': card['name'], 'url': card['url'],
                            'image_url': card['image_url'],
+                           'age_label': card['age_label'], 'age_hint': card['age_hint'],
+                           'prices': card['prices'],
                            'name_language': card['name_language'],
                            'description': editorial_note or ('' if definition.get('directory') and place.subcategory
                                and place.subcategory.code == 'botanical-gardens'
@@ -287,7 +308,7 @@ def parent_guide(request, slug):
         'guide': guide, 'guide_slug': slug, 'guide_topics': topics, 'guide_places': places,
         'guide_related_url': reverse('parent_guide', kwargs={'slug': related_slug}),
         'guide_catalog_url': catalog_url, 'guide_add_url': reverse('add_place'),
-        'guide_quick_choices': quick_choices, 'guide_faq': faq_items,
+        'guide_quick_choices': quick_choices, 'guide_faq': faq_items, 'guide_situations': situations,
         'guide_directory': directory, 'guide_has_directory': definition.get('directory', False),
         'guide_directory_count': sum(len(group['places']) for group in directory),
         'guide_parks_title': GUIDE_PAGES['parks']['translations'][language]['title']

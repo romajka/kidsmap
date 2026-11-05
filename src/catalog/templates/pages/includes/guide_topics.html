@@ -1,0 +1,26 @@
+{% load static %}
+<section id="guide-topics" class="pg-section pg-topics" aria-labelledby="guide-topics-title">
+    <div class="pg-section-heading">
+      <div><h2 id="guide-topics-title">{{ guide.topics_title }}</h2></div>
+      <p>{{ guide.topics_intro }}</p>
+    </div>
+    <div class="pg-topics__grid">
+      {% for topic in guide_topics %}
+      <section class="pg-topic" aria-labelledby="guide-topic-{{ forloop.counter }}">
+        <div class="pg-topic__top">
+          <span class="pg-topic__icon" aria-hidden="true"><img src="{% static topic.icon %}" width="28" height="28" alt="" loading="lazy" decoding="async"></span>
+          <h3 id="guide-topic-{{ forloop.counter }}">{{ topic.title }}</h3>
+        </div>
+        <p class="pg-topic__text">{{ topic.text }}</p>
+        <div class="pg-topic__footer">
+          {% if topic.url %}
+          <a href="{{ topic.url }}"><span class="pg-topic__link-label">{{ guide.topic_link_label }}</span><span class="pg-arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span><span class="visually-hidden">: {{ topic.title }}</span></a>
+          {% else %}
+          <a href="{{ guide_add_url }}"><span class="pg-topic__link-label">{{ guide.suggest_label }}</span><span class="pg-arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span><span class="visually-hidden">: {{ topic.title }}</span></a>
+          {% endif %}
+          {% if topic.count %}<span class="pg-topic__count">{{ guide.availability_label }}: {{ topic.count }}</span>{% endif %}
+        </div>
+      </section>
+      {% endfor %}
+    </div>
+  </section>

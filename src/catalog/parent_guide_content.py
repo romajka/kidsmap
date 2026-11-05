@@ -618,3 +618,25 @@ GUIDE_PAGES['play-centers'] = {
         for language, copy in PLAY_CENTERS_GUIDE['translations'].items()
     },
 }
+
+# Keep the flagship's practical comparison copy together across languages.
+from catalog.parent_guide_family import FAMILY_COPY, PREFERRED_IDS
+
+GUIDE_PAGES['baku-with-kids']['preferred_ids'] = PREFERRED_IDS
+GUIDE_PAGES['baku-with-kids']['updated'] = '2026-11-05'
+for language, copy in FAMILY_COPY.items():
+    GUIDE_PAGES['baku-with-kids']['translations'][language].update(copy)
+
+# Decorative assets are shared across locales; editorial copy stays localized.
+_PLANNING_ART = {
+    'parks': ('family-toddler', 'family-free'),
+    'museums': ('choice-gallery', 'family-schoolchild'),
+    'play-centers': ('choice-play', 'choice-play-together'),
+}
+for slug, definition in GUIDE_PAGES.items():
+    for language, copy in definition['translations'].items():
+        for item, art in zip(copy.get('planning', ()), _PLANNING_ART.get(slug, ())):
+            item['scene_image'] = f'img/guides/{art}.webp'
+        if slug == 'sport':
+            for topic in copy['topics']:
+                topic['scene_image'] = f"img/guides/choice-{topic['key']}.webp"

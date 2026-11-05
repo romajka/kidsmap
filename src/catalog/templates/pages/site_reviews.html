@@ -9,6 +9,9 @@
   <script type="application/ld+json">{{ site_reviews_breadcrumb_schema_json|safe }}</script>
 {% endblock %}
 
+{% block extra_head %}{% include "pages/includes/editorial_styles.html" %}
+{% endblock %}
+
 {% block content %}
   <section class="panel site-reviews-page site-reviews-page-polished">
     <div class="site-reviews-hero reviews-polished-hero">
@@ -110,7 +113,8 @@
         {% endfor %}
       </div>
     {% else %}
-      <div class="site-reviews-empty">
+      <div class="site-reviews-empty km-review-empty">
+      {% include "pages/includes/editorial_art.html" with art="img/editorial/contact.webp" art_class="km-review-empty__art" only %}
         <p class="site-reviews-empty-title">{% trans "Пока нет отзывов с текстом." %}</p>
         <p class="meta">{% trans "Сейчас в ленте есть только оценки без комментариев. Оставьте первый письменный отзыв о сервисе KidsMap." %}</p>
       </div>

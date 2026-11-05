@@ -1,0 +1,19 @@
+{% load static %}
+<section id="guide-planning" class="pg-situations" aria-labelledby="guide-planning-title">
+  <div class="pg-situations__heading">
+    <div><h3 id="guide-planning-title">{{ guide.planning_title }}</h3><p class="pg-situations__intro">{{ guide.planning_intro }}</p></div>
+  </div>
+  <div class="pg-situations__grid">
+    {% for item in guide.planning %}
+    <section class="{% if guide_has_directory %}pg-planning-card{% else %}museum-planning__card{% endif %} pg-situation pg-situation--{% cycle 'toddler' 'schoolchild' %}" aria-labelledby="guide-plan-{{ forloop.counter }}">
+      <div class="pg-situation__body">
+        <span class="pg-situation__number" aria-hidden="true">0{{ forloop.counter }}</span>
+        <h4 id="guide-plan-{{ forloop.counter }}">{{ item.title }}</h4>
+        <p>{{ item.text }}</p>
+        <div class="pg-situation__art" aria-hidden="true"><img src="{% static item.scene_image %}" alt="" width="360" height="240" loading="lazy" decoding="async"></div>
+      </div>
+      <ul class="pg-situation__tips">{% for tip in item.bullets %}<li>{{ tip }}</li>{% endfor %}</ul>
+    </section>
+    {% endfor %}
+  </div>
+</section>

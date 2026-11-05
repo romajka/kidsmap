@@ -13,7 +13,7 @@ from catalog.testcases.utils import create_quality_place
 @override_settings(PUBLIC_BASE_URL='', LOCAL_ANALYTICS_STORAGE_ENABLED=False)
 class ParentGuideTests(TestCase):
     def test_unpublished_guide_does_not_invent_a_publication_date(self):
-        with patch.dict(GUIDE_PAGES['baku-with-kids'], published=None):
+        with patch.dict(GUIDE_PAGES['baku-with-kids'], published=None, updated='2026-10-26'):
             response = self.client.get('/ru/parents/baku-with-kids/')
         self.assertEqual(response.status_code, 200)
         schemas = [json.loads(value) for value in re.findall(

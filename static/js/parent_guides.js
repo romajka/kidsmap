@@ -351,7 +351,7 @@
     }, { threshold: 0.08 });
 
     guide.querySelectorAll(
-      ".pg-hero__copy, .pg-hero__art, .pg-topic, .pg-place, .pg-empty, .pg-advice, .pg-faq details, .pg-related, .pg-district, .pg-planning-card",
+      ".pg-hero__copy, .pg-hero__art, .pg-topic, .pg-place, .pg-empty, .pg-advice, .pg-faq details, .pg-related, .pg-district, .pg-planning-card, .pg-situation",
     ).forEach((element) => observer.observe(element));
   } catch (_) {
     if (observer) observer.disconnect();

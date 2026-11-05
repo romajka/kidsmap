@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/pages/about.css' %}" />
+{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
 {% block content %}
@@ -193,9 +194,7 @@
     <!-- Card 1 -->
     <article class="about-feature-card">
       <div class="about-card-head">
-        <div class="about-card-icon emerald">
-          <span class="material-symbols-rounded">travel_explore</span>
-        </div>
+        {% include "pages/includes/editorial_art.html" with art="img/editorial/discover.webp" art_class="km-about-art" only %}
         <div class="about-card-title-group">
           <h3 class="about-card-title">
             {% if CURRENT_LANGUAGE == "az" %}KidsMap nədir?{% elif CURRENT_LANGUAGE == "en" %}What is KidsMap?{% else %}Что такое KidsMap?{% endif %}
@@ -248,9 +247,7 @@
     <!-- Card 2 -->
     <article class="about-feature-card">
       <div class="about-card-head">
-        <div class="about-card-icon blue">
-          <span class="material-symbols-rounded">groups</span>
-        </div>
+        {% include "pages/includes/editorial_art.html" with art="img/guides/family-free.webp" art_class="km-about-art" only %}
         <div class="about-card-title-group">
           <h3 class="about-card-title">
             {% if CURRENT_LANGUAGE == "az" %}Xidmət kimlər üçündür?{% elif CURRENT_LANGUAGE == "en" %}Who is it for?{% else %}Для кого сервис?{% endif %}
@@ -303,9 +300,7 @@
     <!-- Card 3 -->
     <article class="about-feature-card">
       <div class="about-card-head">
-        <div class="about-card-icon amber">
-          <span class="material-symbols-rounded">tune</span>
-        </div>
+        {% include "pages/includes/editorial_art.html" with art="img/editorial/compare.webp" art_class="km-about-art" only %}
         <div class="about-card-title-group">
           <h3 class="about-card-title">
             {% if CURRENT_LANGUAGE == "az" %}Saytda nə etmək olar?{% elif CURRENT_LANGUAGE == "en" %}What can you do?{% else %}Что можно делать на сайте?{% endif %}
@@ -376,9 +371,7 @@
     <!-- Card 4 -->
     <article class="about-feature-card">
       <div class="about-card-head">
-        <div class="about-card-icon teal">
-          <span class="material-symbols-rounded">verified</span>
-        </div>
+        {% include "pages/includes/editorial_art.html" with art="img/editorial/review.webp" art_class="km-about-art" only %}
         <div class="about-card-title-group">
           <h3 class="about-card-title">
             {% if CURRENT_LANGUAGE == "az" %}Niyə rahat və etibarlıdır?{% elif CURRENT_LANGUAGE == "en" %}Why choose KidsMap?{% else %}Почему это удобно и надёжно?{% endif %}

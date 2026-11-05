@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261104_mobile_public" />
 <script src="{% static 'js/specialists.js' %}?v=20261104_mobile_public" defer></script>
 <script src="{% static 'js/catalog_category_strip.js' %}?v=20261028_strip_r1" defer></script>
+{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
 {% block content %}
@@ -114,8 +115,9 @@
       </div>
     </div>
 
-    <!-- Right Side: 3 Trust & Value Cards (matching catalog hero stats) -->
+    <!-- Right Side: illustration and service advantages -->
     <div class="catalog-hero-stats km-specialists-hero-stats" aria-label="{% if language == 'az' %}Mütəxəssis üstünlükləri{% elif language == 'en' %}Platform advantages{% else %}Преимущества сервиса{% endif %}">
+      {% include "pages/includes/editorial_art.html" with art="img/editorial/answers.webp" art_class="km-specialists-art" art_loading="eager" only %}
       <div class="faq-hero-stat">
         <div class="faq-hero-stat-icon faq-hero-stat-icon--verified" aria-hidden="true">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
@@ -649,10 +651,8 @@
             </div>
           </article>
         {% empty %}
-          <div class="km-state-card km-state-card--filter" role="status">
-            <div class="km-state-card__icon-box">
-              <span class="material-symbols-rounded km-state-card__icon" aria-hidden="true">{% if active_filter_chips or selected.q %}search_off{% else %}person_search{% endif %}</span>
-            </div>
+          <div class="km-state-card km-state-card--filter km-editorial-empty" role="status">
+            {% include "pages/includes/editorial_art.html" with art="img/editorial/discover.webp" art_class="km-editorial-empty__art" only %}
             <h3 class="km-state-card__title">
               {% if active_filter_chips or selected.q %}
                 {% if language == "az" %}Mütəxəssis tapılmadı{% elif language == "en" %}No specialists found{% else %}Специалисты не найдены{% endif %}

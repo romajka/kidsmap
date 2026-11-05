@@ -59,7 +59,7 @@ class HomeParentIntentTests(TestCase):
                     self.assertIn(f'href="{prefix}/parents/baku-with-kids/#guide-faq-{key}"', section)
                     self.assertContains(guide, f'id="guide-faq-{key}"')
 
-    def test_guide_follows_interests_and_recommendations_before_how_it_works(self):
+    def test_guide_follows_recommendations_before_how_it_works(self):
         create_quality_place(name='Family venue fixture', category='FUN')
         for language, prefix, _, _ in self.languages:
             with self.subTest(language=language):
@@ -68,7 +68,7 @@ class HomeParentIntentTests(TestCase):
                 self.assertTrue('class="home-places-rail"' in html, 'Fixture must populate recommendations')
                 guide = html.index('id="home-parent-guide"')
                 self.assertLess(html.index('class="home-places-rail"'), guide)
-                self.assertLess(html.index('class="home-discover"'), guide)
+                self.assertNotIn('class="home-discover"', html)
                 self.assertLess(guide, html.index('id="how-it-works"'))
                 self.assertEqual(html.count('id="home-parent-guide"'), 1)
 
@@ -96,7 +96,8 @@ class HomeParentIntentTests(TestCase):
                 article = next(x for x in schemas if x.get('@type') == 'Article')
                 self.assertEqual(article['description'], head.meta['description'])
                 self.assertEqual(article['headline'], guide_heading)
-                self.assertEqual(article['dateModified'], '2026-10-26')
+                visible_date = re.search(r'<time datetime="([^"]+)"', guide.content.decode()).group(1)
+                self.assertEqual(article['dateModified'], visible_date)
 
     def test_home_metadata_covers_activities_and_keeps_localized_canonical(self):
         for language, prefix, _, activity_word in self.languages:

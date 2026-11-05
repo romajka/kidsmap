@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/pages/add_place.css' %}?v=20261103_btn_single_line" />
+{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
 {% block content %}
@@ -155,16 +156,11 @@
       <article class="add-place-step-card">
         <div class="add-place-step-top">
           <span class="add-place-step-num">{{ forloop.counter|stringformat:"02d" }}</span>
-          <div class="add-place-step-icon">
-            {% if forloop.counter == 1 %}
-              <span class="material-symbols-rounded">person_add</span>
-            {% elif forloop.counter == 2 %}
-              <span class="material-symbols-rounded">edit_note</span>
-            {% elif forloop.counter == 3 %}
-              <span class="material-symbols-rounded">published_with_changes</span>
-            {% else %}
-              <span class="material-symbols-rounded">visibility</span>
-            {% endif %}
+          <div class="km-publication-art">
+            {% if forloop.counter == 1 %}{% include "pages/includes/editorial_art.html" with art="img/editorial/contact.webp" art_class="" only %}
+            {% elif forloop.counter == 2 %}{% include "pages/includes/editorial_art.html" with art="img/editorial/compare.webp" art_class="" only %}
+            {% elif forloop.counter == 3 %}{% include "pages/includes/editorial_art.html" with art="img/editorial/review.webp" art_class="" only %}
+            {% else %}{% include "pages/includes/editorial_art.html" with art="img/editorial/discover.webp" art_class="" only %}{% endif %}
           </div>
         </div>
         <h3 class="add-place-step-title">{{ title }}</h3>

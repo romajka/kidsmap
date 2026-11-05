@@ -754,6 +754,7 @@
     .faq-section h2 { font-size:21px; }
   }
 </style>
+{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
 {% block content %}
@@ -767,7 +768,8 @@
   </nav>
 
   <!-- Hero Header -->
-  <section class="faq-hero">
+  <section class="faq-hero km-editorial-hero">
+    {% include "pages/includes/editorial_art.html" with art="img/editorial/answers.webp" art_class="km-editorial-hero__art" art_loading="eager" only %}
     <div class="faq-hero-orb1" aria-hidden="true"></div>
     <div class="faq-hero-orb2" aria-hidden="true"></div>
 
