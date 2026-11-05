@@ -882,12 +882,13 @@ class TestPublicPagesSmoke(TestCase):
         ordered_markers = (
             'class="home-hero panel',
             'class="home-places-rail"',
-            'class="home-discover"',
             'id="home-map-section"',
             'class="home-steps panel home-steps-lite',
             'id="add-place"',
             'class="panel home-faq-panel"',
         )
+        # The interest/category section was explicitly removed from the homepage.
+        self.assertNotContains(response, 'class="home-discover"', html=False)
         positions = [content.index(marker) for marker in ordered_markers]
         self.assertEqual(positions, sorted(positions))
 
