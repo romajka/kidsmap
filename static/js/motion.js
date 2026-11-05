@@ -87,6 +87,16 @@
     void btn.offsetWidth;
     btn.classList.add("is-bursting");
 
+    // Adding to favourites (not removing) gets a short burst of coloured sparks.
+    if (!btn.classList.contains("active") && btn.getAttribute("aria-pressed") !== "true") {
+      const sparks = document.createElement("span");
+      sparks.className = "km-like-sparks";
+      sparks.setAttribute("aria-hidden", "true");
+      btn.append(sparks);
+      sparks.addEventListener("animationend", () => sparks.remove(), { once: true });
+      window.setTimeout(() => sparks.remove(), 900);
+    }
+
     btn.addEventListener(
       "animationend",
       () => btn.classList.remove("is-bursting"),

@@ -187,7 +187,10 @@
   }
 
   function pointMembers(point) {
-    return Array.isArray(point.members) ? point.members : [point];
+    if (!Array.isArray(point.members)) return [point];
+    // Members in the point's category inherit its icon SVG (sent once per point).
+    return point.members.map(member => (member.category_icon_svg || !point.category_icon_svg || member.category_code !== point.category_code)
+      ? member : Object.assign({}, member, {category_icon_svg: point.category_icon_svg}));
   }
 
   function businessCount(points) {
@@ -246,7 +249,7 @@
   }
 
   function renderPopupContent(point, detailsLabel, ageLabels) {
-    return '<div class="home-map-popup-members" style="max-height: min(60vh, 480px); overflow-y: auto">' +
+    return '<div class="home-map-popup-members">' +
       pointMembers(point).map(place => renderMemberPopup(place, detailsLabel, ageLabels)).join("") + "</div>";
   }
 
@@ -314,7 +317,36 @@
       "</div>"
       : "";
 
-    const phoneHtml = (place.has_phone || place.has_whatsapp) ? window.kidsMapPhoneButton(place.id, "home-map-popup-phone-link", !place.has_phone && place.has_whatsapp) : "";
+    let offersHtml = "";
+    if (Array.isArray(place.matched_offers) && place.matched_offers.length > 0) {
+      offersHtml = '<div class="home-map-popup-offers">' +
+        place.matched_offers.map(offer => {
+          const offerUrl = safeHomeMapUrl(offer.url, false);
+          const titleTag = offerUrl
+            ? '<a class="home-map-popup-offer-link" href="' + escapeHtml(offerUrl) + '">' + escapeHtml(offer.name) + '</a>'
+            : '<span class="home-map-popup-offer-name">' + escapeHtml(offer.name) + '</span>';
+          const groups = (Array.isArray(offer.groups) && offer.groups.length > 0)
+            ? '<div class="home-map-popup-groups">' + offer.groups.map(g => '<span class="home-map-popup-group-tag">' + escapeHtml(g.name) + '</span>').join("") + '</div>'
+            : '';
+          return '<div class="home-map-popup-offer-item">' + titleTag + groups + '</div>';
+        }).join("") +
+        '</div>';
+    }
+
+    const routeHtml = (Number.isFinite(place.lat) && Number.isFinite(place.lng))
+      ? '<a class="home-map-popup-route-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&amp;destination=' + encodeURIComponent(place.lat + ',' + place.lng) + '">' +
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>' +
+        '<span>' + escapeHtml(SCRIPT_CONFIG.routeLabel || "Route") + '</span>' +
+        '</a>'
+      : "";
+
+    const phoneHtml = (place.has_phone || place.has_whatsapp)
+      ? window.kidsMapPhoneButton(place.id, "home-map-popup-phone-link", !place.has_phone && place.has_whatsapp)
+      : "";
+
+    const actionsRowHtml = (routeHtml || phoneHtml)
+      ? '<div class="home-map-popup-actions-row">' + routeHtml + phoneHtml + '</div>'
+      : "";
 
     return (
       '<div class="home-map-popup">' +
@@ -331,10 +363,9 @@
       '<div class="home-map-popup-details">' +
       (place.age_note ? '<p class="home-map-popup-age-note">' + escapeHtml(place.age_note) + "</p>" : "") +
       addressHtml +
-      (place.matched_offers || []).map(offer => '<a class="home-map-popup-info-row" href="' + escapeHtml(safeHomeMapUrl(offer.url, false) || "#") + '">' + escapeHtml(offer.name) + '</a>' + (offer.groups || []).map(group => '<div class="home-map-popup-info-row">' + escapeHtml(group.name) + '</div>').join("")).join("") +
+      offersHtml +
       scheduleHtml +
-      (Number.isFinite(place.lat) && Number.isFinite(place.lng) ? '<a class="home-map-popup-info-row" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&amp;destination=' + encodeURIComponent(place.lat + ',' + place.lng) + '">' + escapeHtml(SCRIPT_CONFIG.routeLabel || "Route") + '</a>' : "") +
-      phoneHtml +
+      actionsRowHtml +
       "</div>" +
       '<a class="home-map-popup-link-btn" href="' +
       escapeHtml(placeUrl) +
@@ -419,10 +450,11 @@
 
   function buildGoogleMarkerIcon(place) {
     const svg = buildDynamicMarkerSvg(place);
+    const pin = window.KidsMapPins ? window.KidsMapPins.PIN : {width: 38, height: 48, anchorX: 19, anchorY: 48};
     return {
       url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-      scaledSize: new google.maps.Size(38, 48),
-      anchor: new google.maps.Point(19, 48),
+      scaledSize: new google.maps.Size(pin.width, pin.height),
+      anchor: new google.maps.Point(pin.anchorX, pin.anchorY),
     };
   }
 
@@ -1132,6 +1164,7 @@
       tilt: 0, heading: 0,
     };
     if (SCRIPT_CONFIG.googleMapsMapId) mapOptions.mapId = SCRIPT_CONFIG.googleMapsMapId;
+    if (window.KidsMapPins) window.KidsMapPins.applyMapDefaults(mapOptions, SCRIPT_CONFIG.googleMapsMapId);
     const map = new google.maps.Map(mapEl, mapOptions);
     const infoWindow = new google.maps.InfoWindow();
     mapEl.addEventListener("kidsmap:home-map-visible", () => { if (google.maps.event?.trigger) google.maps.event.trigger(map, "resize"); });
@@ -1151,9 +1184,19 @@
       choice.close(false);
       selectedMarker = marker;
       motion.select(marker);
-      infoWindow.setOptions({maxWidth: Math.min(320, mapEl.clientWidth - 48), disableAutoPan: window.KidsMapGoogleMotion.reduced()});
+      if (window.KidsMapPins) {
+        window.KidsMapPins.markVisited(place);
+        marker.getElement?.()?.querySelector('.km-pin')?.classList.add('is-visited');
+      }
+      infoWindow.setOptions({maxWidth: Math.min(320, mapEl.clientWidth - 32), disableAutoPan: window.KidsMapGoogleMotion.reduced()});
       infoWindow.setContent(renderPopupContent(place, detailsLabel, ageLabels));
-      infoWindow.open({anchor: marker, map: map, shouldFocus: true});
+      infoWindow.open({anchor: marker, map: map, shouldFocus: false});
+      if (google.maps?.event?.addListenerOnce) {
+        google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+          const iwD = mapEl.querySelector('.gm-style-iw-d');
+          if (iwD) iwD.scrollTop = 0;
+        });
+      }
     }
     infoWindow.addListener('closeclick', () => { const marker = selectedMarker; motion.select(null); selectedMarker = null; marker?.getElement?.().focus(); });
     map.addListener('click', () => { closePlace(); choice.close(false); });
@@ -1170,8 +1213,9 @@
     if (window.markerClusterer && window.markerClusterer.MarkerClusterer && !window.markerClusterer.dummy) {
       var clusterAlgorithm = (window.markerClusterer.SuperClusterAlgorithm)
         // Keep a single nearby pin out of the visual footprint of a cluster.
-        // 100 px also prevents a count badge from covering a neighbouring pin.
-        ? new window.markerClusterer.SuperClusterAlgorithm({ maxZoom: 18, radius: 100 })
+        // 72 px keeps a count badge off neighbouring pins while letting nearby
+        // places show as pins one zoom level earlier.
+        ? new window.markerClusterer.SuperClusterAlgorithm({ maxZoom: 18, radius: 72 })
         : undefined;
       markerCluster = new window.markerClusterer.MarkerClusterer({
         map: map,
@@ -1179,8 +1223,10 @@
         algorithm: clusterAlgorithm,
         renderer: {
           render: function (cluster, stats, mapInstance) {
-            const count = cluster.count;
             const position = cluster.position;
+            const visual = window.KidsMapPins ? window.KidsMapPins.cluster(cluster.markers) : null;
+            const count = visual ? visual.total : cluster.count;
+            const size = visual ? visual.size : 54;
             const svg = buildGoogleClusterSvg(count);
             const key = cluster.markers.map(m => m.__kidsMapPointKey || m.__kidsMapPlace?.id || m.__kidsMapPlace?.url).sort().join('|');
             const skipEntrance = previousClusterKeys.has(key);
@@ -1189,10 +1235,11 @@
               position: position,
               title: window.KidsMapGoogleMotion.clusterTitle(count),
               publicVisual: true, ownerMap: map, skipEntrance: skipEntrance,
+              visual: visual && visual.element, visualKind: "cluster",
               icon: {
                 url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-                scaledSize: new google.maps.Size(54, 54),
-                anchor: new google.maps.Point(27, 27),
+                scaledSize: new google.maps.Size(size, size),
+                anchor: new google.maps.Point(size / 2, size / 2),
               },
               zIndex: 1000000 + count,
               mapId: SCRIPT_CONFIG.googleMapsMapId,
@@ -1209,16 +1256,30 @@
     // ── Build markers ───────────────────────────────────────────────────────
     const markerItems = [];
 
+    function markerKey(place) {
+      return String(place.key || place.url || place.id || (place.lat + "," + place.lng));
+    }
+
     function rebuildMarkers(points) {
-      markerItems.forEach(item => item.marker.setMap(null));
+      // Keep markers whose point is unchanged: no flicker, no re-entrance.
+      const previous = new Map(markerItems.map(item => [item.key, item]));
       markerItems.length = 0;
     points.forEach(function (place) {
       if (!hasValidCoordinates(place)) return;
+      const key = markerKey(place);
+      const signature = JSON.stringify(place);
+      const kept = previous.get(key);
+      if (kept && kept.signature === signature) {
+        previous.delete(key);
+        markerItems.push(kept);
+        return;
+      }
       const position = {lat: place.lat, lng: place.lng};
       const marker = window.kidsMapCreateGoogleMarker({
         position: position,
         title: place.name || "",
         icon: buildGoogleMarkerIcon(place),
+        visual: window.KidsMapPins ? window.KidsMapPins.placePin(place) : null,
         publicVisual: true, ownerMap: map,
         mapId: SCRIPT_CONFIG.googleMapsMapId,
       });
@@ -1237,12 +1298,14 @@
       });
 
       markerItems.push({
+        key: key,
+        signature: signature,
         marker: marker,
         place: place,
         position: position,
       });
     });
-
+      previous.forEach(item => item.marker.setMap(null));
     }
     rebuildMarkers(places);
     sharedState.applyPage = points => { closePlace(); motion.cancel(); choice.close(false); rebuildMarkers(points); _doSync(); };
@@ -1764,7 +1827,7 @@
 
   function homeLeafletPopupOptions(mapEl) {
     const width = mapEl.clientWidth || 320, height = mapEl.clientHeight || 430;
-    const maxWidth = Math.max(1, Math.min(260, width - 32));
+    const maxWidth = Math.max(1, Math.min(280, width - 32));
     mapEl.style.setProperty("--home-map-popup-width", maxWidth + "px");
     return {
       maxWidth, minWidth: Math.min(180, maxWidth),

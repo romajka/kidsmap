@@ -9,6 +9,7 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block extra_head %}
   {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/components/specialist_subjects.css' %}?v=20261105_subjects_r2" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
@@ -17,7 +18,7 @@
   <link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}?v=20261104_custom_dropdowns" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="{% static 'js/owner_place_map_picker.js' %}?v=20261104_specialist_map" defer></script>
-  <script src="{% static 'js/specialists.js' %}?v=20261104_standalone_editor" defer></script>
+  <script src="{% static 'js/specialists.js' %}?v=20261105_all_r1" defer></script>
   <script src="{% static 'js/specialist_workspace.js' %}?v=20261104_specialist_flow" defer></script>
   <script src="{% static 'js/specialist_locations.js' %}?v=20261104_specialist_flow" defer></script>
   <script src="{% static 'js/specialist_recovery.js' %}?v=20261104_specialist_flow" defer></script>
@@ -126,7 +127,7 @@
               </div>
             </div>
             <div class="km-top-progress-counter">
-              <span class="km-req-badge" data-req-badge>0 / 6</span>
+              <span class="km-req-badge" data-req-badge>—</span>
             </div>
           </div>
           <div class="km-req-progress-track">
@@ -134,7 +135,7 @@
           </div>
           <div class="km-top-progress-footer">
             <span class="km-top-progress-status" data-req-status-text data-all-done="{% if CURRENT_LANGUAGE == 'az' %}Məcburi sahələr doldurulub. Göndərməzdən əvvəl məlumatları yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}Required fields are filled. Review your details before submitting.{% else %}Обязательные поля заполнены. Проверьте данные перед отправкой.{% endif %}">
-              {% if CURRENT_LANGUAGE == "az" %}Doldurulub: 0 / 6 (0%){% elif CURRENT_LANGUAGE == "en" %}Completed: 0 of 6 (0%){% else %}Заполнено: 0 из 6 (0%){% endif %}
+              {% if CURRENT_LANGUAGE == "az" %}Məcburi sahələri doldurun.{% elif CURRENT_LANGUAGE == "en" %}Fill in the required fields.{% else %}Заполните обязательные поля.{% endif %}
             </span>
             <span class="km-top-progress-hint">{% if CURRENT_LANGUAGE == "az" %}Qaralama istənilən vaxt saxlanıla bilər{% elif CURRENT_LANGUAGE == "en" %}Draft can be saved at any time{% else %}Черновик можно сохранить в любой момент{% endif %}</span>
           </div>
@@ -297,6 +298,7 @@
             <p class="km-step-desc">{% if CURRENT_LANGUAGE == "az" %}Mütəxəssisin fəaliyyət istiqamətlərini, uşaq yaşını və iş dillərini seçin.{% elif CURRENT_LANGUAGE == "en" %}Select areas of practice, children's age range, and working languages.{% else %}Выберите направления деятельности, возраст детей и рабочие языки.{% endif %}</p>
           </div>
 
+          {% if form.specializations.errors %}<div id="specialization-errors" role="alert">{% for e in form.specializations.errors %}<p class="auth-field-error">{{ e }}</p>{% endfor %}</div>{% endif %}
           <!-- Custom Multiselect Dropdown -->
           <div class="km-owner-spec-dropdown-wrapper">
             <label class="km-label-text" style="margin-bottom: 6px; display: block;">
@@ -304,11 +306,11 @@
               <span class="km-req-badge"><strong class="km-required">*</strong> {% if CURRENT_LANGUAGE == "az" %}Mütləq{% elif CURRENT_LANGUAGE == "en" %}Required{% else %}Обязательно{% endif %}</span>
             </label>
             <div class="km-owner-spec-dropdown" data-owner-spec-dropdown>
-              <div class="km-owner-spec-dropdown-trigger" data-owner-spec-dropdown-trigger tabindex="0" role="combobox" aria-expanded="false" aria-label="{% trans 'Выбор направлений' %}">
-                <div class="trigger-icon"><span class="material-symbols-rounded" aria-hidden="true">medical_services</span></div>
+              <div class="km-owner-spec-dropdown-trigger" id="id_specializations" {% if form.specializations.errors %}aria-invalid="true" aria-describedby="specialization-errors"{% endif %} data-owner-spec-dropdown-trigger tabindex="0" role="combobox" aria-expanded="false" aria-label="{% trans 'Выбор направлений' %}">
+                <div class="trigger-icon"><span class="material-symbols-rounded" aria-hidden="true">school</span></div>
                 <div class="trigger-content">
                   <span class="trigger-placeholder" data-owner-spec-placeholder>
-                    {% if CURRENT_LANGUAGE == 'az' %}İstiqamətləri seçin (məs.: loqoped, psixoloq, pediatr)...{% elif CURRENT_LANGUAGE == 'en' %}Choose directions (e.g. speech therapist, psychologist)...{% else %}Выберите направления (например: логопед, психолог, невролог)...{% endif %}
+                    {% if CURRENT_LANGUAGE == 'az' %}Kateqoriya seçin: repetitor, loqoped, psixoloq...{% elif CURRENT_LANGUAGE == 'en' %}Choose a category: tutor, speech therapist, psychologist...{% else %}Выберите категорию: репетитор, логопед, психолог...{% endif %}
                   </span>
                 </div>
                 <div class="trigger-badge-box">
@@ -334,7 +336,7 @@
                 </div>
 
                 <div class="km-dropdown-list-wrap">
-                  {% for e in form.specializations.errors %}<div class="auth-field-error" style="margin-bottom: 1rem;">{{ e }}</div>{% endfor %}
+
 
                   <!-- Semantic Groups of Specializations -->
                   {% if grouped_specializations %}
@@ -385,11 +387,13 @@
             <!-- Selected chips bar -->
             <div class="owner-specialist-selected-bar" data-owner-selected-specs data-remove-label="{% trans 'Убрать направление' %}" hidden>
               <div class="selected-bar-header">
-                <span class="selected-bar-title">{% if CURRENT_LANGUAGE == "az" %}Seçilmiş istiqamətlər{% elif CURRENT_LANGUAGE == "en" %}Selected directions{% else %}Выбранные направления{% endif %} (<span aria-live="polite" data-selected-count>0</span>):</span>
+                <span class="selected-bar-title">{% if CURRENT_LANGUAGE == "az" %}Kateqoriyalar və fənlər{% elif CURRENT_LANGUAGE == "en" %}Categories and subjects{% else %}Категории и предметы{% endif %} (<span aria-live="polite" data-selected-count>0</span>):</span>
               </div>
               <div class="selected-chips-container" data-selected-chips></div>
             </div>
           </div>
+
+          {% include "pages/includes/specialist_subjects.html" %}
 
           <!-- Child Age Grid -->
           <div class="owner-event-grid km-owner-age-grid">

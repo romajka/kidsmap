@@ -4,25 +4,25 @@
 
   const TIPS = {
     ru: [
-      "Выберите район и возраст — покажу занятия на карте! 🗺️",
-      "Ищете спорт, творчество или шахматы? Помогу найти рядом! 🎨",
-      "Кружки, парки и развлечения — найдите место для ребёнка! 🧸",
-      "Перед посещением уточните цену и расписание у организатора. ⏱️",
-      "Нажмите на любое место или метку — всё подробно покажу! ✨"
+      "Выберите район и возраст — покажу занятия на карте!",
+      "Ищете спорт, творчество или шахматы? Помогу найти рядом!",
+      "Кружки, парки и развлечения — найдите место для ребёнка!",
+      "Перед посещением уточните цену и расписание у организатора.",
+      "Нажмите на любое место или метку — всё подробно покажу!"
     ],
     az: [
-      "Rayon və yaşı seçin — xəritədə uyğun məşğələləri göstərim! 🗺️",
-      "İdman, yaradıcılıq, yoxsa şahmat? Yaxınlıqdakı dərnəkləri tapmağa kömək edərəm! 🎨",
-      "Dərnəklər, parklar və əyləncə — uşağınız üçün məkan tapın! 🧸",
-      "Getməzdən əvvəl qiyməti və cədvəli təşkilatçı ilə dəqiqləşdirin. ⏱️",
-      "Xəritədə istənilən məkana toxunun — dərhal ətraflı göstərim! ✨"
+      "Rayon və yaşı seçin — xəritədə uyğun məşğələləri göstərim!",
+      "İdman, yaradıcılıq, yoxsa şahmat? Yaxınlıqdakı dərnəkləri tapmağa kömək edərəm!",
+      "Dərnəklər, parklar və əyləncə — uşağınız üçün məkan tapın!",
+      "Getməzdən əvvəl qiyməti və cədvəli təşkilatçı ilə dəqiqləşdirin.",
+      "Xəritədə istənilən məkana toxunun — dərhal ətraflı göstərim!"
     ],
     en: [
-      "Choose an area and age — I’ll show you great activities on the map! 🗺️",
-      "Looking for sports, arts, or chess? I’ll help you find them nearby! 🎨",
-      "Clubs, parks and entertainment — find a place for your child! 🧸",
-      "Confirm prices and schedules with the organizer before visiting. ⏱️",
-      "Tap any pin on the map — I’ll show you all the details! ✨"
+      "Choose an area and age — I’ll show you great activities on the map!",
+      "Looking for sports, arts, or chess? I’ll help you find them nearby!",
+      "Clubs, parks and entertainment — find a place for your child!",
+      "Confirm prices and schedules with the organizer before visiting.",
+      "Tap any pin on the map — I’ll show you all the details!"
     ]
   };
 

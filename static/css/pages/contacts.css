@@ -860,7 +860,7 @@
   flex: 1;
   font-size: 16px;
   font-weight: 800;
-  color: #1e293b;
+  color: #1e2b23;
   letter-spacing: -.01em;
   transition: color .2s ease;
 }
@@ -874,16 +874,16 @@
   height: 36px;
   flex: 0 0 36px;
   border-radius: 50%;
-  background: #f1f5f9;
-  color: #64748b;
+  background: #f0f5f2;
+  color: #64776a;
   display: inline-grid;
   place-items: center;
   transition: transform .35s cubic-bezier(.34,1.56,.64,1), background .25s, color .25s;
 }
 
 .faq-accordion-item:hover .faq-acc-chevron {
-  background: #e2e8f0;
-  color: #0f172a;
+  background: #e0e9e3;
+  color: #1f2933;
 }
 
 .faq-accordion-item[open] .faq-acc-chevron {

@@ -194,9 +194,9 @@ function updateSpecTags(){
   }
   if(placeholder){
     if(selectedCount>0){
-      placeholder.innerHTML='<strong>Выбрано направлений: '+selectedCount+'</strong> (нажмите, чтобы изменить)';
+      placeholder.innerHTML='<strong>Категории и предметы</strong> (нажмите, чтобы изменить)';
     } else {
-      placeholder.textContent='Выберите направления (например: логопед, дефектолог)...';
+      placeholder.textContent='Выберите категорию и предметы (например: репетитор, математика)...';
     }
   }
   return selectedCount;
@@ -520,6 +520,11 @@ function updateReadiness(){
 
   var checkedSpecs=form.querySelectorAll('#id_specializations input[type=checkbox]:checked').length;
   var hasSpecs=checkedSpecs>0;
+  var subjectNode=document.getElementById('specialist-subject-rules');
+  var subjectRules=subjectNode?JSON.parse(subjectNode.textContent):{requires:[],subjects:[]};
+  var selectedSpecs=Array.from(form.querySelectorAll('#id_specializations input:checked'),function(cb){return cb.value;});
+  var needsSubject=subjectRules.requires.some(function(id){return selectedSpecs.indexOf(id)!==-1;});
+  var hasSubject=subjectRules.subjects.some(function(id){return selectedSpecs.indexOf(id)!==-1;});
 
   var hasFormat=Boolean(formatSelect&&formatSelect.value);
 
@@ -546,6 +551,8 @@ function updateReadiness(){
     {id:'bio',label:readinessBar.dataset.bio,section:'#km-sec-2',done:hasBio}
   ];
 
+  if(needsSubject)rules.splice(2,0,{id:'subject',label:readinessBar.dataset.subject,section:'#km-sec-3',done:hasSubject});
+
   var completed=rules.filter(function(r){return r.done;}).length;
   var total=rules.length;
   var pct=Math.round((completed/total)*100);
@@ -560,7 +567,7 @@ function updateReadiness(){
     var isDone=false;
     if(secId==='km-sec-1')isDone=hasName;
     else if(secId==='km-sec-2')isDone=hasBio;
-    else if(secId==='km-sec-3')isDone=hasSpecs;
+    else if(secId==='km-sec-3')isDone=hasSpecs&&(!needsSubject||hasSubject);
     else if(secId==='km-sec-5')isDone=hasLang;
     else if(secId==='km-sec-6')isDone=hasFormat;
     else if(secId==='km-sec-11')isDone=hasContact;

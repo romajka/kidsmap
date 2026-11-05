@@ -2,7 +2,7 @@
 <div class="org-pending-row" data-join-request="{{ item.pk }}">
   <div class="org-pending-row__info">
     <div class="org-pending-row__title">
-      <span class="material-symbols-rounded" style="color: #0D8A52; font-size: 18px;">storefront</span>
+      <span class="material-symbols-rounded" style="color: #136F38; font-size: 18px;">storefront</span>
       <strong>{% if item.recovery_place_name %}{{ item.recovery_place_name }}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Əlçatan olmayan məkan{% elif CURRENT_LANGUAGE == 'en' %}Unavailable place{% else %}Недоступная карточка{% endif %}{% endif %}</strong>
       <span class="material-symbols-rounded" style="color: #8AA396; font-size: 16px;">arrow_forward</span>
       <span class="material-symbols-rounded" style="color: #4A6B5D; font-size: 18px;">corporate_fare</span>

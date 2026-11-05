@@ -164,14 +164,14 @@
   margin: 32px auto;
   max-width: 580px;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e0e9e3;
   border-radius: 20px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
 }
 
 .km-state-card--embedded {
-  border: 1px dashed #cbd5e1;
-  background: #f8fafc;
+  border: 1px dashed #cad7ce;
+  background: #f8faf9;
   box-shadow: none;
   padding: 32px 20px;
 }
@@ -184,18 +184,18 @@
   height: 68px;
   border-radius: 50%;
   margin-bottom: 20px;
-  background: #f1f5f9;
-  color: #64748b;
+  background: #f0f5f2;
+  color: #64776a;
 }
 
 .km-state-card--filter .km-state-card__icon-box {
-  background: #f0fdf4;
+  background: #f3f9f2;
   color: #166534;
 }
 
 .km-state-card--empty-db .km-state-card__icon-box {
-  background: #f8fafc;
-  color: #475569;
+  background: #f8faf9;
+  color: #47584d;
 }
 
 .km-state-card--error .km-state-card__icon-box {
@@ -212,14 +212,14 @@
   margin: 0 0 10px 0;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: #1e2b23;
   line-height: 1.35;
 }
 
 .km-state-card__desc {
   margin: 0 0 24px 0;
   font-size: 0.95rem;
-  color: #64748b;
+  color: #64776a;
   line-height: 1.55;
   max-width: 440px;
 }
@@ -255,13 +255,13 @@
 }
 
 .km-state-btn--secondary {
-  background-color: #f1f5f9;
-  color: #334155;
-  border-color: #cbd5e1;
+  background-color: #f0f5f2;
+  color: #334439;
+  border-color: #cad7ce;
 }
 
 .km-state-btn--secondary:hover {
-  background-color: #e2e8f0;
+  background-color: #e0e9e3;
 }
 
 /* ─── 5. File Upload Failure / Dropzone Error State ─── */
@@ -315,15 +315,15 @@
   text-align: center;
   padding: 36px 24px;
   min-height: 260px;
-  background: linear-gradient(145deg, #f8fafc, #f1f5f9);
-  border: 1px solid #e2e8f0;
+  background: linear-gradient(145deg, #f8faf9, #f0f5f2);
+  border: 1px solid #e0e9e3;
   border-radius: 18px;
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.02);
 }
 
 .km-map-fallback-icon {
   font-size: 38px;
-  color: #64748b;
+  color: #64776a;
   margin-bottom: 12px;
 }
 
@@ -331,13 +331,13 @@
   margin: 0 0 8px 0;
   font-size: 1.12rem;
   font-weight: 700;
-  color: #1e293b;
+  color: #1e2b23;
 }
 
 .km-map-fallback-address {
   margin: 0 0 20px 0;
   font-size: 0.95rem;
-  color: #475569;
+  color: #47584d;
   max-width: 460px;
   line-height: 1.5;
 }
@@ -357,8 +357,8 @@
   font-size: 0.88rem;
   font-weight: 600;
   background: #ffffff;
-  color: #1e293b;
-  border: 1px solid #cbd5e1;
+  color: #1e2b23;
+  border: 1px solid #cad7ce;
   border-radius: 10px;
   text-decoration: none;
   transition: all 0.15s ease;
@@ -366,8 +366,8 @@
 }
 
 .km-map-btn:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
+  background: #f8faf9;
+  border-color: #91a798;
 }
 
 /* ─── 7. Save Status Indicator Bar ─── */
@@ -389,9 +389,9 @@
 }
 
 .km-save-status-bar--saved {
-  color: #15803d;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  color: #136f38;
+  background: #f3f9f2;
+  border: 1px solid #cde7c5;
 }
 
 .km-save-status-bar--failed {
@@ -404,7 +404,7 @@
 .km-concurrency-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(31, 41, 51, 0.65);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -433,13 +433,13 @@
   margin: 0 0 10px 0;
   font-size: 1.35rem;
   font-weight: 700;
-  color: #1e293b;
+  color: #1e2b23;
 }
 
 .km-concurrency-desc {
   margin: 0 0 24px 0;
   font-size: 0.95rem;
-  color: #475569;
+  color: #47584d;
   line-height: 1.6;
 }
 

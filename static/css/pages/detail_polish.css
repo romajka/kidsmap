@@ -229,7 +229,7 @@
   justify-content: center !important;
   text-align: center !important;
   gap: 10px !important;
-  background: var(--brand-turf, #15803D) !important;
+  background: var(--brand-turf, #136F38) !important;
   color: #FFFFFF !important;
   border-color: transparent !important;
   box-shadow: 0 12px 26px -16px rgba(19, 111, 56, .9) !important;
@@ -266,7 +266,7 @@
   min-height: 46px !important;
   padding: 8px 14px !important;
   border-radius: 12px !important;
-  border: 1px solid #E2E8F0 !important;
+  border: 1px solid #E0E9E3 !important;
   background: #FFFFFF !important;
   color: #1F2937 !important;
   font-family: inherit;
@@ -355,18 +355,18 @@
 
 /* 1. Website button */
 .detail-page .detail-cta--website .detail-cta__icon {
-  background: #F0FDF4;
+  background: #F3F9F2;
   color: #166534;
   border: 1px solid rgba(187, 247, 208, 0.8);
 }
 .detail-page .detail-cta--website:hover {
   border-color: #86EFAC !important;
-  background: #F0FDF4 !important;
+  background: #F3F9F2 !important;
   color: #14532D !important;
   box-shadow: 0 6px 16px -2px rgba(22, 101, 52, 0.14), 0 2px 4px rgba(0, 0, 0, 0.03) !important;
 }
 .detail-page .detail-cta--website:hover .detail-cta__icon {
-  background: #DCFCE7;
+  background: #E8F3E5;
   transform: scale(1.12);
 }
 
@@ -440,37 +440,37 @@
 
 /* 6. Generic public links */
 .detail-page .detail-cta--link .detail-cta__icon {
-  background: #F8FAFC;
-  color: #475569;
+  background: #F8FAF9;
+  color: #47584d;
   border: 1px solid rgba(203, 213, 225, 0.8);
 }
 .detail-page .detail-cta--link:hover {
-  border-color: #94A3B8 !important;
-  background: #F8FAFC !important;
-  color: #1E293B !important;
-  box-shadow: 0 6px 16px -2px rgba(71, 85, 105, 0.14), 0 2px 4px rgba(0, 0, 0, 0.03) !important;
+  border-color: #91A798 !important;
+  background: #F8FAF9 !important;
+  color: #1E2B23 !important;
+  box-shadow: 0 6px 16px -2px rgba(71, 88, 77, 0.14), 0 2px 4px rgba(0, 0, 0, 0.03) !important;
 }
 .detail-page .detail-cta--link:hover .detail-cta__icon {
-  background: #F1F5F9;
+  background: #F0F5F2;
   transform: scale(1.12);
 }
 
 /* 7. WhatsApp button */
 .detail-page .detail-decision__cta-row .detail-cta--whatsapp,
 .detail-page .detail-decision__cta-row .detail-cta--soft {
-  background: #F0FDF4 !important;
+  background: #F3F9F2 !important;
   border-color: #86EFAC !important;
-  color: #15803D !important;
+  color: #136F38 !important;
 }
 .detail-page .detail-decision__cta-row .detail-cta--whatsapp .km-phone-icon,
 .detail-page .detail-decision__cta-row .detail-cta--soft .km-phone-icon {
-  background: #DCFCE7 !important;
-  color: #15803D !important;
+  background: #E8F3E5 !important;
+  color: #136F38 !important;
   border: 1px solid rgba(134, 239, 172, 0.8);
 }
 .detail-page .detail-decision__cta-row .detail-cta--whatsapp:hover,
 .detail-page .detail-decision__cta-row .detail-cta--soft:hover {
-  background: #DCFCE7 !important;
+  background: #E8F3E5 !important;
   border-color: #4ADE80 !important;
   color: #14532D !important;
   box-shadow: 0 6px 16px -2px rgba(21, 128, 61, 0.2), 0 2px 4px rgba(0, 0, 0, 0.03) !important;
@@ -511,8 +511,8 @@
    ------------------------------------------------------------ */
 
 .detail-schedule-247 {
-  background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%);
-  border: 1px solid #BBF7D0;
+  background: linear-gradient(135deg, #F3F9F2 0%, #FFFFFF 100%);
+  border: 1px solid #CDE7C5;
   border-radius: 18px;
   padding: 18px 22px;
   display: flex;
@@ -532,12 +532,12 @@
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: #DCFCE7;
+  background: #E8F3E5;
   border: 1px solid #86EFAC;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #15803D;
+  color: #136F38;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgba(22, 101, 52, 0.08);
 }
@@ -575,12 +575,12 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 8px;
   padding-top: 14px;
-  border-top: 1px dashed #BBF7D0;
+  border-top: 1px dashed #CDE7C5;
 }
 
 .detail-schedule-247__day {
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #E0E9E3;
   border-radius: 10px;
   padding: 8px 4px;
   text-align: center;
@@ -594,14 +594,14 @@
 .detail-schedule-247__day-name {
   font-size: 12.5px;
   font-weight: 700;
-  color: #475569;
+  color: #47584d;
 }
 
 .detail-schedule-247__day-time {
   font-size: 11.5px;
   font-weight: 800;
   color: #166534;
-  background: #DCFCE7;
+  background: #E8F3E5;
   border-radius: 5px;
   padding: 2px 6px;
   display: inline-block;
@@ -609,14 +609,14 @@
 }
 
 .detail-schedule-247__day--today {
-  background: #F0FDF4;
-  border-color: #22C55E;
-  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.18);
+  background: #F3F9F2;
+  border-color: #4CAF50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.18);
   position: relative;
 }
 
 .detail-schedule-247__day--today .detail-schedule-247__day-name {
-  color: #15803D;
+  color: #136F38;
   font-weight: 800;
 }
 
@@ -628,13 +628,13 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #16A34A;
+  background: #1F8A4C;
 }
 
 /* Special schedule banner (by appointment, variable, etc.) */
 .detail-schedule-special {
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background: #F8FAF9;
+  border: 1px solid #E0E9E3;
   border-radius: 16px;
   padding: 18px 20px;
   display: flex;
@@ -647,12 +647,12 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: #F1F5F9;
-  border: 1px solid #CBD5E1;
+  background: #F0F5F2;
+  border: 1px solid #CAD7CE;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #475569;
+  color: #47584d;
   flex-shrink: 0;
 }
 
@@ -671,13 +671,13 @@
 .detail-schedule-special__title {
   font-size: 16px;
   font-weight: 800;
-  color: #1E293B;
+  color: #1E2B23;
 }
 
 .detail-schedule-special__desc {
   margin: 0;
   font-size: 13.5px;
-  color: #475569;
+  color: #47584d;
   line-height: 1.4;
 }
 
@@ -709,10 +709,10 @@ a.public-parent-link.km-typed-review-link {
   align-items: center;
   gap: 6px;
   padding: 5px 13px !important;
-  background: #F0FDF4;
-  border: 1px solid #BBF7D0;
+  background: #F3F9F2;
+  border: 1px solid #CDE7C5;
   border-radius: 9999px;
-  color: #15803D !important;
+  color: #136F38 !important;
   font-size: 13px;
   font-weight: 600;
   line-height: 1.3;
@@ -724,7 +724,7 @@ a.public-parent-link.km-typed-review-link {
 
 .km-typed-review-link:hover,
 a.public-parent-link.km-typed-review-link:hover {
-  background: #DCFCE7;
+  background: #E8F3E5;
   border-color: #86EFAC;
   color: #14532D !important;
   transform: translateY(-1px);
@@ -739,12 +739,12 @@ a.public-parent-link.km-typed-review-link:active {
 
 .km-typed-review-link__icon {
   flex-shrink: 0;
-  color: #16A34A;
+  color: #1F8A4C;
 }
 
 .km-typed-review-link__arrow {
   font-size: 13px;
-  color: #16A34A;
+  color: #1F8A4C;
   transition: transform 0.2s ease;
 }
 

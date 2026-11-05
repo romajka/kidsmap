@@ -22,7 +22,7 @@ PUBLIC_QUERY_PARAMS = {
         "view", "month", "date", "date_from", "date_to", "format",
     },
     "specialist_list": {
-        "q", "specialization", "format", "region", "district", "metro", "age",
+        "q", "specialization", "subject", "format", "region", "district", "metro", "age", "age_from", "age_to",
         "price_from", "price_to", "sort", "language", "min_rating", "page",
     },
     "site_reviews": {"sort", "page"},

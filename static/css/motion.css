@@ -66,8 +66,8 @@
 /* 3. CONTRAST ──────────────────────────────────────────────────────────────
    Ratios below were measured against the actual rendered background. */
 
-/* Primary catalog CTA: #fff on #08a769 = 3.11:1 at 13px. Fails AA, and this
-   button repeats 12 times per page. #0d8a52 is already in the brand palette
+/* Primary catalog CTA: #fff on #1f8a4c = 3.11:1 at 13px. Fails AA, and this
+   button repeats 12 times per page. #136f38 is already in the brand palette
    and lands at 4.62:1. */
 .card.place-card .card-go-btn,
 .card .card-go-btn {
@@ -99,7 +99,7 @@
   background-image: linear-gradient(#0c8250, #0a5c34) !important;
 }
 
-/* Secondary "register" link: #0d8a52 on a near-white tint = 4.35:1. */
+/* Secondary "register" link: #136f38 on a near-white tint = 4.35:1. */
 #reviews .km-review-auth-actions a {
   color: #0b7345 !important;
 }
@@ -275,6 +275,34 @@
     opacity: 0;
     transform: scale(1.9);
   }
+}
+
+/* 5d+. Sparks when a place is added to favourites (span added by motion.js). */
+.km-like-sparks {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow:
+    0 -20px 0 #ff5a5f,
+    18px -10px 0 #ffb020,
+    18px 10px 0 var(--brand-jungle, #4caf50),
+    0 20px 0 #5b7cfa,
+    -18px 10px 0 #ff8a3d,
+    -18px -10px 0 #b56cff;
+  animation: kmLikeSparks 680ms var(--ease-out-quint) both;
+}
+
+@keyframes kmLikeSparks {
+  0% { opacity: 0; transform: scale(.4) rotate(0deg); }
+  20% { opacity: 1; transform: scale(.9) rotate(6deg); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.55) rotate(20deg); }
 }
 
 /* 5e. Contact panel on detail page. */

@@ -190,4 +190,9 @@ class ApprovedGroupRemovalTests(TestCase):
             patch={'nested_pricing': serialize_nested_pricing(self.place)},
             schema_version=publication.SCHEMA_VERSION, expected_version=self.place.content_version,
             revision_version=revision.version, submit=False)
-        self.assertEqual(updated.status, 'draft')
+        # Re-saving the approved content with the current versions is accepted and
+        # keeps the actual decision instead of reopening moderation.
+        self.assertEqual(updated.pk, revision.pk)
+        self.assertEqual(updated.status, 'approved')
+        self.assertEqual(updated.version, revision.version)
+        self.assertEqual(self.state(), before)

@@ -10,7 +10,7 @@
   --km-place-text: #193126;
   --km-place-muted: #678070;
   --km-place-muted-strong: #4e6758;
-  --km-place-accent: #0d8a52;
+  --km-place-accent: #136f38;
   --km-place-accent-soft: #e9f6ef;
   --km-place-accent-deep: #0b6d41;
 
@@ -90,19 +90,19 @@
 
 .km-taxonomy-card:hover,
 .km-taxonomy-card:focus-visible {
-  border-color: color-mix(in srgb, var(--km-taxonomy-accent, #0d8a52) 54%, #c7ddcf);
+  border-color: color-mix(in srgb, var(--km-taxonomy-accent, #136f38) 54%, #c7ddcf);
   background: #ffffff;
   box-shadow: 0 14px 24px rgba(13, 138, 82, 0.1);
   transform: translateY(-1px);
 }
 
 .km-taxonomy-card.is-active {
-  border-color: var(--km-taxonomy-accent, #0d8a52);
+  border-color: var(--km-taxonomy-accent, #136f38);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 252, 249, 0.98));
   box-shadow:
     0 14px 28px rgba(13, 138, 82, 0.12),
-    inset 0 0 0 1px color-mix(in srgb, var(--km-taxonomy-accent, #0d8a52) 26%, transparent);
+    inset 0 0 0 1px color-mix(in srgb, var(--km-taxonomy-accent, #136f38) 26%, transparent);
 }
 
 .km-taxonomy-card__icon {
@@ -476,12 +476,12 @@
 }
 
 .owner-price-free-label:hover .owner-price-free-checkbox-custom {
-  border-color: #0d8a52;
+  border-color: #136f38;
 }
 
 .owner-price-free-checkbox:checked ~ .owner-price-free-checkbox-custom {
-  background-color: #0d8a52;
-  border-color: #0d8a52;
+  background-color: #136f38;
+  border-color: #136f38;
   box-shadow: 0 2px 6px rgba(13, 138, 82, 0.18);
 }
 
@@ -556,7 +556,7 @@
 .owner-wizard-page .field:focus,
 .owner-wizard-page .filter-select:focus,
 .owner-wizard-page textarea.field:focus {
-  border-color: #0d8a52 !important;
+  border-color: #136f38 !important;
   box-shadow: 0 0 0 3px rgba(13, 138, 82, 0.15) !important;
 }
 
@@ -604,8 +604,8 @@
 }
 
 .owner-language-tab.is-active {
-  background: #0d8a52 !important;
-  border-color: #0d8a52 !important;
+  background: #136f38 !important;
+  border-color: #136f38 !important;
   color: #ffffff !important;
   box-shadow: 0 4px 10px rgba(13, 138, 82, 0.2) !important;
 }
@@ -630,7 +630,7 @@
 }
 
 .km-taxonomy-chip.is-active {
-  border-color: #0d8a52 !important;
+  border-color: #136f38 !important;
   background: #eef9f3 !important;
   color: #0b6d41 !important;
 }
@@ -746,14 +746,14 @@
 }
 
 .owner-audience-choice__input:checked + .owner-audience-choice__surface {
-  border-color: #0d8a52;
+  border-color: #136f38;
   background: #eef9f3;
   box-shadow: 0 0 0 3px rgba(13, 138, 82, .1);
 }
 
 .owner-audience-choice__input:checked + .owner-audience-choice__surface .owner-audience-choice__check {
-  border-color: #0d8a52;
-  background: #0d8a52;
+  border-color: #136f38;
+  background: #136f38;
 }
 
 .owner-audience-choice__input:focus-visible + .owner-audience-choice__surface {

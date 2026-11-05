@@ -73,8 +73,19 @@
     const anchor = icon.anchor || {x: width / 2, y: height};
     const visual = document.createElement("span");
     visual.className = "kidsmap-marker-visual";
-    const img = buildMarkerContent(icon, "", options.cursor);
-    visual.append(img);
+    // A DOM visual (KidsMapPins) gets CSS states and motion; the data-URL
+    // icon stays the fallback and keeps the sizes/anchor contract.
+    const domVisual = options.visual instanceof Element ? options.visual : null;
+    if (domVisual) {
+      visual.classList.add("kidsmap-marker-visual--dom");
+      if (options.visualKind === "cluster") visual.classList.add("kidsmap-marker-visual--cluster");
+      visual.append(domVisual);
+    } else {
+      visual.append(buildMarkerContent(icon, "", options.cursor));
+    }
+    options = Object.assign({}, options);
+    delete options.visual;
+    delete options.visualKind;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "kidsmap-marker-button";
@@ -111,12 +122,15 @@
         overlay.getPanes().overlayMouseTarget.append(button);
       };
       overlay.draw = function () {
-        const point = overlay.getProjection().fromLatLngToDivPixel(marker.getPosition());
+        // zindex_changed can fire before the overlay is added (no projection yet).
+        const projection = overlay.getProjection();
+        if (!projection || !marker.getMap()) return;
+        const point = projection.fromLatLngToDivPixel(marker.getPosition());
         if (!point) return;
         button.style.left = (point.x - anchor.x - Math.max(0, 44 - width) / 2) + "px";
         button.style.top = (point.y - anchor.y) + "px";
         button.style.zIndex = String((marker.getZIndex() || Math.round(point.y)) + 1);
-        const screen = overlay.getProjection().fromLatLngToContainerPixel(marker.getPosition());
+        const screen = projection.fromLatLngToContainerPixel(marker.getPosition());
         const mapEl = marker.getMap().getDiv();
         const inView = screen && screen.x >= 0 && screen.x <= mapEl.clientWidth && screen.y >= 0 && screen.y <= mapEl.clientHeight;
         button.tabIndex = inView ? 0 : -1;

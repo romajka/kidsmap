@@ -82,8 +82,10 @@
       const dx = (ne.x - sw.x + 256) % 256, dy = Math.abs(sw.y - ne.y);
       const width = Math.max(1, mapEl.clientWidth - 112), height = Math.max(1, mapEl.clientHeight - 112);
       const fittingZoom = Math.floor(Math.min(Math.log2(width / Math.max(dx, 1e-9)), Math.log2(height / Math.max(dy, 1e-9))));
-      const vector = map.getRenderingType && map.getRenderingType() === 'VECTOR' && map.get('isFractionalZoomEnabled');
-      const maxStepZoom = vector ? 18 : Math.min(18, Math.floor(map.getZoom()) + 2);
+      // Open the cluster in one move: zoom straight to the level where its
+      // places fit (capped at 18, where the clusterer stops grouping). The old
+      // +2 cap on raster maps made a 76-place cluster take several clicks.
+      const maxStepZoom = 18;
       const zoom = Math.min(maxStepZoom, fittingZoom);
       // No intermediate zoom-out and no endless zoom at unresolvable density.
       if (zoom <= map.getZoom()) { choose(markers); return; }
@@ -173,7 +175,10 @@
         const list = (Array.isArray(rootPlace.members) && rootPlace.members.length > 0)
           ? rootPlace.members
           : [rootPlace];
-        list.forEach(place => {
+        list.forEach(member => {
+          // Members inherit the point's category icon (sent once per point).
+          const place = (!member.category_icon_svg && rootPlace.category_icon_svg && member.category_code === rootPlace.category_code)
+            ? Object.assign({}, member, {category_icon_svg: rootPlace.category_icon_svg}) : member;
           const key = place.id || place.url || place.name;
           if (key && !seen.has(key)) {
             seen.add(key);

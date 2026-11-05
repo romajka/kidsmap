@@ -242,6 +242,9 @@ class TestOwnerSpecialistManagement(TestCase):
                 "name_en": "Tutor",
             },
         )
+        self.subject, _ = SpecialistSpecialization.objects.get_or_create(
+            code="math_tutor", defaults={"name": "Math tutor", "name_ru": "Математика"},
+        )
         self.owner = User.objects.create_user(username="spec_owner", email="spec-owner@example.com", password="password")
         self.other = User.objects.create_user(username="spec_other", email="spec-other@example.com", password="password")
 
@@ -249,7 +252,7 @@ class TestOwnerSpecialistManagement(TestCase):
         payload = {
             "name": "Анна Петрова",
             "bio_ru": "Помогаю детям с математикой и подготовкой к школе.",
-            "specializations": [str(self.spec.pk)],
+            "specializations": [str(self.spec.pk), str(self.subject.pk)],
             "consultation_format": Specialist.FORMAT_ONLINE,
             "language_ru": "on",
             "phone": "+994 50 123 45 67",

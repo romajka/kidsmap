@@ -86,7 +86,7 @@
         <div class="account-card-box__head">
           <div class="account-card-box__head-wrap">
             <h2 id="organization-links-title">
-              <span class="material-symbols-rounded" style="color: #0D8A52; font-size: 22px;">hub</span>
+              <span class="material-symbols-rounded" style="color: #136F38; font-size: 22px;">hub</span>
               <span>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat əlaqələri{% elif CURRENT_LANGUAGE == 'en' %}Organization links{% else %}Связи с организациями{% endif %}</span>
               {% if affiliated_places or place_affiliation_requests %}
                 <span class="account-badge-counter">{{ affiliated_places|length|add:place_affiliation_requests|length }}</span>
@@ -318,7 +318,7 @@
       <div class="account-card-box" id="owner-places-list">
         <div class="account-card-box__head">
           <h2>
-            <span class="material-symbols-rounded" style="color: #0D8A52; font-size: 20px;">check_circle</span>
+            <span class="material-symbols-rounded" style="color: #136F38; font-size: 20px;">check_circle</span>
             <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmuş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Published places{% else %}Опубликованные места{% endif %}</span>
             <span class="account-badge-counter">{{ published_places|length }}</span>
           </h2>

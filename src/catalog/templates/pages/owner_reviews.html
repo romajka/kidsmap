@@ -112,7 +112,7 @@
         <div class="account-card-box">
           <div class="account-card-box__head">
             <h2>
-              <span class="material-symbols-rounded" style="color: #0D8A52; font-size: 20px;">rate_review</span>
+              <span class="material-symbols-rounded" style="color: #136F38; font-size: 20px;">rate_review</span>
               <span>{% if CURRENT_LANGUAGE == "az" %}Məkanlarınıza yazılan rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews for your places{% else %}Отзывы к вашим местам{% endif %}</span>
               <span class="account-badge-counter">{{ owner_reviews|length }}</span>
             </h2>
@@ -227,7 +227,7 @@
             </div>
           {% else %}
             <div class="account-empty-first-card">
-              <div class="empty-card-icon" style="background: #E9F7EF; color: #0D8A52;">
+              <div class="empty-card-icon" style="background: #E9F7EF; color: #136F38;">
                 <span class="material-symbols-rounded">reviews</span>
               </div>
               <h3>{% if CURRENT_LANGUAGE == "az" %}Hələ rəy yoxdur{% elif CURRENT_LANGUAGE == "en" %}No reviews yet{% else %}Отзывов к вашим местам пока нет{% endif %}</h3>

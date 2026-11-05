@@ -3,14 +3,14 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=20261104_specialist_a11y_r3">
+<link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=20261105_subjects_r2">
 {% endblock %}
 
 {% block extrahead %}
 {{ block.super }}
 <script src="{% url 'admin:jsi18n' %}"></script>
 {{ media }}
-<script src="{% static 'admin/js/specialist_admin.js' %}?v=20261104_specialist_a11y_r3" defer></script>
+<script src="{% static 'admin/js/specialist_admin.js' %}?v=20261105_all_r1" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -46,11 +46,11 @@
 
           {% if not add and original %}
             <div class="km-specialist-hero__badges">
-              {% if original.status == 'published' %}
+              {% if specialist_saved_status == 'published' %}
                 <span class="km-status-pill km-status-pill--published"><i class="fas fa-check-circle" aria-hidden="true"></i> {% translate 'Опубликован' %}</span>
-              {% elif original.status == 'pending' %}
+              {% elif specialist_saved_status == 'pending' %}
                 <span class="km-status-pill km-status-pill--pending"><i class="fas fa-clock" aria-hidden="true"></i> {% translate 'На модерации' %}</span>
-              {% elif original.status == 'rejected' %}
+              {% elif specialist_saved_status == 'rejected' %}
                 <span class="km-status-pill km-status-pill--rejected"><i class="fas fa-times-circle" aria-hidden="true"></i> {% translate 'Отклонён' %}</span>
               {% else %}
                 <span class="km-status-pill km-status-pill--draft"><i class="fas fa-pencil-alt" aria-hidden="true"></i> {% translate 'Черновик' %}</span>
@@ -62,11 +62,11 @@
                 <span class="km-status-pill km-status-pill--inactive"><i class="fas fa-eye-slash" aria-hidden="true"></i> {% translate 'Скрыт' %}</span>
               {% endif %}
 
-              {% if original.consultation_format == 'online' %}
+              {% if specialist_saved_format == 'online' %}
                 <span class="km-status-pill km-status-pill--format"><i class="fas fa-laptop" aria-hidden="true"></i> {% translate 'Онлайн' %}</span>
-              {% elif original.consultation_format == 'offline' %}
+              {% elif specialist_saved_format == 'offline' %}
                 <span class="km-status-pill km-status-pill--format"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> {% translate 'Очно' %}</span>
-              {% elif original.consultation_format == 'both' %}
+              {% elif specialist_saved_format == 'both' %}
                 <span class="km-status-pill km-status-pill--format"><i class="fas fa-globe" aria-hidden="true"></i> {% translate 'Онлайн и очно' %}</span>
               {% endif %}
 
@@ -97,6 +97,7 @@
             </div>
           {% endif %}
 
+          {{ adminform.form.subject_rules|json_script:"specialist-subject-rules" }}
           {# Interactive Readiness Progress Meter #}
           <div class="km-spec-readiness" data-spec-readiness
                data-summary="{% translate 'Заполнено {completed} из {total} пунктов' %}"
@@ -104,6 +105,7 @@
                data-missing="{% translate 'Не заполнено:' %}"
                data-name="{% translate 'Имя и фамилия' %}"
                data-specializations="{% translate 'Специализация' %}"
+               data-subject="{% if LANGUAGE_CODE == 'az' %}Fənn{% elif LANGUAGE_CODE == 'en' %}Subject{% else %}Предмет{% endif %}"
                data-format="{% translate 'Формат приёма' %}"
                data-languages="{% translate 'Язык консультации' %}"
                data-contacts="{% translate 'Телефон или WhatsApp' %}"
@@ -370,7 +372,7 @@
                     <div class="km-spec-dropdown-panel" data-dropdown-panel hidden>
                       <div class="km-spec-dropdown-search-row">
                         <i class="fas fa-search km-search-icon" aria-hidden="true"></i>
-                        <input type="search" class="km-spec-dropdown-search" data-dropdown-search placeholder="{% translate 'Поиск среди 29 направлений…' %}" aria-label="{% translate 'Поиск' %}">
+                        <input type="search" class="km-spec-dropdown-search" data-dropdown-search placeholder="{% translate 'Поиск направлений и предметов' %}" aria-label="{% translate 'Поиск' %}">
                         <span class="km-spec-dropdown-found-pill" data-dropdown-found-pill></span>
                       </div>
 
@@ -390,6 +392,7 @@
                   {# Selected Tag Chips Bar #}
                   <div class="km-spec-selected-tags" data-spec-selected-tags></div>
                   {{ adminform.form.specializations.errors }}
+                  <p class="help">{% if LANGUAGE_CODE == 'az' %}Repetitor üçün konkret fənn seçin: məsələn, riyaziyyat və ya ingilis dili. Bir neçə fənn seçmək olar. İş dili ayrıca göstərilir.{% elif LANGUAGE_CODE == 'en' %}For a tutor, select specific subjects such as mathematics or English. Multiple subjects are allowed. Working language is a separate field.{% else %}Для репетитора выберите конкретные предметы: например, математику или английский. Можно несколько. Язык работы указывается отдельно.{% endif %}</p>
                 </div>
 
               {# SECTION 4: ВОЗРАСТ ДЕТЕЙ (С ОПЦИЕЙ "ОТ X ЛЕТ") #}

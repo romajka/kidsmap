@@ -12,7 +12,7 @@
 {% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=20261103_coords_contrast" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=20261105_nearby_r3" />
   <link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=3" />
   <link rel="stylesheet" href="{% static 'css/pages/detail_polish.css' %}?v=20261028_sticky_header_offset_r1" />
 {% endblock %}
@@ -393,7 +393,7 @@
                   <strong class="detail-facts__value">{{ place.get_category_display }}</strong>
                 </div>
               {% endif %}
-              {% if place.subcategory %}
+              {% if place.subcategory and place.subcategory.name_i18n != place.get_category_display %}
                 <div class="detail-facts__item">
                   <span class="detail-label detail-facts__label">
                     <span class="material-symbols-rounded" aria-hidden="true">label</span>
@@ -802,6 +802,39 @@
               </div>
             </section>
           {% endif %}
+
+          {% if nearby_places %}
+            <section id="nearby" class="detail-card detail-nearby" aria-labelledby="detail-nearby-title">
+              <div class="detail-card__head">
+                <h2 class="detail-card__title" id="detail-nearby-title">
+                  <span class="material-symbols-rounded" aria-hidden="true">near_me</span>
+                  <span>{% if language == 'az' %}Yaxınlıqda daha nə var{% elif language == 'en' %}More places nearby{% else %}Что ещё рядом{% endif %}</span>
+                </h2>
+                {% if place.category_code %}
+                  <a class="detail-nearby__all" href="{% url 'place_list' %}?category={{ place.category_code|urlencode }}">
+                    {% if language == 'az' %}Hamısı{% elif language == 'en' %}See all{% else %}Все{% endif %}
+                    <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+                  </a>
+                {% endif %}
+              </div>
+              <p class="detail-section-subtitle">
+                {% if language == 'az' %}Bu məkana yaxın və oxşar yerlər — bir gündə bir neçəsini birləşdirmək olar{% elif language == 'en' %}Similar places close to this one — easy to combine in one outing{% else %}Похожие места неподалёку — легко совместить в одной прогулке{% endif %}
+              </p>
+              <div class="detail-nearby__rail" role="list">
+                {% for place in nearby_places %}
+                  <div class="detail-nearby__item" role="listitem">
+                    {% if place.nearby_km is not None %}
+                      <span class="detail-nearby__distance">
+                        <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+                        {% if place.nearby_km < 1 %}{% if language == 'az' %}1 km-dən az{% elif language == 'en' %}under 1 km{% else %}меньше 1 км{% endif %}{% else %}{{ place.nearby_km|floatformat:"-1" }} {% if language == 'en' %}km{% elif language == 'az' %}km{% else %}км{% endif %}{% endif %}
+                      </span>
+                    {% endif %}
+                    {% include "catalog/includes/place_card.html" with place=place %}
+                  </div>
+                {% endfor %}
+              </div>
+            </section>
+          {% endif %}
         </div>
 
         <aside class="detail-side">
@@ -812,7 +845,7 @@
             <div class="detail-decision__idents">
               {% if place.category %}
                 <span class="detail-chip">
-                  {{ place.get_category_display }}{% if place.subcategory %} · {{ place.subcategory.name_i18n }}{% endif %}
+                  {% with sub_label=place.subcategory.name_i18n %}{{ place.get_category_display }}{% if place.subcategory and sub_label != place.get_category_display %} · {{ sub_label }}{% endif %}{% endwith %}
                 </span>
               {% endif %}
 
@@ -1358,7 +1391,9 @@
   <script src="{% static 'js/place_gallery.js' %}?v=20261020_release_r1"></script>
   <script src="{% static 'js/temporary_event_timer.js' %}"></script>
   {% if google_maps_api_key %}
-    <script src="{% static 'js/google_maps_markers.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20261105_all_r1" />
+    <script src="{% static 'js/kidsmap_map_pins.js' %}?v=20261105_pins_r2"></script>
+    <script src="{% static 'js/google_maps_markers.js' %}?v=20261105_pins_r2"></script>
     <script>
       function kidsMapInitDetailMap() {
         const mapEl = document.getElementById('detail-map');
@@ -1385,6 +1420,7 @@
           clickableIcons: false,
         };
         if (mapId) mapOptions.mapId = mapId;
+        if (window.KidsMapPins) window.KidsMapPins.applyMapDefaults(mapOptions, mapId);
         const map = new google.maps.Map(mapEl, mapOptions);
 
         const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="38" height="48" viewBox="0 0 38 48" fill="none">' +
@@ -1393,18 +1429,32 @@
           '<circle cx="19" cy="18" r="5" fill="' + colorText + '" />' +
           '</svg>';
 
+        const iconSource = document.getElementById('detail-map-icon-svg');
+        const pins = window.KidsMapPins;
+        const visual = pins ? pins.placePin({
+          name: placeName,
+          category_color_text: colorText,
+          category_color_bg: mapEl.getAttribute('data-category-color-bg') || '',
+          category_icon_svg: iconSource ? iconSource.innerHTML.trim() : '',
+        }) : null;
+        const size = pins ? pins.PIN : {width: 38, height: 48, anchorX: 19, anchorY: 48};
         const marker = window.kidsMapCreateGoogleMarker({
           position: position,
           map: map,
           title: placeName,
           cursor: mapOpenUrl ? 'pointer' : 'default',
           mapId: mapId,
+          visual: visual,
+          publicVisual: Boolean(visual),
+          ownerMap: map,
           icon: {
             url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-            scaledSize: new google.maps.Size(38, 48),
-            anchor: new google.maps.Point(19, 48),
+            scaledSize: new google.maps.Size(size.width, size.height),
+            anchor: new google.maps.Point(size.anchorX, size.anchorY),
           }
         });
+        // The only pin on this map: show it selected, with its name.
+        if (visual && marker.setSelected) marker.setSelected(true);
 
         if (mapOpenUrl) {
           marker.addListener('click', function() {
@@ -1413,7 +1463,7 @@
         }
       }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&callback=kidsMapInitDetailMap" async></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&language={{ request.LANGUAGE_CODE|urlencode }}&region=AZ&callback=kidsMapInitDetailMap" async></script>
   {% else %}
     <script>
       (function() {

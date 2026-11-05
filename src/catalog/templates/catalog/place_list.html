@@ -12,7 +12,7 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261022_release_all_r1" />
-  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261104_public_mobile_r3" />
+  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261105_all_r1" />
   {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=20261104_public_mobile_r3" />{% endif %}
 {% endblock %}
 
@@ -174,7 +174,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
           </div>
           <div>
-            <div class="faq-hero-stat-val">65+ {% if language == "az" %}məkan{% elif language == "en" %}places{% else %}мест{% endif %}</div>
+            <div class="faq-hero-stat-val">{{ catalog_places_total }} {% if language == "az" %}məkan{% elif language == "en" %}places{% else %}{{ catalog_places_total|ru_plural:"место,места,мест" }}{% endif %}</div>
             <div class="faq-hero-stat-label">{% if language == "az" %}xəritədə və kataloqda{% elif language == "en" %}on map & catalog{% else %}на карте и в каталоге{% endif %}</div>
           </div>
         </div>
@@ -183,7 +183,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
           </div>
           <div>
-            <div class="faq-hero-stat-val">17 {% if language == "az" %}kateqoriya{% elif language == "en" %}categories{% else %}категорий{% endif %}</div>
+            <div class="faq-hero-stat-val">{{ catalog_categories_total }} {% if language == "az" %}kateqoriya{% elif language == "en" %}categories{% else %}{{ catalog_categories_total|ru_plural:"категория,категории,категорий" }}{% endif %}</div>
             <div class="faq-hero-stat-label">{% if language == "az" %}idmandan elmə qədər{% elif language == "en" %}sports to robotics{% else %}от спорта до науки{% endif %}</div>
           </div>
         </div>
@@ -629,7 +629,7 @@
               data-select-value="{{ category.value }}"
               aria-selected="{% if selected.category == category.value %}true{% else %}false{% endif %}"
             >
-              <span class="catalog-category-chip__icon" style="background-color: {{ category.color_bg|default:'#f1f5f9' }}; color: {{ category.color_text|default:'#475569' }};" aria-hidden="true">
+              <span class="catalog-category-chip__icon" style="background-color: {{ category.color_bg|default:'#f0f5f2' }}; color: {{ category.color_text|default:'#47584d' }};" aria-hidden="true">
                 {% include "catalog/includes/category_visual_icon.html" with code=category.value icon_file_url=category.icon_file_url icon_is_svg=category.icon_is_svg icon_is_font=category.icon_is_font icon_name=category.icon_name %}
               </span>
               <span class="catalog-category-chip__label">{{ category.label }}</span>
@@ -1301,16 +1301,17 @@
   </section>
 
   {% if not is_new_page %}
-    <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20260910" />
-    <script src="{% static 'js/google_maps_motion.js' %}?v=20260910"></script>
-    <script src="{% static 'js/google_maps_markers.js' %}?v=20260910"></script>
+    <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20261105_all_r1" />
+    <script src="{% static 'js/kidsmap_map_pins.js' %}?v=20261105_pins_r2"></script>
+    <script src="{% static 'js/google_maps_motion.js' %}?v=20261105_pins_r2"></script>
+    <script src="{% static 'js/google_maps_markers.js' %}?v=20261105_pins_r2"></script>
     <script src="{% static 'js/map_paging.js' %}?v=20261019_r15"></script>
-    <script src="{% static 'js/catalog_map.js' %}?v=20261027_segmented_toggle_r2"></script>
+    <script src="{% static 'js/catalog_map.js' %}?v=20261105_pins_r2"></script>
     {% if google_maps_api_key %}
       <script
         data-catalog-google-sdk
         onerror="window.kidsMapCatalogSdkError(this)"
-        src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&callback=kidsMapInitCatalogResultsMap"
+        src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&language={{ request.LANGUAGE_CODE|urlencode }}&region=AZ&callback=kidsMapInitCatalogResultsMap"
         async
       ></script>
     {% endif %}
