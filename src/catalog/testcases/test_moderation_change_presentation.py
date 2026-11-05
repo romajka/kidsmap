@@ -98,3 +98,14 @@ class ModerationChangePresentationTests(TestCase):
             with override(lang):
                 row = moderation_hub.detail(self.staff, 'content', self.revision.pk)
             self.assertEqual(row['review_copy']['title'], title)
+
+    def test_draft_is_not_described_as_a_completed_decision(self):
+        VolunteerPlaceRevision.objects.filter(pk=self.revision.pk).update(status='draft')
+        response = self.client.get('/ru' + self.url)
+        self.assertNotContains(response, 'Решение по этой заявке уже принято.')
+
+    def test_completed_conflict_does_not_ask_to_return_an_archived_proposal(self):
+        VolunteerPlaceRevision.objects.filter(pk=self.revision.pk).update(status='approved')
+        type(self.place).objects.filter(pk=self.place.pk).update(description_ru='New current text')
+        response = self.client.get('/ru' + self.url)
+        self.assertNotContains(response, 'Сначала верните предложение на доработку.')

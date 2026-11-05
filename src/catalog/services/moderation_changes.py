@@ -14,6 +14,7 @@ def review_copy():
         'help': t('Сравните выделенные фрагменты. На сайте изменения появятся только после одобрения.',
                   'Vurğulanmış hissələri müqayisə edin. Dəyişikliklər yalnız təsdiqdən sonra saytda görünəcək.',
                   'Compare the highlighted parts. Changes appear on the site only after approval.'),
+        'draft': t('Это сохранённый черновик. Он ещё не отправлен на проверку.', 'Bu saxlanılmış qaralamadır. Hələ yoxlamaya göndərilməyib.', 'This is a saved draft. It has not been submitted for review yet.'),
         'history': t('Сравнение с текущими данными. Решение по этой заявке уже принято.',
                      'Cari məlumatlarla müqayisə. Bu təklif üzrə qərar artıq verilib.',
                      'Comparison with current data. This proposal already has a decision.'),
