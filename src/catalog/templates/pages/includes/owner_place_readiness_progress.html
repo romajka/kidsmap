@@ -1,6 +1,7 @@
 {% load i18n %}
 <!-- Completion & Publication Readiness -->
 <div class="account-card-progress account-card-progress--{{ place.completion.tier }}" title="{{ place.completion.percent }}%">
+  {% if place.owner_workflow.saved_candidate %}<p class="account-card-progress__summary-text">{% if CURRENT_LANGUAGE == "az" %}Saxlanmış versiyanın doluluğu{% elif CURRENT_LANGUAGE == "en" %}Saved version completeness{% else %}Заполнение сохранённой версии{% endif %}</p>{% endif %}
   <div class="account-card-progress__header">
     <div class="account-card-progress__title-wrap">
       <span class="account-card-progress__percent">{{ place.completion.percent }}%</span>
@@ -83,7 +84,7 @@
                 </span>
               {% else %}
                 {% if place.owner_can_edit %}
-                  <a href="{% url 'owner_place_edit' place.id %}#step={{ step.number }}" class="account-card-step-item__edit-link" title="{% if CURRENT_LANGUAGE == 'az' %}Addımı doldur{% elif CURRENT_LANGUAGE == 'en' %}Complete step{% else %}Заполнить шаг{% endif %}">
+                  <a href="{% url 'owner_place_edit' place.id %}#{{ step.fragment }}" class="account-card-step-item__edit-link" title="{% if CURRENT_LANGUAGE == 'az' %}Addımı doldur{% elif CURRENT_LANGUAGE == 'en' %}Complete step{% else %}Заполнить шаг{% endif %}">
                     <span>{% if CURRENT_LANGUAGE == "az" %}Doldur{% elif CURRENT_LANGUAGE == "en" %}Fill in{% else %}Заполнить{% endif %}</span>
                     <span class="material-symbols-rounded">arrow_forward</span>
                   </a>

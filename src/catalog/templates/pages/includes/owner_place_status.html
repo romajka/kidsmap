@@ -1,0 +1,4 @@
+<span class="account-status-pill account-status-pill--{{ place.owner_workflow.css }} owner-status-badge-{{ place.owner_workflow.css }}" data-owner-status="{{ place.owner_workflow.status }}">
+  <span class="account-status-pill__dot"></span>
+  {% if changes %}{% if CURRENT_LANGUAGE == 'az' %}Dəyişikliklər:{% elif CURRENT_LANGUAGE == 'en' %}Changes:{% else %}Изменения:{% endif %} {% endif %}{{ place.owner_workflow.label }}
+</span>

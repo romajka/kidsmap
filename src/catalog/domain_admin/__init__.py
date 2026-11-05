@@ -25,6 +25,7 @@ from catalog.services.content_quality import place_quality_check, review_quality
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.features import is_events_section_enabled, is_specialists_section_enabled, is_organizations_section_enabled
 from catalog.services.staff_roles import is_volunteer
+from catalog.services.moderation_queue import actionable_place_filter
 
 # Clarify similar names in admin navigation.
 SiteReview._meta.verbose_name = _("Отзыв о сайте")
@@ -91,11 +92,7 @@ def _get_sidebar_metrics(request) -> dict[str, int]:
         ),
         pending=Count(
             "pk",
-            filter=Q(
-                deleted_at__isnull=True,
-                is_temporary=False,
-                status=Place.STATUS_PENDING,
-            ),
+            filter=actionable_place_filter(),
         ),
         deleted=Count("pk", filter=Q(deleted_at__isnull=False)),
     )

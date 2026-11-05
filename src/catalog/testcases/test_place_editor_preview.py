@@ -124,6 +124,44 @@ class PlaceEditorPreviewTests(CandidateMediaFixture, TestCase):
         self.place.refresh_from_db();self.assertEqual(before,publication.snapshot(self.place,'place'))
         self.assertFalse(VolunteerPlaceRevision.objects.filter(place=self.place).exists())
 
+    def test_automatic_check_validates_main_photo_bytes_without_saving_them(self):
+        from pathlib import Path
+        from django.conf import settings
+
+        before = set(Path(settings.MEDIA_ROOT).rglob('*'))
+        for content, complete in ((self.image(), True), (b'not an image', False)):
+            with self.subTest(valid_image=complete):
+                response = self.client.post(self.url, self.payload(
+                    _km_check_required='1',
+                    photo=SimpleUploadedFile('main.png', content, content_type='image/png'),
+                ))
+                self.assertIn(response.status_code, (200, 422))
+                result = response.json()
+                photo = next(item for item in result['readiness']['items'] if item['code'] == 'photo')
+                self.assertEqual(photo['complete'], complete)
+                if not complete:
+                    self.assertIn('photo', result['errors'])
+        response = self.client.post(self.url, self.payload(_km_check_required='1'))
+        photo = next(item for item in response.json()['readiness']['items'] if item['code'] == 'photo')
+        self.assertFalse(photo['complete'])
+        self.place.refresh_from_db()
+        self.assertFalse(self.place.photo)
+        self.assertFalse(VolunteerPlaceRevision.objects.filter(place=self.place).exists())
+        self.assertEqual(set(Path(settings.MEDIA_ROOT).rglob('*')), before)
+
+    def test_removing_saved_main_photo_reports_incomplete_without_deleting_it(self):
+        self.place.photo = self.stored('readiness-main')
+        self.place.save(update_fields=['photo'])
+        before = self.place.photo.name
+        response = self.client.post(self.url, self.payload(_km_check_required='1', **{'photo-clear': 'on'}))
+        self.assertEqual(response.status_code, 422)
+        result = response.json()
+        photo = next(item for item in result['readiness']['items'] if item['code'] == 'photo')
+        self.assertFalse(photo['complete'])
+        self.assertIn('photo', result['errors'])
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.photo.name, before)
+
     def test_missing_legacy_photo_does_not_crash_preview(self):
         Place.objects.filter(pk=self.place.pk).update(photo='places/fictional-missing-file.webp')
         self.place.refresh_from_db()

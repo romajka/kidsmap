@@ -609,6 +609,10 @@ def evaluate_saved_place_readiness(place) -> PlaceReadiness:
 def _form_value(form, cleaned, field_name, instance):
     """Prefer the submitted value, fall back to what is already stored."""
 
+    # add_error removes invalid/cleared photos from cleaned_data. Falling back
+    # to the old stored image would then report 100% beside a missing-photo error.
+    if field_name in {'photo', 'cover_photo'} and field_name in (getattr(form, '_errors', None) or {}):
+        return None
     if field_name in cleaned:
         return cleaned.get(field_name)
     if instance is not None:

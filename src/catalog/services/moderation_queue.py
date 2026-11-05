@@ -1,4 +1,5 @@
 """Permission-scoped read model for the moderation queue; never mutates content."""
+from django.db.models import Q
 from django.urls import reverse
 from catalog.models import Place, PlaceReview, SiteReview, SpecialistReview, VolunteerPlaceRevision
 from catalog.services.moderation_sla import calculate_sla
@@ -8,6 +9,19 @@ from catalog.services.staff_roles import is_volunteer
 MODELS = (('place', Place, 'place'), ('place_revision', VolunteerPlaceRevision, 'place'),
           ('place_review', PlaceReview, 'review'), ('site_review', SiteReview, 'review'),
           ('specialist_review', SpecialistReview, 'review'))
+
+
+def actionable_place_filter():
+    """Pending candidate wins over the card's historical publication status.
+
+    Legacy cards without a candidate still use their own pending flag. A draft,
+    returned or decided candidate must not reappear because that flag is stale.
+    The revision relation is one-to-one, so every place is selected only once.
+    """
+    return Q(deleted_at__isnull=True, is_temporary=False) & (
+        Q(volunteer_revision__status=VolunteerPlaceRevision.Status.PENDING)
+        | Q(status=Place.STATUS_PENDING, volunteer_revision__isnull=True)
+    )
 
 
 def allowed_kinds(user):
@@ -32,10 +46,14 @@ def queue_rows(user, params, *, now):
         qs = model.objects.all()
         if kind == 'place':
             qs = qs.filter(deleted_at__isnull=True, is_temporary=False).exclude(volunteer_revision__status__in=['draft', 'pending', 'rejected'])
+            if status == 'pending':
+                qs = qs.filter(actionable_place_filter(), volunteer_revision__isnull=True)
             raw_status = 'published' if status == 'approved' else status
         elif kind == 'place_revision':
             # Approved payload is now the public Place, not a second queue item.
-            qs = qs.filter(place__deleted_at__isnull=True, place__is_temporary=False, place__owner__isnull=True).exclude(status='approved').select_related('place')
+            qs = qs.filter(place__deleted_at__isnull=True, place__is_temporary=False).exclude(status='approved').select_related('place')
+            if status == 'pending':
+                qs = qs.filter(place_id__in=Place.objects.filter(actionable_place_filter()).values('pk'))
             raw_status = 'rejected' if status == 'needs_changes' else status
             if status == 'rejected':
                 continue  # Rejected revision means needs changes, not final rejection.

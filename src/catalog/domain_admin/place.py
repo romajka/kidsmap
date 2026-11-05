@@ -3628,6 +3628,9 @@ class PlaceAdmin(admin.ModelAdmin):
             return obj.get_absolute_url()
         return reverse("admin:catalog_place_site_preview", args=[obj.pk], current_app=self.admin_site.name)
 
+    def _place_view_label(self, obj, public_label):
+        return public_label if obj.is_public else _("Предпросмотр")
+
     @admin.display(description=_("Действия"))
     def col_actions(self, obj):
         can_toggle = self._list_can_publish(obj) and (
@@ -3658,7 +3661,7 @@ class PlaceAdmin(admin.ModelAdmin):
             edit_url,
             _("Редактировать"),
             view_url,
-            _("Просмотр на сайте") if obj.is_public else _("Предпросмотр"),
+            self._place_view_label(obj, _("Просмотр на сайте")),
             obj.pk,
             name,
             obj.status,
@@ -6120,8 +6123,8 @@ class PlaceAdmin(admin.ModelAdmin):
                     format_html(
                         '<a class="km-admin-icon-action km-admin-icon-action--open" href="{}" title="{}" aria-label="{}" target="_blank" rel="noopener"><i class="fas fa-eye"></i></a>',
                         self._place_view_url(obj),
-                        _("Открыть") if obj.is_public else _("Предпросмотр"),
-                        _("Открыть") if obj.is_public else _("Предпросмотр"),
+                        self._place_view_label(obj, _("Открыть")),
+                        self._place_view_label(obj, _("Открыть")),
                     ),
                     format_html(
                         '<a class="km-admin-icon-action km-admin-icon-action--delete km-admin-action-menu__link--danger" href="{}" title="{}" aria-label="{}"><i class="far fa-trash-alt"></i></a>',

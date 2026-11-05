@@ -245,9 +245,9 @@ class OwnerPlacesController:
         return changes
 
     @staticmethod
-    def _calculate_place_completion(place: Place) -> dict:
+    def _calculate_place_completion(place: Place, *, readiness=None) -> dict:
         try:
-            readiness = evaluate_place_readiness(place)
+            readiness = readiness if readiness is not None else evaluate_place_readiness(place)
         except Exception as exc:
             logger.warning("Failed to evaluate readiness for place %s: %s", getattr(place, "pk", None), exc)
             return {
@@ -268,6 +268,7 @@ class OwnerPlacesController:
                 "steps_summary_en": "",
             }
 
+        from catalog.services.place_editor_readiness import field_section
         items_by_code = {item.code: item for item in readiness.items}
 
         step_definitions = (
@@ -330,6 +331,7 @@ class OwnerPlacesController:
 
             step_data = {
                 "number": s_def["number"],
+                "fragment": f"pc-section-{field_section(s_items[0].requirement.field) if s_items else 4}",
                 "title_ru": s_def["title_ru"],
                 "title_az": s_def["title_az"],
                 "title_en": s_def["title_en"],
@@ -449,7 +451,12 @@ class OwnerPlacesController:
         if not access.ok:
             return {}, access
 
-        managed_places = list(self.owner_place_repository.managed_queryset(user=request.user))
+        managed_places = list(self.owner_place_repository.managed_queryset(user=request.user)
+                              .select_related('volunteer_revision', 'category', 'subcategory')
+                              .prefetch_related('gallery', 'pricing_plan_records'))
+        from catalog.services.pricing_plans import prefetch_place_pricing_records
+        from catalog.services.owner_place_dashboard import project_owner_place
+        prefetch_place_pricing_records(managed_places)
         working_drafts = []
         managed_by_id = {place.pk: place for place in managed_places}
         from catalog.services.place_editor_readiness import editor_readiness
@@ -495,8 +502,11 @@ class OwnerPlacesController:
             else:
                 working_drafts.append(row)
         latest_request_by_place: dict[int, PlaceOwnershipRequest] = {}
+        latest_publication_request_by_place: dict[int, PlaceOwnershipRequest] = {}
         for ownership_request in self.ownership_repository.list_for_user(user=request.user):
             latest_request_by_place.setdefault(ownership_request.place_id, ownership_request)
+            if ownership_request.request_kind == PlaceOwnershipRequest.KIND_PUBLICATION:
+                latest_publication_request_by_place.setdefault(ownership_request.place_id, ownership_request)
         for place in managed_places:
             latest_request = latest_request_by_place.get(place.id)
             place.latest_moderation_request = latest_request
@@ -506,17 +516,20 @@ class OwnerPlacesController:
             place.owner_can_view_stats = bool(getattr(settings, "OWNER_ANALYTICS_ENABLED", False)) and self._has_permission(
                 user=request.user, place=place, permission_code=PLACE_PERMISSION_VIEW_STATS
             )
-            place.completion = self._calculate_place_completion(place)
+            place.completion = self._calculate_place_completion(
+                place, readiness=project_owner_place(place, latest_publication_request_by_place.get(place.id)))
         published_places = [place for place in managed_places if place.status == Place.STATUS_PUBLISHED and place.is_active]
         draft_places = [place for place in managed_places if place.status != Place.STATUS_PUBLISHED or not place.is_active]
-        editable_draft_places = [place for place in draft_places if place.owner_can_edit]
+        editable_draft_places = [place for place in draft_places if place.owner_can_edit and not place.owner_workflow['pending']]
         can_create_more, managed_count = self._has_place_capacity(user=request.user)
         pending_place_ids = {
-            place.id for place in managed_places if place.status == Place.STATUS_PENDING
+            place.id for place in managed_places if place.owner_workflow['pending']
         } | {
             ownership_request.place_id
-            for ownership_request in latest_request_by_place.values()
+            for ownership_request in latest_publication_request_by_place.values()
             if ownership_request.status == PlaceOwnershipRequest.STATUS_PENDING
+            and ownership_request.request_kind == PlaceOwnershipRequest.KIND_PUBLICATION
+            and ownership_request.place_id not in managed_by_id
         }
 
         context = {

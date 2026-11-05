@@ -15,6 +15,13 @@ class DisplayScheduleForm(forms.Form):
 
 
 class OwnerReadinessProjectionTests(SimpleTestCase):
+    def test_invalid_or_removed_main_photo_does_not_fall_back_to_stored_photo(self):
+        from types import SimpleNamespace
+        form = SimpleNamespace(instance=Place(photo='places/existing.webp'),
+                               cleaned_data={}, cleaned_schedule_days=[],
+                               _errors={'photo': ['Upload a main photo.']})
+        self.assertFalse(readiness_data_from_form(form).has_main_photo)
+
     def test_malformed_schedule_snapshot_is_safe_without_changing_posted_input(self):
         for raw in ('[null]', '[{}]', '{broken', '{"days":true}', '[{"weekday":"mon","intervals":3}]'):
             with self.subTest(raw=raw):

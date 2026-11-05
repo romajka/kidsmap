@@ -7,6 +7,7 @@ from catalog.models.specialist import Specialist
 from catalog.models.review import PlaceReview
 from catalog.models.owner import PlaceOwnershipRequest
 from catalog.services.content_quality import public_place_queryset
+from catalog.services.moderation_queue import actionable_place_filter
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 from catalog.models.seo import SEOIssue
 from django.utils.translation import gettext_lazy as _
@@ -57,7 +58,7 @@ def get_dashboard_stats():
         end_datetime__gte=timezone.now(),
     ).count()
 
-    places_pending = permanent_places.filter(status=Place.STATUS_PENDING).count()
+    places_pending = permanent_places.filter(actionable_place_filter()).count()
     events_pending = Event.objects.filter(deleted_at__isnull=True, status=Event.STATUS_PENDING).count()
     specialists_pending = Specialist.objects.filter(status=Specialist.STATUS_PENDING).count()
     reviews_pending = PlaceReview.objects.filter(is_current=True, candidate_revision__status="pending").count()

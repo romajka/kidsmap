@@ -1,0 +1,20 @@
+{% if place.owner_workflow.show_changes and place.owner_workflow.saved_candidate %}
+  <div class="account-working-copy" data-owner-candidate>
+    <strong>{% if CURRENT_LANGUAGE == 'az' %}Saxlanmış versiya{% elif CURRENT_LANGUAGE == 'en' %}Saved version{% else %}Сохранённая версия{% endif %}: {{ place.owner_saved_display.name_i18n }}</strong>
+    <p>{{ place.owner_saved_display.address }}{% if place.owner_saved_display.price_range_display %} · {{ place.owner_saved_display.price_range_display }}{% endif %}</p>
+  </div>
+{% endif %}
+{% if place.owner_workflow.review_note %}
+  <div class="account-rejection-callout" data-owner-review-note>
+    <span class="material-symbols-rounded" aria-hidden="true">error</span>
+    <div class="account-rejection-callout__content">
+      <strong>{% if CURRENT_LANGUAGE == 'az' %}Moderatorun qeydi{% elif CURRENT_LANGUAGE == 'en' %}Moderator note{% else %}Замечание модератора{% endif %}:</strong>
+      <span>{{ place.owner_workflow.review_note }}</span>
+    </div>
+  </div>
+{% elif place.owner_workflow.pending %}
+  <div class="account-pending-callout">
+    <span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>
+    <span>{{ place_moderation_sla_message }}</span>
+  </div>
+{% endif %}

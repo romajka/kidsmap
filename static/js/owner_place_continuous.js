@@ -355,7 +355,11 @@
     const address = form.elements.namedItem('address')?.value || '';
     setText(root.querySelector('[data-pc-preview-name]'), name);
     setText(root.querySelector('[data-pc-preview-address]'), address);
-    const directCount = form.querySelector('[data-tariff-list]')?.children.length || 0;
+    // The tariff editor mounts after this script. Its hidden data is already
+    // present, while its rendered rows are not a reliable source of prices.
+    let directPlans = [];
+    try { const value = JSON.parse(form.elements.namedItem('pricing_plans')?.value || '[]'); if (Array.isArray(value)) directPlans = value; } catch {}
+    const directCount = directPlans.length;
     let activities = [];
     try { activities = JSON.parse(form.elements.namedItem('nested_pricing')?.value || 'null')?.activities || []; } catch {}
     const groupCount = activities.reduce((total, activity) => total + (activity.groups || []).length, 0);
@@ -367,7 +371,13 @@
     };
     setText(root.querySelector('[data-pc-preview-offerings]'), activities.length ? `${counted(activities.length, 'activity_count')} · ${counted(groupCount, 'group_count')}` : '');
     const count = directCount + groupPlans;
-    setText(root.querySelector('[data-pc-preview-price]'), count ? counted(count, 'plan_count') : ui.empty);
+    const mode = form.elements.namedItem('price_mode')?.value || 'tariffs';
+    const modeLabel = {
+      free: text('Бесплатно','Pulsuz','Free'),
+      events: text('Цена зависит от мероприятия','Qiymət tədbirdən asılıdır','Price depends on the event'),
+      free_entry_paid_services: text('Бесплатный вход + платные услуги','Pulsuz giriş + ödənişli xidmətlər','Free entry + paid services'),
+    }[mode];
+    setText(root.querySelector('[data-pc-preview-price]'), modeLabel || (count ? counted(count, 'plan_count') : ui.empty));
   }
   function fieldTarget(name, path = null) {
     if (['photo','gallery_images','gallery_uploads'].includes(name)) return form.querySelector('[data-place-photos-picker]');
@@ -549,11 +559,21 @@
     const revision=readinessRevision;
     if(readinessController)readinessController.abort();readinessController=new AbortController();
     try {
+      if (photoEditor?.ready) await photoEditor.ready();
+      if (revision !== readinessRevision) return;
+      if (photoEditor?.blocking?.()) {
+        const label = root.querySelector('[data-pc-progress-summary]');
+        if (label) label.textContent = text('Проверьте фотографии: завершите обработку или удалите фото с ошибкой.','Şəkilləri yoxlayın: emalın bitməsini gözləyin və ya xətalı şəkli silin.','Check the photos: finish processing or remove the failed photo.');
+        return;
+      }
       const body=new FormData(form);body.set('_km_check_required','1');
-      // Readiness does not need to upload the same files after every keystroke.
-      // Photo format/queue errors stay with the photo editor; explicit check/save
-      // validates actual bytes. Photos are not a publication requirement.
+      const selectedMain = photoEditor?.snapshotMedia?.().find(item => item.role === 'main')?.file;
+      const nativeMain = !photoEditor ? body.get('photo') : null;
+      // The main image is required: validate the same normalized bytes as Save.
+      // Gallery uploads/order are unrelated to completion and stay out of this check.
       for(const input of form.querySelectorAll('input[type=file][name]'))body.delete(input.name);
+      if (selectedMain) body.set('photo', selectedMain);
+      else if (nativeMain?.size) body.set('photo', nativeMain);
       body.delete('gallery_order');
       const values=Object.fromEntries([...body].filter(([,value])=>typeof value==='string'));
       const response=await fetch(preview.formAction,{method:'POST',body,credentials:'same-origin',signal:readinessController.signal,headers:{'X-CSRFToken':csrf}});

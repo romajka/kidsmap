@@ -203,6 +203,19 @@ def moderate_place_request(*,actor,request_id,new_status,note=''):
     row=publication.locked_target('place',anchor['place_id']);item=_lock(PlaceOwnershipRequest,[request_id],'default')[request_id]
     if item.request_kind=='CLAIM':return _decide_claim(actor,row,item,new_status=='APPROVED',note)
     if item.status!='PENDING':raise ValueError('Request is not pending')
+    if new_status == 'REJECTED':
+        from catalog.models import VolunteerPlaceRevision
+        revision = VolunteerPlaceRevision.objects.select_for_update().filter(place=row, status='pending').first()
+        if revision is not None and publication._matching_publication_requests(
+                place=row, source_version=row.content_version,
+                candidate_version=revision.version).filter(pk=item.pk).exists():
+            # A request decision must also resolve the exact candidate it presents.
+            # Stale requests remain independently dismissible, never deciding a
+            # newer candidate or ownership claim by association.
+            publication.review(actor=actor, revision_id=revision.pk,
+                version=revision.version, approve=False, final_reject=True, note=note)
+            item.refresh_from_db()
+            return item
     if new_status=='APPROVED':
         if item.base_ownership_version!=row.ownership_version or item.base_owner_id!=row.owner_id or item.applicant_id!=row.owner_id:raise ValidationError('Stale publication request.')
         from catalog.models import VolunteerPlaceRevision

@@ -135,15 +135,18 @@ class PublicationRequestCompletionTests(TestCase):
         self.assertEqual(revision.status, 'pending')
         self.assertEqual(item.status, 'PENDING')
 
-    def test_rejection_and_denied_review_leave_request_pending(self):
+    def test_denied_review_leaves_pending_but_return_closes_matching_request(self):
         revision = self.propose(); item = self.request()
         with self.assertRaises(PermissionDenied):
             publication.review(actor=self.owner, revision_id=revision.pk,
                                version=revision.version, approve=True)
+        item.refresh_from_db()
+        self.assertEqual(item.status, 'PENDING')
         publication.review(actor=self.staff, revision_id=revision.pk,
                            version=revision.version, approve=False, note='Needs correction')
         item.refresh_from_db()
-        self.assertEqual(item.status, 'PENDING')
+        self.assertEqual(item.status, 'REJECTED')
+        self.assertEqual(item.moderation_note, 'Needs correction')
 
     def test_source_conflict_never_completes_request(self):
         revision = self.propose(); item = self.request()
@@ -166,7 +169,7 @@ class PublicationRequestCompletionTests(TestCase):
         self.assertEqual(item.status, 'PENDING')
         self.assertFalse(self.approval_audits(item).exists())
 
-    def publish_admin_form(self):
+    def publish_admin_form(self, action="_publish_place"):
         self.client.force_login(self.staff)
         url = reverse('admin:catalog_place_change', args=[self.place.pk])
         page = self.client.get(url)
@@ -186,8 +189,133 @@ class PublicationRequestCompletionTests(TestCase):
             carry(inline.formset.management_form)
             for inline_form in inline.formset.forms:
                 carry(inline_form)
-        data['_publish_place'] = '1'
+        data[action] = '1'
         response = self.client.post(url, data)
         if response.status_code == 200:
             self.fail(str(response.context['adminform'].form.errors))
         self.assertEqual(response.status_code, 302)
+
+
+    def test_unchanged_admin_save_preserves_approved_decision(self):
+        revision = self.propose()
+        approved = self.approve(revision, note='Reviewed content')
+        before = (approved.version, approved.reviewed_by_id, approved.review_note, approved.moderated_at)
+        self.publish_admin_form(action='_save')
+        approved.refresh_from_db()
+        self.assertEqual(approved.status, 'approved')
+        self.assertEqual((approved.version, approved.reviewed_by_id, approved.review_note, approved.moderated_at), before)
+        self.place.refresh_from_db()
+        self.assertTrue(self.place.is_public)
+
+    def test_unchanged_published_place_without_revision_is_not_pending(self):
+        publication.propose(actor=self.owner, target_type='place', target_id=self.place.pk,
+            patch={}, schema_version=1, expected_version=self.place.content_version)
+        self.assertFalse(VolunteerPlaceRevision.objects.filter(place=self.place, status='pending').exists())
+        self.place.refresh_from_db()
+        self.assertTrue(self.place.is_public)
+
+    def test_unpublished_place_can_submit_empty_patch_for_first_publication(self):
+        Place.objects.filter(pk=self.place.pk).update(status='draft', is_active=False)
+        revision = publication.propose(actor=self.owner, target_type='place', target_id=self.place.pk,
+            patch={}, schema_version=1, expected_version=self.place.content_version)
+        self.assertEqual(revision.status, 'pending')
+        self.approve(revision)
+        self.place.refresh_from_db()
+        self.assertTrue(self.place.is_public)
+
+    def test_unchanged_save_keeps_real_pending_candidate(self):
+        revision = self.propose()
+        saved = publication.propose(actor=self.owner, target_type='place', target_id=self.place.pk,
+            patch={}, schema_version=1, expected_version=self.place.content_version,
+            revision_version=revision.version)
+        self.assertEqual(saved.status, 'pending')
+        self.assertEqual(saved.payload, {'description_az': 'Yeni dərslər və yaşa uyğun oyunlar.'})
+        self.place.refresh_from_db()
+        self.assertNotEqual(self.place.description_az, saved.payload['description_az'])
+
+    def test_empty_pending_edit_leaves_queue_after_actual_admin_save(self):
+        revision = publication.propose(actor=self.owner, target_type='place', target_id=self.place.pk,
+            patch={}, schema_version=1, expected_version=self.place.content_version)
+        VolunteerPlaceRevision.objects.filter(pk=revision.pk).update(status='pending')
+        before = (self.place.owner_id, self.place.ownership_version, self.place.content_version)
+        self.publish_admin_form(action='_save')
+        revision.refresh_from_db(); self.place.refresh_from_db()
+        self.assertEqual(revision.status, 'draft')
+        self.assertEqual(revision.payload, {})
+        self.assertTrue(self.place.is_public)
+        self.assertEqual((self.place.owner_id, self.place.ownership_version, self.place.content_version), before)
+
+    def test_request_rejection_also_rejects_exact_pending_candidate(self):
+        revision = self.propose(); item = self.request()
+        moderate_place_request(actor=self.staff, request_id=item.pk, new_status='REJECTED', note='Not accepted')
+        revision.refresh_from_db(); item.refresh_from_db()
+        self.assertEqual(revision.status, 'declined')
+        self.assertEqual(revision.review_note, 'Not accepted')
+        self.assertEqual(item.status, 'REJECTED')
+        self.assertEqual(item.audit_entries.filter(action='REJECTED').count(), 1)
+
+    def test_stale_request_rejection_does_not_reject_new_candidate(self):
+        revision = self.propose(); item = self.request()
+        PlaceOwnershipRequest.objects.filter(pk=item.pk).update(base_candidate_version=999999)
+        moderate_place_request(actor=self.staff, request_id=item.pk, new_status='REJECTED', note='Obsolete request')
+        revision.refresh_from_db(); item.refresh_from_db()
+        self.assertEqual(revision.status, 'pending')
+        self.assertEqual(item.status, 'REJECTED')
+
+    def test_candidate_return_does_not_reject_claim_or_other_applicant(self):
+        revision = self.propose()
+        claim = self.request(request_kind='CLAIM')
+        other = self.request(applicant=self.other)
+        publication.review(actor=self.staff, revision_id=revision.pk, version=revision.version,
+                           approve=False, note='Needs correction')
+        for item in (claim, other):
+            item.refresh_from_db()
+            self.assertEqual(item.status, 'PENDING')
+
+    def test_return_resubmit_approve_keeps_old_request_terminal(self):
+        revision = self.propose(); item = self.request()
+        publication.review(actor=self.staff, revision_id=revision.pk, version=revision.version,
+                           approve=False, note='Needs correction')
+        revision.refresh_from_db()
+        next_revision = publication.propose(actor=self.owner, target_type='place', target_id=self.place.pk,
+            patch={'description_az': 'Düzəldilmiş təsvir'}, schema_version=1,
+            expected_version=self.place.content_version, revision_version=revision.version)
+        self.approve(next_revision)
+        item.refresh_from_db(); self.place.refresh_from_db()
+        self.assertEqual(item.status, 'REJECTED')
+        self.assertEqual(item.moderation_note, 'Needs correction')
+        self.assertTrue(self.place.is_public)
+        self.assertEqual(self.place.description_az, 'Düzəldilmiş təsvir')
+        self.assertFalse(PlaceOwnershipRequest.objects.filter(place=self.place, status='PENDING').exists())
+
+
+    def test_failed_rejection_audit_rolls_back_candidate_request_and_notification(self):
+        from catalog.models import WorkflowNotification
+        revision = self.propose(); item = self.request()
+        before_version = revision.version
+        with patch.object(PlaceOwnershipRequestAudit, 'log_event', side_effect=RuntimeError('Audit unavailable')):
+            with self.assertRaises(RuntimeError):
+                moderate_place_request(actor=self.staff, request_id=item.pk,
+                    new_status='REJECTED', note='Not accepted')
+        revision.refresh_from_db(); item.refresh_from_db()
+        self.assertEqual((revision.status, revision.version), ('pending', before_version))
+        self.assertEqual(item.status, 'PENDING')
+        self.assertFalse(WorkflowNotification.objects.exists())
+
+    def test_return_does_not_close_request_bound_to_other_owner_version(self):
+        revision = self.propose(); item = self.request()
+        PlaceOwnershipRequest.objects.filter(pk=item.pk).update(base_ownership_version=999999)
+        publication.review(actor=self.staff, revision_id=revision.pk, version=revision.version,
+                           approve=False, note='Needs correction')
+        item.refresh_from_db()
+        self.assertEqual(item.status, 'PENDING')
+
+    def test_publish_after_noop_save_preserves_the_real_pending_edit(self):
+        revision = self.propose()
+        self.publish_admin_form(action='_save')
+        revision.refresh_from_db()
+        self.assertEqual(revision.status, 'pending')
+        self.publish_admin_form()
+        self.place.refresh_from_db(); revision.refresh_from_db()
+        self.assertEqual(self.place.description_az, 'Yeni dərslər və yaşa uyğun oyunlar.')
+        self.assertEqual(revision.status, 'approved')

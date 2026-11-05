@@ -888,6 +888,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         PlaceOwnershipRequest.objects.create(
             place=self.manager_place,
             applicant=self.manager_user,
+            request_kind=PlaceOwnershipRequest.KIND_PUBLICATION,
             status=PlaceOwnershipRequest.STATUS_PENDING,
             note="Ожидает проверки",
         )
@@ -918,18 +919,21 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         PlaceOwnershipRequest.objects.create(
             place=self.manager_place,
             applicant=self.manager_user,
+            request_kind=PlaceOwnershipRequest.KIND_PUBLICATION,
             status=PlaceOwnershipRequest.STATUS_PENDING,
             note="Ожидает проверки",
         )
         PlaceOwnershipRequest.objects.create(
             place=rejected_place,
             applicant=self.manager_user,
+            request_kind=PlaceOwnershipRequest.KIND_PUBLICATION,
             status=PlaceOwnershipRequest.STATUS_REJECTED,
             moderation_note="Нужно добавить нормальное фото",
         )
         PlaceOwnershipRequest.objects.create(
             place=approved_place,
             applicant=self.manager_user,
+            request_kind=PlaceOwnershipRequest.KIND_PUBLICATION,
             status=PlaceOwnershipRequest.STATUS_APPROVED,
             note="Одобрено",
         )

@@ -390,32 +390,54 @@ def propose(*,actor,target_type,target_id,patch,schema_version,expected_version,
         candidate.lat = pending.get('lat', target.lat)
         candidate.lng = pending.get('lng', target.lng)
         _require_place_coordinates(candidate)
+    # Saving the already approved content is not a new moderation submission.
+    # Preserve the actual decision; never manufacture an approval for a new or
+    # reverted empty working copy. New unpublished cards still need review.
+    empty_published_edit = target_type == 'place' and target.is_public and not pending and not immediate
+    if empty_published_edit and revision is not None and revision.status == 'approved':
+        return revision
+    if empty_published_edit:
+        submit = False
     if revision is None:revision=VolunteerPlaceRevision(**{target_type:target},author=actor)
     if not (revision.pk and platform_has_action(user=actor,action='place.publish')):revision.author=actor
     revision.schema_version=SCHEMA_VERSION;revision.base_content_version=target.content_version;revision.base_snapshot=base;revision.dependencies=dependencies(target,target_type);revision.payload=pending;revision.changed_fields=sorted(pending);revision.status='pending' if submit else 'draft';revision.version=actual+1;revision.review_note='' if submit else revision.review_note;revision.reviewed_by=None if submit else revision.reviewed_by;revision.save();return revision
 
 
-def _complete_publication_requests(*, actor, place, source_version, candidate_version, note=''):
-    """Close only requests bound to the exact content decision, under target lock."""
-    from catalog.models import PlaceOwnershipRequest, PlaceOwnershipRequestAudit
+def _matching_publication_requests(*, place, source_version, candidate_version):
+    """Only the exact owner's request for this content decision may transition."""
+    from catalog.models import PlaceOwnershipRequest
+    requests = PlaceOwnershipRequest.objects.select_for_update()
     if place.owner_id is None:
-        return
-    requests = PlaceOwnershipRequest.objects.select_for_update().filter(
+        return requests.none()
+    return requests.filter(
         place_id=place.pk, status=PlaceOwnershipRequest.STATUS_PENDING,
         request_kind=PlaceOwnershipRequest.KIND_PUBLICATION,
         applicant_id=place.owner_id, base_owner_id=place.owner_id,
         base_ownership_version=place.ownership_version,
         base_content_version=source_version, base_candidate_version=candidate_version,
     ).order_by('pk')
-    for item in requests:
-        item.status = PlaceOwnershipRequest.STATUS_APPROVED
+
+
+def _finish_publication_requests(*, actor, place, source_version, candidate_version, status, note):
+    from catalog.models import PlaceOwnershipRequestAudit
+    for item in _matching_publication_requests(place=place, source_version=source_version,
+                                              candidate_version=candidate_version):
+        previous = item.status
+        item.status = status
         item.moderated_by = actor
         item.moderated_at = timezone.now()
         item.moderation_note = note.strip()
         item.save(update_fields=['status', 'moderated_by', 'moderated_at', 'moderation_note', 'updated_at'])
         PlaceOwnershipRequestAudit.log_event(
-            ownership_request=item, actor=actor, action=PlaceOwnershipRequestAudit.ACTION_APPROVED,
-            from_status=PlaceOwnershipRequest.STATUS_PENDING, to_status=item.status, note=item.moderation_note)
+            ownership_request=item, actor=actor, action=status,
+            from_status=previous, to_status=item.status, note=item.moderation_note)
+
+
+def _complete_publication_requests(*, actor, place, source_version, candidate_version, note=''):
+    """Close only requests bound to the exact approval, under target lock."""
+    from catalog.models import PlaceOwnershipRequest
+    _finish_publication_requests(actor=actor, place=place, source_version=source_version,
+        candidate_version=candidate_version, status=PlaceOwnershipRequest.STATUS_APPROVED, note=note)
 
 
 @transaction.atomic
@@ -476,9 +498,11 @@ def review(*,actor,revision_id,version,approve,note='',final_reject=False):
     revision.status='approved' if approve else 'declined' if final_reject else 'rejected';revision.reviewed_by=actor;revision.review_note=note.strip();revision.version+=1;revision.save()
     from catalog.services.workflow_notifications import emit
     target.refresh_from_db()
-    if approve and kind == 'place':
-        _complete_publication_requests(actor=actor, place=target, source_version=source_version,
-                                       candidate_version=candidate_version, note=note)
+    if kind == 'place':
+        from catalog.models import PlaceOwnershipRequest
+        _finish_publication_requests(actor=actor, place=target, source_version=source_version,
+            candidate_version=candidate_version, note=note,
+            status=PlaceOwnershipRequest.STATUS_APPROVED if approve else PlaceOwnershipRequest.STATUS_REJECTED)
     decision_context = {
         'schema_version': 1,
         'decision': 'approved' if approve else 'rejected' if final_reject else 'needs_changes',

@@ -255,10 +255,15 @@
           <strong>{{ owner_stats.published_places }}</strong>
           <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}</span>
         </div>
-        <div class="account-metric-pill">
+        <div class="account-metric-pill" data-owner-metric="unpublished">
           <span class="material-symbols-rounded metric-icon-gold">schedule</span>
           <strong>{{ owner_stats.draft_places|add:working_drafts_count }}</strong>
-          <span>{% if CURRENT_LANGUAGE == "az" %}Qaralama və moderasiya{% elif CURRENT_LANGUAGE == "en" %}Drafts & moderation{% else %}Черновики и модерация{% endif %}</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmayıb{% elif CURRENT_LANGUAGE == "en" %}Unpublished{% else %}Не опубликовано{% endif %}</span>
+        </div>
+        <div class="account-metric-pill" data-owner-metric="pending">
+          <span class="material-symbols-rounded metric-icon-gold">hourglass_top</span>
+          <strong>{{ pending_moderation_count }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Moderasiyada{% elif CURRENT_LANGUAGE == "en" %}In review{% else %}На модерации{% endif %}</span>
         </div>
         {% if can_view_stats %}
           <div class="account-metric-pill">
@@ -293,10 +298,10 @@
           <div class="account-continue-info">
             <div class="account-continue-header">
               <span class="account-continue-title">{% if CURRENT_LANGUAGE == "az" %}Qaralamanı davam etdir{% elif CURRENT_LANGUAGE == "en" %}Continue draft{% else %}Продолжить черновик{% endif %}</span>
-              <span class="account-continue-placename">{{ latest_editable_place.name_i18n }}</span>
+              <span class="account-continue-placename">{{ latest_editable_place.owner_display.name_i18n }}</span>
             </div>
             <span class="account-continue-hint">
-              {% if latest_editable_place.status == "rejected" %}
+              {% if latest_editable_place.owner_workflow.needs_changes %}
                 {% if CURRENT_LANGUAGE == "az" %}Düzəliş lazımdır: yoxlama qeydlərini nəzərdən keçirin{% elif CURRENT_LANGUAGE == "en" %}Action required: check moderation notes{% else %}Требуются исправления: проверьте замечания модератора{% endif %}
               {% else %}
                 {% if CURRENT_LANGUAGE == "az" %}Tamamlanmamış məkan kartınızı yekunlaşdırıb moderasiyaya göndərin.{% elif CURRENT_LANGUAGE == "en" %}Finish your draft place card and submit for review.{% else %}Заполните оставшиеся данные и отправьте карточку на проверку.{% endif %}
@@ -330,8 +335,8 @@
             {% for place in published_places %}
               <div class="account-owner-card" data-place-id="{{ place.id }}">
                 <div class="account-owner-card__media">
-                  {% if place.public_image_file %}
-                    <img class="account-owner-card__img" src="{{ place.public_image_url }}" alt="{{ place.name_i18n }}" loading="lazy" />
+                  {% if place.owner_display.public_image_file %}
+                    <img class="account-owner-card__img" src="{{ place.owner_display.public_image_url }}" alt="{{ place.owner_display.name_i18n }}" loading="lazy" />
                   {% else %}
                     <div class="account-owner-card__placeholder">
                       <span class="material-symbols-rounded">storefront</span>
@@ -342,6 +347,7 @@
                       <span class="account-status-pill__dot"></span>
                       {% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}
                     </span>
+                    {% if place.owner_workflow.show_changes %}{% include "pages/includes/owner_place_status.html" with changes=True %}{% endif %}
                     <div class="account-owner-card__stats-pill">
                       <span class="account-owner-card__stat-item" title="{% trans 'Рейтинг' %}">
                         <span class="material-symbols-rounded stat-star">star</span>
@@ -358,37 +364,32 @@
 
                 <div class="account-owner-card__body">
                   <div class="account-owner-card__meta">
-                    <span class="account-owner-card__category">{{ place.get_category_display|default:"Место" }}</span>
-                    {% if place.district %}
+                    <span class="account-owner-card__category">{{ place.owner_display.get_category_display|default:"Место" }}</span>
+                    {% if place.owner_display.district %}
                       <span class="account-owner-card__meta-dot">•</span>
-                      <span class="account-owner-card__district">{{ place.district_i18n }}</span>
+                      <span class="account-owner-card__district">{{ place.owner_display.district_i18n }}</span>
                     {% endif %}
-                    {% if place.price_range_display %}
+                    {% if place.owner_display.price_range_display %}
                       <span class="account-owner-card__meta-dot">•</span>
                       <span class="account-owner-card__price" title="{% trans 'Тарифы' %}">
                         <span class="material-symbols-rounded">sell</span>
-                        {{ place.price_range_display }}
+                        {{ place.owner_display.price_range_display }}
                       </span>
                     {% endif %}
-                    {% if place.gallery_files %}
+                    {% if place.owner_photo_count %}
                       <span class="account-owner-card__meta-dot">•</span>
                       <span class="account-owner-card__photos" title="{% trans 'Фотографии' %}">
-                        <span class="material-symbols-rounded">photo_library</span>
-                        {{ place.gallery_files|length|add:"1" }}
-                      </span>
-                    {% elif place.photo %}
-                      <span class="account-owner-card__meta-dot">•</span>
-                      <span class="account-owner-card__photos" title="{% trans 'Фотографии' %}">
-                        <span class="material-symbols-rounded">photo_camera</span>
-                        1
+                        <span class="material-symbols-rounded" aria-hidden="true">photo_library</span>
+                        {{ place.owner_photo_count }}
                       </span>
                     {% endif %}
                   </div>
 
                   <h3 class="account-owner-card__name">
-                    <a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a>
+                    <a href="{{ place.get_absolute_url }}">{{ place.owner_display.name_i18n }}</a>
                   </h3>
 
+                  {% include "pages/includes/owner_place_review_state.html" %}
                   <!-- Completion Progress Bar & Steps Checklist -->
                   {% include "pages/includes/owner_place_readiness_progress.html" with place=place %}
                   {% if place.working_draft %}<p class="account-working-copy" data-working-draft-id="{{ place.working_draft.id }}">{% if CURRENT_LANGUAGE == 'az' %}Qaralama saxlanıldı{% elif CURRENT_LANGUAGE == 'en' %}Draft saved{% else %}Черновик сохранён{% endif %} · {{ place.working_draft.saved_at|date:"d.m H:i" }} · {{ place.working_draft.readiness.completed_count }}/{{ place.working_draft.readiness.required_count }}{% if place.working_draft.needs_review %} · {% if CURRENT_LANGUAGE == 'az' %}Dəyişiklikləri yoxlayın{% elif CURRENT_LANGUAGE == 'en' %}Review newer changes{% else %}Проверьте новые изменения{% endif %}{% endif %}</p><div data-working-draft-id="{{ place.working_draft.id }}">{% include 'pages/includes/owner_working_draft_delete.html' with draft=place.working_draft %}</div>{% endif %}
@@ -459,37 +460,15 @@
             {% for place in draft_places %}
               <div class="account-owner-card" data-place-id="{{ place.id }}">
                 <div class="account-owner-card__media">
-                  {% if place.public_image_file %}
-                    <img class="account-owner-card__img" src="{{ place.public_image_url }}" alt="{{ place.name_i18n }}" loading="lazy" />
+                  {% if place.owner_display.public_image_file %}
+                    <img class="account-owner-card__img" src="{{ place.owner_display.public_image_url }}" alt="{{ place.owner_display.name_i18n }}" loading="lazy" />
                   {% else %}
                     <div class="account-owner-card__placeholder">
                       <span class="material-symbols-rounded">storefront</span>
                     </div>
                   {% endif %}
                   <div class="account-owner-card__media-top">
-                    {% if place.status == 'needs_changes' %}
-                      <span class="account-status-pill account-status-pill--rejected">{% if CURRENT_LANGUAGE == 'az' %}Düzəliş lazımdır{% elif CURRENT_LANGUAGE == 'en' %}Needs changes{% else %}Нужна доработка{% endif %}</span>
-                    {% elif place.latest_moderation_request.status == "PENDING" or place.status == place.STATUS_PENDING %}
-                      <span class="account-status-pill account-status-pill--pending owner-status-badge-pending">
-                        <span class="material-symbols-rounded">hourglass_top</span>
-                        {% if CURRENT_LANGUAGE == "az" %}Moderasiyada{% elif CURRENT_LANGUAGE == "en" %}In review{% else %}На модерации{% endif %}
-                      </span>
-                    {% elif place.latest_moderation_request.status == "APPROVED" %}
-                      <span class="account-status-pill account-status-pill--approved owner-status-badge-approved">
-                        <span class="account-status-pill__dot"></span>
-                        {% if CURRENT_LANGUAGE == "az" %}Təsdiqlənib{% elif CURRENT_LANGUAGE == "en" %}Approved{% else %}Одобрено{% endif %}
-                      </span>
-                    {% elif place.latest_moderation_request.status == "REJECTED" or place.status == place.STATUS_REJECTED %}
-                      <span class="account-status-pill account-status-pill--rejected owner-status-badge-rejected">
-                        <span class="material-symbols-rounded">warning</span>
-                        {% if CURRENT_LANGUAGE == "az" %}Düzəliş lazımdır{% elif CURRENT_LANGUAGE == "en" %}Needs changes{% else %}Требуются правки{% endif %}
-                      </span>
-                    {% else %}
-                      <span class="account-status-pill account-status-pill--draft">
-                        <span class="material-symbols-rounded">edit_note</span>
-                        {% if CURRENT_LANGUAGE == "az" %}Qaralama{% elif CURRENT_LANGUAGE == "en" %}Draft{% else %}Черновик{% endif %}
-                      </span>
-                    {% endif %}
+                    {% include "pages/includes/owner_place_status.html" %}
 
                     <div class="account-owner-card__stats-pill">
                       <span class="account-owner-card__stat-item" title="{% trans 'Рейтинг' %}">
@@ -507,64 +486,36 @@
 
                 <div class="account-owner-card__body">
                   <div class="account-owner-card__meta">
-                    <span class="account-owner-card__category">{{ place.get_category_display|default:"Место" }}</span>
-                    {% if place.district %}
+                    <span class="account-owner-card__category">{{ place.owner_display.get_category_display|default:"Место" }}</span>
+                    {% if place.owner_display.district %}
                       <span class="account-owner-card__meta-dot">•</span>
-                      <span class="account-owner-card__district">{{ place.district_i18n }}</span>
+                      <span class="account-owner-card__district">{{ place.owner_display.district_i18n }}</span>
                     {% endif %}
-                    {% if place.price_range_display %}
+                    {% if place.owner_display.price_range_display %}
                       <span class="account-owner-card__meta-dot">•</span>
                       <span class="account-owner-card__price" title="{% trans 'Тарифы' %}">
                         <span class="material-symbols-rounded">sell</span>
-                        {{ place.price_range_display }}
+                        {{ place.owner_display.price_range_display }}
                       </span>
                     {% endif %}
-                    {% if place.gallery_files %}
+                    {% if place.owner_photo_count %}
                       <span class="account-owner-card__meta-dot">•</span>
                       <span class="account-owner-card__photos" title="{% trans 'Фотографии' %}">
-                        <span class="material-symbols-rounded">photo_library</span>
-                        {{ place.gallery_files|length|add:"1" }}
-                      </span>
-                    {% elif place.photo %}
-                      <span class="account-owner-card__meta-dot">•</span>
-                      <span class="account-owner-card__photos" title="{% trans 'Фотографии' %}">
-                        <span class="material-symbols-rounded">photo_camera</span>
-                        1
+                        <span class="material-symbols-rounded" aria-hidden="true">photo_library</span>
+                        {{ place.owner_photo_count }}
                       </span>
                     {% endif %}
                   </div>
 
                   <h3 class="account-owner-card__name">
-                    <span>{{ place.name_i18n }}</span>
+                    <span>{{ place.owner_display.name_i18n }}</span>
                   </h3>
 
                   <!-- Completion Progress Bar & Steps Checklist -->
                   {% include "pages/includes/owner_place_readiness_progress.html" with place=place %}
                   {% if place.working_draft %}<p class="account-working-copy" data-working-draft-id="{{ place.working_draft.id }}">{% if CURRENT_LANGUAGE == 'az' %}Qaralama saxlanıldı{% elif CURRENT_LANGUAGE == 'en' %}Draft saved{% else %}Черновик сохранён{% endif %} · {{ place.working_draft.saved_at|date:"d.m H:i" }} · {{ place.working_draft.readiness.completed_count }}/{{ place.working_draft.readiness.required_count }}{% if place.working_draft.needs_review %} · {% if CURRENT_LANGUAGE == 'az' %}Dəyişiklikləri yoxlayın{% elif CURRENT_LANGUAGE == 'en' %}Review newer changes{% else %}Проверьте новые изменения{% endif %}{% endif %}</p><div data-working-draft-id="{{ place.working_draft.id }}">{% include 'pages/includes/owner_working_draft_delete.html' with draft=place.working_draft %}</div>{% endif %}
 
-                  <!-- Rejection Notes -->
-                  {% if place.latest_moderation_request.status == "REJECTED" and place.latest_moderation_request.moderation_note %}
-                    <div class="account-rejection-callout">
-                      <span class="material-symbols-rounded">error</span>
-                      <div class="account-rejection-callout__content">
-                        <strong>{% if CURRENT_LANGUAGE == "az" %}Qeyd{% elif CURRENT_LANGUAGE == "en" %}Note{% else %}Замечание модератора{% endif %}:</strong>
-                        <span>{{ place.latest_moderation_request.moderation_note }}</span>
-                      </div>
-                    </div>
-                  {% elif place.status == 'needs_changes' or place.status == place.STATUS_REJECTED and place.rejection_reason %}
-                    <div class="account-rejection-callout">
-                      <span class="material-symbols-rounded">error</span>
-                      <div class="account-rejection-callout__content">
-                        <strong>{% if CURRENT_LANGUAGE == "az" %}Qeyd{% elif CURRENT_LANGUAGE == "en" %}Note{% else %}Замечание модератора{% endif %}:</strong>
-                        <span>{{ place.rejection_reason }}</span>
-                      </div>
-                    </div>
-                  {% elif place.latest_moderation_request.status == "PENDING" or place.status == place.STATUS_PENDING %}
-                    <div class="account-pending-callout">
-                      <span class="material-symbols-rounded">hourglass_top</span>
-                      <span>{{ place_moderation_sla_message }}</span>
-                    </div>
-                  {% endif %}
+                  {% include "pages/includes/owner_place_review_state.html" %}
 
                   <!-- Technical status details -->
                   <details class="account-card-tech-details">
@@ -587,7 +538,8 @@
                       <span>{% if CURRENT_LANGUAGE == "az" %}Analitika{% elif CURRENT_LANGUAGE == "en" %}Analytics{% else %}Аналитика{% endif %}</span>
                     </a>
                   {% endif %}
-                  {% if place.latest_moderation_request.status == "PENDING" or place.status == place.STATUS_PENDING %}
+                  {% if place.owner_workflow.pending %}
+                    {% if place.owner_can_edit %}<a class="account-btn-sm account-btn-sm--secondary" href="{% url 'owner_place_edit' place.id %}">{% if CURRENT_LANGUAGE == 'az' %}Aç{% elif CURRENT_LANGUAGE == 'en' %}Open{% else %}Открыть{% endif %}</a>{% endif %}
                     <span class="account-action-pending-note" data-publish-unavailable="1">
                       <span class="material-symbols-rounded">schedule</span>
                       <span>{% if CURRENT_LANGUAGE == "az" %}Yoxlamada{% elif CURRENT_LANGUAGE == "en" %}In review{% else %}На проверке{% endif %}</span>
@@ -597,7 +549,7 @@
                       <a class="account-btn-sm account-btn-sm--primary" href="{% if place.working_draft %}{{ place.working_draft.url }}{% else %}{% url 'owner_place_edit' place.id %}{% endif %}">
                         <span class="material-symbols-rounded">edit</span>
                         <span>
-                          {% if place.status == place.STATUS_REJECTED %}
+                          {% if place.owner_workflow.needs_changes %}
                             {% if CURRENT_LANGUAGE == "az" %}Düzəlt{% elif CURRENT_LANGUAGE == "en" %}Fix{% else %}Исправить{% endif %}
                           {% else %}
                             {% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}
@@ -605,12 +557,13 @@
                         </span>
                       </a>
                     {% endif %}
+                    {% if place.owner_can_edit %}
                     <form method="post" action="{% url 'owner_place_submit_review' place.id %}" data-loading-form class="account-owner-card__action-form">
                       {% csrf_token %}
                       <button type="submit" class="account-btn-sm account-btn-sm--secondary" data-loading-button>
                         <span class="material-symbols-rounded">send</span>
                         <span>
-                          {% if place.status == place.STATUS_REJECTED %}
+                          {% if place.owner_workflow.needs_changes %}
                             {% if CURRENT_LANGUAGE == "az" %}Yenidən göndər{% elif CURRENT_LANGUAGE == "en" %}Resubmit{% else %}Повторно{% endif %}
                           {% else %}
                             {% if CURRENT_LANGUAGE == "az" %}Moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Submit{% else %}На проверку{% endif %}
@@ -618,9 +571,10 @@
                         </span>
                       </button>
                     </form>
+                    {% endif %}
                   {% endif %}
 
-                  {% if place.owner_can_edit and place.latest_moderation_request.status != "PENDING" and place.status != place.STATUS_PENDING %}
+                  {% if place.owner_can_edit and not place.owner_workflow.pending %}
                     <form method="post" action="{% url 'owner_place_delete' place.id %}" onsubmit="return confirm('{{ delete_place_confirm_text|escapejs }}');" class="account-owner-card__delete-form">
                       {% csrf_token %}
                       <button type="submit" class="account-btn-sm account-btn-sm--danger" title="{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Delete{% else %}Удалить{% endif %}">

@@ -108,3 +108,30 @@ test('native form carries the confirmed draft version after text and media saves
  const d=mount(w=>{w.KidsMapDraftMedia={mount:()=>({hasPending:()=>false,save:async(result,adopt)=>{const next={...result,version:4};adopt(next);return next;}})};w.fetch=async(url,options)=>({ok:true,json:async()=>({draft_id:JSON.parse(options.body).draft_id,version:1,saved_at:new Date().toISOString()})});});
  assert.equal(await d.window.KidsMapOwnerWorkflow.save(),true);assert.equal(d.window.document.querySelector('[name=server_draft_version]')?.value,'4');d.window.close();
 });
+
+test('automatic readiness validates the selected main image but does not upload gallery files',async()=>{
+ const d=mount(w=>{w.KidsMapPhotoEditor={mount:()=>({snapshotMedia:()=>[
+  {id:'main',role:'main',file:new w.File(['image'],'main.webp',{type:'image/webp'})},
+  {id:'gallery',role:'gallery',file:new w.File(['gallery'],'gallery.webp',{type:'image/webp'})}
+ ]})};});
+ try{let body;d.window.fetch=async(url,options)=>{body=options.body;return {ok:true,status:200,json:async()=>({})};};
+ await d.window.KidsMapOwnerWorkflow.checkReadiness();assert.equal(body.get('photo')?.name,'main.webp');assert.equal(body.has('gallery_images'),false);
+ }finally{d.window.close();}
+});
+
+test('price summary reads saved tariff data before the tariff editor renders',()=>{
+ const d=mount(w=>{w.document.querySelector('[data-tariff-list]').replaceChildren();w.document.querySelector('[name=pricing_plans]').value=JSON.stringify([{price:'80',currency:'AZN'}]);w.document.getElementById('pw-copy').textContent='{"empty":"Не заполнено","plan_count_one":"тариф"}';});
+ try{assert.equal(d.window.document.querySelector('[data-pc-preview-price]').textContent,'1 тариф');}finally{d.window.close();}
+});
+
+for(const [mode,label] of [['free','Бесплатно'],['events','Цена зависит от мероприятия'],['free_entry_paid_services','Бесплатный вход + платные услуги']]){
+ test(`price summary explains ${mode} without requiring tariff rows`,()=>{
+  const d=mount(w=>{w.document.querySelector('[data-tariff-list]').replaceChildren();const input=w.document.createElement('input');input.name='price_mode';input.value=mode;w.document.querySelector('form').append(input);});
+  try{assert.equal(d.window.document.querySelector('[data-pc-preview-price]').textContent,label);}finally{d.window.close();}
+ });
+}
+
+test('a blocked photo explains why completion cannot be checked',async()=>{
+ const d=mount(w=>{w.document.querySelector('form').insertAdjacentHTML('beforeend','<p data-pc-progress-summary></p>');w.KidsMapPhotoEditor={mount:()=>({blocking:()=>true})};});
+ try{await d.window.KidsMapOwnerWorkflow.checkReadiness();assert.match(d.window.document.querySelector('[data-pc-progress-summary]').textContent,/фото/);}finally{d.window.close();}
+});

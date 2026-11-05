@@ -93,6 +93,17 @@ class ModerationPlaceAdmin(PendingModerationAdminMixin, PlaceAdmin):
     moderation_empty_description = _("Новые места появятся здесь после отправки на модерацию.")
     moderation_actions = ("mark_published", "mark_rejected", "return_for_revision")
 
+    def _place_view_url(self, obj):
+        if getattr(getattr(obj, "volunteer_revision", None), "status", None) == "pending":
+            from django.urls import reverse
+            return reverse("admin:catalog_place_site_preview", args=[obj.pk], current_app=self.admin_site.name)
+        return super()._place_view_url(obj)
+
+    def _place_view_label(self, obj, public_label):
+        if getattr(getattr(obj, "volunteer_revision", None), "status", None) == "pending":
+            return _("Предпросмотр")
+        return super()._place_view_label(obj, public_label)
+
     def get_list_display(self, request):
         columns = list(super().get_list_display(request))
         if "created_summary" not in columns:
@@ -112,12 +123,9 @@ class ModerationPlaceAdmin(PendingModerationAdminMixin, PlaceAdmin):
         return tuple(columns)
 
     def get_queryset(self, request):
+        from catalog.services.moderation_queue import actionable_place_filter
         qs = super().get_queryset(request)
-        return qs.filter(
-            status=Place.STATUS_PENDING,
-            deleted_at__isnull=True,
-            is_temporary=False,
-        )
+        return qs.filter(actionable_place_filter())
 
 
 @admin.register(ModerationEvent)
