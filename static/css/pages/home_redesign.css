@@ -2976,3 +2976,220 @@ body.page-home .home-hero-visual { margin-top: 12px; }
     font-size: 16px !important;
   }
 }
+
+/* ==========================================================================
+   "How it works" as a route: three map pins on a dashed trail.
+   Replaces the generic three-card layout with the KidsMap map/path motif.
+   ========================================================================== */
+body.page-home .home-steps-lite-grid {
+  position: relative;
+  gap: clamp(20px, 3vw, 40px);
+  padding-top: 8px;
+}
+body.page-home .home-steps-lite-grid::before {
+  content: "";
+  position: absolute;
+  top: 40px;
+  left: 16.6%;
+  right: 16.6%;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(19, 111, 56, .38) 55%, transparent 0) 0 0 / 16px 3px repeat-x;
+  border-radius: 2px;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 1100ms var(--ease-out-quint, ease-out) 150ms;
+}
+body.page-home .home-steps-lite.is-visible .home-steps-lite-grid::before,
+body.page-home .home-steps-lite:not(.animate-on-scroll) .home-steps-lite-grid::before { clip-path: inset(0 0 0 0); }
+
+body.page-home .home-step-lite-card {
+  position: relative;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+body.page-home .home-step-lite-visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 80px;
+  margin: 0 auto;
+}
+body.page-home .home-step-lite-number {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-top: -6px;
+  background: none;
+  box-shadow: none;
+  color: #fff;
+  font: 800 22px/1 var(--font-display, system-ui, sans-serif);
+  font-variant-numeric: tabular-nums;
+}
+body.page-home .home-step-lite-number::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 6px;
+  background: var(--brand-turf, #136f38);
+  transform: rotate(-45deg);
+  box-shadow: 0 10px 18px -6px rgba(13, 73, 36, .45);
+}
+body.page-home .home-step-lite-card:nth-child(3) .home-step-lite-number::before { background: var(--brand-spruce, #0d4924); }
+body.page-home .home-step-lite-visual::after { /* ground shadow under the pin */
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 22px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(13, 73, 36, .18);
+  transform: translateX(-50%);
+}
+body.page-home .home-step-lite-icon {
+  position: absolute;
+  top: -2px;
+  right: -14px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(13, 73, 36, .16);
+  color: var(--brand-turf, #136f38);
+}
+body.page-home .home-step-lite-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+body.page-home .home-step-lite-card h3 {
+  margin-top: 14px;
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-size: clamp(19px, 1.7vw, 23px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+body.page-home .home-step-lite-card p {
+  margin: 8px auto 0;
+  color: var(--muted, rgba(31, 41, 51, .76));
+  font-size: .95rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+/* Pins drop onto the trail one after another when the block scrolls in. */
+@media (prefers-reduced-motion: no-preference) {
+  body.page-home .home-steps-lite.animate-on-scroll .home-step-lite-visual {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+  body.page-home .home-steps-lite.animate-on-scroll.is-visible .home-step-lite-visual {
+    animation: kmStepPinDrop 560ms var(--ease-spring, cubic-bezier(.34, 1.56, .64, 1)) both;
+  }
+  body.page-home .home-steps-lite.is-visible .home-step-lite-card:nth-child(2) .home-step-lite-visual { animation-delay: 380ms; }
+  body.page-home .home-steps-lite.is-visible .home-step-lite-card:nth-child(3) .home-step-lite-visual { animation-delay: 760ms; }
+  body.page-home .home-steps-lite.is-visible .home-step-lite-card:first-child .home-step-lite-visual { animation-delay: 0ms; }
+  body.page-home .home-step-lite-card:hover .home-step-lite-number { transform: translateY(-3px); }
+  body.page-home .home-step-lite-number { transition: transform var(--dur-fast, 160ms) var(--ease-spring, ease-out); }
+}
+@keyframes kmStepPinDrop {
+  from { opacity: 0; transform: translateY(-18px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Phone: the route runs downward, pins on the left. */
+@media (max-width: 760px) {
+  body.page-home .home-steps-lite-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  body.page-home .home-steps-lite-grid::before {
+    top: 40px;
+    bottom: 60px;
+    left: 31px;
+    right: auto;
+    width: 3px;
+    height: auto;
+    background: linear-gradient(180deg, rgba(19, 111, 56, .38) 55%, transparent 0) 0 0 / 3px 16px repeat-y;
+    clip-path: inset(0 0 100% 0);
+  }
+  body.page-home .home-step-lite-card {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    align-items: center;
+    column-gap: 16px;
+    text-align: left;
+    padding: 0;
+  }
+  body.page-home .home-step-lite-card h3,
+  body.page-home .home-step-lite-card p { text-align: left; margin-left: 0; }
+  body.page-home .home-step-lite-card h3 { margin-top: 0; }
+}
+
+/* Specificity: site.css styles each step card by :nth-child (0,3,0) and
+   its icon at (0,4,0); these selectors sit one notch above. */
+body.page-home .home-steps-lite .home-step-lite-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  grid-template-columns: none;
+  min-height: 0;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+}
+body.page-home .home-steps-lite .home-step-lite-card .home-step-lite-icon {
+  position: absolute;
+  top: -2px;
+  right: -14px;
+  left: auto;
+  bottom: auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(13, 73, 36, .16);
+  color: var(--brand-turf, #136f38);
+}
+body.page-home .home-steps-lite .home-step-lite-card .home-step-lite-content { text-align: center; }
+@media (max-width: 760px) {
+  body.page-home .home-steps-lite .home-step-lite-card {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    align-items: center;
+    column-gap: 16px;
+    text-align: left;
+    padding: 0;
+  }
+  body.page-home .home-steps-lite .home-step-lite-card .home-step-lite-content { text-align: left; }
+}
+body.page-home .home-steps-lite .home-step-lite-card .home-step-lite-number {
+  background: none;
+  box-shadow: none;
+  filter: none;
+}
+body.page-home .home-steps-lite .home-step-lite-card .home-step-lite-visual { background: none; box-shadow: none; }
+body.page-home .home-steps-lite .home-step-lite-card h3,
+body.page-home .home-steps-lite .home-step-lite-card p { text-align: center; margin-inline: auto; }
+@media (max-width: 760px) {
+  body.page-home .home-steps-lite .home-step-lite-card h3,
+  body.page-home .home-steps-lite .home-step-lite-card p { text-align: left; margin-inline: 0; }
+}
+/* site.css hides the steps' ::before on phones; the trail needs it. */
+body.page-home .home-steps-lite .home-steps-lite-grid::before { display: block; }
