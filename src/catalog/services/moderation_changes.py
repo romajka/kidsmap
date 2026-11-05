@@ -54,6 +54,9 @@ def _text(value, target=None, key=''):
         return t('Не указано', 'Göstərilməyib', 'Not specified')
     if isinstance(value, bool):
         return t('Да', 'Bəli', 'Yes') if value else t('Нет', 'Xeyr', 'No')
+    if isinstance(value, str) and key in {'district', 'region', 'metro'}:
+        from catalog.services.locations import get_location_translation, get_metro_translation
+        return str(get_metro_translation(value) if key == 'metro' else get_location_translation(value))
     if target is not None:
         try:
             field = target._meta.get_field(key)

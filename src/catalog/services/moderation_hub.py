@@ -46,6 +46,15 @@ def sla_label(status):
     }.get(status, status)
 
 def field_label(target, key):
+    structured = {
+        'pricing_plans': t('Тарифы', 'Tariflər', 'Pricing plans'),
+        'nested_pricing': t('Тарифы по занятиям', 'Məşğələ tarifləri', 'Activity pricing'),
+        'structured_schedule': t('Расписание', 'Cədvəl', 'Schedule'),
+        'gallery': t('Галерея', 'Qalereya', 'Gallery'),
+        'location_override': t('Уточнение местоположения', 'Məkanın dəqiqləşdirilməsi', 'Location correction'),
+    }
+    if key in structured:
+        return structured[key]
     if key.startswith('name_'):
         return f"{t('Название', 'Ad', 'Name')} ({key[-2:].upper()})"
     if key.startswith('description_'):

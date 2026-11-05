@@ -109,3 +109,15 @@ class ModerationChangePresentationTests(TestCase):
         type(self.place).objects.filter(pk=self.place.pk).update(description_ru='New current text')
         response = self.client.get('/ru' + self.url)
         self.assertNotContains(response, 'Сначала верните предложение на доработку.')
+
+    def test_location_codes_are_readable_in_review(self):
+        from catalog.services.moderation_changes import describe_change
+        with override('ru'):
+            change = describe_change('district', 'baku_narimanov', 'baku_nasimi')
+        self.assertEqual(change['before_text'], 'Баку, Наримановский район')
+        self.assertEqual(change['after_text'], 'Баку, Насиминский район')
+
+    def test_structured_fields_have_human_names(self):
+        with override('ru'):
+            labels = [moderation_hub.field_label(self.place, key) for key in ['pricing_plans', 'nested_pricing', 'structured_schedule', 'gallery']]
+        self.assertEqual(labels, ['Тарифы', 'Тарифы по занятиям', 'Расписание', 'Галерея'])
