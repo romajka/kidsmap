@@ -8,14 +8,29 @@
 {% if row.source == 'content' and row.kind == 'place' %}<p><a class="btn btn-outline-success" data-moderation-full-preview href="{% url 'admin:volunteer_revision_preview' row.id %}" target="_blank" rel="noopener">{% translate "Проверить карточку" %} ↗</a></p>{% endif %}
 {% if error %}<div class="alert alert-danger" role="alert" id="hub-error" tabindex="-1">{{ error }}</div>{% endif %}
 {% if row.conflict %}<div class="alert alert-warning" role="alert">{% translate "Исходные данные изменились. Сначала верните предложение на доработку." %}</div>{% endif %}
-<h2>{% translate "Изменения" %}</h2>
-<div class="km-volunteer-comparison km-hub-media-comparison"><table><thead><tr><th scope="col">{% translate "Поле" %}</th><th scope="col">{% translate "Сейчас" %}</th><th scope="col">{% translate "Предложено" %}</th></tr></thead><tbody>
+<section class="km-change-summary{% if row.status == 'pending' %} km-change-attention{% endif %}" aria-labelledby="change-summary-title">
+  <div class="km-change-summary__heading"><h2 id="change-summary-title">{{ row.review_copy.title }}</h2><span>{{ row.review_copy.fields }}: <strong>{{ row.change_count }}</strong></span></div>
+  <p>{% if row.status == 'pending' %}{{ row.review_copy.help }}{% else %}{{ row.review_copy.history }}{% endif %}</p>
+  {% if row.new_or_edit == 'new' and row.status == 'pending' %}<p><strong>{{ row.review_copy.new }}</strong></p>{% endif %}
+  {% if row.display_changes %}<ul class="km-change-jumps">{% for change in row.display_changes %}<li><a href="#{{ change.anchor }}">{{ change.label }}</a></li>{% endfor %}</ul>{% else %}<p>{{ row.review_copy.empty }}</p>{% endif %}
+</section>
+<div class="km-change-comparison km-hub-media-comparison">
 {% translate "Текущее фото" as current_photo %}{% translate "Предложенное фото" as proposed_photo %}
-{% for change in row.display_changes %}<tr><th scope="row">{{ change.label }}</th>
-<td><span class="km-hub-media-side" aria-hidden="true">{% translate "Сейчас" %}</span>{% if change.media %}{% include "admin/volunteer/hub_media.html" with images=change.before_images side=current_photo only %}{% else %}{{ change.before|default_if_none:'—' }}{% endif %}</td>
-<td><span class="km-hub-media-side" aria-hidden="true">{% translate "Предложено" %}</span>{% if change.media %}{% include "admin/volunteer/hub_media.html" with images=change.after_images side=proposed_photo only %}{% else %}{{ change.after|default_if_none:'—' }}{% endif %}</td></tr>
-{% empty %}<tr><td colspan="3">{% translate "Новых полей нет." %}</td></tr>{% endfor %}
-</tbody></table></div>
+{% for change in row.display_changes %}
+<section id="{{ change.anchor }}" class="km-change-field" tabindex="-1" aria-labelledby="{{ change.anchor }}-title">
+  <div class="km-change-field__heading"><h3 id="{{ change.anchor }}-title">{{ change.label }}</h3><span class="km-change-badge km-change-badge--{{ change.change_type }}">{{ change.change_label }}</span></div>
+  {% if row.status == 'pending' %}<p class="km-change-hint"><strong>{{ row.review_copy.attention }}:</strong> {{ change.hint }}</p>{% endif %}
+  <div class="km-change-values">
+    <div class="km-change-value km-change-value--before"><h4>{{ row.review_copy.now }}</h4>
+      {% if change.media %}{% include "admin/volunteer/hub_media.html" with images=change.before_images side=current_photo only %}{% else %}<div class="km-change-text">{% for part in change.before_parts %}{% if part.changed %}<del>{{ part.text }}</del>{% else %}{{ part.text }}{% endif %}{% endfor %}</div>{% endif %}
+    </div>
+    <div class="km-change-value km-change-value--after"><h4>{{ row.review_copy.proposed }}</h4>
+      {% if change.media %}{% include "admin/volunteer/hub_media.html" with images=change.after_images side=proposed_photo only %}{% else %}<div class="km-change-text">{% for part in change.after_parts %}{% if part.changed %}<ins>{{ part.text }}</ins>{% else %}{{ part.text }}{% endif %}{% endfor %}</div>{% endif %}
+    </div>
+  </div>
+</section>
+{% endfor %}
+</div>
 {% if row.affected_branches %}<h2>{% translate "Затронутые филиалы" %}</h2><ul>{% for place_id in row.affected_branches %}<li>{% translate "Место" %} #{{ place_id }}</li>{% endfor %}</ul>{% endif %}
 {% if row.source == 'content' and row.revision.review_note %}
 {% if row.status == 'approved' or row.status == 'declined' or row.status == 'rejected' %}

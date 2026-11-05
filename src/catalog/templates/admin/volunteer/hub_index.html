@@ -186,6 +186,12 @@
                     {{ row.name }}
                   </a>
                 </strong>
+                {% if row.change_labels %}<div class="km-change-list-summary">
+                  <span>{% translate "Изменения" %} · {{ row.change_count }}</span>
+                  <ul>{% for label in row.change_labels|slice:':4' %}<li>{{ label }}</li>{% endfor %}</ul>
+                  {% if row.change_count > 4 %}<span>+{{ row.change_count|add:'-4' }}</span>{% endif %}
+                </div>{% endif %}
+                {% if row.conflict %}<span class="km-change-conflict">{% translate "Исходные данные изменились. Сначала верните предложение на доработку." %}</span>{% endif %}
               </td>
               <td>
                 <span class="badge badge-secondary" style="font-size: 11px;">

@@ -2285,6 +2285,7 @@ class PlaceAdmin(admin.ModelAdmin):
             context["km_place_site_preview_url"] = reverse(
                 "admin:catalog_place_site_preview", args=[obj.pk], current_app=self.admin_site.name)
 
+        context["km_place_pending_review"] = None
         context["km_place_revision_recovery"] = None
         if may_edit and obj and obj.pk:
             from catalog.services.volunteer_places import base_token, revision_base_matches
@@ -2293,6 +2294,17 @@ class PlaceAdmin(admin.ModelAdmin):
             current = self.get_object(request, str(obj.pk))
             revision = VolunteerPlaceRevision.objects.filter(place=current).exclude(
                 status=VolunteerPlaceRevision.Status.APPROVED).first() if current is not None else None
+            if revision is not None and revision.status == 'pending':
+                from catalog.services.business_team import platform_has_action
+                from catalog.services.staff_roles import is_volunteer
+                if not is_volunteer(request.user) and platform_has_action(user=request.user, action='place.publish'):
+                    from catalog.services.moderation_hub import field_label
+                    from catalog.services.moderation_changes import review_copy
+                    context['km_place_pending_review'] = {
+                        'url': reverse('admin:volunteer_moderation_detail', args=['content', revision.pk]),
+                        'labels': [field_label(current, key) for key in revision.changed_fields],
+                        'copy': review_copy(),
+                    }
             if revision is not None and not revision_base_matches(revision, current):
                 context["km_place_revision_recovery"] = {
                     "version": revision.version,

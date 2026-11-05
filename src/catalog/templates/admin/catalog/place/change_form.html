@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_urls.css' %}?v=20260918">
 <script src="{% static 'admin/js/kidsmap_place_urls.js' %}" defer></script>
   {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/pages/moderation_changes.css' %}?v=20261105_1">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20261027_location_map_v2">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20261025_live2">
   <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=20261028_addition1" defer></script>
@@ -64,6 +65,13 @@
     {{ km_place_taxonomy_picker|json_script:"km-place-taxonomy-config" }}
     {{ km_place_taxonomy_picker.pricing_editor|json_script:"km-pricing-editor-contract" }}
 
+    {% if km_place_pending_review %}
+    <section class="km-change-summary km-change-attention" data-pending-change-review aria-labelledby="pending-change-title">
+      <h2 id="pending-change-title">{{ km_place_pending_review.copy.pending }}</h2>
+      {% if km_place_pending_review.labels %}<p>{{ km_place_pending_review.labels|join:' · ' }}</p>{% else %}<p>{{ km_place_pending_review.copy.empty }}</p>{% endif %}
+      <a class="km-change-review-link" href="{{ km_place_pending_review.url }}">{{ km_place_pending_review.copy.review }} →</a>
+    </section>
+    {% endif %}
     {% include "admin/catalog/place/form/revision_recovery.html" %}
 
     <form

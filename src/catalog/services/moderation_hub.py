@@ -95,16 +95,22 @@ def _revision_row(revision, now):
         or revision.dependencies != publication.dependencies(target, kind)
         or any(current.get(key) != revision.base_snapshot.get(key) for key in revision.changed_fields))
     status = revision.status
+    candidate = {**current, **revision.payload}
+    new_entry = getattr(target, 'status', 'draft') != 'published'
+    review_fields = list(revision.changed_fields)
+    if new_entry:
+        from catalog.services.moderation_changes import _empty
+        review_fields += [key for key, value in candidate.items() if key not in review_fields and not _empty(value)]
     submitted = revision.submitted_at or revision.created_at
     return {'source': 'content', 'id': revision.pk, 'kind': kind, 'status': status,
         'author_id': revision.author_id, 'author': revision.author,
         'organization_id': target.pk if kind == 'organization' else target.organization_id if kind in {'place', 'program'} else target.place.organization_id if kind == 'activity' else target.activity.place.organization_id,
         'place_ids': _branches(kind, target), 'target_id': target.pk,
         'name': revision.payload.get('name_az') or getattr(target, 'name_az', '') or getattr(target, 'name', '') or f'#{target.pk}',
-        'new_or_edit': 'new' if getattr(target, 'status', 'draft') != 'published' else 'edit',
+        'new_or_edit': 'new' if new_entry else 'edit',
         'submitted_at': submitted, 'version': revision.version, 'conflict': conflict,
-        'current': current, 'candidate': {**current, **revision.payload},
-        'changes': [(field_label(target, key), current.get(key), revision.payload.get(key)) for key in revision.changed_fields],
+        'current': current, 'candidate': candidate, 'review_fields': review_fields,
+        'changes': [(field_label(target, key), current.get(key), candidate.get(key)) for key in review_fields],
         'affected_branches': _branches(kind, target),
         'sla': calculate_sla(kind, submitted, now=now,
             paused_at=revision.needs_changes_at if status == 'rejected' else None,
@@ -185,6 +191,8 @@ def query(actor, params, *, now=None):
         and (not since or row['submitted_at'].date().isoformat() >= since)
         and (not until or row['submitted_at'].date().isoformat() <= until)]
     for row in rows:
+        row['change_labels'] = [change[0] for change in row['changes']]
+        row['change_count'] = len(row['changes'])
         row['kind_label'] = kind_label(row['kind'])
         row['status_label'] = status_label(row['status'])
         row['mode_label'] = mode_label(row['new_or_edit'])
@@ -199,6 +207,11 @@ def detail(actor, source, row_id):
     for row in rows:
         if row['source'] == source and row['id'] == row_id:
             from catalog.services.moderation_media import comparison_rows
+            from catalog.services.moderation_changes import review_copy
+            row['review_copy'] = review_copy()
+            if row['source'] == 'content' and row['new_or_edit'] == 'new':
+                row['review_copy']['now'] = t('В черновике', 'Qaralamada', 'In draft')
+                row['review_copy']['proposed'] = t('Для публикации', 'Dərc üçün', 'For publication')
             row['display_changes'] = comparison_rows(row)
             return row
     from django.http import Http404

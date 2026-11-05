@@ -41,12 +41,16 @@ def _images(value,field):
 def comparison_rows(row):
     """Keep text/affiliation behavior; only known Place image fields get URLs."""
     from django.utils.translation import gettext as _
-    keys=row['revision'].changed_fields if row['kind']=='place' else []
+    from catalog.services.moderation_changes import describe_change
+    revision = row.get('revision')
+    keys = row.get('review_fields', revision.changed_fields) if revision else ['organization_id']
+    target = getattr(revision, row['kind']) if revision else None
     result=[]
     for index,(label,before,after) in enumerate(row['changes']):
         key=keys[index] if index<len(keys) else ''
-        media=key in {'photo','cover_photo','gallery'}
-        result.append({'label':_('Галерея') if key=='gallery' else label,'before':before,'after':after,
+        media=row['kind']=='place' and key in {'photo','cover_photo','gallery'}
+        result.append({**describe_change(key, before, after, target), 'anchor': f'moderation-change-{index + 1}',
+            'label':_('Галерея') if key=='gallery' else label,'before':before,'after':after,
             'media':media,'before_images':_images(before,key) if media else [],
             'after_images':_images(after,key) if media else []})
     return result
