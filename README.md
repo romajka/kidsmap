@@ -77,7 +77,7 @@ KidsMap — не просто список карточек. Это сервис
 - `controllers`
 - `services`
 
-Это важно сохранять. При доработках не стоит уводить бизнес-логику в шаблоны, `views.py` или произвольные хелперы без необходимости.
+Это важно сохранять. При доработках не стоит уводить бизнес-логику в шаблоны, `views/` или произвольные хелперы без необходимости.
 
 ## Основные пользовательские потоки
 
@@ -139,7 +139,7 @@ docker compose up -d --build
 Смотри [.env.example](./.env.example), но наиболее важные:
 
 - `DJANGO_SECRET_KEY`
-- `DJANGO_DEBUG`
+- `DJANGO_DEBUG` — по умолчанию `0` (боевой режим). Для локальной разработки задайте `DJANGO_DEBUG=1` (это делает `run_local_server.sh`), иначе Django потребует `DATABASE_URL`, `REDIS_URL` и настоящий `DJANGO_SECRET_KEY`. При `DJANGO_TESTING=1` по умолчанию `1`, как раньше.
 - `DJANGO_ALLOWED_HOSTS`
 - `DJANGO_CSRF_TRUSTED_ORIGINS`
 - `DJANGO_ADMIN_HOST`

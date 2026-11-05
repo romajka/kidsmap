@@ -3,7 +3,7 @@
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 {% block title %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/specialist_detail.css' %}?v=20261104_soft_motion_r1" />{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/components/specialist_subjects.css' %}?v=20261105_subjects_r2" /><link rel="stylesheet" href="{% static 'css/pages/specialist_detail.css' %}?v=20261104_soft_motion_r1" />{% endblock %}
 
 {% block content %}
 <article class="sp-detail km-specialist-detail-page km-specialists-detail">
@@ -14,8 +14,9 @@
       {% else %}<div class="sp-photo sp-photo--empty" aria-hidden="true"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="32" cy="22" r="10"/><path d="M12 55v-5a20 20 0 0 1 40 0v5"/></svg></div>{% endif %}
       <div class="sp-identity-text">
         <h1>{{ specialist.name }}</h1>
+        {% if specialist_subjects %}<ul class="km-subject-tags" aria-label="{% if language == 'az' %}Fənlər{% elif language == 'en' %}Subjects{% else %}Предметы{% endif %}">{% for item in specialist_subjects %}<li><span class="material-symbols-rounded" aria-hidden="true">{{ item.icon }}</span>{{ item.label }}</li>{% endfor %}</ul>{% endif %}
         {% if specialist.name_alt %}<p class="sp-muted sp-name-alt">{{ specialist.name_alt }}</p>{% endif %}
-        <ul class="sp-tags" aria-label="{% if language == 'az' %}İstiqamətlər{% elif language == 'en' %}Specializations{% else %}Направления{% endif %}">{% for spec in specialist.specializations.all %}<li>{{ spec.name_i18n }}</li>{% endfor %}</ul>
+        {% if specialist_categories %}<ul class="sp-tags" aria-label="{% if language == 'az' %}İstiqamətlər{% elif language == 'en' %}Specializations{% else %}Направления{% endif %}">{% for spec in specialist_categories %}<li>{{ spec.name_i18n }}</li>{% endfor %}</ul>{% endif %}
         <a href="#reviews" class="sp-rating-link">
           {% if specialist.rating_count %}<span class="sp-rating" style="--rating-fill:{{ specialist_public.rating_percent }}%" aria-hidden="true"><span>★★★★★</span><span class="sp-rating-fill">★★★★★</span></span><strong>{{ specialist.rating_avg|floatformat:1 }} / 5</strong><span>({{ specialist.rating_count|review_count }})</span>
           {% else %}{% if language == 'az' %}Hələ rəy yoxdur{% elif language == 'en' %}No reviews yet{% else %}Пока нет отзывов{% endif %}{% endif %}

@@ -6,7 +6,7 @@ const {JSDOM} = require(process.env.KIDSMAP_JSDOM || 'jsdom');
 const source = fs.readFileSync(path.join(__dirname, '../../static/js/specialists.js'), 'utf8');
 const accessibility = fs.readFileSync(path.join(__dirname, '../../static/js/specialist_workspace.js'), 'utf8');
 async function setup({locale = 'ru', format = 'online', phone = '+994501234567', row = '', errorLocale = '', desktop = false} = {}) {
-  const rules = {location_required_formats: ['offline', 'both'], location_required_fields: ['region'], location_identity_fields: ['place', 'address']};
+  const rules = {location_required_formats: ['offline', 'both'], location_required_fields: ['region'], location_identity_fields: ['place', 'address'], phone_pattern: '^\\+?[0-9()\\-\\s]{7,25}$', phone_min_digits: 7, phone_max_digits: 15};
   const dom = new JSDOM(`<html lang="${locale}"><body><script id="specialist-readiness-rules" type="application/json">${JSON.stringify(rules)}</script>
     <form class="km-specialist-owner-form km-unified-form">
       <details class="km-section-navigation" open><summary>Sections</summary><a href="#km-sec-basic" data-toc-target="km-sec-basic">Personal</a></details><section id="km-sec-basic" class="km-unified-section"></section>
@@ -16,7 +16,7 @@ async function setup({locale = 'ru', format = 'online', phone = '+994501234567',
       <select id="id_consultation_format"><option selected>${format}</option></select>
       <input id="id_phone" value="${phone}" pattern="[+0-9 ()-]{7,25}"><input id="id_whatsapp">
       <div data-req-progress-fill></div><span data-req-badge></span><span data-req-status-text data-all-done="Filled"></span>
-      <div data-owner-spec-dropdown><button type="button" data-owner-spec-dropdown-trigger aria-expanded="false">Choose</button>
+      <div data-owner-spec-dropdown><button type="button" data-owner-spec-dropdown-trigger aria-expanded="false"><span data-owner-spec-placeholder>Choose</span><span data-selected-count-badge></span></button>
         <div data-owner-spec-dropdown-panel hidden><input data-spec-search></div></div>
       <div role="tablist">${['az','ru','en'].map(l=>`<button type="button" data-owner-lang-tab="${l}">${l}</button>`).join('')}</div>
       ${['az','ru','en'].map(l=>`<div data-owner-lang-panel="${l}"><textarea id="id_bio_${l}">${l==='ru'?'Biography':''}</textarea>${l===errorLocale?'<small class="auth-field-error">Invalid</small>':''}</div>`).join('')}
@@ -32,6 +32,30 @@ async function setup({locale = 'ru', format = 'online', phone = '+994501234567',
   return {dom, w, doc:w.document, form:w.document.querySelector('form')};
 }
 const locationRow = (fields='') => `<article data-practice-row><input name="locations-0-is_active" type="checkbox" checked><input name="locations-0-DELETE" type="checkbox">${fields}</article>`;
+test('tutor subject selection controls readiness and reveals only the relevant subject picker', async () => {
+  const t = await setup({row: `<script id="specialist-subject-rules" type="application/json">{"requires":["on"],"subjects":["subject-id"]}</script>
+    <fieldset data-subject-picker><label class="owner-specialist-chip"><input type="checkbox" name="specializations" value="subject-id"><strong class="chip-title">Mathematics</strong></label><p data-subject-required hidden>Choose a subject</p></fieldset>`});
+  const category = t.form.querySelector('input[name="specializations"]');
+  const subject = t.form.querySelector('input[value="subject-id"]');
+  const picker = t.form.querySelector('[data-subject-picker]');
+  const complete = () => t.doc.querySelector('[data-req-progress-fill]').classList.contains('is-complete');
+  const change = (input, checked) => {input.checked = checked; input.dispatchEvent(new t.w.Event('change', {bubbles:true}));};
+  assert.equal(complete(), false);
+  assert.equal(t.doc.querySelector('[data-req-badge]').textContent, '6 / 7');
+  assert.equal(picker.hidden, false);
+  assert.equal(t.form.querySelector('[data-subject-required]').hidden, false);
+  change(subject, true);
+  assert.equal(complete(), true);
+  assert.equal(t.doc.querySelector('[data-req-badge]').textContent, '✓ 7 / 7');
+  assert.equal(t.doc.querySelector('[data-selected-count]').textContent, '2');
+  assert.equal(t.doc.querySelector('[data-selected-count-badge]').textContent, '1');
+  change(category, false);
+  assert.equal(picker.hidden, false, 'legacy subject alone remains editable');
+  change(subject, false);
+  assert.equal(picker.hidden, true, 'other specialists do not get irrelevant subject fields');
+  assert.equal(complete(), false);
+  t.dom.window.close();
+});
 test('offline and mixed profiles without a practice location never show complete', async () => {
   for (const format of ['offline','both']) {
     const t = await setup({format});
@@ -143,4 +167,22 @@ test('desktop section navigation stays expanded when its heading is clicked', as
   nav.querySelector('summary').click();
   assert.equal(nav.open, true);
   t.dom.window.close();
+});
+
+test('reversed optional age and price ranges prevent a ready-to-submit claim', async () => {
+  for (const prefix of ['age', 'price']) {
+    const t=await setup({row:`<input id="id_${prefix}_from" value="18"><input id="id_${prefix}_to" value="7">`});
+    const complete=()=>t.doc.querySelector('[data-req-progress-fill]').classList.contains('is-complete');
+    assert.equal(complete(),false);
+    const end=t.doc.querySelector('#id_'+prefix+'_to'); end.value='20';end.dispatchEvent(new t.w.Event('input',{bubbles:true}));
+    assert.equal(complete(),true);
+    t.w.close();
+  }
+});
+
+test('a missing tutor subject error link focuses the visible subject choice',async()=>{
+ const t=await setup({row:`<script id="specialist-subject-rules" type="application/json">{"requires":["on"],"subjects":["math"]}</script><fieldset data-subject-picker><label class="owner-specialist-chip"><input value="math" type="checkbox" name="specializations"><strong class="chip-title">Math</strong></label><p data-subject-required>Choose subject</p></fieldset><a href="#id_specializations">Subject error</a>`});
+ t.doc.querySelector('[data-owner-spec-dropdown-trigger]').id='id_specializations';
+ t.doc.querySelector('a[href="#id_specializations"]').click();
+ assert.equal(t.doc.activeElement,t.doc.querySelector('[value=math]'));t.w.close();
 });

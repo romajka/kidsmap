@@ -2239,6 +2239,16 @@ class OwnerTeamRoleUpdateForm(forms.Form):
 
 class OwnerSpecialistForm(forms.ModelForm):
     draft_save_only = False
+
+    @property
+    def subject_options(self):
+        from catalog.services.specialist_subjects import form_subject_options
+        return form_subject_options(self)
+
+    @property
+    def subject_rules(self):
+        from catalog.services.specialist_subjects import form_subject_rules
+        return form_subject_rules(self)
     documents = MultipleFileField(
         label=_("Дипломы и сертификаты"),
         widget=SpecialistDocumentFileInput(attrs={"class": "field", "multiple": True, "accept": ".pdf,.png,.jpg,.jpeg"}),
@@ -2379,6 +2389,10 @@ class OwnerSpecialistForm(forms.ModelForm):
 
         if not cleaned.get("specializations"):
             self.add_error("specializations", _("Выберите хотя бы одно направление деятельности."))
+        else:
+            from catalog.services.specialist_subjects import subject_required, subject_error
+            if subject_required(cleaned['specializations']):
+                self.add_error('specializations', subject_error())
 
         if not any((cleaned.get("bio_az"), cleaned.get("bio_ru"), cleaned.get("bio_en"))):
             msg = _("Добавьте описание профиля хотя бы на одном языке.")

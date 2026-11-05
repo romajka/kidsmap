@@ -62,6 +62,10 @@ def _text(value, target=None, key=''):
             field = target._meta.get_field(key)
         except FieldDoesNotExist:
             field = None
+        if field is not None and field.auto_created and not field.concrete:
+            # Reverse relations (e.g. ``gallery``) carry structured payloads,
+            # not a column value: they have no choices and no target field.
+            field = None
         if field is not None and field.choices:
             return str(dict(field.flatchoices).get(value, value))
         if field is not None and field.is_relation and not isinstance(value, (dict, list)):

@@ -249,7 +249,7 @@
   }
 
   function renderPopupContent(point, detailsLabel, ageLabels) {
-    return '<div class="home-map-popup-members" style="max-height: min(60vh, 480px); overflow-y: auto">' +
+    return '<div class="home-map-popup-members">' +
       pointMembers(point).map(place => renderMemberPopup(place, detailsLabel, ageLabels)).join("") + "</div>";
   }
 
@@ -317,7 +317,36 @@
       "</div>"
       : "";
 
-    const phoneHtml = (place.has_phone || place.has_whatsapp) ? window.kidsMapPhoneButton(place.id, "home-map-popup-phone-link", !place.has_phone && place.has_whatsapp) : "";
+    let offersHtml = "";
+    if (Array.isArray(place.matched_offers) && place.matched_offers.length > 0) {
+      offersHtml = '<div class="home-map-popup-offers">' +
+        place.matched_offers.map(offer => {
+          const offerUrl = safeHomeMapUrl(offer.url, false);
+          const titleTag = offerUrl
+            ? '<a class="home-map-popup-offer-link" href="' + escapeHtml(offerUrl) + '">' + escapeHtml(offer.name) + '</a>'
+            : '<span class="home-map-popup-offer-name">' + escapeHtml(offer.name) + '</span>';
+          const groups = (Array.isArray(offer.groups) && offer.groups.length > 0)
+            ? '<div class="home-map-popup-groups">' + offer.groups.map(g => '<span class="home-map-popup-group-tag">' + escapeHtml(g.name) + '</span>').join("") + '</div>'
+            : '';
+          return '<div class="home-map-popup-offer-item">' + titleTag + groups + '</div>';
+        }).join("") +
+        '</div>';
+    }
+
+    const routeHtml = (Number.isFinite(place.lat) && Number.isFinite(place.lng))
+      ? '<a class="home-map-popup-route-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&amp;destination=' + encodeURIComponent(place.lat + ',' + place.lng) + '">' +
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>' +
+        '<span>' + escapeHtml(SCRIPT_CONFIG.routeLabel || "Route") + '</span>' +
+        '</a>'
+      : "";
+
+    const phoneHtml = (place.has_phone || place.has_whatsapp)
+      ? window.kidsMapPhoneButton(place.id, "home-map-popup-phone-link", !place.has_phone && place.has_whatsapp)
+      : "";
+
+    const actionsRowHtml = (routeHtml || phoneHtml)
+      ? '<div class="home-map-popup-actions-row">' + routeHtml + phoneHtml + '</div>'
+      : "";
 
     return (
       '<div class="home-map-popup">' +
@@ -334,10 +363,9 @@
       '<div class="home-map-popup-details">' +
       (place.age_note ? '<p class="home-map-popup-age-note">' + escapeHtml(place.age_note) + "</p>" : "") +
       addressHtml +
-      (place.matched_offers || []).map(offer => '<a class="home-map-popup-info-row" href="' + escapeHtml(safeHomeMapUrl(offer.url, false) || "#") + '">' + escapeHtml(offer.name) + '</a>' + (offer.groups || []).map(group => '<div class="home-map-popup-info-row">' + escapeHtml(group.name) + '</div>').join("")).join("") +
+      offersHtml +
       scheduleHtml +
-      (Number.isFinite(place.lat) && Number.isFinite(place.lng) ? '<a class="home-map-popup-info-row" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&amp;destination=' + encodeURIComponent(place.lat + ',' + place.lng) + '">' + escapeHtml(SCRIPT_CONFIG.routeLabel || "Route") + '</a>' : "") +
-      phoneHtml +
+      actionsRowHtml +
       "</div>" +
       '<a class="home-map-popup-link-btn" href="' +
       escapeHtml(placeUrl) +
@@ -1160,9 +1188,15 @@
         window.KidsMapPins.markVisited(place);
         marker.getElement?.()?.querySelector('.km-pin')?.classList.add('is-visited');
       }
-      infoWindow.setOptions({maxWidth: Math.min(320, mapEl.clientWidth - 48), disableAutoPan: window.KidsMapGoogleMotion.reduced()});
+      infoWindow.setOptions({maxWidth: Math.min(320, mapEl.clientWidth - 32), disableAutoPan: window.KidsMapGoogleMotion.reduced()});
       infoWindow.setContent(renderPopupContent(place, detailsLabel, ageLabels));
-      infoWindow.open({anchor: marker, map: map, shouldFocus: true});
+      infoWindow.open({anchor: marker, map: map, shouldFocus: false});
+      if (google.maps?.event?.addListenerOnce) {
+        google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+          const iwD = mapEl.querySelector('.gm-style-iw-d');
+          if (iwD) iwD.scrollTop = 0;
+        });
+      }
     }
     infoWindow.addListener('closeclick', () => { const marker = selectedMarker; motion.select(null); selectedMarker = null; marker?.getElement?.().focus(); });
     map.addListener('click', () => { closePlace(); choice.close(false); });
@@ -1793,7 +1827,7 @@
 
   function homeLeafletPopupOptions(mapEl) {
     const width = mapEl.clientWidth || 320, height = mapEl.clientHeight || 430;
-    const maxWidth = Math.max(1, Math.min(260, width - 32));
+    const maxWidth = Math.max(1, Math.min(280, width - 32));
     mapEl.style.setProperty("--home-map-popup-width", maxWidth + "px");
     return {
       maxWidth, minWidth: Math.min(180, maxWidth),

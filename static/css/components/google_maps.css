@@ -383,8 +383,72 @@
     transform: none !important;
   }
 }
-#home-map .gm-style-iw-c { max-width: calc(100% - 24px); }
-#home-map .gm-style-iw-d { max-height: min(410px, 55vh) !important; overflow-y: auto !important; }
+/* Entrance animation for Google Maps InfoWindow & Leaflet popups */
+@keyframes km-popup-spring-in {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.94);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.gm-style .gm-style-iw-c {
+  padding: 0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 16px 36px -4px rgba(13, 73, 36, 0.18), 0 4px 12px -2px rgba(31, 41, 51, 0.08) !important;
+  border: 1px solid rgba(19, 111, 56, 0.08) !important;
+  overflow: hidden !important;
+  animation: km-popup-spring-in var(--dur-base, 260ms) var(--ease-spring, cubic-bezier(.34, 1.56, .64, 1)) both !important;
+  transform-origin: bottom center !important;
+}
+
+#home-map .gm-style-iw-c {
+  max-width: min(320px, calc(100% - 24px)) !important;
+}
+
+/* Single scroll container on .gm-style-iw-d with custom brand scrollbar (no double scroll) */
+#home-map .gm-style-iw-d {
+  box-sizing: border-box !important;
+  max-height: min(520px, calc(100vh - 120px), 75vh) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-celadon, #a8d59b) transparent;
+}
+
+#home-map .gm-style-iw-d::-webkit-scrollbar,
+.catalog-map-venue::-webkit-scrollbar {
+  width: 5px;
+}
+
+#home-map .gm-style-iw-d::-webkit-scrollbar-track,
+.catalog-map-venue::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#home-map .gm-style-iw-d::-webkit-scrollbar-thumb,
+.catalog-map-venue::-webkit-scrollbar-thumb {
+  background: var(--brand-celadon, #a8d59b);
+  border-radius: 999px;
+}
+
+#home-map .gm-style-iw-d::-webkit-scrollbar-thumb:hover,
+.catalog-map-venue::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-turf, #136f38);
+}
+
+.home-map-popup-members {
+  max-height: none !important;
+  overflow: visible !important;
+}
 @media (max-width: 767px) {
   [data-catalog-map] .catalog-map-mobile-sheet { max-height: min(70%, calc(100% - 120px), 360px); overflow-y: auto; bottom: 28px; }
 
@@ -612,25 +676,59 @@
   .kidsmap-marker-button.is-selected .kidsmap-marker-visual--dom,
   .kidsmap-marker-button:hover .kidsmap-marker-visual--cluster { animation: none; transform: none; }
   .km-pin__label, .km-cluster::before, .km-pin::after { transition: none; }
+  .gm-style .gm-style-iw-c,
+  .leaflet-popup-content-wrapper { animation: none !important; transform: none !important; }
 }
 
-/* Google InfoWindow close button sat directly on the photo with no contrast. */
+/* Google InfoWindow close button with contrast, brand token styling, and interactive hover */
+.gm-style .gm-style-iw-chr {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  z-index: 25 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .gm-style .gm-style-iw-chr button.gm-ui-hover-effect,
 .gm-style .gm-style-iw-c > button.gm-ui-hover-effect {
-  width: 32px !important;
-  height: 32px !important;
-  margin: 6px 6px 0 0 !important;
-  border-radius: 50% !important;
-  background: rgba(255, 255, 255, .94) !important;
-  box-shadow: 0 2px 8px rgba(13, 73, 36, .2) !important;
+  position: relative !important;
+  width: 28px !important;
+  height: 28px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: 0 2px 8px rgba(13, 73, 36, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+  border: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
   opacity: 1 !important;
+  transition: transform var(--dur-fast, 160ms) var(--ease-spring, ease), background-color var(--dur-fast, 160ms) ease, box-shadow var(--dur-fast, 160ms) ease !important;
 }
+
+.gm-style .gm-style-iw-chr button.gm-ui-hover-effect:hover,
+.gm-style .gm-style-iw-c > button.gm-ui-hover-effect:hover {
+  background: #ffffff !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 12px rgba(13, 73, 36, 0.28), 0 0 0 1px rgba(19, 111, 56, 0.2) !important;
+}
+
+.gm-style .gm-style-iw-chr button.gm-ui-hover-effect:active,
+.gm-style .gm-style-iw-c > button.gm-ui-hover-effect:active {
+  transform: scale(0.92) !important;
+}
+
 .gm-style .gm-style-iw-chr button.gm-ui-hover-effect > span,
 .gm-style .gm-style-iw-c > button.gm-ui-hover-effect > span {
-  width: 18px !important;
-  height: 18px !important;
-  margin: 7px !important;
-  background-color: var(--ink, #1f2933) !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin: 0 !important;
+  background-color: var(--brand-spruce, #0d4924) !important;
 }
 
 /* Phone: the open place card already says what is selected; the assistant

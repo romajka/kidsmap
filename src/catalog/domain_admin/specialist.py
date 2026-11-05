@@ -29,6 +29,11 @@ from catalog.models import (
 )
 
 class SpecialistAdminForm(forms.ModelForm):
+    @property
+    def subject_rules(self):
+        from catalog.services.specialist_subjects import form_subject_rules
+        return form_subject_rules(self)
+
     class Meta:
         model = Specialist
         fields = "__all__"
@@ -36,6 +41,10 @@ class SpecialistAdminForm(forms.ModelForm):
 
     def clean(self):
         data = super().clean()
+        from catalog.services.specialist_subjects import subject_required, subject_error
+        if data.get('status') in (Specialist.STATUS_PENDING, Specialist.STATUS_PUBLISHED):
+            if subject_required(data.get('specializations') or []):
+                self.add_error('specializations', subject_error())
         if self.instance.pk:
             # Admin changeform POST is already atomic. Lock the parent before
             # writing profile/inlines; document decisions advance this epoch too.
@@ -484,6 +493,9 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         sections.setdefault(8,{'number':8,'id':'km-sec-8','title':_('8. Места работы и приёма'),'unavailable':True})
         context['specialist_sections']=[sections[i] for i in range(1,13)]
         original=context.get('original')
+        # Bound ModelForms mutate the instance even when validation fails.
+        # The header describes the saved profile, not an unsuccessful POST.
+        saved_state = Specialist.objects.only('status', 'is_active', 'consultation_format').filter(pk=original.pk).first() if original else None
         from catalog.services import specialist_domain
         try:
             specialist_domain._reviewer(request.user)
@@ -492,7 +504,9 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             can_review_identity = False
         claims = list(original.person_claims.filter(status='pending').select_related('applicant')) if original and can_review_identity else []
         context.update(
-            specialist_public_visible=bool(original and original.status == Specialist.STATUS_PUBLISHED and original.is_active),
+            specialist_public_visible=bool(saved_state and saved_state.status == Specialist.STATUS_PUBLISHED and saved_state.is_active),
+            specialist_saved_status=saved_state.status if saved_state else '',
+            specialist_saved_format=saved_state.consultation_format if saved_state else '',
             specialist_pending_claims=claims,
             specialist_pending_claim_count=len(claims),
             specialist_identity_review_url=reverse('specialist_workspace_review', args=[original.pk]) if original and can_review_identity else '',
@@ -803,9 +817,18 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             raise PermissionDenied
         return actor
 
+    def _with_required_subjects(self, request, queryset):
+        from catalog.services.specialist_subjects import SUBJECTS, REQUIRES_SUBJECT, subject_error
+        incomplete = queryset.filter(specializations__code__in=REQUIRES_SUBJECT).exclude(
+            specializations__code__in=SUBJECTS).values('pk')
+        if incomplete.exists():
+            self.message_user(request, subject_error(), level=messages.WARNING)
+        return queryset.exclude(pk__in=incomplete)
+
     @admin.action(permissions=['change'], description=_("Опубликовать выбранных специалистов"))
     def mark_published(self, request, queryset):
         self._require_moderation_permission(request)
+        queryset = self._with_required_subjects(request, queryset)
         updated_count = queryset.update(
             status=Specialist.STATUS_PUBLISHED,
             is_active=True,
@@ -835,6 +858,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     @admin.action(permissions=['change'], description=_("Отправить выбранных специалистов на модерацию"))
     def mark_pending(self, request, queryset):
         self._require_moderation_permission(request)
+        queryset = self._with_required_subjects(request, queryset)
         updated_count = queryset.update(
             status=Specialist.STATUS_PENDING,
             is_active=False,

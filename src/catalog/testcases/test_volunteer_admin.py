@@ -829,7 +829,9 @@ class VolunteerAccessTests(TestCase):
 
     def test_stale_restart_is_rejected_without_server_error(self):
         place = create_ready_place(created_by=self.user)
-        revision = self.submit(place)
+        # A real change: an unchanged published card no longer reopens moderation.
+        revision = self.submit(place, name_az='Stale restart change')
+        self.assertEqual(revision.status, 'pending')
         self.client.raise_request_exception = False
         response = self.client.post(f'/admin/volunteer/{place.pk}/edit/', {'action': 'restart', 'revision_version': revision.version - 1})
         self.assertEqual(response.status_code, 302)

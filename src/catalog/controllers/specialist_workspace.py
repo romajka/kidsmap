@@ -104,12 +104,13 @@ SPECIALIZATION_GROUPS = [
 
 
 def _build_grouped_specializations(form, lang='ru'):
+    from catalog.services.specialist_subjects import SUBJECTS
     specs_by_id = {s.pk: s for s in form.fields['specializations'].queryset}
     subwidgets_by_code = {}
     for sub in form['specializations']:
         pk = sub.data['value'].value
         spec = specs_by_id.get(pk)
-        if spec:
+        if spec and spec.code not in SUBJECTS:
             subwidgets_by_code[spec.code] = (sub, spec)
 
     groups = []
@@ -131,6 +132,7 @@ def _build_grouped_specializations(form, lang='ru'):
                 })
                 used_codes.add(code)
         if items:
+            items.sort(key=lambda item: {'tutor': 0, 'exam_prep_tutor': 1}.get(item['code'], 2))
             groups.append({
                 'id': grp['id'],
                 'icon': grp['icon'],
@@ -156,6 +158,7 @@ def _build_grouped_specializations(form, lang='ru'):
                 for c in sorted(remaining_codes)
             ],
         })
+    groups.sort(key=lambda group: group['id'] != 'education_languages')
     return groups
 
 

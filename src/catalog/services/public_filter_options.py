@@ -247,6 +247,9 @@ def build_public_specialist_filter_options(*, language_code: str) -> PublicSpeci
         .annotate(total=Count("id", distinct=True))
     )
 
+    from catalog.services.specialist_subjects import TUTOR_CODES
+    spec_counts['tutor'] = active_specs.filter(specializations__code__in=TUTOR_CODES).distinct().count()
+
     # 1. Specializations
     specializations = []
     for spec in SpecialistSpecialization.objects.filter(is_active=True):

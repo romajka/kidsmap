@@ -1,0 +1,21 @@
+{% load i18n %}
+{% if form.subject_options %}
+{{ form.subject_rules|json_script:"specialist-subject-rules" }}
+<fieldset class="km-subject-picker" data-subject-picker aria-describedby="subject-help{% if form.specializations.errors %} specialization-errors{% endif %}">
+  <legend><span class="material-symbols-rounded" aria-hidden="true">menu_book</span> {% if CURRENT_LANGUAGE == 'az' %}Hansı fənləri tədris edirsiniz?{% elif CURRENT_LANGUAGE == 'en' %}Which subjects do you teach?{% else %}Какие предметы вы преподаёте?{% endif %} <span class="km-subject-required-mark" data-subject-required-mark hidden>*</span></legend>
+  <p id="subject-help" class="km-subject-help">{% if CURRENT_LANGUAGE == 'az' %}Repetitor və imtahana hazırlıq üçün fənn seçmək vacibdir. Bir neçə fənn seçə bilərsiniz. Dərsin dilini aşağıda ayrıca göstərin.{% elif CURRENT_LANGUAGE == 'en' %}A subject is required for tutoring and exam preparation. You can choose several. Select the language of lessons separately below.{% else %}Для репетитора и подготовки к экзаменам предмет обязателен. Можно выбрать несколько. Язык занятий укажите отдельно ниже.{% endif %}</p>
+  <div class="km-subject-options">
+    {% for item in form.subject_options %}
+    <label class="km-subject-option owner-specialist-chip" data-spec-code="{{ item.value }}">
+      {{ item.widget.tag }}
+      <span class="km-subject-option__body">
+        <span class="material-symbols-rounded" aria-hidden="true">{{ item.icon }}</span>
+        <strong class="chip-title">{{ item.label }}</strong>
+        <span class="material-symbols-rounded km-subject-check" aria-hidden="true">check_circle</span>
+      </span>
+    </label>
+    {% endfor %}
+  </div>
+  <p class="km-subject-required" data-subject-required hidden role="status">{% if CURRENT_LANGUAGE == 'az' %}Ən azı bir fənn seçin.{% elif CURRENT_LANGUAGE == 'en' %}Choose at least one subject.{% else %}Выберите хотя бы один предмет.{% endif %}</p>
+</fieldset>
+{% endif %}

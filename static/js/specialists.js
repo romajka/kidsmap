@@ -12,6 +12,27 @@
     var formatSelect = document.getElementById("filter-format");
     var locFiltersContainer = document.getElementById("location-filters-container");
     var filtersForm = document.getElementById("filters-form");
+    var categorySelect = page.querySelector('select[name="specialization"]');
+    var subjectSelect = page.querySelector('select[name="subject"]');
+    if (categorySelect && subjectSelect) {
+      categorySelect.addEventListener('change', function () {
+        if (categorySelect.value !== 'tutor' && categorySelect.value !== 'exam_prep_tutor') subjectSelect.value = '';
+      });
+      subjectSelect.addEventListener('change', function () {
+        if (!subjectSelect.value || categorySelect.value === 'tutor' || categorySelect.value === 'exam_prep_tutor') return;
+        categorySelect.value = 'tutor';
+        var custom = categorySelect.closest('.km-custom-select');
+        if (custom) {
+          custom.querySelectorAll('.km-custom-select__option').forEach(function (option) {
+            var selected = option.dataset.value === 'tutor';
+            option.classList.toggle('is-selected', selected);
+            option.setAttribute('aria-selected', String(selected));
+            if (selected) custom.querySelector('.km-custom-select__value').textContent = option.textContent.replace(/\s+/g, ' ').trim();
+          });
+        }
+        categorySelect.dispatchEvent(new Event('change', {bubbles: true}));
+      });
+    }
 
     var mobileFilters = window.matchMedia("(max-width: 768px)");
     function drawerFields() {
@@ -445,6 +466,20 @@
 
         var specChecked = form.querySelectorAll('input[name="specializations"]:checked');
         var hasSpecs = specChecked.length > 0;
+        var needsSubject = false, hasSubject = false;
+        var subjectRulesNode = document.getElementById('specialist-subject-rules');
+        if (subjectRulesNode) {
+          var subjectRules = JSON.parse(subjectRulesNode.textContent);
+          var selectedSpecs = Array.from(specChecked).map(function (cb) { return cb.value; });
+          var needsSubject = subjectRules.requires.some(function (id) { return selectedSpecs.indexOf(id) !== -1; });
+          var hasSubject = subjectRules.subjects.some(function (id) { return selectedSpecs.indexOf(id) !== -1; });
+          var subjectPicker = form.querySelector('[data-subject-picker]');
+          if (subjectPicker) subjectPicker.hidden = !needsSubject && !hasSubject;
+          var requiredMark = form.querySelector('[data-subject-required-mark]');
+          if (requiredMark) requiredMark.hidden = !needsSubject;
+          var subjectNotice = form.querySelector('[data-subject-required]');
+          if (subjectNotice) subjectNotice.hidden = !needsSubject || hasSubject;
+        }
 
         var langChecked = form.querySelector("#id_language_az:checked, #id_language_ru:checked, #id_language_en:checked");
         var hasLangs = Boolean(langChecked);
@@ -465,10 +500,11 @@
           return Boolean(el && el.value.trim().length > 0);
         });
 
-        var totalReq = needsLocation ? 7 : 6;
+        var totalReq = 6 + (needsLocation ? 1 : 0) + (needsSubject ? 1 : 0);
         var doneCount = 0;
         if (hasName) doneCount++;
         if (hasSpecs) doneCount++;
+        if (needsSubject && hasSubject) doneCount++;
         if (hasLangs) doneCount++;
         if (hasFmt) doneCount++;
         if (hasContacts) doneCount++;
@@ -481,6 +517,12 @@
           var deleted = row && row.querySelector('[name$="-DELETE"]');
           return !(deleted && deleted.checked) && field.willValidate && !field.validity.valid;
         });
+        var invalidRange = ['age', 'price'].some(function (prefix) {
+          var from = form.querySelector('#id_' + prefix + '_from');
+          var to = form.querySelector('#id_' + prefix + '_to');
+          return from && to && from.value.trim() && to.value.trim() && Number(from.value) > Number(to.value);
+        });
+        invalidField = invalidField || invalidRange;
         var isAllDone = Boolean(readinessRules) && doneCount === totalReq && !invalidField;
 
         // Visual field highlight
@@ -563,7 +605,7 @@
         }
 
         setTocStatus("km-sec-basic", hasName);
-        setTocStatus("km-sec-directions", hasSpecs && hasLangs);
+        setTocStatus("km-sec-directions", hasSpecs && hasLangs && (!needsSubject || hasSubject));
         setTocStatus("km-sec-format-places", hasFmt && hasLocation);
         setTocStatus("km-sec-pricing-contacts", hasContacts);
         setTocStatus("km-sec-bio-experience", hasBio);
@@ -715,19 +757,20 @@
       selectedBar.hidden = checkedBoxes.length === 0;
       selectedChipsBox.innerHTML = "";
 
+      var categoryBoxes = checkedBoxes.filter(function (cb) { return !cb.closest('[data-subject-picker]'); });
       var dropdownPlaceholder = form.querySelector("[data-owner-spec-placeholder]");
       var dropdownBadge = form.querySelector("[data-selected-count-badge]");
       if (dropdownBadge) {
-        dropdownBadge.textContent = checkedBoxes.length;
-        dropdownBadge.hidden = checkedBoxes.length === 0;
+        dropdownBadge.textContent = categoryBoxes.length;
+        dropdownBadge.hidden = categoryBoxes.length === 0;
       }
       if (dropdownPlaceholder) {
         var language = (document.documentElement.lang || '').toLowerCase();
         var isAz = language === 'az';
-        if (checkedBoxes.length > 0) {
-          dropdownPlaceholder.textContent = (isAz ? 'Seçilmiş istiqamətlər: ' : language === 'en' ? 'Selected specializations: ' : 'Выбрано направлений: ') + checkedBoxes.length;
+        if (categoryBoxes.length > 0) {
+          dropdownPlaceholder.textContent = (isAz ? 'Kateqoriyalar' : language === 'en' ? 'Categories' : 'Категории');
         } else {
-          dropdownPlaceholder.textContent = isAz ? 'İstiqamətləri seçin (məs.: loqoped, psixoloq)...' : language === 'en' ? 'Choose specializations (e.g. speech therapist, psychologist)...' : 'Выберите направления (например: логопед, психолог)...';
+          dropdownPlaceholder.textContent = isAz ? 'Kateqoriya seçin: repetitor, loqoped, psixoloq...' : language === 'en' ? 'Choose a category: tutor, speech therapist, psychologist...' : 'Выберите категорию: репетитор, логопед, психолог...';
         }
       }
 
@@ -910,6 +953,10 @@
       var target = document.getElementById(link.hash.slice(1));
       if (!target) return;
       event.preventDefault();
+      if (target.id === 'id_specializations') {
+        var subjectNotice = form.querySelector('[data-subject-required]');
+        if (subjectNotice && !subjectNotice.hidden) target = form.querySelector('[data-subject-picker] input') || target;
+      }
       var panel = target.closest('[data-owner-lang-panel]');
       if (panel) {
         var tab = form.querySelector('[data-owner-lang-tab="' + panel.dataset.ownerLangPanel + '"]');

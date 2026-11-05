@@ -5,8 +5,9 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/components/specialist_subjects.css' %}?v=20261105_subjects_r2" />
 <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261104_mobile_public" />
-<script src="{% static 'js/specialists.js' %}?v=20261104_mobile_public" defer></script>
+<script src="{% static 'js/specialists.js' %}?v=20261105_all_r1" defer></script>
 <script src="{% static 'js/catalog_category_strip.js' %}?v=20261028_strip_r1" defer></script>
 {% endblock %}
 
@@ -52,7 +53,7 @@
             value="{{ selected.q }}"
             data-search-input
             autocomplete="off"
-            placeholder="{% if language == 'az' %}Ad, istiqamət və ya xidmət... məsələn loqoped{% elif language == 'en' %}Name, specialization, or service... e.g., speech therapist{% else %}Имя, направление или услуга... например логопед{% endif %}"
+            placeholder="{% if language == 'az' %}Ad və ya fənn... məsələn riyaziyyat{% elif language == 'en' %}Name or subject... e.g., mathematics{% else %}Имя или предмет... например математика{% endif %}"
           />
           <button
             class="catalog-search-clear"
@@ -73,45 +74,14 @@
         </form>
       </div>
 
-      <!-- Popular Specialization Tags with Context Micro-Icons -->
-      <div class="catalog-hero-tags" aria-label="{% if language == 'az' %}Populyar istiqamətlər{% elif language == 'en' %}Popular specializations{% else %}Популярные запросы{% endif %}">
-        <span class="catalog-hero-tags-label">{% if language == "az" %}Məsələn:{% elif language == "en" %}E.g.:{% else %}Часто ищут:{% endif %}</span>
-        
-        <a href="?specialization=speech_therapist" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--speech {% if selected.specialization == 'speech_therapist' %}is-active{% endif %}">
-          <span class="km-hero-bubble__icon" aria-hidden="true">
-            <span class="material-symbols-rounded">record_voice_over</span>
-          </span>
-          <span class="km-hero-bubble__label">{% if language == 'az' %}Loqoped{% elif language == 'en' %}Speech therapist{% else %}Логопед{% endif %}</span>
-        </a>
-
-        <a href="?specialization=child_psychologist" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--psych {% if selected.specialization == 'child_psychologist' or selected.specialization == 'psychologist' %}is-active{% endif %}">
-          <span class="km-hero-bubble__icon" aria-hidden="true">
-            <span class="material-symbols-rounded">psychology</span>
-          </span>
-          <span class="km-hero-bubble__label">{% if language == 'az' %}Psixoloq{% elif language == 'en' %}Psychologist{% else %}Психолог{% endif %}</span>
-        </a>
-
-        <a href="?specialization=pediatric_neurologist" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--neuro {% if selected.specialization == 'pediatric_neurologist' %}is-active{% endif %}">
-          <span class="km-hero-bubble__icon" aria-hidden="true">
-            <span class="material-symbols-rounded">neurology</span>
-          </span>
-          <span class="km-hero-bubble__label">{% if language == 'az' %}Uşaq nevroloqu{% elif language == 'en' %}Neurologist{% else %}Детский невролог{% endif %}</span>
-        </a>
-
-        <a href="?specialization=pediatrician" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--pediatrician {% if selected.specialization == 'pediatrician' %}is-active{% endif %}">
-          <span class="km-hero-bubble__icon" aria-hidden="true">
-            <span class="material-symbols-rounded">medical_services</span>
-          </span>
-          <span class="km-hero-bubble__label">{% if language == 'az' %}Pediatr{% elif language == 'en' %}Pediatrician{% else %}Педиатр{% endif %}</span>
-        </a>
-
-        <a href="?specialization=defectologist" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--defectologist {% if selected.specialization == 'defectologist' %}is-active{% endif %}">
-          <span class="km-hero-bubble__icon" aria-hidden="true">
-            <span class="material-symbols-rounded">extension</span>
-          </span>
-          <span class="km-hero-bubble__label">{% if language == 'az' %}Defektoloq{% elif language == 'en' %}Defectologist{% else %}Дефектолог{% endif %}</span>
-        </a>
-      </div>
+      <nav class="km-subject-discovery" aria-label="{% if language == 'az' %}Repetitor seçin{% elif language == 'en' %}Find a tutor{% else %}Подобрать репетитора{% endif %}">
+        <p class="km-subject-discovery__title">{% if language == 'az' %}Hansı fənn üzrə kömək lazımdır?{% elif language == 'en' %}Which subject do you need help with?{% else %}По какому предмету нужна помощь?{% endif %}</p>
+        <div class="km-subject-quick-links">
+          {% for item in subject_options|slice:':4' %}<a class="km-subject-quick-link" href="{{ item.url }}" {% if selected.subject == item.value %}aria-current="true"{% endif %}><span class="material-symbols-rounded" aria-hidden="true">{{ item.icon }}</span>{{ item.label }}</a>{% endfor %}
+          <a class="km-subject-quick-link" href="{{ all_tutors_url }}" {% if selected.specialization == 'tutor' and not selected.subject %}aria-current="true"{% endif %}><span class="material-symbols-rounded" aria-hidden="true">school</span>{% if language == 'az' %}Bütün repetitorlar{% elif language == 'en' %}All tutors{% else %}Все репетиторы{% endif %}</a>
+          <a class="km-subject-quick-link km-subject-quick-link--secondary" href="#specialist-categories"><span class="material-symbols-rounded" aria-hidden="true">apps</span>{% if language == 'az' %}Digər mütəxəssislər{% elif language == 'en' %}Other specialists{% else %}Другие специалисты{% endif %}</a>
+        </div>
+      </nav>
     </div>
 
     <!-- Right Side: 3 Trust & Value Cards (matching catalog hero stats) -->
@@ -225,6 +195,14 @@
               {% endfor %}
             </select>
           </div>
+        </div>
+
+        <div class="km-filter-group km-subject-filter">
+          <label for="filter-subject"><span class="material-symbols-rounded" aria-hidden="true">menu_book</span> {% if language == 'az' %}Fənn{% elif language == 'en' %}Subject{% else %}Предмет{% endif %}</label>
+          <select name="subject" id="filter-subject" class="km-filter-select">
+            <option value="">{% if language == 'az' %}Bütün fənlər{% elif language == 'en' %}All subjects{% else %}Все предметы{% endif %}</option>
+            {% for item in subject_options %}<option value="{{ item.value }}" {% if selected.subject == item.value %}selected{% endif %}>{{ item.label }} ({{ item.count }})</option>{% endfor %}
+          </select>
         </div>
 
         <!-- Consultation Format (Custom Select) -->
@@ -418,7 +396,7 @@
           <button type="button" class="catalog-category-strip__arrow catalog-category-strip__arrow--prev" data-strip-prev aria-label="{% if language == 'az' %}Əvvəlki ixtisaslar{% elif language == 'en' %}Previous specializations{% else %}{% trans 'Предыдущие специализации' %}{% endif %}" tabindex="-1" hidden>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
-          <div class="catalog-category-strip" role="tablist" aria-label="{% if language == 'az' %}İxtisaslar{% elif language == 'en' %}Specializations{% else %}{% trans 'Специализации' %}{% endif %}">
+          <div class="catalog-category-strip" id="specialist-categories" tabindex="-1" role="tablist" aria-label="{% if language == 'az' %}İxtisaslar{% elif language == 'en' %}Specializations{% else %}{% trans 'Специализации' %}{% endif %}">
             <a
               role="tab"
               href="{{ all_specializations_url }}"
@@ -577,6 +555,11 @@
                 <p class="km-card-name-alt">{{ specialist.name_alt }}</p>
               {% endif %}
 
+              {% if specialist.card_subjects %}
+              <div class="km-subject-tags" aria-label="{% if language == 'az' %}Fənlər{% elif language == 'en' %}Subjects{% else %}Предметы{% endif %}">
+                {% for item in specialist.card_subjects %}<span><span class="material-symbols-rounded" aria-hidden="true">{{ item.icon }}</span>{{ item.label }}</span>{% endfor %}
+              </div>
+              {% endif %}
               <!-- Short bio snippet (2 lines clamp, aligned min-height) -->
               <p class="km-card-bio{% if not specialist.bio_i18n %} is-empty{% endif %}">
                 {% if specialist.bio_i18n %}{{ specialist.bio_i18n|striptags|truncatechars:92 }}{% else %}&nbsp;{% endif %}

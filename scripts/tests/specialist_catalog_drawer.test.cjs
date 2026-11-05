@@ -6,3 +6,11 @@ test('Escape closes the nested select first, then the sheet and returns focus',(
 test('desktop transition unlocks the page and restores ordinary filter navigation',()=>{const t=setup();t.open();t.resize();assert.equal(t.d.body.classList.contains('km-filter-lock'),false);assert.equal(t.drawer.inert,false);assert.equal(t.drawer.hasAttribute('aria-modal'),false);assert.equal(t.drawer.hasAttribute('role'),false);t.close()});
 
 test("custom select options receive keyboard focus",()=>{const t=setup();t.open();const trigger=t.d.querySelector(".km-custom-select__trigger");trigger.focus();t.key("ArrowDown");assert.equal(t.d.activeElement,t.d.querySelector(".km-custom-select__option"));t.key("Enter");assert.equal(t.d.activeElement,trigger);t.close()});
+
+test('changing category clears the previous tutor subject; choosing a subject selects tutors',()=>{
+  const dom=new JSDOM(`<main class="km-specialists-page"><form id="filters-form"><div class="km-custom-select"><button class="km-custom-select__trigger" type="button"></button><span class="km-custom-select__value"></span><div class="km-custom-select__menu"><div class="km-custom-select__option" data-value="tutor"><span class="km-custom-select__opt-text">Tutor</span></div><div class="km-custom-select__option" data-value="psychologist">Psychologist</div></div><select name="specialization"><option value="tutor" selected>Tutor</option><option value="psychologist">Psychologist</option></select></div><select name="subject"><option value=""></option><option value="math_tutor" selected>Mathematics</option></select></form></main>`,{runScripts:'outside-only',url:'http://localhost/'});
+  const w=dom.window,d=w.document;w.matchMedia=()=>({matches:false,addEventListener(){}});w.eval(source);d.dispatchEvent(new w.Event('DOMContentLoaded'));
+  const category=d.querySelector('[name=specialization]'),subject=d.querySelector('[name=subject]');
+  category.value='psychologist';category.dispatchEvent(new w.Event('change',{bubbles:true}));assert.equal(subject.value,'');
+  subject.value='math_tutor';subject.dispatchEvent(new w.Event('change',{bubbles:true}));assert.equal(category.value,'tutor');assert.equal(subject.value,'math_tutor');assert.equal(d.querySelector('.km-custom-select__value').textContent,'Tutor');w.close();
+});

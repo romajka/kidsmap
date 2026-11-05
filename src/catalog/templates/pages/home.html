@@ -2622,12 +2622,12 @@
 {% if hero_gallery_slides|length > 1 %}
 <script src="{% static 'js/home_hero_slider.js' %}?v=20260909_playful1"></script>
 {% endif %}
-<link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20261105_pins_r2" />
+<link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20261105_all_r1" />
 <script src="{% static 'js/kidsmap_map_pins.js' %}?v=20261105_pins_r2"></script>
 <script src="{% static 'js/google_maps_motion.js' %}?v=20261105_pins_r2"></script>
 <script src="{% static 'js/google_maps_markers.js' %}?v=20261105_pins_r2"></script>
 <script src="{% static 'js/map_paging.js' %}?v=20261030_published_r1"></script>
-<script src="{% static 'js/home_map.js' %}?v=20261105_pins_r2" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+<script src="{% static 'js/home_map.js' %}?v=20261105_all_r1" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
   data-home-map-route-label="{% trans 'Маршрут' %}"
   data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"

@@ -60,8 +60,11 @@ def _has_default_db_credentials() -> bool:
 # SECURITY: в проде ключ хранить только в env
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-me")
 
-DEBUG = _env_bool("DJANGO_DEBUG", True)
 TESTING = _env_bool("DJANGO_TESTING", False)
+# Safe by default: without an explicit DJANGO_DEBUG=1 the project runs in
+# production mode (and refuses to start without real DATABASE_URL, REDIS_URL and
+# DJANGO_SECRET_KEY). Test runs keep the previous development default.
+DEBUG = _env_bool("DJANGO_DEBUG", TESTING)
 LOCALIZED_PLACE_URLS_ENABLED = _env_bool("LOCALIZED_PLACE_URLS_ENABLED", DEBUG and not TESTING)
 PRODUCTION_SECURITY_DEFAULTS = not DEBUG and not TESTING
 SERVE_MEDIA_FILES = _env_bool("SERVE_MEDIA_FILES", True)

@@ -20,7 +20,9 @@ COPY . /app
 # Translation binaries must live in the web image. Release tasks run in a
 # temporary container, so compiling them only there leaves Gunicorn with the
 # Russian fallback catalogue after a restart.
-RUN python manage.py compilemessages --ignore .venv --ignore venv
+# Compile without loading runtime settings: production credentials are never
+# supplied to the image build, including when DEBUG defaults to false.
+RUN python -m django compilemessages --ignore .venv --ignore venv
 
 EXPOSE 8000
 

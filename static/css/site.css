@@ -7649,13 +7649,15 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   padding: 0 !important;
   border-radius: 16px !important;
   overflow: hidden !important;
-  box-shadow: 0 14px 35px -4px rgba(31, 41, 51, 0.22), 0 4px 12px -2px rgba(31, 41, 51, 0.08) !important;
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 16px 36px -4px rgba(13, 73, 36, 0.18), 0 4px 12px -2px rgba(31, 41, 51, 0.08) !important;
+  border: 1px solid rgba(19, 111, 56, 0.08) !important;
+  animation: km-popup-spring-in var(--dur-base, 260ms) var(--ease-spring, cubic-bezier(.34, 1.56, .64, 1)) both !important;
+  transform-origin: bottom center !important;
 }
 
 .leaflet-popup-content {
   margin: 0 !important;
-  width: 260px !important;
+  width: 280px !important;
 }
 
 .leaflet-popup-close-button {
@@ -7679,10 +7681,10 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 }
 
 .home-map-popup {
-  width: 260px;
+  width: 280px;
   display: flex;
   flex-direction: column;
-  color: var(--brand-jet, #1e2b23);
+  color: var(--ink, #1f2933);
   font-family: var(--font-body, inherit);
   background: #ffffff;
   border-radius: 16px;
@@ -7693,7 +7695,8 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   display: block;
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
+  max-height: 135px;
   overflow: hidden;
   text-decoration: none;
   background: linear-gradient(135deg, #edf8f0 0%, #e0f2fe 100%);
@@ -7717,7 +7720,7 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   transition: transform 0.3s ease;
 }
@@ -7729,11 +7732,12 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 .home-map-popup-badges {
   position: absolute;
   bottom: 8px;
-  left: 10px;
-  right: 10px;
+  left: 8px;
+  right: 8px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  flex-wrap: wrap;
   z-index: 2;
   pointer-events: none;
 }
@@ -7741,20 +7745,20 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 .home-map-popup-price {
   position: absolute;
   top: 8px;
-  left: 10px;
+  left: 8px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
   min-height: 24px;
   padding: 3px 9px;
-  border-radius: 7px;
+  border-radius: 999px;
   background: rgba(255, 255, 255, 0.94);
-  color: var(--brand-spruce, #087443);
+  color: var(--brand-spruce, #0d4924);
   font-size: 11px;
   font-weight: 800;
   line-height: 1;
-  box-shadow: 0 2px 6px rgba(31, 41, 51, 0.16);
-  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 6px rgba(13, 73, 36, 0.16);
+  backdrop-filter: blur(6px);
   pointer-events: none;
 }
 
@@ -7763,7 +7767,7 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   bottom: auto;
   left: auto;
   right: auto;
-  padding: 10px 14px 0;
+  padding: 10px 12px 0;
 }
 
 .home-map-popup-badge-cat {
@@ -7771,26 +7775,26 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 999px;
   font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(4px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 6px rgba(13, 73, 36, 0.12);
 }
 
 .home-map-popup-badge-age {
   display: inline-flex;
   align-items: center;
-  padding: 3px 7px;
-  border-radius: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
   font-size: 10px;
   font-weight: 700;
-  background: rgba(31, 41, 51, 0.75);
+  background: rgba(19, 37, 27, 0.78);
   color: #ffffff;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
 }
 
 .home-map-popup-no-thumb-header {
@@ -7801,8 +7805,8 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 .home-map-popup-body {
   display: flex;
   flex-direction: column;
-  padding: 12px 14px 14px;
-  gap: 6px;
+  padding: 11px 13px 13px;
+  gap: 5px;
 }
 
 .home-map-popup-title-link {
@@ -7815,7 +7819,7 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   font-size: 15px;
   font-weight: 800;
   line-height: 1.25;
-  color: var(--brand-spruce, #087443);
+  color: var(--brand-spruce, #0d4924);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -7831,17 +7835,18 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 .home-map-popup-details {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  margin: 2px 0 4px;
+  gap: 4px;
+  margin: 2px 0;
 }
 
 .home-map-popup-info-row {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   font-size: 12px;
   line-height: 1.35;
-  color: #47584d;
+  color: var(--ink, #1f2933);
+  opacity: 0.9;
 }
 
 .popup-info-icon {
@@ -7857,42 +7862,121 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   min-width: 0;
 }
 
+.home-map-popup-offers {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 2px 0;
+}
+
+.home-map-popup-offer-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.home-map-popup-offer-link,
+.home-map-popup-offer-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--brand-spruce, #0d4924);
+  text-decoration: none;
+}
+
+.home-map-popup-offer-link:hover {
+  color: var(--brand-turf, #136f38);
+  text-decoration: underline;
+}
+
+.home-map-popup-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.home-map-popup-group-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--tint-turf-050, #f0f7f2);
+  color: var(--brand-spruce, #0d4924);
+  border: 1px solid rgba(19, 111, 56, 0.12);
+}
+
+.home-map-popup-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+  padding-top: 3px;
+  flex-wrap: wrap;
+}
+
+.home-map-popup-route-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--brand-turf, #136f38);
+  text-decoration: none;
+  transition: color var(--dur-fast, 160ms) ease;
+}
+
+.home-map-popup-route-link:hover {
+  color: var(--brand-spruce, #0d4924);
+  text-decoration: underline;
+}
+
 .home-map-popup-phone-link {
   color: var(--brand-turf, #136f38);
   text-decoration: none;
   font-weight: 600;
+  font-size: 12px;
   transition: color 0.15s ease;
 }
 
 .home-map-popup-phone-link:hover {
-  color: var(--brand-spruce, #087443);
+  color: var(--brand-spruce, #0d4924);
   text-decoration: underline;
 }
 
 .home-map-popup-link-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 16px;
+  border-radius: 12px;
   background-color: var(--brand-turf, #136f38) !important;
   color: #ffffff !important;
   font-family: var(--font-brand-display, inherit);
   font-size: 13px;
   font-weight: 700;
-  padding: 8px 14px;
-  border-radius: 10px;
   text-decoration: none !important;
   text-align: center;
-  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
-  box-shadow: 0 3px 8px rgba(19, 111, 56, 0.2);
-  margin-top: 2px;
+  box-shadow: 0 3px 10px rgba(19, 111, 56, 0.22);
+  transition: background-color var(--dur-fast, 160ms) ease, transform var(--dur-fast, 160ms) var(--ease-spring, ease), box-shadow var(--dur-fast, 160ms) ease;
+  margin-top: 3px;
 }
 
 .home-map-popup-link-btn:hover {
-  background-color: var(--brand-spruce, #087443) !important;
+  background-color: var(--brand-spruce, #0d4924) !important;
   color: #ffffff !important;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(19, 111, 56, 0.3);
+  box-shadow: 0 5px 14px rgba(13, 73, 36, 0.3);
+}
+
+.home-map-popup-link-btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 6px rgba(13, 73, 36, 0.2);
+}
   text-decoration: none !important;
 }
 

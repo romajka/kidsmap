@@ -132,7 +132,10 @@ def public_profile_context(specialist):
     language = language_code()
     map_locations = _map_locations(active_locs, language)
 
+    from catalog.services.specialist_subjects import SUBJECTS, profile_subjects
     return {
+        'specialist_subjects': profile_subjects(specialist, language),
+        'specialist_categories': [s for s in specialist.specializations.all() if s.code not in SUBJECTS],
         'specialist_public': _public_labels(specialist, language),
         'specialist_map_locations': map_locations,
         'has_coords': bool(map_locations),
