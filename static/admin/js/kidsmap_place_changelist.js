@@ -447,17 +447,53 @@
        The author reads this text in the account and in the notification, so
        the dialog asks for it on row buttons and on bulk actions alike.
        -------------------------------------------------------------------------- */
+    var MODERATION_COPY = {
+      ru: {
+        rejectTitle: 'Отклонить анкету',
+        rejectHint: 'Напишите причину. Автор увидит её в кабинете и в уведомлении и сможет исправить анкету.',
+        rejectConfirm: 'Отклонить',
+        returnTitle: 'Вернуть на доработку',
+        returnHint: 'Напишите, что нужно исправить. Автор получит уведомление, анкета снова станет черновиком.',
+        returnConfirm: 'Вернуть автору',
+        label: 'Комментарий для автора',
+        required: 'Напишите комментарий — без него автор не поймёт, что исправлять.',
+        cancel: 'Отмена'
+      },
+      az: {
+        rejectTitle: 'Anketi rədd et',
+        rejectHint: 'Səbəbi yazın. Müəllif onu kabinetdə və bildirişdə görəcək və anketi düzəldə biləcək.',
+        rejectConfirm: 'Rədd et',
+        returnTitle: 'Düzəliş üçün qaytar',
+        returnHint: 'Nəyin düzəldilməli olduğunu yazın. Müəllif bildiriş alacaq, anket yenidən qaralamaya çevriləcək.',
+        returnConfirm: 'Müəllifə qaytar',
+        label: 'Müəllif üçün şərh',
+        required: 'Şərh yazın — onsuz müəllif nəyi düzəltməli olduğunu anlamayacaq.',
+        cancel: 'Ləğv et'
+      },
+      en: {
+        rejectTitle: 'Reject the profile',
+        rejectHint: 'Write the reason. The author will see it in their account and in the notification and can fix the profile.',
+        rejectConfirm: 'Reject',
+        returnTitle: 'Return for changes',
+        returnHint: 'Write what needs fixing. The author is notified and the profile becomes a draft again.',
+        returnConfirm: 'Return to author',
+        label: 'Comment for the author',
+        required: 'Write a comment — without it the author will not know what to fix.',
+        cancel: 'Cancel'
+      }
+    };
+    var moderationCopy = MODERATION_COPY[(document.documentElement.lang || 'ru').slice(0, 2).toLowerCase()] || MODERATION_COPY.ru;
     var MODERATION_COMMENT_ACTIONS = {
       mark_rejected: {
-        title: 'Отклонить анкету',
-        hint: 'Напишите причину. Автор увидит её в кабинете и в уведомлении и сможет исправить анкету.',
-        confirm: 'Отклонить',
+        title: moderationCopy.rejectTitle,
+        hint: moderationCopy.rejectHint,
+        confirm: moderationCopy.rejectConfirm,
         tone: 'danger'
       },
       return_for_revision: {
-        title: 'Вернуть на доработку',
-        hint: 'Напишите, что нужно исправить. Автор получит уведомление, анкета снова станет черновиком.',
-        confirm: 'Вернуть автору',
+        title: moderationCopy.returnTitle,
+        hint: moderationCopy.returnHint,
+        confirm: moderationCopy.returnConfirm,
         tone: 'primary'
       }
     };
@@ -482,16 +518,19 @@
         '<form method="dialog" class="km-moderation-dialog__form">' +
         '<h2 id="km-moderation-dialog-title" class="km-moderation-dialog__title"></h2>' +
         '<p class="km-moderation-dialog__hint" id="km-moderation-dialog-hint"></p>' +
-        '<label class="km-moderation-dialog__label" for="km-moderation-dialog-text">Комментарий для автора</label>' +
+        '<label class="km-moderation-dialog__label" for="km-moderation-dialog-text"></label>' +
         '<textarea id="km-moderation-dialog-text" rows="4" maxlength="4000" required aria-describedby="km-moderation-dialog-hint"></textarea>' +
-        '<p class="km-moderation-dialog__error" role="alert" hidden>Напишите комментарий — без него автор не поймёт, что исправлять.</p>' +
+        '<p class="km-moderation-dialog__error" role="alert" hidden></p>' +
         '<div class="km-moderation-dialog__actions">' +
-        '<button type="button" value="cancel" class="km-moderation-dialog__cancel">Отмена</button>' +
+        '<button type="button" value="cancel" class="km-moderation-dialog__cancel"></button>' +
         '<button type="submit" value="confirm" class="km-moderation-dialog__confirm"></button>' +
         '</div></form>';
       dialog.querySelector('.km-moderation-dialog__title').textContent = cfg.title;
       dialog.querySelector('.km-moderation-dialog__hint').textContent = cfg.hint;
       dialog.querySelector('.km-moderation-dialog__confirm').textContent = cfg.confirm;
+      dialog.querySelector('.km-moderation-dialog__label').textContent = moderationCopy.label;
+      dialog.querySelector('.km-moderation-dialog__error').textContent = moderationCopy.required;
+      dialog.querySelector('.km-moderation-dialog__cancel').textContent = moderationCopy.cancel;
       var text = dialog.querySelector('textarea');
       var error = dialog.querySelector('.km-moderation-dialog__error');
       var close = function () {

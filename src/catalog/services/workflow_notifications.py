@@ -87,6 +87,38 @@ def _delivery_allowed(notification, address, now):
     return _invitation_current(notification, address, now) and _join_confirmation_current(notification)
 
 
+_SPECIALIST_DECISION_EMAIL = {
+    'approved': ('Anketiniz dərc olundu', 'Ваша анкета опубликована'),
+    'needs_changes': ('Anketinizdə düzəliş lazımdır', 'Анкету нужно исправить'),
+    'rejected': ('Anketiniz rədd edildi', 'Анкета отклонена'),
+}
+
+
+def _email_content(notification):
+    """Subject and body of a service email.
+
+    Only the decision headline and the profile name are written into the mail;
+    the moderator's comment and the current rights are shown after sign-in.
+    """
+    inbox = (settings.PUBLIC_BASE_URL or 'http://localhost') + reverse('account_notifications')
+    context = notification.event_context or {}
+    decision = _SPECIALIST_DECISION_EMAIL.get(context.get('decision'))
+    if notification.event_kind == 'moderation_decision' and notification.entity_type == 'specialist' and decision:
+        titles = context.get('titles') or {}
+        name = ' '.join(str(titles.get('az') or titles.get('ru') or '').split())[:120]
+        az, ru = decision
+        named = f' — {name}' if name else ''
+        body = (f'{az}{named}.\n'
+                'Moderatorun şərhi və növbəti addım kabinetdədir:\n'
+                f'{inbox}\n\n'
+                f'{ru}{named}.\n'
+                'Комментарий модератора и следующий шаг — в личном кабинете:\n'
+                f'{inbox}\n')
+        return f'KidsMap: {az} / {ru}', body
+    return ('KidsMap: служебное уведомление',
+            'В кабинете есть служебное уведомление. Войдите и проверьте текущие права: ' + inbox)
+
+
 def deliver_batch(*, limit=50, now=None):
     if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= 500:
         raise ValidationError('Invalid delivery limit.')
@@ -109,11 +141,8 @@ def deliver_batch(*, limit=50, now=None):
                 continue
             row.attempts += 1
             try:
-                delivered = send_mail(
-                    'KidsMap: служебное уведомление',
-                    'В кабинете есть служебное уведомление. Войдите и проверьте текущие права: '
-                    + (settings.PUBLIC_BASE_URL or 'http://localhost') + reverse('account_notifications'),
-                    settings.DEFAULT_FROM_EMAIL, [address], fail_silently=False)
+                subject, body = _email_content(row.notification)
+                delivered = send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [address], fail_silently=False)
                 if delivered != 1:
                     raise SMTPException('not_sent')
             except (SMTPException, OSError):

@@ -5,6 +5,7 @@ the account, "fix and send again" after a rejection, the required reason in the
 admin form, and the form fixes (no preselected format, +994 phones, readable
 experience errors, success message after sending).
 """
+import os
 from uuid import uuid4
 
 from django.contrib.auth import get_user_model
@@ -171,6 +172,39 @@ class SpecialistModerationFeedbackTests(TestCase):
         self.assertContains(response, expected)
 
 
+    def test_outbox_runner_sends_decision_email_without_private_comment(self):
+        from django.core import mail
+        from django.core.management import call_command
+        from django.test import override_settings
+        _, person = self.submit()
+        self.admin_action('mark_rejected', person, moderation_comment='Секретная деталь модерации.')
+        with override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+                               PUBLIC_BASE_URL='https://kidsmap.az'):
+            call_command('deliver_workflow_outbox', '--send', stdout=open(os.devnull, 'w'))
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.to, ['feedback-author@example.com'])
+        self.assertIn('Anketiniz rədd edildi', message.subject)
+        self.assertIn('Анкета отклонена', message.subject)
+        self.assertIn('Feedback applicant', message.body)
+        self.assertIn('https://kidsmap.az', message.body)
+        self.assertNotIn('Секретная деталь', message.body)
+        row = EmailOutbox.objects.get(notification__entity_type='specialist', notification__entity_id=person.pk)
+        self.assertEqual(row.status, 'sent')
+
+    def test_smtp_failure_is_retried_not_lost(self):
+        from smtplib import SMTPException
+        from unittest.mock import patch
+        from catalog.services.workflow_notifications import deliver_batch
+        _, person = self.submit()
+        self.admin_action('mark_published', person)
+        with patch('catalog.services.workflow_notifications.send_mail', side_effect=SMTPException('down')):
+            self.assertEqual(deliver_batch(limit=5)['retry'], 1)
+        row = EmailOutbox.objects.get(notification__entity_type='specialist', notification__entity_id=person.pk)
+        self.assertEqual(row.status, 'retry')
+        self.assertIsNotNone(row.next_attempt_at)
+
+
 class SpecialistFormFixesTests(TestCase):
     def test_new_profile_has_no_preselected_format(self):
         form = OwnerSpecialistForm()
@@ -195,3 +229,4 @@ class SpecialistFormFixesTests(TestCase):
             form = OwnerSpecialistForm(data={'experience_years': 'abc'}, draft_save_only=True)
             self.assertFalse(form.is_valid())
             self.assertIn('tam illərlə', str(form.errors['experience_years']))
+

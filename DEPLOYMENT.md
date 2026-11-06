@@ -341,6 +341,19 @@ python manage.py send_test_email your-address@example.com
 ```
 If SMTP is configured correctly, command prints `Test email sent ...`.
 
+## Service emails (workflow outbox)
+Moderation decisions, team invitations and similar events are written to an outbox
+in the same transaction as the change; nothing is emailed until the outbox runner sends it.
+Without a schedule these emails stay `pending` forever (the account inbox still shows them).
+
+1. Check SMTP first: `docker compose exec -T web python manage.py send_test_email you@example.com`.
+2. Preview what is due: `docker compose exec -T web python manage.py deliver_workflow_outbox`.
+3. Schedule the runner (every 2 minutes) with `crontab -e`:
+   ```
+   */2 * * * * cd /opt/kidsmap && ./scripts/deliver-workflow-outbox.sh >> /var/log/kidsmap-outbox.log 2>&1
+   ```
+4. Failed SMTP attempts are retried with backoff (2, 4, 8, 16 minutes) and marked `failed` after 5 attempts.
+
 ## Backup suggestion
 1. The database backups are run separately from deployments (removed from `./scripts/deploy-server.sh`).
 2. Set up a daily cron job to run `./scripts/backup-db.sh` once a day, which automatically retains a maximum of 5 backups.
