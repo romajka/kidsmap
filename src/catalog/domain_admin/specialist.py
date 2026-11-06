@@ -45,6 +45,9 @@ class SpecialistAdminForm(forms.ModelForm):
         if data.get('status') in (Specialist.STATUS_PENDING, Specialist.STATUS_PUBLISHED):
             if subject_required(data.get('specializations') or []):
                 self.add_error('specializations', subject_error())
+        if (data.get('status') == Specialist.STATUS_REJECTED and 'rejection_reason' in self.fields
+                and not (data.get('rejection_reason') or '').strip()):
+            self.add_error('rejection_reason', _('Укажите причину: автор увидит её в кабинете и в уведомлении.'))
         if self.instance.pk:
             # Admin changeform POST is already atomic. Lock the parent before
             # writing profile/inlines; document decisions advance this epoch too.
@@ -468,7 +471,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
                        "rating_avg", "rating_count", "created_at", "updated_at")
     filter_horizontal = ()
     inlines = [SpecialistPracticeLocationInline, SpecialistDocumentInline]
-    actions = ("mark_published", "mark_draft", "mark_pending", "mark_rejected")
+    actions = ("mark_published", "return_for_revision", "mark_draft", "mark_pending", "mark_rejected")
 
     def get_readonly_fields(self, request, obj=None):
         fields = tuple(super().get_readonly_fields(request, obj))
@@ -829,12 +832,16 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     def mark_published(self, request, queryset):
         self._require_moderation_permission(request)
         queryset = self._with_required_subjects(request, queryset)
+        newly_published = list(queryset.exclude(status=Specialist.STATUS_PUBLISHED).values_list("pk", flat=True))
         updated_count = queryset.update(
             status=Specialist.STATUS_PUBLISHED,
             is_active=True,
             rejection_reason="",
             updated_at=timezone.now(),
         )
+        from catalog.services import specialist_moderation
+        for person in Specialist.objects.filter(pk__in=newly_published).select_related("created_by", "verified_person_user"):
+            specialist_moderation.notify_decision(person, specialist_moderation.APPROVED)
         self.message_user(
             request,
             ngettext("Опубликован %(count)d профиль.", "Опубликовано %(count)d профиля.", updated_count) % {"count": updated_count},
@@ -874,12 +881,18 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     @admin.action(permissions=['change'], description=_("Отклонить выбранных специалистов"))
     def mark_rejected(self, request, queryset):
         self._require_moderation_permission(request)
+        from catalog.services import specialist_moderation
+        reason = (request.POST.get("moderation_comment") or "").strip()[:specialist_moderation.REASON_LIMIT]
+        reason = reason or str(specialist_moderation.default_reason(specialist_moderation.REJECTED))
+        newly_rejected = list(queryset.exclude(status=Specialist.STATUS_REJECTED).values_list("pk", flat=True))
         updated_count = queryset.update(
             status=Specialist.STATUS_REJECTED,
             is_active=False,
-            rejection_reason=_("Профиль требует доработки перед публикацией."),
+            rejection_reason=reason,
             updated_at=timezone.now(),
         )
+        for person in Specialist.objects.filter(pk__in=newly_rejected).select_related("created_by", "verified_person_user"):
+            specialist_moderation.notify_decision(person, specialist_moderation.REJECTED, reason)
         self.message_user(
             request,
             ngettext("Отклонён %(count)d профиль.", "Отклонено %(count)d профиля.", updated_count)
@@ -887,6 +900,31 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 
+
+    @admin.action(permissions=['change'], description=_("Вернуть на доработку"))
+    def return_for_revision(self, request, queryset):
+        from catalog.services.specialist_proposal_drafts import return_for_revision
+        from django.core.exceptions import ValidationError
+        actor = self._require_moderation_permission(request)
+        comment = (request.POST.get("moderation_comment") or "").strip()
+        returned = 0
+        for specialist_id in queryset.values_list('pk', flat=True):
+            try:
+                return_for_revision(actor=actor, specialist_id=specialist_id, comment=comment)
+            except ValidationError as exc:
+                self.message_user(request, '; '.join(exc.messages), level=messages.WARNING)
+            else:
+                returned += 1
+        if returned:
+            self.message_user(request, _("Анкеты возвращены авторам на доработку."), level=messages.SUCCESS)
+
+    def save_model(self, request, obj, form, change):
+        previous_status = (Specialist.objects.filter(pk=obj.pk).values_list("status", flat=True).first()
+                           if change and obj.pk else None)
+        super().save_model(request, obj, form, change)
+        if previous_status is not None and previous_status != obj.status:
+            from catalog.services import specialist_moderation
+            specialist_moderation.after_admin_status_change(obj, previous_status)
 
     @admin.display(description=_("Профиль"), ordering="name")
     def profile_column(self, obj):
@@ -1077,6 +1115,16 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
                     obj.pk,
                     _("Одобрить и опубликовать профиль специалиста"),
                     _("Одобрить"),
+                )
+            )
+            buttons.append(
+                format_html(
+                    '<button type="button" class="km-admin-action km-admin-action--secondary" data-specialist-action="return_for_revision" data-specialist-id="{}" title="{}">'
+                    '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-edit"></use></svg>'
+                    '<span>{}</span></button>',
+                    obj.pk,
+                    _("Вернуть автору с комментарием: он исправит анкету и отправит снова"),
+                    _("На доработку"),
                 )
             )
             buttons.append(

@@ -1,0 +1,5 @@
+{% load i18n %}{# Status of one specialist profile in the account: badge, moderator comment and the next step. Expects `person`, optional `reopen_ids`. #}
+<p class="sw-status"><span class="sw-pill sw-pill--{{ person.status }}">{% if person.status == 'published' and person.is_active %}{% trans 'Опубликована' %}{% elif person.status == 'published' %}{% trans 'Скрыта' %}{% elif person.status == 'pending' %}{% trans 'На проверке' %}{% elif person.status == 'rejected' %}{% trans 'Отклонена' %}{% else %}{% trans 'Нужны исправления' %}{% endif %}</span>{% if person.status == 'pending' %}<span class="sw-status-note">{% trans 'О решении модератора мы сообщим в уведомлениях и по email.' %}</span>{% endif %}</p>
+{% if person.rejection_reason and person.status != 'published' and person.status != 'pending' %}
+<div class="sw-moderator-note" role="note"><p class="sw-moderator-note__label">{% trans 'Комментарий модератора' %}</p><p>{{ person.rejection_reason|linebreaksbr }}</p></div>
+{% endif %}

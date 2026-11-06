@@ -155,8 +155,12 @@ def _revision_payload(specialist, subject):
 
 
 @transaction.atomic
-def return_for_revision(*, actor, specialist_id):
-    """Reopen the original application, without granting ownership or copying docs."""
+def return_for_revision(*, actor, specialist_id, comment=''):
+    """Reopen the original application, without granting ownership or copying docs.
+
+    ``comment`` is what the author must fix; it is stored as the profile's
+    moderation reason and sent with the author's notification.
+    """
     from catalog.services.staff_roles import is_volunteer
     actor = specialist_domain.require_actor(actor)
     author_id = Specialist.objects.values_list('created_by_id', flat=True).get(pk=specialist_id)
@@ -172,13 +176,13 @@ def return_for_revision(*, actor, specialist_id):
         raise ValidationError(_('Запись изменилась. Обновите страницу.'), code='stale_version')
     if person.status != Specialist.STATUS_PENDING:
         raise ValidationError(_('На доработку можно вернуть только анкету на проверке.'))
+    from catalog.services import specialist_moderation
+    reason = (comment or '').strip()[:specialist_moderation.REASON_LIMIT] or specialist_moderation.default_reason(
+        specialist_moderation.NEEDS_CHANGES)
     person.status = Specialist.STATUS_DRAFT
     person.is_active = False
-    person.save(update_fields=['status', 'is_active', 'updated_at'])
-    if draft and person.verified_person_user_id in (None, draft.actor_id):
-        subject = (draft.payload.get('profile_subject') or ['other'])[-1]
-        draft.payload = _revision_payload(person, subject)
-        draft.submitted_at = None
-        draft.version += 1
-        draft.save(update_fields=['payload', 'submitted_at', 'version', 'updated_at'])
+    person.rejection_reason = reason
+    person.save(update_fields=['status', 'is_active', 'rejection_reason', 'updated_at'])
+    specialist_moderation.reopen_author_draft(person)
+    specialist_moderation.notify_decision(person, specialist_moderation.NEEDS_CHANGES, reason)
     return person

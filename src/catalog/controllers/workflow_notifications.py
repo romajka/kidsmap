@@ -84,6 +84,39 @@ def _moderation_detail(user, item, revision, access_cache):
             'reason': reason[:4000], 'url': access_cache[key]}
 
 
+def _specialist_moderation_detail(user, item, people):
+    """Decision on the user's specialist application, linked only while it is theirs."""
+    from catalog.models import Specialist
+    from catalog.services.permanent_place_rules import copy as t
+
+    context = item.event_context
+    if (item.event_kind != 'moderation_decision' or item.entity_type != 'specialist'
+            or not isinstance(context, dict) or context.get('schema_version') != 1
+            or context.get('target_type') != 'specialist' or context.get('target_id') != item.entity_id):
+        return None
+    decisions = {
+        'approved': t('Анкета опубликована', 'Anket dərc olundu', 'Profile published'),
+        'needs_changes': t('Анкету нужно исправить', 'Anketdə düzəliş lazımdır', 'Changes requested'),
+        'rejected': t('Анкета отклонена', 'Anket rədd edildi', 'Profile rejected'),
+    }
+    decision, titles, reason = context.get('decision'), context.get('titles'), context.get('reason', '')
+    if (not isinstance(decision, str) or decision not in decisions
+            or not isinstance(titles, dict) or not isinstance(reason, str)):
+        return None
+    person = people.get(item.entity_id)
+    if person is None or user.pk not in (person.created_by_id, person.verified_person_user_id):
+        return None
+    if person.status == Specialist.STATUS_PUBLISHED and person.is_active and person.slug:
+        url = person.get_absolute_url()
+    else:
+        url = reverse('specialist_workspace_index')
+    lang = (get_language() or 'az').split('-')[0]
+    title = titles.get(lang) or titles.get('az')
+    if not isinstance(title, str):
+        return None
+    return {'decision': decisions[decision], 'title': title[:255], 'reason': reason[:4000], 'url': url}
+
+
 def _inbox_items(user):
     items = list(_mine(user).order_by('-created_at', '-pk')[:100])
     from catalog.services.workflow_notifications import _invitation_current, _join_confirmation_current
@@ -95,10 +128,18 @@ def _inbox_items(user):
     revisions = {row.pk: row for row in VolunteerPlaceRevision.objects.filter(pk__in=revision_ids)
                  .select_related('place', 'organization', 'program', 'activity__place',
                                  'offering_group__activity__place')}
+    from catalog.models import Specialist
+    specialist_ids = [item.entity_id for item in items if item.event_kind == 'moderation_decision'
+                      and item.entity_type == 'specialist']
+    people = {row.pk: row for row in Specialist.objects.filter(pk__in=specialist_ids)
+              .only('pk', 'slug', 'status', 'is_active', 'created_by_id', 'verified_person_user_id')}
     access_cache = {}
     current_email = current_email_for_privileges(user)
     for item in items:
-        item.moderation = _moderation_detail(user, item, revisions.get(item.entity_id), access_cache)
+        if item.entity_type == 'specialist':
+            item.moderation = _specialist_moderation_detail(user, item, people)
+        else:
+            item.moderation = _moderation_detail(user, item, revisions.get(item.entity_id), access_cache)
         item.can_accept = bool(current_email) and item.event_kind == 'team_invitation' and _invitation_current(item, current_email, timezone.now())
         item.can_reject = item.can_accept and item.entity_type in _INVITATION_TARGET_TYPES and item.entity_version == 1
         item.join_action_url = ''

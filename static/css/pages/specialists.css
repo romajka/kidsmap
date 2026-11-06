@@ -5495,3 +5495,39 @@ body.km-filter-lock {
 .km-specialists-page .km-custom-select__option {
   transition: background-color .14s ease, color .14s ease;
 }
+
+/* ── Specialist form: counter caption, mobile action bar, tap targets (2026-11-06) ── */
+.km-top-progress-counter { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.km-top-progress-counter-label { font-size: 12px; font-weight: 600; color: #5b6b61; white-space: nowrap; }
+.km-mobile-submit-bar { display: none; }
+@media (max-width: 767px) {
+  .km-specialist-owner-form { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .km-mobile-submit-bar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    border-top: 1px solid #dfe8e2;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 -8px 20px rgba(13, 73, 36, .08);
+    transition: transform var(--dur-base, 260ms) var(--ease-out-quint, ease-out), opacity var(--dur-base, 260ms);
+  }
+  .km-mobile-submit-bar.is-tucked { transform: translateY(110%); opacity: 0; pointer-events: none; }
+  .km-mobile-submit-bar .btn-save-draft,
+  .km-mobile-submit-bar .btn-submit { justify-content: center; min-height: 48px; margin: 0; }
+  .km-specialist-owner-form :is(.btn-save-draft, .btn-submit, .km-format-card, .owner-specialist-chip, .km-lang-pill, .km-photo-upload-btn, .km-btn-copy-wa) { min-height: 44px; }
+  .km-specialist-owner-form :is(input.field, select.field, input[type=text], input[type=tel], input[type=url], input[type=email], input[type=number], select) { min-height: 44px; }
+  .km-specialist-owner-form .km-owner-toc-list a { display: flex; align-items: center; min-height: 44px; }
+  .km-specialist-owner-form .km-input-addon-group input,
+  .km-specialist-owner-form input.field { min-height: 44px !important; }
+  .km-specialist-owner-form [data-owner-lang-tab] { min-height: 44px; }
+  .km-specialist-owner-form :is(input[type=checkbox], input[type=radio]) { min-width: 22px; min-height: 22px; }
+  .km-specialist-owner-form label:has(> input[type=checkbox]),
+  .km-specialist-owner-form label:has(> input[type=radio]) { min-height: 44px; display: flex; align-items: center; gap: 10px; }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) { .km-mobile-submit-bar { transition: none; } }

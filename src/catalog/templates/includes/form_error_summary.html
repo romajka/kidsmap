@@ -1,6 +1,7 @@
 {% load i18n %}
 {% get_current_language as CURRENT_LANGUAGE %}
-{% if form.errors or form.non_field_errors %}
+{% trans 'Проверьте места приёма.' as locations_summary_message %}
+{% if form.errors or form.non_field_errors or locations.total_error_count %}
 <div
   class="km-form-error-summary"
   id="form-error-summary"
@@ -35,12 +36,37 @@
 
   <ul class="km-form-error-summary__list">
     {% if form.non_field_errors %}
-      {% for error in form.non_field_errors %}
+      {% for error in form.non_field_errors %}{% if not locations.total_error_count or error != locations_summary_message %}
+        <li class="km-form-error-summary__item km-form-error-summary__item--general">
+          <span class="km-form-error-summary__bullet" aria-hidden="true">•</span>
+          <span class="km-form-error-summary__text">{{ error }}</span>
+        </li>
+      {% endif %}{% endfor %}
+    {% endif %}
+    {% if locations.total_error_count %}
+      {% for error in locations.non_form_errors %}
         <li class="km-form-error-summary__item km-form-error-summary__item--general">
           <span class="km-form-error-summary__bullet" aria-hidden="true">•</span>
           <span class="km-form-error-summary__text">{{ error }}</span>
         </li>
       {% endfor %}
+      {% for row in locations %}{% with row_number=forloop.counter %}
+        {% for field in row.visible_fields %}{% for error in field.errors %}
+          <li class="km-form-error-summary__item">
+            <span class="km-form-error-summary__bullet" aria-hidden="true">•</span>
+            <a href="#{{ field.id_for_label }}" class="km-form-error-summary__link">
+              <strong class="km-form-error-summary__field-label">{% trans 'Место приёма' %} {{ row_number }} · {{ field.label }}:</strong>
+              <span class="km-form-error-summary__field-msg">{{ error }}</span>
+            </a>
+          </li>
+        {% endfor %}{% endfor %}
+        {% for error in row.non_field_errors %}
+          <li class="km-form-error-summary__item km-form-error-summary__item--general">
+            <span class="km-form-error-summary__bullet" aria-hidden="true">•</span>
+            <span class="km-form-error-summary__text">{% trans 'Место приёма' %} {{ row_number }}: {{ error }}</span>
+          </li>
+        {% endfor %}
+      {% endwith %}{% endfor %}
     {% endif %}
 
     {% for field in form %}

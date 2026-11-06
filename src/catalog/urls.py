@@ -12,7 +12,7 @@ from .controllers.typed_reviews import target_reviews, review_action
 from .controllers.specialist_workspace import (specialist_workspace_index, specialist_workspace_profile,
     specialist_workspace_claims, specialist_workspace_invitations, specialist_workspace_certificates,
     specialist_workspace_review, organization_specialists, specialist_workspace_proposal,
-    specialist_proposal_photo)
+    specialist_proposal_photo, specialist_workspace_reopen)
 from django.contrib.auth import views as auth_views
 from django.urls import include, path, re_path, reverse_lazy
 
@@ -102,6 +102,7 @@ urlpatterns = [
     path('account/specialists/<int:pk>/invitations/', specialist_workspace_invitations, name='specialist_workspace_invitations'),
     path('account/specialists/<int:pk>/certificates/', specialist_workspace_certificates, name='specialist_workspace_certificates'),
     path('account/specialists/<int:pk>/review/', specialist_workspace_review, name='specialist_workspace_review'),
+    path('account/specialists/<int:pk>/reopen/', specialist_workspace_reopen, name='specialist_workspace_reopen'),
     path('account/organizations/<int:org_id>/specialists/', organization_specialists, name='organization_specialists'),
     path("organizations/", organization_list, name="organization_list"),
     path("organizations/<uuid:public_id>/", public_organization_detail, name="organization_detail"),

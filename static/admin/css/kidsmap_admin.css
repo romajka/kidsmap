@@ -1632,3 +1632,41 @@
   color: var(--km-admin-accent, #136F38);
   margin-left: 4px;
 }
+
+/* Moderator comment dialog (specialist reject / return for revision). */
+.km-moderation-dialog {
+  width: min(520px, calc(100vw - 32px));
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(13, 73, 36, .28);
+  color: #1f2933;
+}
+.km-moderation-dialog::backdrop { background: rgba(15, 25, 18, .45); }
+.km-moderation-dialog__form { display: grid; gap: 12px; padding: 22px 22px 18px; margin: 0; }
+.km-moderation-dialog__title { margin: 0; font-size: 1.2rem; font-weight: 800; }
+.km-moderation-dialog__hint { margin: 0; color: #47584d; font-size: .92rem; line-height: 1.45; }
+.km-moderation-dialog__label { font-weight: 700; font-size: .88rem; }
+.km-moderation-dialog textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 10px 12px;
+  border: 1px solid #cad7ce;
+  border-radius: 12px;
+  font: inherit;
+  resize: vertical;
+}
+.km-moderation-dialog textarea:focus { outline: 3px solid rgba(19, 111, 56, .25); border-color: #136f38; }
+.km-moderation-dialog textarea[aria-invalid="true"] { border-color: #c94a4a; }
+.km-moderation-dialog__error { margin: 0; color: #b23b3b; font-size: .88rem; font-weight: 600; }
+.km-moderation-dialog__actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+.km-moderation-dialog__actions button {
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.km-moderation-dialog__cancel { border: 1px solid #cad7ce; background: #fff; color: #1f2933; }
+.km-moderation-dialog__confirm { border: 0; background: #136f38; color: #fff; }
+.km-moderation-dialog--danger .km-moderation-dialog__confirm { background: #c94a4a; }

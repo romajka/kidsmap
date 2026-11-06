@@ -323,9 +323,14 @@ def specialist_workspace_index(request):
         pk__in=[claim.specialist_id for claim in claims] + list(returned_ids)).order_by('-pk')
     if not (my_specialist or working_proposals.exists() or claims or proposals.exists() or review_ids):
         return redirect('account_dashboard')
+    rejected_ids = [claim.specialist_id for claim in claims if claim.specialist.status == Specialist.STATUS_REJECTED]
+    rejected_ids += [person.pk for person in proposals if person.status == Specialist.STATUS_REJECTED]
+    reopen_ids = set(SpecialistProposalDraft.objects.filter(
+        actor=actor, submitted_specialist_id__in=rejected_ids,
+        submitted_specialist__created_by=actor).values_list('submitted_specialist_id', flat=True))
     return render(request, 'pages/specialist_workspace.html', _context(request, mode='index',
         working_proposals=working_proposals, my_specialist=my_specialist,
-        proposals=proposals, claims=claims,
+        proposals=proposals, claims=claims, reopen_ids=reopen_ids,
         review_profiles=Specialist.objects.filter(pk__in=review_ids).only('pk', 'name').order_by('pk'),
         owned_organizations=Organization.objects.filter(owner=actor, archived_at__isnull=True).order_by('pk')))
 
@@ -594,7 +599,10 @@ def specialist_workspace_proposal(request, draft_id=None):
                 expected_version=request.POST.get('draft_version',''),data=request.POST,files=request.FILES,
                 submit=request.POST.get('form_action')!='save_draft')
             request.session['specialist_saved_recovery']=[f'proposal-{key}','proposal-new']
-            if draft.submitted_at:return redirect('specialist_workspace_index')
+            if draft.submitted_at:
+                messages.success(request, _('Анкета отправлена на проверку. О решении модератора мы сообщим в уведомлениях и по email.'))
+                return redirect('specialist_workspace_index')
+            messages.success(request, _('Черновик сохранён.'))
             return redirect('specialist_workspace_proposal_resume',draft_id=draft.pk)
         except ValidationError as exc:
             form=getattr(exc,'form',None)
@@ -624,6 +632,21 @@ def specialist_workspace_proposal(request, draft_id=None):
         recovery_version=request.POST.get('draft_version','0') if status==409 else str(draft.version) if draft else '0',
         recovery_server_version=str(draft.version) if draft else '0',server_saved_at=draft.updated_at if draft else None,
         grouped_specializations=_build_grouped_specializations(form,lang=lang)),status=status)
+
+
+@workspace
+def specialist_workspace_reopen(request, pk):
+    """Let the author of a rejected profile fix it and send it to moderation again."""
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+    from catalog.services import specialist_moderation
+    try:
+        draft = specialist_moderation.reopen_rejected(actor=request.specialist_actor, specialist_id=pk)
+    except ValidationError:
+        messages.info(request, _('Статус анкеты изменился. Проверьте результат в личном кабинете.'))
+        return redirect('specialist_workspace_index')
+    messages.info(request, _('Исправьте анкету по комментарию модератора и отправьте её снова.'))
+    return redirect('specialist_workspace_proposal_resume', draft_id=draft.pk)
 
 
 @workspace

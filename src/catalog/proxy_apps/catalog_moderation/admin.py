@@ -151,20 +151,9 @@ class ModerationSpecialistAdmin(PendingModerationAdminMixin, SpecialistAdmin):
 
     @admin.action(permissions=['change'], description=_("Вернуть на доработку"))
     def return_for_revision(self, request, queryset):
-        from catalog.services.specialist_proposal_drafts import return_for_revision
-        from django.core.exceptions import ValidationError
-        from django.contrib import messages
-        actor = self._require_moderation_permission(request)
-        returned = 0
-        for specialist_id in queryset.values_list('pk', flat=True):
-            try:
-                return_for_revision(actor=actor, specialist_id=specialist_id)
-            except ValidationError as exc:
-                self.message_user(request, '; '.join(exc.messages), level=messages.WARNING)
-            else:
-                returned += 1
-        if returned:
-            self.message_user(request, _("Анкеты возвращены авторам на доработку."))
+        # The pending-queue mixin defines a generic version; specialists use
+        # the shared one (author's draft reopened, comment + notification).
+        return SpecialistAdmin.return_for_revision(self, request, queryset)
 
     def get_queryset(self, request):
         return super().get_queryset(request).filter(status=Specialist.STATUS_PENDING)

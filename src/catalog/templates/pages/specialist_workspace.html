@@ -2,7 +2,7 @@
 {% load i18n static %}
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 {% block title %}{% if workspace_mode == 'index' and not my_specialist %}{% trans 'Анкеты специалистов' %}{% elif workspace_mode == 'claims' %}{% trans 'Подтверждение личности' %}{% elif workspace_mode == 'review' %}{% trans 'Проверка KidsMap' %}{% elif workspace_mode == 'organization' %}{% trans 'Специалисты организации' %}{% else %}{% trans 'Кабинет специалиста' %}{% endif %}{% endblock %}
-{% block extra_head %}<script src="{% static 'js/specialist_recovery.js' %}?v=20261020_release_r1" defer></script>{{ block.super }}<meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}?v=20261020_release_r1">{% endblock %}
+{% block extra_head %}<script src="{% static 'js/specialist_recovery.js' %}?v=20261020_release_r1" defer></script>{{ block.super }}<meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}?v=20261106_moderation_status">{% endblock %}
 {% block account_content %}
 {{ clear_specialist_recovery|json_script:'specialist-clear-recovery' }}
 <div id="specialist-recovery-identity" data-actor="{{ recovery_actor }}" hidden></div>
@@ -30,16 +30,20 @@
       {% if workspace_mode == 'index' %}
         {% if my_specialist %}
           <section class="sw-card"><h2>{% trans 'Личный профиль' %}</h2>
-            <h3>{{ my_specialist.name }}</h3><p>{{ my_specialist.get_status_display }}</p>
+            <h3>{{ my_specialist.name }}</h3>{% include 'pages/includes/specialist_application_status.html' with person=my_specialist %}
+            <div class="sw-actions">
             <a class="sw-button sw-primary" href="{% url 'specialist_workspace_profile' my_specialist.pk %}">{% trans 'Редактировать профиль' %}</a>
+            {% if my_specialist.status == 'published' and my_specialist.is_active %}<a class="sw-button" href="{{ my_specialist.get_absolute_url }}">{% trans 'Открыть профиль на сайте' %}</a>{% endif %}
+            </div>
           </section>
         {% endif %}
         {% if working_proposals %}
           <section class="sw-card"><h2>{% trans 'Черновики анкет' %}</h2>
             <ul class="sw-rows">{% for draft in working_proposals %}<li>
               <h3>{{ draft.payload.name.0|default:_('Без имени') }}</h3>
-              <p>{% if draft.payload.profile_subject.0 == 'self' %}{% trans 'Моя анкета' %}{% else %}{% trans 'Анкета другого специалиста' %}{% endif %} · {% if draft.submitted_specialist_id %}{% trans 'Нужны исправления' %}{% else %}{% trans 'Черновик' %}{% endif %} · {{ draft.updated_at|date:'d.m.Y H:i' }}</p>
-              <a class="sw-button" href="{% url 'specialist_workspace_proposal_resume' draft.pk %}">{% trans 'Продолжить заполнение' %}</a>
+              <p class="sw-status"><span class="sw-pill sw-pill--{% if draft.submitted_specialist_id %}draft{% else %}local{% endif %}">{% if draft.submitted_specialist_id %}{% trans 'Нужны исправления' %}{% else %}{% trans 'Черновик' %}{% endif %}</span><span class="sw-status-note">{% if draft.payload.profile_subject.0 == 'self' %}{% trans 'Моя анкета' %}{% else %}{% trans 'Анкета другого специалиста' %}{% endif %} · {{ draft.updated_at|date:'d.m.Y H:i' }}</span></p>
+              {% if draft.submitted_specialist.rejection_reason %}<div class="sw-moderator-note" role="note"><p class="sw-moderator-note__label">{% trans 'Комментарий модератора' %}</p><p>{{ draft.submitted_specialist.rejection_reason|linebreaksbr }}</p></div>{% endif %}
+              <a class="sw-button{% if draft.submitted_specialist_id %} sw-primary{% endif %}" href="{% url 'specialist_workspace_proposal_resume' draft.pk %}">{% if draft.submitted_specialist_id %}{% trans 'Исправить и отправить снова' %}{% else %}{% trans 'Продолжить заполнение' %}{% endif %}</a>
             </li>{% endfor %}</ul>
           </section>
         {% endif %}
@@ -47,17 +51,21 @@
           <section class="sw-card"><h2>{% trans 'Мои заявки' %}</h2>
             <ul class="sw-rows">{% for claim in claims %}<li>
               <h3>{{ claim.specialist.name }}</h3>
-              <p>{% trans 'Анкета' %}: {{ claim.specialist.get_status_display }}</p>
+              {% include 'pages/includes/specialist_application_status.html' with person=claim.specialist %}
               <p>{% trans 'Подтверждение личности' %}: {{ claim.status_label }}</p>
               {% if claim.reason %}<p>{{ claim.reason }}</p>{% endif %}
-              <a class="sw-button" href="{% url 'specialist_workspace_claims' claim.specialist_id %}">{% trans 'Открыть заявку' %}</a>
+              <div class="sw-actions">
+                {% if claim.specialist_id in reopen_ids %}<form method="post" action="{% url 'specialist_workspace_reopen' claim.specialist_id %}">{% csrf_token %}<button type="submit" class="sw-button sw-primary">{% trans 'Исправить и отправить снова' %}</button></form>{% endif %}
+                {% if claim.specialist.status == 'published' and claim.specialist.is_active %}<a class="sw-button" href="{{ claim.specialist.get_absolute_url }}">{% trans 'Открыть профиль на сайте' %}</a>{% endif %}
+                <a class="sw-button" href="{% url 'specialist_workspace_claims' claim.specialist_id %}">{% trans 'Подтверждение личности' %}</a>
+              </div>
             </li>{% endfor %}</ul>
           </section>
         {% endif %}
         {% if proposals %}
           <section class="sw-card"><h2>{% trans 'Предложения анкет' %}</h2>
             <p>{% trans 'Предложение чужой анкеты не даёт права управлять ею. Если это ваша анкета, запросите подтверждение личности.' %}</p>
-            <ul class="sw-rows">{% for proposal in proposals %}<li><h3>{{ proposal.name }}</h3><p>{{ proposal.get_status_display }}</p><a class="sw-button" href="{% url 'specialist_workspace_claims' proposal.pk %}">{% trans 'Это мой профиль' %}</a></li>{% endfor %}</ul>
+            <ul class="sw-rows">{% for proposal in proposals %}<li><h3>{{ proposal.name }}</h3>{% include 'pages/includes/specialist_application_status.html' with person=proposal %}<div class="sw-actions">{% if proposal.pk in reopen_ids %}<form method="post" action="{% url 'specialist_workspace_reopen' proposal.pk %}">{% csrf_token %}<button type="submit" class="sw-button sw-primary">{% trans 'Исправить и отправить снова' %}</button></form>{% endif %}{% if proposal.status == 'published' and proposal.is_active %}<a class="sw-button" href="{{ proposal.get_absolute_url }}">{% trans 'Открыть профиль на сайте' %}</a>{% endif %}<a class="sw-button" href="{% url 'specialist_workspace_claims' proposal.pk %}">{% trans 'Это мой профиль' %}</a></div></li>{% endfor %}</ul>
           </section>
         {% endif %}
         {% if owned_organizations %}<section class="sw-card"><h2>{% trans 'Специалисты организации' %}</h2><ul class="sw-rows">{% for org in owned_organizations %}<li><a href="{% url 'organization_specialists' org.pk %}">{% if language == 'ru' %}{{ org.name_ru|default:org.name_az }}{% elif language == 'en' %}{{ org.name_en|default:org.name_az }}{% else %}{{ org.name_az }}{% endif %}</a></li>{% endfor %}</ul></section>{% endif %}

@@ -2460,3 +2460,17 @@
   max-width: 100%;
   flex-shrink: 1;
 }
+
+/* Moderation status in "Мои анкеты и заявки" */
+.sw-status{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:6px 0 12px}
+.sw-status-note{font-size:14px;color:var(--muted)}
+.sw-pill--pending{background:#fff4d6;color:#7a5200}
+.sw-pill--published{background:var(--tint-turf-200);color:var(--brand-spruce)}
+.sw-pill--rejected{background:#fde8e8;color:#8d2323}
+.sw-pill--draft{background:#fff0dc;color:#8a4b00}
+.sw-pill--local{background:var(--tint-mist-050);color:var(--muted)}
+.sw-moderator-note{margin:12px 0 4px;padding:14px 16px;border-left:3px solid #d08a1e;border-radius:8px;background:#fffaf0;max-width:72ch}
+.sw-moderator-note p{margin:0}
+.sw-moderator-note .sw-moderator-note__label{margin-bottom:4px;font-size:13px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:#7a5200}
+.sw-actions form{margin:0}
+@media(max-width:767px){.sw-actions{display:grid}.sw-actions .sw-button,.sw-actions form{width:100%}}

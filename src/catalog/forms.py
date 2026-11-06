@@ -2347,6 +2347,15 @@ class OwnerSpecialistForm(forms.ModelForm):
             self.fields[name].widget.attrs.update({'class':'field'})
         self.fields['experience_years'].widget.attrs['min']=0
         self.fields['experience_years'].help_text=_('Пусто — стаж не указан. 0 — нет полных лет опыта.')
+        experience_error = _('Укажите стаж целым числом полных лет, например 5. Если опыта меньше года — 0.')
+        self.fields['experience_years'].error_messages.update(
+            invalid=experience_error, min_value=experience_error,
+            max_value=_('Проверьте стаж: число слишком большое.'))
+        if not (self.instance and self.instance.pk):
+            # A new profile has no format yet: the author picks one, so an online-only
+            # specialist is never asked for an address because of a preselected default.
+            self.fields['consultation_format'].choices = [('', _('Выберите формат'))] + list(Specialist.FORMAT_CHOICES)
+            self.initial['consultation_format'] = ''
         self.fields["photo"].help_text = _("JPG, PNG или WEBP. Максимум 2 МБ.")
         self.fields["specializations"].widget = forms.CheckboxSelectMultiple()
         self.fields["specializations"].queryset = SpecialistSpecialization.objects.filter(is_active=True).order_by("order", "name_ru")
@@ -2379,6 +2388,8 @@ class OwnerSpecialistForm(forms.ModelForm):
             self.locations.require_active=not self.draft_save_only
             if not self.locations.is_valid():self.add_error(None,_('Проверьте места приёма.'))
         if self.draft_save_only:
+            if not cleaned.get('consultation_format'):
+                cleaned['consultation_format'] = Specialist.FORMAT_ONLINE
             photo = cleaned.get("photo")
             if photo and not (isinstance(photo, FieldFile) and photo._committed):
                 try:
@@ -2409,6 +2420,11 @@ class OwnerSpecialistForm(forms.ModelForm):
                     cleaned[field_name] = _validate_phone(value)
                 except ValidationError as exc:
                     self.add_error(field_name, exc)
+                else:
+                    # Store one canonical form (+994501234567); keep the checked value if the
+                    # number is valid by pattern but unknown to the numbering plan.
+                    from catalog.services.phone_numbers import safe_phone
+                    cleaned[field_name] = safe_phone(cleaned[field_name]) or cleaned[field_name]
 
         # Enforce that if format is offline or both, location fields are required and validated
         consultation_format = cleaned.get("consultation_format")

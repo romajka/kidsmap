@@ -611,13 +611,41 @@
         setTocStatus("km-sec-bio-experience", hasBio);
       }
 
+      // Mobile action bar: tuck it away while the full actions card is on screen.
+      var mobileBar = form.querySelector("[data-mobile-submit-bar]");
+      var actionsCard = form.querySelector(".km-unified-actions-card");
+      if (mobileBar && actionsCard && "IntersectionObserver" in window) {
+        new IntersectionObserver(function (entries) {
+          mobileBar.classList.toggle("is-tucked", entries[0].isIntersecting);
+        }).observe(actionsCard);
+      }
+
       form.addEventListener("input", updateMandatoryProgress);
       form.addEventListener("change", updateMandatoryProgress);
       setTimeout(updateMandatoryProgress, 50);
 
       // Scroll to error if any
+      var errorSummary = document.querySelector("[data-error-summary]");
       var firstError = form.querySelector(".auth-field-error, .auth-errors, .errorlist");
-      if (firstError) {
+      if (errorSummary) {
+        // Server-side errors: move focus to the summary so screen readers and keyboard users start there.
+        setTimeout(function () {
+          errorSummary.scrollIntoView({ behavior: "smooth", block: "start" });
+          errorSummary.focus({ preventScroll: true });
+        }, 120);
+        errorSummary.addEventListener("click", function (event) {
+          var link = event.target.closest("a[href^='#']");
+          if (!link) return;
+          var target = document.getElementById(decodeURIComponent(link.getAttribute("href").slice(1)));
+          if (!target) return;
+          event.preventDefault();
+          var section = target.closest("details");
+          if (section) section.open = true;
+          var focusable = target.matches("input,select,textarea,button") ? target : target.querySelector("input:not([type=hidden]),select,textarea");
+          (focusable || target).scrollIntoView({ behavior: "smooth", block: "center" });
+          if (focusable) focusable.focus({ preventScroll: true });
+        });
+      } else if (firstError) {
         var errorTarget = firstError.closest(".km-unified-section") || firstError;
         setTimeout(function () {
           errorTarget.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -715,8 +743,9 @@
     var formatCards = Array.from(form.querySelectorAll("[data-owner-format-card]"));
     function syncFormat() {
       if (!formatSelect) return;
-      var value = formatSelect.value || "online";
-      if (locationBlock) locationBlock.hidden = value === "online";
+      // No preselected format: nothing is highlighted and no address is asked until the author picks one.
+      var value = formatSelect.value || "";
+      if (locationBlock) locationBlock.hidden = value !== "offline" && value !== "both";
       formatCards.forEach(function (card) {
         card.classList.toggle("is-selected", card.getAttribute("data-owner-format-card") === value);
         card.setAttribute("aria-pressed",String(card.getAttribute("data-owner-format-card") === value));

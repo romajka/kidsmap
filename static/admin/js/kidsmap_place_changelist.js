@@ -401,46 +401,147 @@
       var specId = specActionBtn.getAttribute('data-specialist-id');
       if (!action || !specId) return;
 
-      if (action === 'mark_published' || action === 'mark_rejected' || action === 'mark_draft') {
+      if (action === 'mark_published' || action === 'mark_rejected' || action === 'mark_draft' || action === 'return_for_revision') {
         var form = document.getElementById('changelist-form');
         if (!form) return;
 
         var targetCb = form.querySelector('tbody input.action-select[value="' + specId + '"]');
         if (!targetCb) return;
 
-        if (action === 'mark_rejected') {
-          if (!window.confirm('Отклонить профиль этого специалиста?')) {
-            return;
-          }
-        } else if (action === 'mark_draft') {
-          if (!window.confirm('Снять этого специалиста с публикации и перевести в черновик?')) {
-            return;
-          }
-        }
-
         e.preventDefault();
 
-        var allCheckboxes = form.querySelectorAll('tbody input.action-select');
-        Array.prototype.slice.call(allCheckboxes).forEach(function (cb) {
-          cb.checked = false;
-        });
+        var submitRow = function (comment) {
+          var allCheckboxes = form.querySelectorAll('tbody input.action-select');
+          Array.prototype.slice.call(allCheckboxes).forEach(function (cb) {
+            cb.checked = false;
+          });
 
-        targetCb.checked = true;
+          targetCb.checked = true;
 
-        var actionSelect = form.querySelector('select[name="action"]');
-        if (actionSelect) {
-          actionSelect.value = action;
+          var actionSelect = form.querySelector('select[name="action"]');
+          if (actionSelect) {
+            actionSelect.value = action;
+          } else {
+            var hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'action';
+            hidden.value = action;
+            form.appendChild(hidden);
+          }
+          setModerationComment(form, comment);
+          form.submit();
+        };
+
+        if (MODERATION_COMMENT_ACTIONS[action]) {
+          askModerationComment(action, specActionBtn, submitRow);
+        } else if (action === 'mark_draft') {
+          if (window.confirm('Снять этого специалиста с публикации и перевести в черновик?')) submitRow('');
         } else {
-          var hidden = document.createElement('input');
-          hidden.type = 'hidden';
-          hidden.name = 'action';
-          hidden.value = action;
-          form.appendChild(hidden);
+          submitRow('');
         }
-
-        form.submit();
       }
     });
+
+    /* --------------------------------------------------------------------------
+       2d. Moderator comment for "reject" / "return for revision"
+       The author reads this text in the account and in the notification, so
+       the dialog asks for it on row buttons and on bulk actions alike.
+       -------------------------------------------------------------------------- */
+    var MODERATION_COMMENT_ACTIONS = {
+      mark_rejected: {
+        title: 'Отклонить анкету',
+        hint: 'Напишите причину. Автор увидит её в кабинете и в уведомлении и сможет исправить анкету.',
+        confirm: 'Отклонить',
+        tone: 'danger'
+      },
+      return_for_revision: {
+        title: 'Вернуть на доработку',
+        hint: 'Напишите, что нужно исправить. Автор получит уведомление, анкета снова станет черновиком.',
+        confirm: 'Вернуть автору',
+        tone: 'primary'
+      }
+    };
+
+    function setModerationComment(form, comment) {
+      var field = form.querySelector('input[name="moderation_comment"]');
+      if (!field) {
+        field = document.createElement('input');
+        field.type = 'hidden';
+        field.name = 'moderation_comment';
+        form.appendChild(field);
+      }
+      field.value = comment || '';
+    }
+
+    function askModerationComment(action, opener, onConfirm) {
+      var cfg = MODERATION_COMMENT_ACTIONS[action];
+      var dialog = document.createElement('dialog');
+      dialog.className = 'km-moderation-dialog km-moderation-dialog--' + cfg.tone;
+      dialog.setAttribute('aria-labelledby', 'km-moderation-dialog-title');
+      dialog.innerHTML =
+        '<form method="dialog" class="km-moderation-dialog__form">' +
+        '<h2 id="km-moderation-dialog-title" class="km-moderation-dialog__title"></h2>' +
+        '<p class="km-moderation-dialog__hint" id="km-moderation-dialog-hint"></p>' +
+        '<label class="km-moderation-dialog__label" for="km-moderation-dialog-text">Комментарий для автора</label>' +
+        '<textarea id="km-moderation-dialog-text" rows="4" maxlength="4000" required aria-describedby="km-moderation-dialog-hint"></textarea>' +
+        '<p class="km-moderation-dialog__error" role="alert" hidden>Напишите комментарий — без него автор не поймёт, что исправлять.</p>' +
+        '<div class="km-moderation-dialog__actions">' +
+        '<button type="button" value="cancel" class="km-moderation-dialog__cancel">Отмена</button>' +
+        '<button type="submit" value="confirm" class="km-moderation-dialog__confirm"></button>' +
+        '</div></form>';
+      dialog.querySelector('.km-moderation-dialog__title').textContent = cfg.title;
+      dialog.querySelector('.km-moderation-dialog__hint').textContent = cfg.hint;
+      dialog.querySelector('.km-moderation-dialog__confirm').textContent = cfg.confirm;
+      var text = dialog.querySelector('textarea');
+      var error = dialog.querySelector('.km-moderation-dialog__error');
+      var close = function () {
+        if (dialog.open) dialog.close();
+        dialog.remove();
+        if (opener && opener.focus) opener.focus();
+      };
+      dialog.querySelector('.km-moderation-dialog__cancel').addEventListener('click', close);
+      dialog.addEventListener('cancel', function (event) { event.preventDefault(); close(); });
+      dialog.querySelector('form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var value = text.value.trim();
+        if (!value) {
+          error.hidden = false;
+          text.setAttribute('aria-invalid', 'true');
+          text.focus();
+          return;
+        }
+        dialog.close();
+        dialog.remove();
+        onConfirm(value);
+      });
+      document.body.appendChild(dialog);
+      if (typeof dialog.showModal === 'function') {
+        dialog.showModal();
+        text.focus();
+      } else {
+        // Very old browsers: fall back to a native prompt.
+        dialog.remove();
+        var answer = window.prompt(cfg.hint, '');
+        if (answer && answer.trim()) onConfirm(answer.trim());
+      }
+    }
+
+    /* Bulk actions ("Действие" select) on the specialist lists ask too. */
+    document.addEventListener('submit', function (e) {
+      var form = e.target;
+      if (!form || form.id !== 'changelist-form') return;
+      var select = form.querySelector('select[name="action"]');
+      var action = select ? select.value : '';
+      if (!MODERATION_COMMENT_ACTIONS[action]) return;
+      if (!document.body.classList.contains('km-specialist-changelist') && !/moderationspecialist/.test(window.location.pathname)) return;
+      var existing = form.querySelector('input[name="moderation_comment"]');
+      if (existing && existing.value) return;
+      e.preventDefault();
+      askModerationComment(action, e.submitter || null, function (comment) {
+        setModerationComment(form, comment);
+        form.submit();
+      });
+    }, true);
 
     /* --------------------------------------------------------------------------
        3. Readiness Popover (1d)
