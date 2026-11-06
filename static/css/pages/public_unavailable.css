@@ -7,3 +7,23 @@
 .public-unavailable-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
 .public-unavailable-actions a { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; }
 .public-unavailable-actions a:focus-visible { outline: 3px solid currentColor; outline-offset: 4px; }
+/* Mappy, a search field and two equal buttons: the page always has a way on. */
+.public-unavailable { text-align: center; }
+.public-unavailable p { margin-inline: auto; }
+.public-unavailable-mappy { display: block; width: 160px; height: 160px; margin: 0 auto 12px; object-fit: contain; }
+.public-unavailable-search {
+  display: flex; gap: 8px; max-width: 480px; margin: 0 auto 20px;
+}
+.public-unavailable-search input {
+  flex: 1; min-width: 0; min-height: 48px; padding: 0 16px;
+  border: 1.5px solid var(--tint-line-200, #e3eae4); border-radius: var(--radius-pill, 999px);
+  font: inherit; background: #fff; color: var(--ink, #1f2933);
+}
+.public-unavailable-search input:focus-visible { outline: 3px solid var(--brand-turf, #136f38); outline-offset: 2px; }
+.public-unavailable-search .btn { min-height: 48px; border-radius: var(--radius-pill, 999px); padding-inline: 22px; }
+.public-unavailable-actions { justify-content: center; }
+.public-unavailable-actions .public-unavailable-link {
+  min-height: 44px; padding: 0 20px; border-radius: var(--radius-pill, 999px);
+  border: 1.5px solid var(--tone-border, rgba(19, 111, 56, .22)); background: #fff;
+  color: var(--brand-turf, #136f38); font-weight: 700; text-decoration: none;
+}

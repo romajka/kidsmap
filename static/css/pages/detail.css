@@ -1057,10 +1057,11 @@ a.public-place-org.detail-org-badge {
   color: var(--brand-turf, #136F38);
   letter-spacing: -0.02em;
   white-space: nowrap;
-  padding: 8px 14px;
-  border-radius: var(--radius-md, 12px);
-  background: #F4F9F5;
-  border: 1px solid #D8EADB;
+  /* Plain price text: the tariff row is already a card (no box in a box). */
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  border: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1069,8 +1070,6 @@ a.public-place-org.detail-org-badge {
 }
 
 .detail-plans__row:hover .detail-plans__price {
-  background: #E8F5EC;
-  border-color: #B8DEC0;
   color: #0E5B2D;
   transform: scale(1.02);
 }

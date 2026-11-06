@@ -73,3 +73,12 @@
     background-clip: content-box;
   }
 }
+
+/* Plain links inside content (rating count, 404 "home" link, rich text) used
+   the browser's default blue; they take the brand green instead. */
+.site-shell main a:not([class]) {
+  color: var(--brand-turf, #136f38);
+  text-decoration-color: color-mix(in srgb, var(--brand-turf, #136f38) 40%, transparent);
+  text-underline-offset: 3px;
+}
+.site-shell main a:not([class]):hover { text-decoration-color: currentColor; }

@@ -6,14 +6,20 @@
 {% block robots_meta %}noindex, follow{% endblock %}
 {% block googlebot_meta %}noindex, follow{% endblock %}
 {% block meta_description %}{% trans "Посмотрите доступные места и занятия в каталоге." %}{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/public_unavailable.css' %}" />{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/public_unavailable.css' %}?v=20261106_mappy" />{% endblock %}
 {% block content %}
 <section class="public-unavailable" aria-labelledby="unavailable-heading">
+  <img class="public-unavailable-mappy" src="{% static 'img/mappy/mappy-map.webp' %}" width="160" height="160" alt="" decoding="async">
   <h1 id="unavailable-heading">{% trans "Страница недоступна" %}</h1>
   <p>{% trans "Посмотрите доступные места и занятия в каталоге." %}</p>
+  <form class="public-unavailable-search" method="get" action="{% url 'place_list' %}" role="search">
+    <label class="visually-hidden" for="unavailable-search">{% trans "Поиск" %}</label>
+    <input id="unavailable-search" type="search" name="q" autocomplete="off" placeholder="{% trans 'Поиск' %}…">
+    <button type="submit" class="btn">{% trans "Найти" %}</button>
+  </form>
   <div class="public-unavailable-actions">
-    <a class="btn" href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
-    <a href="{% url 'home' %}">{% trans "На главную" %}</a>
+    <a class="btn btn-secondary public-unavailable-link" href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
+    <a class="btn btn-secondary public-unavailable-link" href="{% url 'home' %}">{% trans "На главную" %}</a>
   </div>
 </section>
 {% endblock %}

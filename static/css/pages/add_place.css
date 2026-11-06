@@ -827,3 +827,12 @@
     white-space: nowrap;
   }
 }
+
+/* One quiet icon tone for the stats strip instead of four colour squares. */
+.add-place-stat-icon.green,
+.add-place-stat-icon.gold,
+.add-place-stat-icon.blue,
+.add-place-stat-icon.purple {
+  background: var(--tint-turf-100, #e8f3e5);
+  color: var(--brand-turf, #136f38);
+}

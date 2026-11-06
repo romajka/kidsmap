@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/pages/add_place.css' %}?v=20261103_btn_single_line" />
+  <link rel="stylesheet" href="{% static 'css/pages/add_place.css' %}?v=20261106_one_tone" />
 {% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
@@ -88,7 +88,7 @@
   <section class="add-place-stats-grid">
     <div class="add-place-stat-box">
       <div class="add-place-stat-icon green">
-        <span class="material-symbols-rounded">price_check</span>
+        <span class="material-symbols-rounded">redeem</span>
       </div>
       <div class="add-place-stat-info">
         <span class="add-place-stat-value">0 AZN</span>
@@ -127,9 +127,9 @@
         <span class="material-symbols-rounded">call</span>
       </div>
       <div class="add-place-stat-info">
-        <span class="add-place-stat-value">100%</span>
+        <span class="add-place-stat-value">{% if CURRENT_LANGUAGE == "az" %}Birbaşa{% elif CURRENT_LANGUAGE == "en" %}Direct{% else %}Напрямую{% endif %}</span>
         <span class="add-place-stat-label">
-          {% if CURRENT_LANGUAGE == "az" %}Birbaşa valideyn zəngləri{% elif CURRENT_LANGUAGE == "en" %}Direct parent contacts{% else %}Прямые заявки родителей{% endif %}
+          {% if CURRENT_LANGUAGE == "az" %}Valideynlər sizə özləri zəng edir{% elif CURRENT_LANGUAGE == "en" %}Parents call you themselves{% else %}Родители звонят вам сами{% endif %}
         </span>
       </div>
     </div>
