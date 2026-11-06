@@ -11,6 +11,7 @@ from catalog.views import admin_add_choice, place_pricing_api, catalog_search_su
 from catalog.google_auth import google_login, google_callback
 from config.llms import llms_txt
 from config.views import (
+    admin_login,
     healthz,
     indexnow_key_file,
     public_sitemap,
@@ -52,6 +53,7 @@ urlpatterns = [
     ),
     path("admin/add-choice/", admin_add_choice),
     path("admin/editor/", include("catalog.admin_editor_urls", namespace="admin_editor")),
+    path("admin/login/", admin_login, name="admin_login_with_next"),
     path("admin/", admin.site.urls),
     re_path(
         rf"^{(settings.LANGUAGE_CODE or 'az').split('-')[0]}(?:/(?P<path>.*))?$",
@@ -62,6 +64,7 @@ urlpatterns = [
 
 urlpatterns += i18n_patterns(
     path("admin/add-choice/", admin_add_choice, name="admin_add_choice"),
+    path("admin/login/", admin_login),
     path(
         "admin/",
         include((admin.site.get_urls(), "localized_admin"), namespace="localized_admin"),

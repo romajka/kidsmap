@@ -163,3 +163,24 @@ def serve_media_file(request, path=""):
         )
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
     return response
+
+
+def admin_login(request):
+    """Admin login that always carries ``next``.
+
+    The Jazzmin login template has no hidden ``next`` field, so a staff member
+    who opened /admin/login/ directly was sent to LOGIN_REDIRECT_URL
+    (/accounts/profile/, a 404) after signing in. Opening the page without
+    ``next`` now redirects to the same page with ``next`` pointing at this admin
+    index (the localized one for /ru/admin/login/); the form posts to that URL,
+    so Django's LoginView reads ``next`` from the query string.
+    """
+    from urllib.parse import urlencode
+    from django.contrib import admin
+    from django.contrib.auth import REDIRECT_FIELD_NAME
+    from django.shortcuts import redirect
+
+    if request.method == "GET" and REDIRECT_FIELD_NAME not in request.GET:
+        index = request.path[: -len("login/")] if request.path.endswith("login/") else "/admin/"
+        return redirect(f"{request.path}?{urlencode({REDIRECT_FIELD_NAME: index})}")
+    return admin.site.login(request)
