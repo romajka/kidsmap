@@ -1167,6 +1167,20 @@
     if (window.KidsMapPins) window.KidsMapPins.applyMapDefaults(mapOptions, SCRIPT_CONFIG.googleMapsMapId);
     const map = new google.maps.Map(mapEl, mapOptions);
     const infoWindow = new google.maps.InfoWindow();
+    // Only the visitor's own pan/zoom re-orders the list; camera moves made by
+    // the page (fit, card reveal, popup auto-pan) do not.
+    let visitorMovedMap = false;
+    map.addListener("dragstart", () => { visitorMovedMap = true; });
+    mapEl.addEventListener("wheel", () => { visitorMovedMap = true; }, {passive:true});
+    mapEl.addEventListener("touchstart", event => { if (event.touches.length > 1) visitorMovedMap = true; }, {passive:true});
+    mapEl.addEventListener("click", event => { if (event.target.closest?.(".gmnoprint button, button.gm-control-active")) visitorMovedMap = true; });
+    map.addListener("idle", () => {
+      if (!visitorMovedMap) return;
+      visitorMovedMap = false;
+      const bounds = map.getBounds?.();
+      if (!bounds) return;
+      homeExplorer?.setViewArea?.({contains:(lat, lng) => Number.isFinite(lat) && Number.isFinite(lng) && bounds.contains({lat, lng})});
+    });
     mapEl.addEventListener("kidsmap:home-map-visible", () => { if (google.maps.event?.trigger) google.maps.event.trigger(map, "resize"); });
 
     const motion = window.KidsMapGoogleMotion.create(map);
@@ -1955,6 +1969,10 @@
     const mobile = window.matchMedia("(max-width: 767px)");
     let view = "map", selected = null, records = [], currentStatus = "ready";
     let visibleLimit = 10, currentPoints = [], allMembers = [];
+    // Visible map area after the visitor pans or zooms: its places go first
+    // in the list (nothing is hidden; paging and filters stay server-side).
+    let viewArea = null;
+    const inArea = item => !!viewArea && viewArea.contains(Number(item.point.lat), Number(item.point.lng));
     function copy(name, fallback) { return root.dataset[name] || fallback; }
     function selectionText(name) { return copy("selectedLabel", "{name}").replace("{name}", name); }
     function updateGuide() {
@@ -2065,7 +2083,7 @@
       // ahead of newer businesses at a different venue.
       allMembers = points.filter(hasValidCoordinates)
         .flatMap(point => pointMembers(point).map(member => ({point, member})))
-        .sort((a, b) => (Date.parse(b.member.publication_date) || 0) - (Date.parse(a.member.publication_date) || 0) || Number(b.member.id) - Number(a.member.id));
+        .sort((a, b) => (viewArea ? Number(inArea(b)) - Number(inArea(a)) : 0) || (Date.parse(b.member.publication_date) || 0) - (Date.parse(a.member.publication_date) || 0) || Number(b.member.id) - Number(a.member.id));
       allMembers.slice(0, visibleLimit).forEach(({point, member}) => {
         if (member.id === null || member.id === undefined || seen.has(String(member.id))) return;
         seen.add(String(member.id));
@@ -2118,7 +2136,10 @@
       updateSelection(); setStatus("ready");
       if (resultStatus) {
         const count = businessCount(points);
-        const tmpl = resultStatus.dataset.statusTemplate || "Показано {count} мест на карте. Выберите метку или карточку.";
+        const areaCount = viewArea ? new Set(allMembers.filter(inArea).map(item => String(item.member.id))).size : null;
+        const tmpl = areaCount !== null && resultStatus.dataset.areaTemplate
+          ? resultStatus.dataset.areaTemplate.replace("{area}", String(areaCount))
+          : (resultStatus.dataset.statusTemplate || "Показано {count} мест на карте. Выберите метку или карточку.");
         resultStatus.textContent = tmpl.replace("{count}", String(count));
       }
       if (activeId !== undefined) records.find(record => String(record.member.id) === activeId)?.button.focus({preventScroll:true});
@@ -2137,7 +2158,12 @@
       }).observe(pagination, {attributes:true,attributeFilter:["aria-busy"],childList:true,subtree:true,characterData:true});
     }
     setView(view, false); setPoints(sharedState.places);
-    return {setPoints, selectPoint, selectMember, setStatus,
+    function setViewArea(area) {
+      viewArea = area;
+      list.scrollTop = 0;
+      setPoints(currentPoints);
+    }
+    return {setPoints, selectPoint, selectMember, setStatus, setViewArea,
       showMore:() => { if (visibleLimit < allMembers.length) { visibleLimit += 10; setPoints(currentPoints); } },
       getSelectedMemberId:() => selected?.member.id ?? null,
       clearSelection:() => { selected = null; updateSelection(); },
