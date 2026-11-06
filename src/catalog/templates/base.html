@@ -948,13 +948,22 @@
 
           const progressBar = btn.querySelector(".km-progress-bar");
           const totalLength = 131.95;
+          const phone = window.matchMedia("(max-width: 767px)");
           let ticking = false;
+          let lastScrollTop = window.scrollY || 0;
+          let scrollingUp = false;
 
           function updateScroll() {
             const scrollTop = window.scrollY || document.documentElement.scrollTop;
             const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            
-            if (scrollTop > 220) {
+            if (Math.abs(scrollTop - lastScrollTop) > 6) {
+              scrollingUp = scrollTop < lastScrollTop;
+              lastScrollTop = scrollTop;
+            }
+
+            // Phones: the button would sit on card actions while reading, so it
+            // only appears when the visitor starts scrolling back up.
+            if (scrollTop > 220 && (!phone.matches || scrollingUp)) {
               btn.classList.add("is-visible");
             } else {
               btn.classList.remove("is-visible");

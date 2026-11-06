@@ -1253,3 +1253,8 @@
     font-size: 16px !important;
   }
 }
+
+/* Phones: a shorter photo so about two places fit per screen (was ~550px a card). */
+@media (max-width: 760px) {
+  .page-place_list .grid:not(.results-list-mode) .card.place-card .card-media { aspect-ratio: 16 / 10 !important; }
+}

@@ -3059,3 +3059,11 @@
 .catalog-map-card-price { margin: 8px 16px; font-weight: 600; }
 .catalog-map-offers { margin: 8px 16px; padding-left: 16px; }
 .card-map-missing { margin: 0 0 8px; color: var(--text-secondary, #6b7280); font-size: .8rem; }
+
+/* Live filters (desktop): the strip above the results is the one category
+   control, filters apply on change, so the sidebar picker and the Apply
+   button are not shown. The hidden <select> stays in the form. */
+@media (min-width: 761px) {
+  body:has(.catalog-category-strip) .filters-catalog.is-live-filters .filter-category { display: none; }
+  .page-place_list .catalog-layout .filters-catalog.is-live-filters .km-btn-apply { display: none !important; } /* beats catalog_polish.css !important */
+}
