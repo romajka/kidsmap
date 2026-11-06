@@ -49,3 +49,23 @@ class EmailOutbox(models.Model):
     class Meta:
         constraints = [models.CheckConstraint(condition=Q(attempts__lte=5), name='workflow_outbox_attempt_cap')]
         indexes = [models.Index(fields=['status', 'next_attempt_at', 'id'], name='workflow_outbox_due')]
+
+
+class WorkflowEmailDeliveryPolicy(models.Model):
+    """Fail closed until explicitly enabled, with no historical queue replay."""
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    enabled = models.BooleanField(default=False)
+    enabled_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(condition=Q(id=1), name='workflow_mail_policy_singleton'),
+            models.CheckConstraint(condition=Q(enabled=False) | Q(enabled_at__isnull=False),
+                                   name='workflow_mail_enabled_cutoff'),
+        ]
+
+
+class WorkflowEmailRecipientState(models.Model):
+    """Durable cooldown and row lock shared by every worker for one mailbox."""
+    address_key = models.CharField(max_length=64, primary_key=True)
+    last_digest_sent_at = models.DateTimeField(null=True, blank=True)

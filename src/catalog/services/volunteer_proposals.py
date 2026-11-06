@@ -71,7 +71,7 @@ def review_informational_link(*, actor, request_id, action, reason, expected_pla
     item.decided_at = timezone.now()
     item.save(update_fields=['status', 'note', 'decided_by', 'decided_at'])
     from catalog.services.workflow_notifications import emit
-    emit(kind='affiliation_decision', entity_type='organization_place_request', entity_id=item.pk, version=1, recipient_user=item.requested_by)
+    emit(kind='affiliation_decision', entity_type='organization_place_request', entity_id=item.pk, version=1, recipient_user=item.requested_by, event_context={'actor_id': actor.pk, 'decision': item.status})
     return item
 
 

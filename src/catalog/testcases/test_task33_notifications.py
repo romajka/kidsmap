@@ -12,6 +12,8 @@ from django.utils import timezone
 
 class NotificationContractTests(TestCase):
     def setUp(self):
+        from catalog.testcases.workflow_email_helpers import enable_delivery
+        enable_delivery(self)
         self.user = get_user_model().objects.create_user(
             'notify_recipient', email='recipient@example.invalid', password='synthetic')
 
@@ -38,8 +40,8 @@ class NotificationContractTests(TestCase):
     def test_smtp_failure_keeps_inbox_and_retry_sends_once(self):
         from catalog.models import WorkflowNotification, EmailOutbox
         from catalog.services.workflow_notifications import emit, deliver_batch
-        item = emit(kind='moderation_decision', entity_type='volunteer_revision', entity_id=23,
-            version=4, recipient_user=self.user)
+        from catalog.testcases.workflow_email_helpers import current_decision
+        item = current_decision(self.user)
         with patch('catalog.services.workflow_notifications.send_mail', side_effect=SMTPException('synthetic')):
             result = deliver_batch(limit=10)
         self.assertEqual(result['retry'], 1)
@@ -58,6 +60,8 @@ class NotificationContractTests(TestCase):
 
 class WorkflowIntegrationTests(TestCase):
     def setUp(self):
+        from catalog.testcases.workflow_email_helpers import enable_delivery
+        enable_delivery(self)
         from catalog.models import Organization
         from catalog.testcases.utils import create_quality_place
         U = get_user_model()
@@ -182,8 +186,8 @@ class WorkflowIntegrationTests(TestCase):
         from django.core.management import call_command
         from catalog.models import EmailOutbox
         from catalog.services.workflow_notifications import emit
-        emit(kind='moderation_decision', entity_type='volunteer_revision', entity_id=99,
-            version=1, recipient_user=self.member)
+        from catalog.testcases.workflow_email_helpers import current_decision
+        current_decision(self.member)
         output = StringIO()
         call_command('deliver_workflow_outbox', stdout=output)
         self.assertIn('delivery=disabled', output.getvalue())

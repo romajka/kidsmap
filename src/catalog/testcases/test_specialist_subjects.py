@@ -175,6 +175,8 @@ class SpecialistSubjectTests(TestCase):
         valid = self.person('Complete tutor', ['tutor', 'math_tutor'], status='draft')
         model_admin = SpecialistAdmin(Specialist, admin.site)
         request = RequestFactory().post('/')
+        from django.contrib.auth import get_user_model
+        request.user = get_user_model().objects.create_superuser('bulk-subject-reviewer', password='synthetic')
         with patch.object(model_admin, '_require_moderation_permission'), patch.object(model_admin, 'message_user'):
             for action, status in [('mark_pending', 'pending'), ('mark_published', 'published')]:
                 getattr(model_admin, action)(request, Specialist.objects.filter(pk__in=[broken.pk, valid.pk]))

@@ -184,5 +184,5 @@ def return_for_revision(*, actor, specialist_id, comment=''):
     person.rejection_reason = reason
     person.save(update_fields=['status', 'is_active', 'rejection_reason', 'updated_at'])
     specialist_moderation.reopen_author_draft(person)
-    specialist_moderation.notify_decision(person, specialist_moderation.NEEDS_CHANGES, reason)
+    specialist_moderation.notify_decision(person, specialist_moderation.NEEDS_CHANGES, reason, actor=actor)
     return person

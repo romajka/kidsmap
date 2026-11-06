@@ -1,23 +1,17 @@
 """Transactional service events and opt-in local email delivery."""
 import copy
 import hashlib
-from datetime import timedelta
-from smtplib import SMTPException
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db import transaction
-from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import EmailOutbox, WorkflowNotification
 from catalog.services.email_identity import current_email_for_privileges
-
-MAX_ATTEMPTS = 5
-
 
 def _email(value):
     return (value or '').strip().lower()
@@ -44,6 +38,8 @@ def emit(*, kind, entity_type, entity_id, version, recipient_user=None,
         defaults={'recipient_user': recipient_user, 'recipient_email': address,
                   'event_context': copy.deepcopy(event_context or {})})
     if email and address:
+        from catalog.services.workflow_email_policy import ensure_recipient_state
+        ensure_recipient_state(address)
         EmailOutbox.objects.get_or_create(notification=item, defaults={'recipient_email': address})
     return item
 
@@ -63,7 +59,7 @@ def _invitation_current(notification, address, now):
         return bool(row and row.status == 'PENDING' and row.expires_at and row.expires_at > now
             and _email(row.email) == address and row.base_ownership_version == row.organization.ownership_version
             and row.owner_id == row.organization.owner_id)
-    return True
+    return False
 
 
 def _join_confirmation_current(notification):
@@ -120,38 +116,5 @@ def _email_content(notification):
 
 
 def deliver_batch(*, limit=50, now=None):
-    if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= 500:
-        raise ValidationError('Invalid delivery limit.')
-    now = now or timezone.now()
-    counts = {'sent': 0, 'retry': 0, 'failed': 0, 'suppressed': 0}
-    for _ in range(limit):
-        with transaction.atomic():
-            row = (EmailOutbox.objects.select_for_update(skip_locked=True)
-                .select_related('notification')
-                .filter(status__in=['pending', 'retry'])
-                .filter(Q(next_attempt_at__isnull=True) | Q(next_attempt_at__lte=now))
-                .order_by('created_at', 'pk').first())
-            if row is None:
-                break
-            address = _email(row.recipient_email)
-            if not _delivery_allowed(row.notification, address, now):
-                row.status = 'suppressed'; row.last_error_code = 'stale_access'; row.next_attempt_at = None
-                row.save(update_fields=['status', 'last_error_code', 'next_attempt_at', 'updated_at'])
-                counts['suppressed'] += 1
-                continue
-            row.attempts += 1
-            try:
-                subject, body = _email_content(row.notification)
-                delivered = send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [address], fail_silently=False)
-                if delivered != 1:
-                    raise SMTPException('not_sent')
-            except (SMTPException, OSError):
-                row.status = 'failed' if row.attempts >= MAX_ATTEMPTS else 'retry'
-                row.last_error_code = 'smtp_error'
-                row.next_attempt_at = None if row.status == 'failed' else now + timedelta(minutes=2 ** row.attempts)
-                counts[row.status] += 1
-            else:
-                row.status = 'sent'; row.sent_at = now; row.last_error_code = ''; row.next_attempt_at = None
-                counts['sent'] += 1
-            row.save(update_fields=['status', 'attempts', 'sent_at', 'last_error_code', 'next_attempt_at', 'updated_at'])
-    return counts
+    from catalog.services.workflow_email_delivery import deliver
+    return deliver(limit=limit, now=now, sender=send_mail)

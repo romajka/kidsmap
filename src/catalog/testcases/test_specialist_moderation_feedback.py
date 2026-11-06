@@ -23,6 +23,8 @@ from catalog.services.specialist_proposal_drafts import save_proposal
 
 class SpecialistModerationFeedbackTests(TestCase):
     def setUp(self):
+        from catalog.testcases.workflow_email_helpers import enable_delivery
+        enable_delivery(self)
         User = get_user_model()
         self.author = User.objects.create_user('feedback-author', email='feedback-author@example.com')
         self.other = User.objects.create_user('feedback-other')
@@ -229,4 +231,3 @@ class SpecialistFormFixesTests(TestCase):
             form = OwnerSpecialistForm(data={'experience_years': 'abc'}, draft_save_only=True)
             self.assertFalse(form.is_valid())
             self.assertIn('tam illərlə', str(form.errors['experience_years']))
-

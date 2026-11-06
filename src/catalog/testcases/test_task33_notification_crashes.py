@@ -48,6 +48,8 @@ class AcceptanceLedgerBackend(BaseEmailBackend):
 
 class NotificationCrashTests(TransactionTestCase):
     def setUp(self):
+        from catalog.testcases.workflow_email_helpers import enable_delivery
+        enable_delivery(self)
         self.assertEqual(connection.vendor, 'postgresql')
         self.assertTrue(os.environ.get('DJANGO_TESTING') == '1')
         from guard import socket_path
@@ -155,6 +157,30 @@ class NotificationCrashTests(TransactionTestCase):
         self.assertEqual(workflow_notifications.deliver_batch(limit=1)['sent'], 0)
         self.assertEqual(self.accepted(), 1)
 
+    def test_parallel_workers_cannot_split_two_events_for_the_same_mailbox(self):
+        second_place = legacy_tools.create_quality_place(owner=self.owner, created_by=self.owner, with_subcategory=True)
+        business_team.invite(actor=self.owner, target_type='place', target_id=second_place.pk,
+                             email=self.recipient.email)
+        entered, release = Event(), Event()
+        AcceptanceLedgerBackend.entered, AcceptanceLedgerBackend.release = entered, release
+        def worker():
+            close_old_connections()
+            try:
+                return workflow_notifications.deliver_batch(limit=5)
+            finally:
+                close_old_connections()
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            first = pool.submit(worker)
+            try:
+                self.assertTrue(entered.wait(timeout=10))
+                self.assertEqual(pool.submit(worker).result(timeout=10)['sent'], 0)
+                self.assertEqual(self.accepted(), 1)
+            finally:
+                release.set()
+            result = first.result(timeout=10)
+            self.assertEqual((result['sent'], result['notifications_sent']), (1, 2))
+        self.assertEqual(EmailOutbox.objects.filter(status='sent').count(), 2)
+
     def assert_suppressed_after_ambiguous_crash(self):
         self.assertEqual(workflow_notifications.deliver_batch(limit=1)['suppressed'], 1)
         row = self.fresh_row()
@@ -188,6 +214,10 @@ class NotificationCrashTests(TransactionTestCase):
         self.place.refresh_from_db()
         self.assertEqual(self.place.ownership_version, 2)
         self.assertEqual(WorkflowNotification.objects.filter(event_kind='ownership_transfer').count(), 2)
+        # This retry contract targets the stale invite. Critical priority has a separate test.
+        from datetime import timedelta
+        EmailOutbox.objects.filter(notification__event_kind='ownership_transfer').update(
+            next_attempt_at=timezone.now() + timedelta(hours=1))
         self.assert_suppressed_after_ambiguous_crash()
 
     def test_normal_smtp_errors_keep_committed_business_exact_backoff_and_five_attempt_cap(self):

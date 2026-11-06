@@ -504,6 +504,7 @@ def review(*,actor,revision_id,version,approve,note='',final_reject=False):
             candidate_version=candidate_version, note=note,
             status=PlaceOwnershipRequest.STATUS_APPROVED if approve else PlaceOwnershipRequest.STATUS_REJECTED)
     decision_context = {
+        'actor_id': actor.pk,
         'schema_version': 1,
         'decision': 'approved' if approve else 'rejected' if final_reject else 'needs_changes',
         'target_type': kind,

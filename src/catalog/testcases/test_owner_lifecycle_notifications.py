@@ -12,6 +12,8 @@ from catalog.testcases.utils import create_quality_place
 
 class OwnerLifecycleNotificationTests(TestCase):
     def setUp(self):
+        from catalog.testcases.workflow_email_helpers import enable_delivery
+        enable_delivery(self)
         users = get_user_model()
         self.owner = users.objects.create_user('notice_owner', email='owner@example.invalid')
         self.other = users.objects.create_user('notice_other', email='other@example.invalid')

@@ -841,7 +841,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         )
         from catalog.services import specialist_moderation
         for person in Specialist.objects.filter(pk__in=newly_published).select_related("created_by", "verified_person_user"):
-            specialist_moderation.notify_decision(person, specialist_moderation.APPROVED)
+            specialist_moderation.notify_decision(person, specialist_moderation.APPROVED, actor=request.user)
         self.message_user(
             request,
             ngettext("Опубликован %(count)d профиль.", "Опубликовано %(count)d профиля.", updated_count) % {"count": updated_count},
@@ -892,7 +892,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             updated_at=timezone.now(),
         )
         for person in Specialist.objects.filter(pk__in=newly_rejected).select_related("created_by", "verified_person_user"):
-            specialist_moderation.notify_decision(person, specialist_moderation.REJECTED, reason)
+            specialist_moderation.notify_decision(person, specialist_moderation.REJECTED, reason, actor=request.user)
         self.message_user(
             request,
             ngettext("Отклонён %(count)d профиль.", "Отклонено %(count)d профиля.", updated_count)
@@ -924,7 +924,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         super().save_model(request, obj, form, change)
         if previous_status is not None and previous_status != obj.status:
             from catalog.services import specialist_moderation
-            specialist_moderation.after_admin_status_change(obj, previous_status)
+            specialist_moderation.after_admin_status_change(obj, previous_status, actor=request.user)
 
     @admin.display(description=_("Профиль"), ordering="name")
     def profile_column(self, obj):

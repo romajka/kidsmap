@@ -150,7 +150,7 @@ def _change_owner(row,new_owner_id):
     row.refresh_from_db()
     entity = 'place' if isinstance(row, Place) else 'organization'
     for user_id in {old_owner_id, new_owner_id} - {None}:
-        emit(kind='ownership_transfer', entity_type=entity, entity_id=row.pk, version=row.ownership_version, recipient_user=get_user_model().objects.get(pk=user_id))
+        emit(kind='ownership_transfer', entity_type=entity, entity_id=row.pk, version=row.ownership_version, recipient_user=get_user_model().objects.get(pk=user_id), event_context={'previous_owner_id': old_owner_id, 'new_owner_id': new_owner_id})
     for grant_id, member_id, version in grants:
         emit(kind='access_disabled', entity_type=f'{entity}_team_grant', entity_id=grant_id, version=version+1, recipient_user=get_user_model().objects.get(pk=member_id))
     return row
@@ -290,7 +290,7 @@ def _apply_link(item,place,org,actor):
     Place.objects.filter(pk=place.pk).update(organization_id=org.pk,organization_relationship_kind=item.relationship_kind,organization_join_place_ownership_version=place.ownership_version,organization_join_org_ownership_version=org.ownership_version,content_version=F('content_version')+1,updated_at=timezone.now())
     item.status='approved';item.decided_at=timezone.now();item.decided_by=actor;item.save(update_fields=['status','decided_at','decided_by'])
     for user_id in {place.owner_id, org.owner_id, item.requested_by_id} - {None}:
-        emit(kind='join_approved', entity_type='organization_place_request', entity_id=item.pk, version=2, recipient_user=get_user_model().objects.get(pk=user_id))
+        emit(kind='join_approved', entity_type='organization_place_request', entity_id=item.pk, version=2, recipient_user=get_user_model().objects.get(pk=user_id), event_context={'actor_id': actor.pk})
     return item
 
 
@@ -495,7 +495,7 @@ def detach(*,actor,place_id,organization_id,expected_ownership_version):
     Place.objects.filter(pk=place.pk).update(organization_id=None,organization_relationship_kind=None,organization_join_place_ownership_version=None,organization_join_org_ownership_version=None,content_version=F('content_version')+1,updated_at=timezone.now())
     place.refresh_from_db()
     for user_id in {place.owner_id, org.owner_id} - {None}:
-        emit(kind='affiliation_detached', entity_type='place', entity_id=place.pk, version=place.content_version, recipient_user=get_user_model().objects.get(pk=user_id))
+        emit(kind='affiliation_detached', entity_type='place', entity_id=place.pk, version=place.content_version, recipient_user=get_user_model().objects.get(pk=user_id), event_context={'actor_id': actor.pk, 'recipient_ids': sorted({place.owner_id, org.owner_id} - {None})})
     return place
 
 

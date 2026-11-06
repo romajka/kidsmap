@@ -100,7 +100,8 @@ __all__ += ['ServerDraft']
 from .conversion import ConversionMapping, ConversionRun
 __all__ += ['ConversionMapping', 'ConversionRun']
 
-from .workflow_notification import WorkflowNotification, EmailOutbox
+from .workflow_notification import (WorkflowNotification, EmailOutbox,
+                                    WorkflowEmailDeliveryPolicy, WorkflowEmailRecipientState)
 __all__ += ['WorkflowNotification', 'EmailOutbox']
 
 from .review_versions import (ActivityReview, EventReview, PlaceReviewRevision, SpecialistReviewRevision, ActivityReviewRevision, EventReviewRevision, SpecialistReviewReaction, ActivityReviewReaction, EventReviewReaction)

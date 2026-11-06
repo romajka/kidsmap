@@ -193,7 +193,7 @@ def invite(*, actor, target_type, target_id, email, role='EDITOR', actions=None,
     else:
         values.update(scope=scope,selected_place_ids=sorted(place_ids),scope_snapshot=snapshot)
     item = invite_model.objects.create(**values)
-    emit(kind="team_invitation", entity_type=f"{target_type}_team_invitation", entity_id=item.pk, version=1, recipient_email=email)
+    emit(kind="team_invitation", entity_type=f"{target_type}_team_invitation", entity_id=item.pk, version=1, recipient_email=email, event_context={'actor_id': actor.pk})
     return item
 
 
@@ -243,7 +243,7 @@ def accept(*, actor, target_type, invitation_id, expected_target_id=None):
     if target_type == 'organization':
         grant.selected_places.set(item.selected_place_ids)
     item.status='ACCEPTED';item.invited_user=actor;item.responded_at=timezone.now();item.save(update_fields=['status','invited_user','responded_at','updated_at'])
-    emit(kind='team_invitation_decision', entity_type=f'{target_type}_team_invitation', entity_id=item.pk, version=2, recipient_user=item.owner)
+    emit(kind='team_invitation_decision', entity_type=f'{target_type}_team_invitation', entity_id=item.pk, version=2, recipient_user=item.owner, event_context={'actor_id': actor.pk, 'decision': item.status.lower()})
     return grant
 
 
@@ -259,7 +259,7 @@ def decide_invitation(*, actor, target_type, invitation_id, cancel=False, expect
         raise TeamConflict('Invitation already handled.')
     item.status = 'CANCELED' if cancel else 'REJECTED';item.responded_at=timezone.now();item.save(update_fields=['status','responded_at','updated_at'])
     if not cancel:
-        emit(kind='team_invitation_decision', entity_type=f'{target_type}_team_invitation', entity_id=item.pk, version=2, recipient_user=item.owner)
+        emit(kind='team_invitation_decision', entity_type=f'{target_type}_team_invitation', entity_id=item.pk, version=2, recipient_user=item.owner, event_context={'actor_id': actor.pk, 'decision': item.status.lower()})
     return item
 
 

@@ -49,11 +49,12 @@ def _titles(person):
     return {'az': name, 'ru': name, 'en': alt or name}
 
 
-def notify_decision(person, decision, reason=''):
+def notify_decision(person, decision, reason='', *, actor=None):
     """Record the decision for every current author/owner of ``person``."""
     if decision not in DECISIONS:
         raise ValueError(decision)
     context = {
+        'actor_id': actor.pk if actor else None,
         'schema_version': 1,
         'target_type': ENTITY_TYPE,
         'target_id': person.pk,
@@ -90,17 +91,17 @@ def reopen_author_draft(person):
     return draft
 
 
-def after_admin_status_change(person, previous_status):
+def after_admin_status_change(person, previous_status, *, actor=None):
     """Notify the author after a moderator changed ``person.status`` in the form."""
     if previous_status == person.status:
         return
     if person.status == Specialist.STATUS_PUBLISHED:
-        notify_decision(person, APPROVED)
+        notify_decision(person, APPROVED, actor=actor)
     elif person.status == Specialist.STATUS_REJECTED:
-        notify_decision(person, REJECTED, person.rejection_reason or default_reason(REJECTED))
+        notify_decision(person, REJECTED, person.rejection_reason or default_reason(REJECTED), actor=actor)
     elif person.status == Specialist.STATUS_DRAFT and previous_status == Specialist.STATUS_PENDING:
         reopen_author_draft(person)
-        notify_decision(person, NEEDS_CHANGES, person.rejection_reason or default_reason(NEEDS_CHANGES))
+        notify_decision(person, NEEDS_CHANGES, person.rejection_reason or default_reason(NEEDS_CHANGES), actor=actor)
 
 
 @transaction.atomic
