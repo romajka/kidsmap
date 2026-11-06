@@ -1,4 +1,4 @@
-{% load i18n static %}
+{% load i18n static kidsmap_map %}
 <section class="panel home-map-panel home-map-explorer" id="home-map-section" data-home-map-explorer
   data-select-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstər: {name}{% elif request.LANGUAGE_CODE == 'en' %}Show on map: {name}{% else %}Показать на карте: {name}{% endif %}"
   data-details-label="{% trans 'Подробнее' %}"
@@ -112,7 +112,7 @@
       loading="lazy" referrerpolicy="no-referrer-when-downgrade"
       title="{% trans 'Карта детских мест по Азербайджану' %}"></iframe>
   </noscript>
-  {{ map_places|json_script:"home-map-data" }}
+  {{ map_places|map_points_json:"home-map-data" }}
   {{ home_map_page|json_script:"home-map-page" }}
   {% include "catalog/includes/map_pagination.html" with map_kind="home" map_page=home_map_page %}
 </section>
