@@ -11,7 +11,7 @@ from catalog.views import admin_add_choice, place_pricing_api, catalog_search_su
 from catalog.google_auth import google_login, google_callback
 from config.llms import llms_txt
 from config.views import (
-    admin_login,
+    admin_login_with_default_next,
     healthz,
     indexnow_key_file,
     public_sitemap,
@@ -34,6 +34,9 @@ sitemaps = {
 
 handler404 = "config.views.public_not_found"
 
+# Before admin.site.urls is built: every admin sign-in returns to the admin.
+admin.site.login = admin_login_with_default_next(admin.site.login)
+
 urlpatterns = [
     path("auth/google/", google_login, name="google_login"),
     path("auth/google/callback/", google_callback, name="google_callback"),
@@ -53,7 +56,6 @@ urlpatterns = [
     ),
     path("admin/add-choice/", admin_add_choice),
     path("admin/editor/", include("catalog.admin_editor_urls", namespace="admin_editor")),
-    path("admin/login/", admin_login, name="admin_login_with_next"),
     path("admin/", admin.site.urls),
     re_path(
         rf"^{(settings.LANGUAGE_CODE or 'az').split('-')[0]}(?:/(?P<path>.*))?$",
@@ -64,7 +66,6 @@ urlpatterns = [
 
 urlpatterns += i18n_patterns(
     path("admin/add-choice/", admin_add_choice, name="admin_add_choice"),
-    path("admin/login/", admin_login),
     path(
         "admin/",
         include((admin.site.get_urls(), "localized_admin"), namespace="localized_admin"),

@@ -13,15 +13,20 @@ class AdminLoginRedirectTests(TestCase):
             password=self.password, is_staff=True, is_superuser=True,
         )
 
-    def test_bare_login_page_redirects_to_itself_with_next(self):
+    def test_bare_login_page_posts_with_next(self):
         response = self.client.get("/admin/login/")
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response["Location"], "/admin/login/?next=%2Fadmin%2F")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'action="/admin/login/?next=%2Fadmin%2F"')
 
     def test_localized_login_page_points_next_at_localized_index(self):
         response = self.client.get("/ru/admin/login/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'action="/ru/admin/login/?next=%2Fru%2Fadmin%2F"')
+
+    def test_post_without_next_still_lands_on_admin_index(self):
+        response = self.client.post("/admin/login/", {"username": self.user.username, "password": self.password})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response["Location"], "/ru/admin/login/?next=%2Fru%2Fadmin%2F")
+        self.assertEqual(response["Location"], "/admin/")
 
     def test_login_with_next_lands_on_admin_index(self):
         response = self.client.post(
