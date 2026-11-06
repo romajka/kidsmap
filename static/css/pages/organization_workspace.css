@@ -88,7 +88,7 @@
   gap: 8px;
   padding: 10px 22px;
   font-weight: 800;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   white-space: nowrap;
 }
 
@@ -102,7 +102,7 @@
   justify-content: center;
   gap: 6px;
   padding: 8px 16px;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   font-size: 13.5px;
   font-weight: 700;
   text-decoration: none;
@@ -123,7 +123,7 @@
   padding: 14px 18px;
   background: #f2f8f4;
   border: 1px solid #d4e6db;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   margin: 1.25rem 0 1.5rem;
 }
 
@@ -156,7 +156,7 @@
 .org-guide-card {
   background: #ffffff;
   border: 1px solid #d8e5dc;
-  border-radius: 18px;
+  border-radius: var(--radius-lg, 16px);
   padding: 22px;
   margin: 1rem 0 2rem;
   box-shadow: 0 3px 14px rgba(18, 48, 33, 0.04);
@@ -189,7 +189,7 @@
 
 .org-guide-card__col {
   padding: 18px 20px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   box-sizing: border-box;
 }
 
@@ -253,7 +253,7 @@
 .org-card-box {
   background: #ffffff;
   border: 1px solid #d8e6dd;
-  border-radius: 18px;
+  border-radius: var(--radius-lg, 16px);
   padding: 26px 28px;
   box-shadow: 0 4px 20px rgba(18, 48, 33, 0.04);
 }
@@ -296,7 +296,7 @@
   background: #edf7f0;
   color: #0e6c37;
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   border: 1px solid #cde4d6;
 }
 
@@ -312,7 +312,7 @@
   color: #17332a;
   background: #ffffff;
   border: 1.5px solid #c9d8ce;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   padding: 10px 14px;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
@@ -363,7 +363,7 @@
 /* ── Progressive Disclosure Accordions ── */
 .org-disclosure {
   border: 1px solid #dce8e0;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   margin-bottom: 14px;
   overflow: hidden;
   background: #ffffff;
@@ -436,7 +436,7 @@
 .org-collision-banner {
   background: #fffbeb;
   border: 1.5px solid #f59e0b;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   padding: 18px 20px;
   margin-bottom: 22px;
   box-shadow: 0 4px 14px rgba(245, 158, 11, 0.09);
@@ -508,7 +508,7 @@
   padding: 10px 24px;
   font-size: 14.5px;
   font-weight: 800;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
 }
 
 .org-btn-cancel {
@@ -519,7 +519,7 @@
   font-weight: 700;
   color: #5c6d61;
   text-decoration: none;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   transition: background 0.15s ease, color 0.15s ease;
 }
 
@@ -532,7 +532,7 @@
 .org-onboarding-hub {
   background: linear-gradient(135deg, #f3faf5 0%, #e9f5ed 100%);
   border: 1px solid #c9e4d3;
-  border-radius: 18px;
+  border-radius: var(--radius-lg, 16px);
   padding: 20px 22px;
   margin: 1rem 0 1.75rem;
   box-shadow: 0 3px 12px rgba(18, 48, 33, 0.03);
@@ -566,7 +566,7 @@
 .org-onboarding-step {
   background: #ffffff;
   border: 1px solid #dbe8e0;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
@@ -612,7 +612,7 @@
   color: #136f38;
   text-decoration: none;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   background: #edf7f1;
   transition: all 0.15s ease;
 }
@@ -635,7 +635,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   padding: 4px 12px;
   font-size: 12px;
   font-weight: 750;
@@ -702,7 +702,7 @@
   min-width: 24px;
   height: 24px;
   padding: 0 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #edf7f1;
   color: #136f38;
   font-size: 12.5px;
@@ -733,7 +733,7 @@
   color: #17332a;
   background: #ffffff;
   border: 1.5px solid #d4e2d8;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   padding: 10px 14px 10px 40px;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
@@ -767,7 +767,7 @@
   min-width: 36px;
   height: 36px;
   padding: 0 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   border: 1px solid #dce8e0;
   background: #ffffff;
   color: #1f3b2d;
@@ -833,7 +833,7 @@
   padding: 12px 14px;
   background: #ffffff;
   border: 1px solid #dce8e0;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   color: inherit;
   text-decoration: none;
   min-width: 0;
@@ -850,7 +850,7 @@
   color: #136f38;
   background: #edf6e9;
   padding: 8px;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   font-size: 22px;
   flex-shrink: 0;
 }
@@ -898,7 +898,7 @@
   color: #136f38;
   text-decoration: none;
   padding: 5px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   background: #edf7f1;
   transition: all 0.15s ease;
 }
@@ -932,7 +932,7 @@
 .org-team-actions form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .org-team-actions form[hidden] { display: none; }
 .org-team-actions form p, .org-team-actions form small { flex-basis: 100%; margin: 4px 0; overflow-wrap: anywhere; }
-.org-team-actions select { max-width: 100%; padding: 8px; border: 1px solid #dce8e0; border-radius: 8px; }
+.org-team-actions select { max-width: 100%; padding: 8px; border: 1px solid #dce8e0; border-radius: var(--radius-sm, 8px); }
 .org-team-actions button { min-height: 40px; text-align: start; }
 .org-team-actions button:disabled { opacity: .55; cursor: wait; }
 [data-team-management-status] { overflow-wrap: anywhere; }
@@ -972,7 +972,7 @@
 .org-action-panel {
   margin: 1.5rem 0;
   padding: 1.5rem;
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   background: #f7faf8;
   border: 1px solid #dbe8df;
 }
@@ -988,7 +988,7 @@
   padding: 2.5rem 1.5rem;
   margin: 1rem 0;
   border: 1.5px dashed #bed5c0;
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   background: #f8fbf9;
   text-align: center;
 }
@@ -1020,7 +1020,7 @@
   align-items: flex-start;
   gap: 10px;
   padding: 12px 16px;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   background: #fff8eb;
   color: #78350f;
   border: 1px solid #fde68a;
@@ -1050,7 +1050,7 @@
   margin: 16px 0;
   padding: 16px;
   border: 1px solid #d8e6df;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #fff;
   overflow-wrap: anywhere;
 }
@@ -1091,7 +1091,7 @@
   padding: 14px 18px;
   background: #ffffff;
   border: 1px solid #dce8e0;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
 }
 
 .org-metrics strong {
@@ -1255,7 +1255,7 @@
   color: #17332a;
   background: #fff;
   border: 1.5px solid #c9d8ce;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
 }
 .org-control-form :is(input, select, button):focus-visible {
   outline: 3px solid #176d45;
@@ -1292,7 +1292,7 @@
   margin: 20px 0 0;
   padding: 12px;
   border: 1px solid #c9d8ce;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
 }
 .org-control-form :is(.org-control-check, .org-check) {
   display: flex;
@@ -1315,13 +1315,13 @@
 }
 
 /* Explicit request withdrawal; works without JavaScript. */
-.org-recovery { max-width: 720px; margin: 24px auto; padding: 24px; background: var(--color-surface, #fff); border: 1px solid #d7e6df; border-radius: 16px; overflow-wrap: anywhere; }
+.org-recovery { max-width: 720px; margin: 24px auto; padding: 24px; background: var(--color-surface, #fff); border: 1px solid #d7e6df; border-radius: var(--radius-lg, 16px); overflow-wrap: anywhere; }
 .org-recovery > * + * { margin-top: 20px; }
 .org-recovery summary, .org-recovery .org-btn, .org-recovery .org-text-action { min-height: 44px; display: inline-flex; align-items: center; padding: 10px 14px; }
 .org-recovery summary { cursor: pointer; display: list-item; }
 .org-recovery details form { padding-top: 16px; }
 .org-recovery details form > * + * { margin-top: 16px; }
-.org-recovery [role="alert"] { padding: 16px; border: 2px solid #a52b23; border-radius: 12px; }
+.org-recovery [role="alert"] { padding: 16px; border: 2px solid #a52b23; border-radius: var(--radius-md, 12px); }
 .org-recovery :focus-visible { outline: 3px solid #146c43; outline-offset: 3px; }
 .org-pending-row[data-join-request] > span { min-width: 0; overflow-wrap: anywhere; }
 .org-pending-row[data-join-request] small { display: block; }

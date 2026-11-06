@@ -23,7 +23,7 @@
   padding: 32px 28px !important;
   background: #FFFFFF !important;
   border: 1.5px solid #E0E9E3 !important;
-  border-radius: 24px !important;
+  border-radius: var(--radius-xl, 24px) !important;
   box-shadow: 0 20px 40px -8px rgba(19, 111, 56, 0.08), 0 2px 6px rgba(31, 41, 51, 0.04) !important;
   text-align: center;
   box-sizing: border-box;
@@ -130,7 +130,7 @@
   min-height: 42px !important;
   padding: 0 12px 0 38px !important;
   border: 1.5px solid #CAD7CE !important;
-  border-radius: 10px !important;
+  border-radius: var(--radius-md, 12px) !important;
   background: #F8FAF9 !important;
   font-size: 14px !important;
   font-weight: 600 !important;
@@ -157,7 +157,7 @@
   min-height: 52px !important;
   padding: 0 12px !important;
   border: 2px solid #CAD7CE !important;
-  border-radius: 12px !important;
+  border-radius: var(--radius-md, 12px) !important;
   background: #F8FAF9 !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
   font-size: 26px !important;
@@ -195,7 +195,7 @@
   background: #136F38 !important;
   color: #FFFFFF !important;
   border: none !important;
-  border-radius: 12px !important;
+  border-radius: var(--radius-md, 12px) !important;
   font-size: 15px !important;
   font-weight: 750 !important;
   cursor: pointer !important;
@@ -248,7 +248,7 @@
   font-weight: 750;
   cursor: pointer;
   padding: 4px 6px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   transition: all 0.15s ease;
 }
 
@@ -291,7 +291,7 @@
 }
 
 .page-account_verify_email .flash-message {
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   box-shadow: 0 4px 12px rgba(31, 41, 51, 0.05);
 }
 
@@ -302,7 +302,7 @@
   }
   .verify-panel {
     padding: 24px 18px !important;
-    border-radius: 20px !important;
+    border-radius: var(--radius-xl, 24px) !important;
   }
   .verify-title {
     font-size: 21px !important;

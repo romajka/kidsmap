@@ -45,7 +45,7 @@
 /* ── Hero Section ── */
 .about-hero-card {
   position: relative;
-  border-radius: 26px;
+  border-radius: var(--radius-xl, 24px);
   overflow: hidden;
   background: #F3FAF5;
   border: 1px solid #DCEFE3;
@@ -105,7 +105,7 @@
   align-items: center;
   gap: 7px;
   padding: 6px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #E0F5E9;
   border: 1px solid #BFE8CF;
   color: #0A6C40;
@@ -157,7 +157,7 @@
 .about-btn-primary {
   min-height: 48px;
   padding: 0 24px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #136F38;
   color: #ffffff !important;
   font-size: 15px;
@@ -181,7 +181,7 @@
 .about-btn-secondary {
   min-height: 48px;
   padding: 0 22px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #ffffff;
   border: 1px solid #CDE9D9;
   color: #17332A !important;
@@ -213,7 +213,7 @@
 .about-stat-box {
   background: #ffffff;
   border: 1px solid #E3F0E8;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 16px 20px;
   display: flex;
   align-items: center;
@@ -231,7 +231,7 @@
 .about-stat-icon-wrap {
   width: 46px;
   height: 46px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   display: grid;
   place-items: center;
   font-size: 22px;
@@ -294,7 +294,7 @@
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #E9F7EF;
   color: #136F38;
   font-size: 12.5px;
@@ -330,7 +330,7 @@
 .about-feature-card {
   background: #ffffff;
   border: 1px solid #E3F0E8;
-  border-radius: 22px;
+  border-radius: var(--radius-xl, 24px);
   padding: 26px 28px;
   display: flex;
   flex-direction: column;
@@ -372,7 +372,7 @@
 .about-card-icon {
   width: 50px;
   height: 50px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   display: grid;
   place-items: center;
   font-size: 24px;
@@ -454,7 +454,7 @@
 
 .about-feature-chip {
   padding: 5px 11px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #F0F8F3;
   border: 1px solid #D7EDE0;
   color: #17332A;
@@ -474,7 +474,7 @@
 .about-steps-wrapper {
   background: #ffffff;
   border: 1px solid #E3F0E8;
-  border-radius: 26px;
+  border-radius: var(--radius-xl, 24px);
   padding: clamp(24px, 3.5vw, 36px);
   display: flex;
   flex-direction: column;
@@ -493,7 +493,7 @@
 .about-step-card {
   background: #F9FCFA;
   border: 1px solid #E3F0E8;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 24px 22px;
   display: flex;
   flex-direction: column;
@@ -521,14 +521,14 @@
   color: #136F38;
   background: #E2F6EA;
   padding: 4px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   letter-spacing: 0.04em;
 }
 
 .about-step-icon {
   width: 42px;
   height: 42px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #EBF7F0;
   color: #136F38;
   display: grid;
@@ -561,7 +561,7 @@
 }
 
 .about-audience-card {
-  border-radius: 24px;
+  border-radius: var(--radius-xl, 24px);
   padding: clamp(24px, 3vw, 32px);
   display: flex;
   flex-direction: column;
@@ -604,7 +604,7 @@
 .about-audience-icon {
   width: 52px;
   height: 52px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   display: grid;
   place-items: center;
   font-size: 26px;
@@ -669,7 +669,7 @@
   align-self: flex-start;
   min-height: 44px;
   padding: 0 20px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   font-size: 14.5px;
   font-weight: 800;
   text-decoration: none;
@@ -703,7 +703,7 @@
 
 /* ── Bottom CTA Banner ── */
 .about-cta-card {
-  border-radius: 26px;
+  border-radius: var(--radius-xl, 24px);
   padding: clamp(28px, 3.5vw, 38px) clamp(24px, 3.5vw, 36px);
   background: linear-gradient(135deg, #F0FAF4 0%, #E8F6EE 100%);
   border: 1px solid #CDE9DA;
@@ -768,7 +768,7 @@
 .about-cta-btn-white {
   min-height: 48px;
   padding: 0 24px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #136F38;
   color: #ffffff !important;
   font-size: 15px;
@@ -790,7 +790,7 @@
 .about-cta-btn-outline {
   min-height: 48px;
   padding: 0 22px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #ffffff;
   border: 1px solid #CDE9D9;
   color: #17332A !important;

@@ -1,5 +1,5 @@
 /* Shared place pricing editor. Scoped to the two place forms. */
-.km-place-photo-picker { padding: 16px; margin-bottom: 20px; border: 1px dashed #b0cdb8; border-radius: 10px; background: #f6faf7; }
+.km-place-photo-picker { padding: 16px; margin-bottom: 20px; border: 1px dashed #b0cdb8; border-radius: var(--radius-md, 12px); background: #f6faf7; }
 .km-place-photo-picker label { display: grid; gap: 12px; color: #284b37; font-size: 14px; }
 .km-place-photo-picker input { width: 100%; min-width: 0; font-size: 14px; }
 .km-place-photo-picker p { margin: 10px 0 0; font-size: 13px; line-height: 1.5; color: #52665a; }
@@ -15,7 +15,7 @@
   min-width: 0;
   margin: 20px 0;
   border: 1px solid #D2E3D7;
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   background: #FFFFFF;
   box-shadow: 0 2px 10px rgba(19, 111, 56, 0.04);
   overflow: hidden;
@@ -43,7 +43,7 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   background: #E8F4EC;
   border: 1px solid #D0E8D7;
   color: var(--pricing-green, #136F38);
@@ -90,7 +90,7 @@
   align-items: center;
   justify-content: center;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #E8F4EC;
   border: 1px solid #C8E5D2;
   color: #136F38;
@@ -193,7 +193,7 @@
   min-width: 0;
   min-height: 42px;
   border: 1px solid #CFDED4;
-  border-radius: 9px;
+  border-radius: var(--radius-md, 12px);
   padding: 9px 12px;
   background: #FFFFFF;
   color: #173623;
@@ -226,7 +226,7 @@
   min-width: 0;
   min-height: 42px;
   border: 1px solid #CFDED4;
-  border-radius: 9px;
+  border-radius: var(--radius-md, 12px);
   background: #FFFFFF;
   overflow: hidden;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
@@ -257,7 +257,7 @@
   justify-content: center;
   padding: 4px 10px;
   margin-right: 6px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   background: #EDF6F0;
   border: 1px solid #D6E8DC;
   color: #136F38;
@@ -284,7 +284,7 @@
   min-height: 52px;
   padding: 8px 6px;
   border: 1px solid #D8E5DC;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   background: #F8FAF9;
   color: #365844;
   font-size: 12px;
@@ -365,7 +365,7 @@
 [data-tariff-editor] .owner-tariff-advanced {
   margin: 0 20px 20px;
   border: 1px solid #E2ECE5;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #FAFDFB;
   overflow: hidden;
 }
@@ -442,7 +442,7 @@
 [data-tariff-editor] [data-tariff-offer-dates] {
   padding: 16px 18px;
   border: 1px solid #E2ECE5;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #FFFFFF;
 }
 
@@ -512,7 +512,7 @@
   min-width: 36px;
   min-height: 36px;
   border: 1px solid #D8E5DC;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   background: #FFFFFF;
   color: #385C46;
   cursor: pointer;
@@ -552,7 +552,7 @@
   align-items: center;
   gap: 8px;
   padding: 11px 20px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #F4FBF6;
   border: 1.5px dashed #A3D4B4;
   color: #136F38;
@@ -576,7 +576,7 @@
   gap: 8px;
   margin: 0;
   padding: 6px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #F4F8F5;
   border: 1px solid #DDEBE1;
   font-size: 12px;
@@ -596,7 +596,7 @@
   gap: 6px;
   padding: 26px 20px;
   border: 1.5px dashed #CDE0D4;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #F8FAF9;
   text-align: center;
   margin: 16px 0;
@@ -631,7 +631,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px 18px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #F3F9F2;
   border: 1.5px solid #CDE7C5;
   color: #166534;
@@ -707,7 +707,7 @@
   min-height: 48px;
   padding: 10px 14px;
   border: 1px solid #D8E5DC;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   background: #F8FAF9;
   font: inherit;
   font-size: 13px;
@@ -738,7 +738,7 @@
   margin-top: 16px;
   padding: 16px;
   border: 1px solid #D8E5DC;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   background: #F8FAF9;
   color: #284B37;
   font-size: 13px;

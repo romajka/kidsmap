@@ -9,7 +9,7 @@
   --km-schedule-accent-soft: rgba(19, 147, 95, 0.1);
   position: relative;
   border: 1px solid var(--km-schedule-border);
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #fff;
   box-shadow: 0 14px 36px rgba(24, 43, 57, 0.08);
   color: var(--km-schedule-text);
@@ -51,7 +51,7 @@
 .km-schedule-editor__note-grid textarea {
   width: 100%;
   border: 1px solid var(--km-schedule-border-strong);
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   background: #fff;
   color: var(--km-schedule-text);
   padding: 9px 11px;
@@ -73,7 +73,7 @@
 .km-schedule-editor__events-action {
   margin-bottom: 14px;
   border: 1px solid rgba(19, 147, 95, 0.2);
-  border-radius: 9px;
+  border-radius: var(--radius-md, 12px);
   background: var(--km-schedule-soft);
   padding: 11px 12px;
   color: var(--km-schedule-accent-dark);
@@ -109,7 +109,7 @@
 .km-schedule-editor__events-action a,
 .km-schedule-editor__events-action > span {
   flex: 0 0 auto;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   padding: 8px 11px;
   font-size: 0.8rem;
   font-weight: 800;
@@ -165,7 +165,7 @@
 .km-schedule-editor__presets-panel {
   margin-bottom: 14px;
   border: 1px solid #e0e9e3;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   background: #f8faf9;
   padding: 10px 12px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
@@ -216,7 +216,7 @@
   white-space: normal;
   line-height: 1.35;
   border: 1px solid #cad7ce;
-  border-radius: 7px;
+  border-radius: var(--radius-sm, 8px);
   background: #ffffff;
   color: #334439;
   font-family: inherit;
@@ -281,7 +281,7 @@
 .km-schedule-editor__icon-action,
 .km-schedule-editor__copy-close {
   border: 1px solid #cad7ce;
-  border-radius: 7px;
+  border-radius: var(--radius-sm, 8px);
   background: #fff;
   color: var(--km-schedule-accent-dark);
   font: inherit;
@@ -299,7 +299,7 @@
 .km-schedule-editor__table {
   overflow: hidden;
   border: 1px solid #e0e9e3;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
@@ -386,7 +386,7 @@
   display: inline-flex;
   align-items: center;
   padding: 2px 7px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #fff7ed;
   border: 1px solid #fed7aa;
   color: #c2410c;
@@ -422,7 +422,7 @@
   gap: 5px;
   height: 28px;
   padding: 0 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   border: 1px solid #e0e9e3;
   background: #ffffff;
   color: #47584d;
@@ -500,7 +500,7 @@
   display: inline-block;
   width: 38px;
   height: 22px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #cad7ce;
   box-shadow: inset 0 0 0 1px rgba(25, 44, 57, 0.08);
   flex-shrink: 0;
@@ -602,7 +602,7 @@
   height: 34px;
   padding: 0 6px 0 8px;
   border: 1px solid var(--km-schedule-border-strong);
-  border-radius: 7px;
+  border-radius: var(--radius-sm, 8px);
   background: #ffffff;
   box-shadow: 0 1px 2px rgba(31, 41, 51, 0.04);
   gap: 4px;
@@ -716,7 +716,7 @@
   color: #0d4924;
   background: #f3f9f2;
   border: 1px solid #cde7c5;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   padding: 3px 10px;
   font-weight: 700;
   gap: 6px;
@@ -734,7 +734,7 @@
   gap: 5px;
   height: 30px;
   padding: 0 10px;
-  border-radius: 7px;
+  border-radius: var(--radius-sm, 8px);
   border: 1.5px dashed #86efac;
   background: #f3f9f2;
   font-family: inherit;
@@ -776,7 +776,7 @@
   gap: 5px;
   height: 30px;
   padding: 0 10px;
-  border-radius: 7px;
+  border-radius: var(--radius-sm, 8px);
   border: 1px solid #cad7ce;
   background: #ffffff;
   font-family: inherit;
@@ -828,7 +828,7 @@
 .km-schedule-editor__preview {
   margin-top: 12px;
   border: 1px solid var(--km-schedule-border);
-  border-radius: 9px;
+  border-radius: var(--radius-md, 12px);
   background: #fbfefd;
   padding: 10px 12px;
 }
@@ -862,7 +862,7 @@
   align-items: center;
   gap: 7px;
   border: 1px solid rgba(19, 147, 95, 0.16);
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #fff;
   padding: 5px 9px;
 }
@@ -901,7 +901,7 @@
 .km-schedule-editor__legacy {
   margin-top: 12px;
   border: 1px solid var(--km-schedule-border);
-  border-radius: 9px;
+  border-radius: var(--radius-md, 12px);
   background: #fff;
   padding: 12px;
 }
@@ -924,7 +924,7 @@
 .km-schedule-editor__copy-day {
   min-height: 32px;
   border: 1px solid var(--km-schedule-border);
-  border-radius: 7px;
+  border-radius: var(--radius-sm, 8px);
   padding: 7px 9px;
   font-size: 0.84rem;
 }
@@ -1046,7 +1046,7 @@
   overflow-y: auto;
   background: #ffffff;
   border: 1px solid #cad7ce;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   margin-top: 0;
   padding: 4px 0;
@@ -1105,7 +1105,7 @@
   width: 290px;
   background: #ffffff;
   border: 1px solid var(--km-schedule-border-strong);
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   padding: 18px;
   animation: km-popover-fade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1165,7 +1165,7 @@
   display: flex !important;
   align-items: center !important;
   padding: 6px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--km-schedule-text);
@@ -1204,7 +1204,7 @@
 .km-schedule-editor__popover-preset {
   background: var(--km-schedule-soft);
   border: 1px solid rgba(19, 147, 95, 0.18);
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   color: var(--km-schedule-accent-dark);
   font-size: 0.8rem;
   font-weight: 600;
@@ -1228,7 +1228,7 @@
 
 .km-schedule-editor__popover-btn {
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   font-size: 0.85rem;
   font-weight: 700;
   padding: 8px 16px;
@@ -1266,7 +1266,7 @@
   background: #2e7d32;
   color: #ffffff;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   font-size: 0.88rem;
   font-weight: 700;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);

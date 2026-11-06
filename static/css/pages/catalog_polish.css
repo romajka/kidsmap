@@ -172,7 +172,7 @@
 .page-place_list .card.place-card .card-price-pill {
   background: var(--brand-turf) !important;
   box-shadow: none !important;
-  border-radius: 10px !important;
+  border-radius: var(--radius-md, 12px) !important;
   padding: 7px 12px !important;
   max-width: calc(100% - 20px);
   box-sizing: border-box;
@@ -233,7 +233,7 @@
 }
 
 /* Empty search: one clear recovery action, with room for the query above. */
-.page-place_list .catalog-empty-state { padding: 28px 20px !important; border-radius: 20px !important; }
+.page-place_list .catalog-empty-state { padding: 28px 20px !important; border-radius: var(--radius-xl, 24px) !important; }
 .page-place_list .catalog-empty-state .empty-illustration { margin-bottom: 12px !important; transform: none !important; }
 .page-place_list .catalog-empty-state p { max-width: 42ch !important; margin: 10px auto 18px !important; line-height: 1.55 !important; }
 .page-place_list .catalog-empty-state .empty-actions { margin-top: 0 !important; }
@@ -353,7 +353,7 @@
   justify-content: space-between !important;
   gap: 10px !important;
   box-sizing: border-box !important;
-  border-radius: 8px !important;
+  border-radius: var(--radius-sm, 8px) !important;
   border: 1.5px solid #dfe8e2 !important;
   background: #ffffff !important;
   padding: 0 12px !important;
@@ -424,7 +424,7 @@
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
   border: 1.5px solid rgba(19, 111, 56, 0.22) !important;
-  border-radius: 12px !important;
+  border-radius: var(--radius-md, 12px) !important;
   padding: 6px !important;
   box-shadow:
     0 12px 28px -4px rgba(31, 41, 51, 0.14),
@@ -453,7 +453,7 @@
   justify-content: space-between !important;
   gap: 8px !important;
   padding: 7px 11px !important;
-  border-radius: 8px !important;
+  border-radius: var(--radius-sm, 8px) !important;
   font-size: 13px !important;
   font-weight: 550 !important;
   color: #334439 !important;
@@ -494,7 +494,7 @@
   justify-content: center !important;
   width: 22px !important;
   height: 22px !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-sm, 8px) !important;
   flex-shrink: 0 !important;
   margin-right: 2px !important;
 }
@@ -518,7 +518,7 @@
   align-items: center !important;
   justify-content: center !important;
   padding: 1px 6px !important;
-  border-radius: 999px !important;
+  border-radius: var(--radius-pill, 999px) !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   background: #e0e9e3 !important;
@@ -555,7 +555,7 @@
   background: #136f38 !important;
   color: #ffffff !important;
   border: 0 !important;
-  border-radius: 8px !important;
+  border-radius: var(--radius-sm, 8px) !important;
   font-weight: 700 !important;
   font-size: 13px !important;
   cursor: pointer !important;
@@ -590,7 +590,7 @@
   background: #f4fbf7 !important;
   color: #455a50 !important;
   border: 1px solid #dfe8e2 !important;
-  border-radius: 8px !important;
+  border-radius: var(--radius-sm, 8px) !important;
   font-weight: 650 !important;
   font-size: 13px !important;
   text-decoration: none !important;
@@ -663,7 +663,7 @@
   top: 50% !important;
   transform: translateY(-50%) !important;
   height: 6px !important;
-  border-radius: 999px !important;
+  border-radius: var(--radius-pill, 999px) !important;
   background: linear-gradient(
     to right,
     #d1ded5 0%,
@@ -723,7 +723,7 @@
   width: 100% !important;
   min-height: 42px !important;
   height: 42px !important;
-  border-radius: 8px !important;
+  border-radius: var(--radius-sm, 8px) !important;
   border: 1.5px solid #dfe8e2 !important;
   background: #ffffff !important;
   font-size: 13.5px !important;
@@ -769,7 +769,7 @@
   align-items: center !important;
   background: #f0f5f2 !important;
   padding: 3px !important;
-  border-radius: 12px !important;
+  border-radius: var(--radius-md, 12px) !important;
   border: 1px solid #e0e9e3 !important;
   gap: 2px !important;
 }
@@ -782,7 +782,7 @@
   height: 32px !important;
   min-height: 32px !important;
   padding: 0 12px !important;
-  border-radius: 9px !important;
+  border-radius: var(--radius-md, 12px) !important;
   border: 1px solid transparent !important;
   background: transparent !important;
   color: #64776a !important;
@@ -835,7 +835,7 @@
   min-width: 18px !important;
   height: 18px !important;
   padding: 0 5px !important;
-  border-radius: 999px !important;
+  border-radius: var(--radius-pill, 999px) !important;
   font-size: 11px !important;
   font-weight: 750 !important;
   line-height: 1 !important;
@@ -1018,7 +1018,7 @@
   align-items: center !important;
   gap: 7px !important;
   padding: 6px 13px !important;
-  border-radius: 999px !important;
+  border-radius: var(--radius-pill, 999px) !important;
   border: 1px solid #e0e9e3 !important;
   background: #ffffff !important;
   color: #334439 !important;
@@ -1085,7 +1085,7 @@
   min-width: 17px !important;
   height: 17px !important;
   padding: 0 5px !important;
-  border-radius: 999px !important;
+  border-radius: var(--radius-pill, 999px) !important;
   background: #f0f5f2 !important;
   color: #64776a !important;
   font-size: 11px !important;
@@ -1119,7 +1119,7 @@
   align-items: center !important;
   gap: 4px !important;
   padding: 2.5px 7px !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-sm, 8px) !important;
   font-size: 11.5px !important;
   font-weight: 600 !important;
   line-height: 1.25 !important;
@@ -1190,7 +1190,7 @@
 .page-place_list #custom-select-category .km-custom-select__trigger-icon {
   width: 22px !important;
   height: 22px !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-sm, 8px) !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -1211,7 +1211,7 @@
     justify-self: end !important;
     align-self: center !important;
     padding: 2px !important;
-    border-radius: 10px !important;
+    border-radius: var(--radius-md, 12px) !important;
   }
 
   .page-place_list .results-view-btn {
@@ -1220,7 +1220,7 @@
     padding: 0 8px !important;
     font-size: 12px !important;
     gap: 4px !important;
-    border-radius: 8px !important;
+    border-radius: var(--radius-sm, 8px) !important;
   }
 
   .page-place_list .results-view-btn__icon {

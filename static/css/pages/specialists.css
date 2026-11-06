@@ -162,7 +162,7 @@ body.km-filter-lock {
   align-items: center;
   min-height: 28px;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #fff;
   border: 1px solid var(--km-line);
   color: var(--km-ink);
@@ -199,7 +199,7 @@ body.km-filter-lock {
   justify-content: center;
   width: 22px;
   height: 22px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: var(--km-primary);
   color: #fff;
   font-size: 0.75rem;
@@ -358,7 +358,7 @@ body.km-filter-lock {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1.5px solid rgba(19, 111, 56, 0.22);
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   padding: 6px;
   box-shadow:
     0 12px 28px -4px rgba(31, 41, 51, 0.14),
@@ -387,7 +387,7 @@ body.km-filter-lock {
   justify-content: space-between;
   gap: 8px;
   padding: 7px 11px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   font-size: 13px;
   font-weight: 550;
   color: #334439;
@@ -430,7 +430,7 @@ body.km-filter-lock {
   align-items: center;
   justify-content: center;
   padding: 1px 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   font-size: 11px;
   font-weight: 700;
   background: #e0e9e3;
@@ -494,7 +494,7 @@ body.km-filter-lock {
   top: 50%;
   transform: translateY(-50%);
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: linear-gradient(
     to right,
     #d1ded5 0%,
@@ -605,7 +605,7 @@ body.km-filter-lock {
   justify-content: center;
   gap: 4px;
   padding: 6px 4px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   border: 1px solid #e0e9e3;
   background: #f8faf9;
   color: #47584d;
@@ -866,7 +866,7 @@ body.km-filter-lock {
 .owner-specialist-profile-card__photo {
   width: 72px;
   aspect-ratio: 1;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   overflow: hidden;
   display: grid;
   place-items: center;
@@ -939,7 +939,7 @@ body.km-filter-lock {
   width: 24px;
   height: 24px;
   margin-right: 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #edf4ef;
   color: #314038;
 }
@@ -965,7 +965,7 @@ body.km-filter-lock {
 .km-owner-mobile-progress > .km-progress-track {
   height: 8px;
   margin-top: 7px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #e6eee9;
   overflow: hidden;
 }
@@ -1012,7 +1012,7 @@ body.km-filter-lock {
   min-height: 38px;
   padding: 7px 12px;
   border: 1px solid var(--km-line);
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #fff;
   cursor: pointer;
   font-weight: 650;
@@ -1473,7 +1473,7 @@ body.km-filter-lock {
 .km-chip {
   background: #ffffff;
   border: 1px solid var(--km-gray-200);
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
   color: var(--km-gray-600);
@@ -1579,7 +1579,7 @@ body.km-filter-lock {
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0.3rem 0.6rem;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill, 999px);
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
@@ -1602,7 +1602,7 @@ body.km-filter-lock {
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.25rem 0.5rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   backdrop-filter: blur(4px);
 }
 
@@ -1612,7 +1612,7 @@ body.km-filter-lock {
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.25rem 0.5rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   backdrop-filter: blur(4px);
 }
 
@@ -1636,7 +1636,7 @@ body.km-filter-lock {
   font-weight: 700;
   background: var(--km-primary-light);
   color: var(--km-primary-hover);
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   padding: 0.2rem 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -2194,7 +2194,7 @@ body.km-filter-lock {
   color: #0d4924;
   background: var(--km-success-bg);
   padding: 0.2rem 0.5rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   border: 1px solid var(--km-success);
 }
 
@@ -2465,7 +2465,7 @@ body.km-filter-lock {
     font-size: 14.5px;
     min-height: 48px;
     padding: 0 14px;
-    border-radius: 12px;
+    border-radius: var(--radius-md, 12px);
     font-weight: 700;
     text-decoration: none;
     display: inline-flex;
@@ -2542,7 +2542,7 @@ body.km-filter-lock {
   z-index: 10;
   display: block;
   overflow: hidden;
-  border-radius: 28px;
+  border-radius: var(--radius-xl, 24px);
   background: linear-gradient(140deg, #f2f9f5 0%, #e7f5ec 100%);
   border: 1px solid #cbe7d8;
   padding: clamp(24px, 3.2vw, 36px) clamp(20px, 3.2vw, 38px);
@@ -2613,7 +2613,7 @@ body.km-filter-lock {
   align-items: center;
   gap: 8px;
   padding: 5px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #e2f4ea;
   border: 1px solid #cbe7d8;
   color: #0d4924;
@@ -2667,7 +2667,7 @@ body.km-filter-lock {
   box-sizing: border-box !important;
   background: #ffffff !important;
   border: 1.5px solid #136F38 !important;
-  border-radius: 14px !important;
+  border-radius: var(--radius-lg, 16px) !important;
   padding: 4px 5px 4px 14px !important;
   gap: 8px !important;
   box-shadow: 0 4px 14px rgba(19, 111, 56, 0.12) !important;
@@ -2767,7 +2767,7 @@ body.km-filter-lock {
   background: #136F38 !important;
   color: #ffffff !important;
   border: none !important;
-  border-radius: 10px !important;
+  border-radius: var(--radius-md, 12px) !important;
   font-weight: 700 !important;
   font-size: 14px !important;
   cursor: pointer !important;
@@ -2808,7 +2808,7 @@ body.km-filter-lock {
   align-items: center;
   gap: 7px;
   padding: 5px 12px 5px 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #ffffff;
   border: 1px solid #e0e9e3;
   color: #334439;
@@ -2925,7 +2925,7 @@ body.km-filter-lock {
 .km-specialists-catalog .faq-hero-stat-icon {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2994,7 +2994,7 @@ body.km-filter-lock {
 
 @media (max-width: 768px) {
   .km-specialists-catalog .km-specialists-hero {
-    border-radius: 18px;
+    border-radius: var(--radius-lg, 16px);
     padding: 16px 14px;
     margin-bottom: 16px;
   }
@@ -3008,7 +3008,7 @@ body.km-filter-lock {
   }
   .km-specialists-catalog .km-specialists-hero-search {
     padding: 3px 4px 3px 10px !important;
-    border-radius: 12px !important;
+    border-radius: var(--radius-md, 12px) !important;
   }
   .km-specialists-catalog .km-specialists-hero-search button[type="submit"],
   .km-specialists-catalog .hero-search-submit {
@@ -3062,7 +3062,7 @@ body.km-filter-lock {
   scrollbar-width: thin;
   align-self: start;
   padding: 18px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   border: 1px solid #dfe8e2;
   background: #ffffff;
   box-shadow: 0 6px 20px rgba(18, 32, 26, 0.05);
@@ -3139,7 +3139,7 @@ body.km-filter-lock {
   min-height: 38px;
   padding: 6px 10px;
   border: 1px solid #dfe8e2;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   background: #ffffff;
   font-size: 13.5px;
   color: #12201a;
@@ -3178,7 +3178,7 @@ body.km-filter-lock {
   background: #136f38;
   color: #ffffff;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   font-weight: 700;
   font-size: 13px;
   cursor: pointer;
@@ -3199,7 +3199,7 @@ body.km-filter-lock {
   background: #f4fbf7;
   color: #455a50;
   border: 1px solid #dfe8e2;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   font-weight: 650;
   font-size: 13px;
   text-decoration: none;
@@ -3223,7 +3223,7 @@ body.km-filter-lock {
   gap: 12px;
   padding: 12px 18px;
   margin-bottom: 14px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   border: 1px solid #dfe8e2;
   background: #ffffff;
   box-shadow: 0 4px 14px rgba(18, 32, 26, 0.04);
@@ -3270,7 +3270,7 @@ body.km-filter-lock {
   padding: 10px 14px;
   background: #f0f7f3;
   border: 1px solid #d3e5da;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
 }
 
 .km-specialists-catalog .km-chips-container {
@@ -3287,7 +3287,7 @@ body.km-filter-lock {
   padding: 4px 10px;
   background: #ffffff;
   border: 1px solid #b8d9c5;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   font-size: 12.5px;
   font-weight: 650;
   color: #12201a;
@@ -3321,7 +3321,7 @@ body.km-filter-lock {
   color: #d32f2f;
   text-decoration: none;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   transition: background 0.15s ease;
   white-space: nowrap;
 }
@@ -3345,7 +3345,7 @@ body.km-filter-lock {
   flex-direction: column;
   background: #ffffff;
   border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 18px;
+  border-radius: var(--radius-lg, 16px);
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(31, 41, 51, 0.05);
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
@@ -3407,7 +3407,7 @@ body.km-filter-lock {
   align-items: center;
   gap: 5px;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   font-size: 11px;
   font-weight: 750;
   background: rgba(255, 255, 255, 0.94);
@@ -3441,7 +3441,7 @@ body.km-filter-lock {
   padding: 5px 12px !important;
   background: linear-gradient(135deg, #136f38 0%, #1f8a4c 100%) !important;
   color: #ffffff !important;
-  border-radius: 20px !important;
+  border-radius: var(--radius-xl, 24px) !important;
   font-weight: 800 !important;
   font-size: 13px !important;
   letter-spacing: -0.01em !important;
@@ -3529,7 +3529,7 @@ body.km-filter-lock {
   padding: 3px 9px !important;
   background: #f0f5f2 !important;
   color: #334439 !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-sm, 8px) !important;
   font-size: 12px !important;
   font-weight: 600 !important;
 }
@@ -3562,7 +3562,7 @@ body.km-filter-lock {
   color: #1f2933 !important;
   background: #fffbeb !important;
   padding: 2px 7px !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-sm, 8px) !important;
   border: 1px solid #fef3c7 !important;
 }
 
@@ -3661,7 +3661,7 @@ body.km-filter-lock {
   padding: 0 16px !important;
   background: #136F38 !important;
   color: #ffffff !important;
-  border-radius: 12px !important;
+  border-radius: var(--radius-md, 12px) !important;
   font-size: 13.5px !important;
   font-weight: 700 !important;
   text-decoration: none !important;
@@ -3694,7 +3694,7 @@ body.km-filter-lock {
   grid-column: 1 / -1;
   background: #ffffff;
   border: 1.5px dashed #c2e5d2;
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   padding: 44px 20px;
   text-align: center;
   display: flex;
@@ -3740,7 +3740,7 @@ body.km-filter-lock {
   padding: 0 20px;
   background: #136f38;
   color: #ffffff;
-  border-radius: 9px;
+  border-radius: var(--radius-md, 12px);
   font-weight: 700;
   font-size: 13.5px;
   text-decoration: none;
@@ -3771,7 +3771,7 @@ body.km-filter-lock {
   min-height: 38px;
   padding: 0 10px;
   border: 1px solid #dfe8e2;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   background: #ffffff;
   color: #12201a;
   font-size: 13.5px;
@@ -3810,13 +3810,13 @@ body.km-filter-lock {
   .km-specialists-catalog .km-specialists-hero {
     min-height: auto;
     padding: 10px;
-    border-radius: 14px;
+    border-radius: var(--radius-lg, 16px);
     margin-bottom: 12px;
   }
 
   .km-specialists-catalog .km-hero-card {
     padding: 14px 14px 16px;
-    border-radius: 12px;
+    border-radius: var(--radius-md, 12px);
     box-shadow: 0 6px 18px rgba(18, 32, 26, 0.08);
   }
 
@@ -3835,7 +3835,7 @@ body.km-filter-lock {
   .km-specialists-catalog .km-hero-search {
     padding: 3px 4px 3px 10px;
     gap: 6px;
-    border-radius: 10px;
+    border-radius: var(--radius-md, 12px);
   }
 
   .km-specialists-catalog .km-hero-search input {
@@ -3847,7 +3847,7 @@ body.km-filter-lock {
     min-height: 34px;
     padding: 0 14px;
     font-size: 13px;
-    border-radius: 7px;
+    border-radius: var(--radius-sm, 8px);
   }
 
   .km-specialists-catalog .km-popular-directions {
@@ -3879,7 +3879,7 @@ body.km-filter-lock {
     gap: 8px;
     background: #ffffff;
     border: 1.5px solid #d3e5da;
-    border-radius: 10px;
+    border-radius: var(--radius-md, 12px);
     font-weight: 750;
     font-size: 13.5px;
     color: #12201a;
@@ -3913,7 +3913,7 @@ body.km-filter-lock {
     min-width: 20px;
     height: 20px;
     padding: 0 6px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill, 999px);
     background: #136f38;
     color: #ffffff;
     font-size: 11px;
@@ -3929,7 +3929,7 @@ body.km-filter-lock {
     padding: 0 12px;
     background: #f4fbf7;
     border: 1.5px solid #d3e5da;
-    border-radius: 10px;
+    border-radius: var(--radius-md, 12px);
     font-weight: 650;
     font-size: 13px;
     color: #d32f2f;
@@ -3975,7 +3975,7 @@ body.km-filter-lock {
     justify-content: center;
     width: 32px;
     height: 32px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm, 8px);
     background: #f0f4f2;
     border: 0;
     color: #455a50;
@@ -4064,7 +4064,7 @@ body.km-filter-lock {
   gap: 8px;
   padding: 6px 14px;
   border: 1.5px solid #e0e9e3;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #ffffff;
   color: #334439;
   font-size: 0.86rem;
@@ -4107,7 +4107,7 @@ body.km-filter-lock {
   min-height: 48px;
   padding: 8px 10px;
   border: 1.5px solid #e0e9e3;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #ffffff;
   color: #47584d;
   font-weight: 750;
@@ -4125,7 +4125,7 @@ body.km-filter-lock {
   place-items: center;
   width: 24px;
   height: 24px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #edf4ef;
   color: #136f38;
   font-size: 0.8rem;
@@ -4168,7 +4168,7 @@ body.km-filter-lock {
   padding: 12px 14px;
   background: #ffffff;
   border: 1.5px solid #e0e9e3;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   box-shadow: 0 2px 6px rgba(31, 41, 51, 0.04);
 }
 
@@ -4196,7 +4196,7 @@ body.km-filter-lock {
   place-items: center;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 8px);
   border: 1px solid #cad7ce;
   background: #f8faf9;
   color: #334439;
@@ -4230,7 +4230,7 @@ body.km-filter-lock {
 .km-progress-track {
   height: 6px;
   margin-top: 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #e0e9e3;
   overflow: hidden;
 }
@@ -4247,7 +4247,7 @@ body.km-filter-lock {
 .km-specialist-owner-form .km-step-section {
   background: #ffffff;
   border: 1.5px solid #e0e9e3;
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   padding: clamp(16px, 2.5vw, 28px);
   box-shadow: 0 4px 16px rgba(31, 41, 51, 0.04);
 }
@@ -4318,7 +4318,7 @@ body.km-filter-lock {
 .km-specialist-owner-form textarea.field {
   width: 100%;
   border: 1.5px solid #cad7ce;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   padding: 10px 14px;
   font-size: 0.95rem;
   color: #1f2933;
@@ -4351,7 +4351,7 @@ body.km-filter-lock {
   width: 96px;
   height: 96px;
   min-width: 96px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   border: 2px dashed #cad7ce;
   background: #f8faf9;
   display: grid;
@@ -4383,7 +4383,7 @@ body.km-filter-lock {
   gap: 8px;
   padding: 8px 16px;
   border: 1.5px solid #cad7ce;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   background: #ffffff;
   color: #1e2b23;
   font-size: 0.88rem;
@@ -4424,7 +4424,7 @@ body.km-filter-lock {
   height: 46px;
   padding-left: 40px !important;
   padding-right: 36px !important;
-  border-radius: 12px !important;
+  border-radius: var(--radius-md, 12px) !important;
   border: 1.5px solid #cad7ce !important;
 }
 
@@ -4449,7 +4449,7 @@ body.km-filter-lock {
 .owner-specialist-selected-bar {
   background: #f3f9f2;
   border: 1.5px solid #cde7c5;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   padding: 12px 16px;
   margin-bottom: 20px;
   animation: fadeIn 0.2s ease-out;
@@ -4491,7 +4491,7 @@ body.km-filter-lock {
   background: #136f38;
   color: #ffffff;
   padding: 4px 10px 4px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   font-size: 0.82rem;
   font-weight: 750;
   box-shadow: 0 1px 3px rgba(19, 111, 56, 0.2);
@@ -4544,7 +4544,7 @@ body.km-filter-lock {
   gap: 8px;
   padding: 8px 12px;
   border: 1.5px solid #e0e9e3;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #ffffff;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -4640,7 +4640,7 @@ body.km-filter-lock {
   min-height: 104px;
   padding: 16px 14px;
   border: 2px solid #e0e9e3;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   background: #ffffff;
   text-align: left;
   cursor: pointer;
@@ -4682,7 +4682,7 @@ body.km-filter-lock {
 
 .km-location-box {
   border: 1.5px solid #e0e9e3;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   padding: 18px;
   background: #f8faf9;
   margin-top: 14px;
@@ -4744,7 +4744,7 @@ body.km-filter-lock {
   gap: 14px;
   background: #f8faf9;
   border: 1.5px solid #cad7ce;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   padding: 16px;
   margin-bottom: 20px;
 }
@@ -4773,7 +4773,7 @@ body.km-filter-lock {
 .km-owner-privacy-card {
   background: #f3f9f2;
   border: 1.5px solid #cde7c5;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   padding: 16px;
   margin-bottom: 20px;
 }
@@ -4817,7 +4817,7 @@ body.km-filter-lock {
   gap: 8px;
   padding: 10px 18px;
   border: 1.5px solid #cad7ce;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   background: #ffffff;
   color: #334439;
   font-size: 0.9rem;
@@ -4842,7 +4842,7 @@ body.km-filter-lock {
   gap: 8px;
   padding: 10px 22px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   background: linear-gradient(135deg, #136f38, #0e5229);
   color: #ffffff;
   font-size: 0.92rem;
@@ -4863,7 +4863,7 @@ body.km-filter-lock {
   gap: 8px;
   padding: 10px 24px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   background: linear-gradient(135deg, #136f38, #0e5229);
   color: #ffffff;
   font-size: 0.95rem;
@@ -4882,7 +4882,7 @@ body.km-filter-lock {
 .km-sidebar-card {
   background: #ffffff;
   border: 1.5px solid #e0e9e3;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   padding: 18px;
   margin-bottom: 16px;
   box-shadow: 0 2px 8px rgba(31, 41, 51, 0.03);
@@ -4995,14 +4995,14 @@ body.km-filter-lock {
 }
 
 /* Specialist editor additions, scoped away from the public directory. */
-.km-specialist-owner-page .spec-save-state,.km-specialist-owner-page .spec-recovery{padding:14px 16px;margin-bottom:16px;border:1px solid #dbe4f0;border-radius:12px;background:#f5f8fc}
+.km-specialist-owner-page .spec-save-state,.km-specialist-owner-page .spec-recovery{padding:14px 16px;margin-bottom:16px;border:1px solid #dbe4f0;border-radius:var(--radius-md, 12px);background:#f5f8fc}
 .km-specialist-owner-page .spec-recovery li{overflow-wrap:anywhere;margin-block:8px}
-.km-specialist-owner-page .spec-practice-card{padding:18px;margin-block:16px;border:1px solid #dbe4f0;border-radius:14px;background:#fff}
+.km-specialist-owner-page .spec-practice-card{padding:18px;margin-block:16px;border:1px solid #dbe4f0;border-radius:var(--radius-lg, 16px);background:#fff}
 .km-specialist-owner-page .spec-practice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px}
 .km-specialist-owner-page .spec-practice-field{min-width:0}
 .km-specialist-owner-page .spec-practice-field label{display:block;margin-bottom:8px;font-weight:600}
 .km-specialist-owner-page .spec-practice-field input:not([type=checkbox]),.km-specialist-owner-page .spec-practice-field select,.km-specialist-owner-page .spec-practice-field textarea{width:100%;max-width:100%;box-sizing:border-box}
-.km-specialist-owner-page .spec-public-text details{padding:14px;margin-block:12px;border:1px solid #dbe4f0;border-radius:10px}
+.km-specialist-owner-page .spec-public-text details{padding:14px;margin-block:12px;border:1px solid #dbe4f0;border-radius:var(--radius-md, 12px)}
 .km-specialist-owner-page .spec-public-text summary{cursor:pointer;min-height:30px;font-weight:600}
 .km-specialist-owner-page .spec-public-text label{display:block;margin-block:12px 8px}
 .km-specialist-owner-page :focus-visible{outline:3px solid #1568d4;outline-offset:3px}
@@ -5034,7 +5034,7 @@ body.km-filter-lock {
   align-items: center;
   gap: 6px;
   padding: 5px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   font-size: 13px;
   font-weight: 700;
   line-height: 1;
@@ -5060,7 +5060,7 @@ body.km-filter-lock {
   padding: 12px 18px;
   margin-bottom: 14px;
   border: 1.5px solid #E0E9E3;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   background: #F8FAF9;
   color: #334439;
   font-size: 14px;
@@ -5086,7 +5086,7 @@ body.km-filter-lock {
   padding: 14px 18px;
   margin-bottom: 22px;
   border: 1.5px solid #D1EAD9;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   background: #F4FAF6;
   color: #234E3A;
   font-size: 13.5px;
@@ -5117,7 +5117,7 @@ body.km-filter-lock {
   min-height: 50px !important;
   padding: 8px 12px !important;
   border: 1.5px solid #E0E9E3 !important;
-  border-radius: 14px !important;
+  border-radius: var(--radius-lg, 16px) !important;
   background: #FFFFFF !important;
   color: #47584d !important;
   font-size: 13.5px !important;
@@ -5162,7 +5162,7 @@ body.km-filter-lock {
   padding: 0 !important;
   margin: 0 !important;
   border: none !important;
-  border-radius: 999px !important;
+  border-radius: var(--radius-pill, 999px) !important;
   background: #EDF2F7 !important;
   color: #47584d !important;
   font-size: 12.5px !important;
@@ -5206,7 +5206,7 @@ body.km-filter-lock {
 .km-sidebar-card {
   background: #FFFFFF !important;
   border: 1.5px solid #E0E9E3 !important;
-  border-radius: 16px !important;
+  border-radius: var(--radius-lg, 16px) !important;
   padding: 20px !important;
   margin-bottom: 16px !important;
   box-shadow: 0 2px 10px rgba(31, 41, 51, 0.03) !important;
@@ -5382,7 +5382,7 @@ body.km-filter-lock {
   align-items: center;
   gap: 7px;
   padding: 6px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   border: 1px solid #e0e9e3;
   background: #ffffff;
   color: #334439;
@@ -5454,7 +5454,7 @@ body.km-filter-lock {
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #f0f5f2;
   color: #64776a;
   font-size: 11px;

@@ -4,7 +4,7 @@
 .pg-situations__heading h3 { margin: 0 0 8px; font-size: clamp(1.4rem, 2.2vw, 1.8rem); letter-spacing: -.025em; }
 .pg-situations__intro { margin: 0; max-width: 620px; line-height: 1.6; color: var(--pg-muted); }
 .pg-situations__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
-.pg-situation { --scene-bg: #edf6e9; --scene-halo: #cce6bd; position: relative; display: flex; flex-direction: column; padding: 0; border: 1px solid rgba(19,111,56,.07); border-radius: 26px; background: var(--scene-bg); box-shadow: 0 5px 18px rgba(24,63,43,.035); isolation: isolate; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+.pg-situation { --scene-bg: #edf6e9; --scene-halo: #cce6bd; position: relative; display: flex; flex-direction: column; padding: 0; border: 1px solid rgba(19,111,56,.07); border-radius: var(--radius-xl, 24px); background: var(--scene-bg); box-shadow: 0 5px 18px rgba(24,63,43,.035); isolation: isolate; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
 .pg-situation--rain { --scene-bg: #edf4fa; --scene-halo: #cee2f2; }
 .pg-situation--free { --scene-bg: #fcf6e6; --scene-halo: #f3e4ae; }
 .pg-situation--schoolchild { --scene-bg: #f3effa; --scene-halo: #ded4f1; }
@@ -49,7 +49,7 @@
   .pg-situation__body { grid-template-columns: minmax(0, 1fr) 140px; }
 }
 @media (max-width: 420px) {
-  .pg-situation { border-radius: 22px; }
+  .pg-situation { border-radius: var(--radius-xl, 24px); }
   .pg-situation__body { grid-template-columns: minmax(0, 1fr) 112px; gap: 8px; padding: 20px 18px 16px; }
   .pg-situation__number { margin-bottom: 0; align-self: end; }
   .pg-situation h4 { align-self: start; margin-bottom: 0; }

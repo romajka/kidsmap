@@ -1,0 +1,75 @@
+/* ==========================================================================
+   KidsMap foundation layer (audit stage 1). Loaded last on public pages.
+   - one display face for every page and section heading;
+   - 44px touch targets on phones without changing the visual size of
+     small controls (the hit area grows, the drawing stays).
+   ========================================================================== */
+
+/* Headings: Chiron everywhere, not only on the home page. The :is() with an
+   attribute selector lifts specificity above single-class component rules. */
+.site-shell :is(h1, h2, h1[class], h2[class]) {
+  font-family: var(--font-display, "Chiron GoRound TC Public", system-ui, sans-serif);
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 767px) {
+  /* Controls that can simply be taller. The repeated class only raises
+     specificity over page rules that pin a smaller min-height. */
+  .site-shell.site-shell.site-shell :is(
+    .km-brand, .km-breadcrumbs__link, .results-view-btn, .km-sort-trigger,
+    .catalog-category-chip, .catalog-pag-num, .catalog-pag-btn, .catalog-seo-link-item,
+    .card-contact-toggle, .home-search-popular-chip, .home-map-catalog-link, .home-owner-link,
+    .home-steps-catalog-link, .home-explorer-tabs button, .home-faq-vote-btn, .home-faq-cta-link,
+    .detail-back, .detail-select, .review-reaction-btn, .detail-card__action,
+    .detail-map__copy-btn, .detail-map__app-chip, .detail-sponsor-slot__link, .public-parent-link,
+    .hero-search-submit, .catalog-hero-search input, .btn, .home-hero-slider-dot
+  ) {
+    min-height: 44px;
+    max-height: none;
+    box-sizing: border-box;
+  }
+  /* These controls are pinned by !important page rules in site.css; the
+     overrides below are the only !important in this layer. */
+  .site-shell .card.place-card .card-contact-toggle,
+  .site-shell .card-contact-toggle.km-phone-control--card { width: 44px !important; height: 44px !important; min-width: 44px !important; min-height: 44px !important; max-height: none !important; }
+  .site-shell :is(.results-view-btn, .results-toolbar-actions .btn, .km-sort-trigger, .home-explorer-tabs button) { min-height: 44px !important; }
+  body.page-home .site-shell .home-explorer-tabs button { min-height: 44px !important; height: auto !important; }
+  .site-shell :is(.km-breadcrumbs__link, .home-faq-cta-link, .public-parent-link, .home-map-catalog-link, .home-owner-link) {
+    display: inline-flex;
+    align-items: center;
+  }
+  .site-shell footer.site-footer :is(a, button),
+  .site-shell footer :is(a, button) {
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+  footer a:not([class]) {
+    display: inline-flex;
+    align-items: center;
+  }
+  footer .footer-accordion-trigger {
+    display: flex;
+    align-items: center;
+  }
+
+  /* Text links inside cards and meta rows: grow the tap area vertically
+     without moving the line. */
+  .site-shell :is(.card-title a, .meta a, .detail-decision__line a, .detail-decision__address-link) {
+    padding-block: 13px;
+    margin-block: -13px;
+  }
+
+  /* Small round controls keep their look; transparent padding takes the tap. */
+  body.page-home .site-shell .home-map-explorer .home-map-assistant-toggle {
+    box-sizing: content-box;
+    padding: 13px;
+    margin: -13px;
+    background-clip: content-box;
+  }
+  .site-shell .catalog-search-clear {
+    box-sizing: content-box;
+    padding: 9px;
+    margin: -9px;
+    background-clip: content-box;
+  }
+}

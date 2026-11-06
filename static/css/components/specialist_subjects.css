@@ -5,7 +5,7 @@
 .km-subject-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .km-subject-options .km-subject-option { position: relative; display: block; padding: 0; margin: 0; border: 0; background: transparent; box-shadow: none; min-width: 0; transform: none; }
 .km-subject-option input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.km-subject-option__body { display: flex; align-items: center; gap: 8px; min-height: 54px; padding: 12px; border: 1px solid var(--tint-line-200); border-radius: 14px; background: var(--surface, white); color: var(--ink); cursor: pointer; transition: transform 160ms ease, opacity 160ms ease; }
+.km-subject-option__body { display: flex; align-items: center; gap: 8px; min-height: 54px; padding: 12px; border: 1px solid var(--tint-line-200); border-radius: var(--radius-lg, 16px); background: var(--surface, white); color: var(--ink); cursor: pointer; transition: transform 160ms ease, opacity 160ms ease; }
 .km-subject-option .chip-title { font: 600 14px/1.4 var(--font-body); overflow-wrap: anywhere; }
 .km-subject-option .material-symbols-rounded { color: var(--brand-turf); font-size: 22px; flex: 0 0 auto; }
 .km-subject-check { margin-left: auto; opacity: 0; transform: scale(.6); transition: transform 180ms ease, opacity 180ms ease; }
@@ -16,7 +16,7 @@
 .km-subject-required { margin: 12px 0 0; color: var(--ink); font-weight: 600; }
 .km-subject-required[hidden] { display: none; }
 .km-subject-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 12px; padding: 0; list-style: none; }
-.km-subject-tags > span, .km-subject-tags > li, .km-subject-quick-link { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 10px; background: var(--tint-turf-050); color: var(--brand-turf); font: 600 14px/1.4 var(--font-body); }
+.km-subject-tags > span, .km-subject-tags > li, .km-subject-quick-link { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: var(--radius-md, 12px); background: var(--tint-turf-050); color: var(--brand-turf); font: 600 14px/1.4 var(--font-body); }
 .km-subject-tags .material-symbols-rounded, .km-subject-quick-link .material-symbols-rounded { font-size: 20px; }
 .km-subject-quick-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .km-subject-quick-link { min-height: 44px; text-decoration: none; transition: transform 160ms ease; }

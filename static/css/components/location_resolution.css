@@ -5,7 +5,7 @@
   margin: 16px 0;
   padding: 20px;
   border: 1px solid #d9e5dc;
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   background: #f5f9f5;
   color: #203d2b;
   font-size: 14px;
@@ -30,7 +30,7 @@
 .km-location[data-status="loading"] .km-location__flow li:not(:first-child) .km-location__step { animation: km-location-pulse 1.2s ease-in-out infinite alternate; }
 .km-location[data-status="loading"] .km-location__flow li:last-child .km-location__step { animation-delay: .25s; }
 .km-location[data-status="ambiguous"], .km-location[data-status="outside_coverage"], .km-location[data-status="invalid_coordinates"], .km-location[data-status="unavailable"], .km-location[data-status="overridden"] { --location-accent: #85591a; background: #fffbf1; border-color: #e7d9b9; }
-.km-location .km-location__retry { margin-top: 12px; min-height: 44px; padding: 8px 14px; border: 1px solid #b9cdbc; border-radius: 8px; background: #fff; color: #136f38; font: inherit; font-weight: 600; cursor: pointer; }
+.km-location .km-location__retry { margin-top: 12px; min-height: 44px; padding: 8px 14px; border: 1px solid #b9cdbc; border-radius: var(--radius-sm, 8px); background: #fff; color: #136f38; font: inherit; font-weight: 600; cursor: pointer; }
 .km-location__retry[hidden] { display: none; }
 .km-location__retry:hover { background: #edf5ed; }
 .km-location__retry:focus-visible { outline: 3px solid var(--location-accent); outline-offset: 3px; }

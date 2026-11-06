@@ -65,7 +65,7 @@
   margin-bottom: 14px;
   padding: 14px 18px;
   border: 1.5px solid #cae8d1;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   background: #f0f8f2;
   color: #143c2d;
   box-shadow: 0 6px 20px rgba(19, 111, 56, 0.07);
@@ -115,7 +115,7 @@ body.page-home .home-hero .mappy-helper .mappy-bubble p {
   border: 1px solid #cfdfd1;
   background: #eef6ec;
   color: #136f38;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 8px 14px;
   min-height: 44px;
   font: inherit;
@@ -253,7 +253,7 @@ body.page-home .home-hero .mappy-helper .mappy-bubble p {
   text-align: left !important;
   background: #fff;
   border: 1px solid #dfeade;
-  border-radius: 22px;
+  border-radius: var(--radius-xl, 24px);
 }
 :is(.page-place_list, .page-place_new) .catalog-empty-state.mappy-empty-state .mappy-empty-image {
   position: relative;
@@ -291,7 +291,7 @@ body.page-home .home-hero .mappy-helper .mappy-bubble p {
   margin: 12px 0;
   background: #fff;
   border: 1px solid #d9e8da;
-  border-radius: 22px;
+  border-radius: var(--radius-xl, 24px);
   box-shadow: 0 8px 30px rgba(24, 77, 43, 0.04);
   color: #173e2b;
 }
@@ -334,7 +334,7 @@ body.page-home .home-hero .mappy-helper .mappy-bubble p {
   min-height: 46px;
   margin-top: 20px;
   padding: 10px 18px;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   background: #087a42;
   color: white;
   font-size: 14px;
@@ -434,7 +434,7 @@ body.page-home .home-hero .mappy-helper .mappy-bubble p {
     max-width: none;
     margin-bottom: 0;
     padding: 7px 12px;
-    border-radius: 14px;
+    border-radius: var(--radius-lg, 16px);
   }
   body.page-home .home-hero .mappy-helper .mappy-bubble p {
     font-size: 12px;

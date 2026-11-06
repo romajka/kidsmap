@@ -19,7 +19,7 @@
   gap: 28px;
   padding: 38px 44px;
   margin: 16px 0 24px;
-  border-radius: 24px;
+  border-radius: var(--radius-xl, 24px);
   background:
     linear-gradient(135deg, rgba(246, 250, 246, 0.94) 0%, rgba(238, 247, 241, 0.88) 100%),
     url("../img/banners/events-hero.webp") no-repeat right center / cover;
@@ -44,7 +44,7 @@
   align-items: center;
   gap: 6px;
   padding: 5px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: rgba(19, 111, 56, 0.08);
   border: 1px solid rgba(19, 111, 56, 0.16);
   color: var(--brand-spruce);
@@ -82,7 +82,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(19, 111, 56, 0.14);
@@ -109,7 +109,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px 20px;
-  border-radius: 18px;
+  border-radius: var(--radius-lg, 16px);
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(19, 111, 56, 0.15);
@@ -123,7 +123,7 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: linear-gradient(135deg, rgba(37, 168, 90, 0.15), rgba(4, 122, 61, 0.22));
   color: var(--brand-spruce);
   flex-shrink: 0;
@@ -156,7 +156,7 @@
 .events-hub {
   background: #ffffff;
   border: 1px solid rgba(19, 111, 56, 0.12);
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 14px 18px;
   box-shadow: 0 6px 20px rgba(13, 73, 36, 0.04);
   margin-bottom: 22px;
@@ -193,7 +193,7 @@
   min-height: 40px;
   padding: 8px 16px;
   border: 1.5px solid rgba(19, 111, 56, 0.18);
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #f8faf8;
   color: var(--brand-spruce);
   font-size: 0.85rem;
@@ -241,7 +241,7 @@
   gap: 4px;
   background: #eff5f1;
   padding: 4px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 16px);
   border: 1px solid rgba(19, 111, 56, 0.12);
   flex-shrink: 0;
   margin: 0;
@@ -253,7 +253,7 @@
   justify-content: center;
   gap: 6px;
   padding: 7px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-md, 12px);
   font-size: 0.84rem;
   font-weight: 800;
   color: #556c62;
@@ -297,7 +297,7 @@
   gap: 7px;
   padding: 8px 14px;
   border: 1.5px solid rgba(19, 111, 56, 0.16);
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #f7faf8;
   color: var(--brand-spruce);
   font-size: 0.86rem;
@@ -327,7 +327,7 @@
   display: inline-block;
   width: 8px;
   height: 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #25a85a;
   margin-left: 2px;
 }
@@ -375,7 +375,7 @@
   min-height: 42px;
   padding: 9px 13px;
   border: 1.5px solid rgba(19, 111, 56, 0.18);
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #fdfefd;
   font-size: 0.88rem;
   font-weight: 700;
@@ -401,7 +401,7 @@
   align-items: center !important;
   gap: 8px !important;
   padding: 8px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #f6faf7;
   border: 1.5px solid rgba(19, 111, 56, 0.14);
   cursor: pointer;
@@ -440,7 +440,7 @@
   min-height: 42px;
   padding: 9px 24px;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: linear-gradient(135deg, #1f9450, #047a3d);
   color: #ffffff;
   font-size: 0.88rem;
@@ -462,7 +462,7 @@
   justify-content: center;
   min-height: 42px;
   padding: 9px 20px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #f5f8f6;
   border: 1.5px solid rgba(19, 111, 56, 0.16);
   color: #556c62;
@@ -483,7 +483,7 @@
   margin: 0 0 20px;
   background: #ffffff;
   border: 1px solid rgba(19, 111, 56, 0.12);
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   padding: 12px 18px;
   box-shadow: 0 4px 14px rgba(13, 73, 36, 0.03);
 }
@@ -556,7 +556,7 @@
   flex-direction: column !important;
   overflow: hidden;
   border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 18px;
+  border-radius: var(--radius-lg, 16px);
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
   background: #ffffff;
   transition: box-shadow 0.22s ease, transform 0.22s ease, border-color 0.22s ease;
@@ -597,7 +597,7 @@
   left: 10px;
   max-width: calc(100% - 20px);
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: rgba(4, 122, 61, 0.92);
   color: #ffffff;
   font-size: 11px;
@@ -631,7 +631,7 @@
   padding: 5px 12px !important;
   background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
   color: #ffffff !important;
-  border-radius: 20px !important;
+  border-radius: var(--radius-xl, 24px) !important;
   font-weight: 800 !important;
   font-size: 13px !important;
   letter-spacing: -0.01em !important;
@@ -679,7 +679,7 @@
 
 .events-card__time {
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   background: rgba(168, 213, 155, 0.25);
   font-size: 0.8rem;
   font-weight: 900;
@@ -692,7 +692,7 @@
   gap: 4px;
   background: #f1f7f3;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   color: #4b6357;
 }
 
@@ -763,7 +763,7 @@
   align-items: center;
   gap: 4px;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: rgba(168, 213, 155, 0.22);
   color: var(--brand-spruce);
   font-weight: 900;
@@ -779,7 +779,7 @@
 .temporary-event-badge--card {
   width: 100%;
   padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   box-sizing: border-box;
 }
 
@@ -819,7 +819,7 @@
   padding: 0 16px !important;
   background: #08a769 !important;
   color: #ffffff !important;
-  border-radius: 10px !important;
+  border-radius: var(--radius-md, 12px) !important;
   font-size: 13px !important;
   font-weight: 700 !important;
   border: none !important;
@@ -850,7 +850,7 @@
   min-height: 38px !important;
   min-width: 38px !important;
   padding: 0 !important;
-  border-radius: 10px !important;
+  border-radius: var(--radius-md, 12px) !important;
   border: 1.5px solid #bdd8c5 !important;
   background: #f3fbf6 !important;
   color: #136f38 !important;
@@ -878,7 +878,7 @@
   min-height: 38px !important;
   min-width: 38px !important;
   padding: 0 !important;
-  border-radius: 10px !important;
+  border-radius: var(--radius-md, 12px) !important;
   border: 1px solid #e2e8f0 !important;
   background: #f8fafc !important;
   color: #64748b !important;
@@ -908,7 +908,7 @@
   padding: 60px 24px;
   text-align: center;
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   border: 1px solid rgba(19, 111, 56, 0.1);
 }
 
@@ -945,7 +945,7 @@
   min-height: 44px;
   padding: 10px 28px;
   margin-top: 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: linear-gradient(135deg, #1f9450, #047a3d);
   color: #ffffff;
   font-size: 0.92rem;
@@ -967,7 +967,7 @@
   padding: 24px;
   min-width: 0;
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   border: 1px solid rgba(19, 111, 56, 0.12);
   box-shadow: 0 8px 24px rgba(13, 73, 36, 0.05);
 }
@@ -1018,7 +1018,7 @@
 .events-calendar-cell {
   min-width: 0;
   border: 1px solid rgba(19, 111, 56, 0.14);
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #ffffff;
   transition: all 0.16s ease;
 }
@@ -1062,7 +1062,7 @@
   color: #ffffff;
   background: var(--brand-turf);
   padding: 2px 7px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
 }
 
 .events-calendar-outside-number {
@@ -1159,7 +1159,7 @@
     padding: 24px 20px;
     gap: 14px;
     margin: 12px 0 18px;
-    border-radius: 18px;
+    border-radius: var(--radius-lg, 16px);
     background:
       linear-gradient(135deg, rgba(246, 250, 246, 0.95) 0%, rgba(238, 247, 241, 0.92) 100%),
       url("../img/banners/events-hero-mobile.webp") no-repeat right center / cover;
@@ -1180,7 +1180,7 @@
 
   .events-hub {
     padding: 12px;
-    border-radius: 16px;
+    border-radius: var(--radius-lg, 16px);
     margin-bottom: 16px;
   }
 
@@ -1229,7 +1229,7 @@
 
   .events-card {
     grid-template-columns: 1fr;
-    border-radius: 18px;
+    border-radius: var(--radius-lg, 16px);
   }
 
   .events-card__media {
@@ -1290,7 +1290,7 @@
     gap: 3px;
   }
   .events-calendar-weekdays { gap:3px; font-size:10px; }
-  .events-calendar-cell { border-radius:8px; }
+  .events-calendar-cell { border-radius:var(--radius-sm, 8px); }
   .events-calendar-count { padding:1px 4px; font-size:9px; line-height:12px; }
   .events-calendar-outside-number { text-align:center; padding:8px 0; font-size:13px; }
   .events-calendar-note { font-size:13px; margin:8px 0; }
@@ -1359,5 +1359,5 @@
   .events-filters__body, .events-more-filters__grid { grid-template-columns: minmax(0, 1fr); }
 }
 
-.events-calendar-header [data-events-month] { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:44px; padding:8px; box-sizing:border-box; border-radius:10px; color:var(--brand-spruce,#136f38); background:#f0f7f2; text-decoration:none; font-size:13px; font-weight:650; }
+.events-calendar-header [data-events-month] { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:44px; padding:8px; box-sizing:border-box; border-radius:var(--radius-md, 12px); color:var(--brand-spruce,#136f38); background:#f0f7f2; text-decoration:none; font-size:13px; font-weight:650; }
 .events-calendar-header [data-events-month]:focus-visible,.events-calendar-day:focus-visible { outline:2px solid var(--brand-spruce,#136f38); outline-offset:2px; }

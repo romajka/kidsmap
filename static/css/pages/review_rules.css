@@ -53,7 +53,7 @@
 .faq-btn {
   min-height: 48px;
   padding: 0 20px;
-  border-radius: 13px;
+  border-radius: var(--radius-md, 12px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -100,7 +100,7 @@
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #e2f4ea;
   border: 1px solid #cbe7d8;
   color: #0d4924;
@@ -131,7 +131,7 @@
 .rules-hero {
   position: relative;
   overflow: hidden;
-  border-radius: 28px;
+  border-radius: var(--radius-xl, 24px);
   background: linear-gradient(140deg, #f2f9f5 0%, #e7f5ec 100%);
   border: 1px solid #cbe7d8;
   padding: clamp(28px, 4vw, 44px) clamp(20px, 4vw, 44px);
@@ -202,7 +202,7 @@
   align-items: center;
   gap: 7px;
   padding: 8px 14px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid #cbe7d8;
   font-size: 13px;
@@ -237,7 +237,7 @@
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #e2f4ea;
   color: #136f38;
   font-size: 12.5px;
@@ -272,7 +272,7 @@
 
 .faq-rule-box--allow {
   border: 1.5px solid #cbe7d8;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 22px;
   background: #ffffff;
   display: flex;
@@ -289,7 +289,7 @@
 
 .faq-rule-box--deny {
   border: 1.5px solid #f2d8dc;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 22px;
   background: #ffffff;
   display: flex;
@@ -337,7 +337,7 @@
 .rules-card {
   background: #ffffff;
   border: 1.5px solid #dfeae6;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 22px;
   display: flex;
   flex-direction: column;
@@ -355,7 +355,7 @@
 .rules-card-icon {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   display: grid;
   place-items: center;
   font-size: 22px;
@@ -401,7 +401,7 @@
 .rules-dialogue-box {
   background: #ffffff;
   border: 1.5px solid #dfeae6;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -429,7 +429,7 @@
 .rules-dialogue-icon {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   display: grid;
   place-items: center;
   font-size: 22px;
@@ -457,7 +457,7 @@
   align-items: center;
   gap: 6px;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: #e2f4ea;
   border: 1px solid #cbe7d8;
   color: #136f38;
@@ -488,7 +488,7 @@
 .rules-mod-card {
   background: #ffffff;
   border: 1.5px solid #dfeae6;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 22px;
   display: flex;
   flex-direction: column;
@@ -534,7 +534,7 @@
 .rules-disclaimer-card {
   background: #f8fbfa;
   border: 1.5px solid #e1efe7;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 20px 24px;
   display: flex;
   align-items: flex-start;
@@ -544,7 +544,7 @@
 .rules-disclaimer-icon {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #e2f4ea;
   display: grid;
   place-items: center;
@@ -625,7 +625,7 @@
 
   .rules-hero {
     padding: 22px 18px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl, 24px);
   }
 
   .faq-rules-grid {

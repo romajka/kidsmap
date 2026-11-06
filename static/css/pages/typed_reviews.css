@@ -25,7 +25,7 @@
   padding: 8px 16px;
   background: #f0f5f2;
   border: 1px solid #e0e9e3;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill, 999px);
   color: #334439;
   font-size: 13.5px;
   font-weight: 600;
@@ -55,7 +55,7 @@
   gap: 24px;
   background: #ffffff;
   border: 1px solid #e0e9e3;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 28px 32px;
   margin-bottom: 32px;
   box-shadow: 0 2px 12px rgba(31, 41, 51, 0.04);
@@ -76,7 +76,7 @@
   font-size: 12px;
   font-weight: 700;
   padding: 4px 10px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill, 999px);
   margin-bottom: 12px;
   letter-spacing: 0.02em;
 }
@@ -106,7 +106,7 @@
   justify-content: center;
   background: linear-gradient(135deg, #f8faf9, #f0f5f2);
   border: 1px solid #e0e9e3;
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   padding: 16px 22px;
   min-width: 140px;
   text-align: center;
@@ -188,7 +188,7 @@
   padding: 2px 9px;
   font-size: 12px;
   font-weight: 700;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill, 999px);
   background: #e0e9e3;
   color: #334439;
 }
@@ -211,7 +211,7 @@
 .typed-reviews article {
   background: #ffffff;
   border: 1px solid #e0e9e3;
-  border-radius: 18px;
+  border-radius: var(--radius-lg, 16px);
   padding: 24px;
   box-shadow: 0 1px 4px rgba(31, 41, 51, 0.04);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -284,7 +284,7 @@
   background: #fefce8;
   border: 1px solid #fef08a;
   padding: 4px 12px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill, 999px);
 }
 
 .typed-reviews__stars-row {
@@ -326,7 +326,7 @@
   background: #f3f9f2;
   border: 1px solid #cde7c5;
   border-left: 4px solid #1f8a4c;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   padding: 16px 20px;
   margin: 16px 0;
 }
@@ -377,7 +377,7 @@
   padding: 6px 14px;
   background: #f8faf9;
   border: 1px solid #e0e9e3;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill, 999px);
   color: #47584d;
   font-size: 13px;
   font-weight: 600;
@@ -427,7 +427,7 @@
   font-weight: 600;
   cursor: pointer;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   transition: all 0.2s ease;
 }
 
@@ -442,7 +442,7 @@
 .typed-reviews__empty {
   background: #ffffff;
   border: 2px dashed #e0e9e3;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 48px 24px;
   text-align: center;
   display: flex;
@@ -481,7 +481,7 @@
 .typed-reviews__composer-card {
   background: #ffffff;
   border: 1px solid #e0e9e3;
-  border-radius: 20px;
+  border-radius: var(--radius-xl, 24px);
   padding: 28px;
   box-shadow: 0 2px 10px rgba(31, 41, 51, 0.04);
 }
@@ -513,7 +513,7 @@
   font-size: 14.5px;
   font-weight: 600;
   border: 1px solid #cad7ce;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #ffffff;
   color: #1e2b23;
   min-height: 44px;
@@ -528,7 +528,7 @@
   font-size: 14.5px;
   line-height: 1.6;
   border: 1px solid #cad7ce;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   background: #ffffff;
   color: #1f2933;
   min-height: 110px;
@@ -558,7 +558,7 @@
   gap: 8px;
   font-weight: 700;
   font-size: 14px;
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   padding: 10px 20px;
   min-height: 44px;
   cursor: pointer;
@@ -617,7 +617,7 @@
    -------------------------------------------------------------------------- */
 .typed-reviews__alert {
   padding: 20px;
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   margin-bottom: 20px;
 }
 
@@ -665,7 +665,7 @@
   background: rgba(255, 255, 255, 0.7);
   border-left: 3px solid currentColor;
   padding: 10px 14px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 8px);
   margin: 6px 0 10px !important;
   font-size: 14px;
   color: #1e2b23;
@@ -673,7 +673,7 @@
 
 .typed-reviews__status-pill {
   padding: 3px 10px;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill, 999px);
   font-size: 12px;
   font-weight: 700;
 }
@@ -744,6 +744,6 @@
 }
 
 .typed-reviews__stars-fill { position:absolute; inset:0 auto 0 0; width:var(--rating-percent, 0%); overflow:hidden; white-space:nowrap; color:#b77900; }
-.typed-reviews__guest { padding:20px; background:var(--surface, #fff); border:1px solid #dce7e0; border-radius:16px; }
+.typed-reviews__guest { padding:20px; background:var(--surface, #fff); border:1px solid #dce7e0; border-radius:var(--radius-lg, 16px); }
 .typed-reviews__guest h2 { margin:0 0 8px; font-size:20px; }
 .typed-reviews__guest p { margin:0 0 16px; }
