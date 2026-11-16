@@ -108,6 +108,7 @@ class TestTrackingController(TestCase):
         self.assertEqual(FunnelEvent.objects.count(), 0)
 
 
+@override_settings(TESTING=False)
 class TestGoogleAnalyticsEvents(TestCase):
     def setUp(self):
         self.request_factory = RequestFactory()
