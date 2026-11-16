@@ -1,10 +1,37 @@
 """Owner feedback must survive sessions while remaining escaped and private."""
+from html.parser import HTMLParser
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import override
 from catalog.models import VolunteerPlaceRevision
 from catalog.testcases.test_task33_publication import PublicationFixture
+
+
+class ReviewNoteHTML(HTMLParser):
+    """Read the displayed note, including visual line breaks, from its own block."""
+    def __init__(self, html):
+        super().__init__()
+        self.inside = False
+        self.text = ''
+        self.scripts = 0
+        self.feed(html)
+
+    def handle_starttag(self, tag, attrs):
+        if tag == 'section' and 'data-place-review-note' in dict(attrs):
+            self.inside = True
+        if self.inside and tag == 'br':
+            self.text += '\n'
+        if self.inside and tag == 'script':
+            self.scripts += 1
+
+    def handle_endtag(self, tag):
+        if tag == 'section':
+            self.inside = False
+
+    def handle_data(self, text):
+        if self.inside:
+            self.text += text
 
 
 class PlaceRejectionFeedbackTests(PublicationFixture, TestCase):
@@ -29,18 +56,22 @@ class PlaceRejectionFeedbackTests(PublicationFixture, TestCase):
                 self.client.logout(); self.client.force_login(self.owner)
             response = self.page()
             self.assertTrue(b'data-place-review-note' in response.content,'Owner feedback block missing')
-            self.assertTrue(escape(self.note).encode() in response.content,'Saved escaped reason missing')
+            rendered = ReviewNoteHTML(response.content.decode())
+            self.assertIn(self.note, rendered.text, 'The full saved note and its line breaks must remain visible')
+            self.assertEqual(rendered.scripts, 0)
             self.assertNotContains(response,'<script>window.qaUnexpected')
         revision.refresh_from_db()
         self.assertEqual(revision.review_note,self.note)
 
     def test_rejection_heading_uses_selected_locale(self):
         self.reject(final=True); self.client.force_login(self.owner)
-        for language,title in [('ru','Причина отказа'),('az','İmtina səbəbi'),('en','Reason for rejection')]:
+        for language,title in [('ru','Замечание модератора'),('az','Moderatorun qeydi'),('en','Moderator note')]:
             with self.subTest(language=language):
                 response = self.page(language)
-                self.assertTrue(title.encode() in response.content,'Localized reason heading missing')
-                self.assertTrue(escape(self.note).encode() in response.content,'Saved reason missing')
+                rendered = ReviewNoteHTML(response.content.decode())
+                self.assertIn(title, rendered.text, 'Localized note heading missing')
+                self.assertIn(self.note, rendered.text, 'Saved note missing')
+                self.assertEqual(rendered.scripts, 0)
 
     def test_draft_preserves_reason_resubmission_clears_it(self):
         revision = self.reject()
