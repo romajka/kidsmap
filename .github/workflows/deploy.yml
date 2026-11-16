@@ -68,10 +68,12 @@ jobs:
           printf '%s\n' "$container_id" > "$profile_root/postgres-id"
           printf 'QUALITY_PROFILE_ROOT=%s\nQUALITY_SOCKET_DIR=%s\n' "$profile_root" "$socket_root/socket" >> "$GITHUB_ENV"
           for attempt in $(seq 1 60); do
-            if docker exec "$container_id" pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04; then break; fi
+            # initdb briefly starts a temporary socket server. Only PID 1 postgres
+            # identifies the final daemon after the entrypoint finishes setup.
+            if docker exec "$container_id" sh -c 'test "$(cat /proc/1/comm)" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04'; then break; fi
             sleep 1
           done
-          docker exec "$container_id" pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04
+          docker exec "$container_id" sh -c 'test "$(cat /proc/1/comm)" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04'
 
       - name: Complete isolated quality gate
         run: python scripts/run_isolated_quality.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --execution split --workers 4
