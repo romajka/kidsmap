@@ -2,6 +2,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const engines=require(process.env.KIDSMAP_PLAYWRIGHT_MODULE||'playwright');
+const {withLoginSession}=require('./login_session.cjs');
 
 async function launch(){const engine=process.env.KIDSMAP_BROWSER_ENGINE||'chromium';assert(['chromium','firefox','webkit'].includes(engine),'Supported browser engine');return engines[engine].launch({headless:true,...(process.env.KIDSMAP_BROWSER_EXECUTABLE?{executablePath:process.env.KIDSMAP_BROWSER_EXECUTABLE}:{})});}
 async function context(browser,base,width=1440){
@@ -12,13 +13,16 @@ async function context(browser,base,width=1440){
  return c;
 }
 async function login(c,fixture,role,lang='ru'){
- const p=await c.newPage(),admin=['admin','volunteer','volunteer_other'].includes(role),user=fixture.users[role==='volunteer'?'place_volunteer':role==='volunteer_other'?'place_volunteer_other':admin?'place_admin':role==='other'?'place_other':'place_owner'];
+ const admin=['admin','volunteer','volunteer_other'].includes(role),user=fixture.users[role==='volunteer'?'place_volunteer':role==='volunteer_other'?'place_volunteer_other':admin?'place_admin':role==='other'?'place_other':'place_owner'];
+ return withLoginSession(c,{user,origin:fixture.origin,language:lang,admin},async()=>{
+ const p=await c.newPage();
  await p.goto(fixture.origin+(admin?'/admin/login/?next=/admin/':`/${lang==='az'?'':lang+'/'}auth/login/`));
  await p.locator('[name=username]').fill(admin?user.username:user.email);
  await p.locator('[name=password]').fill(user.password);
  try { await Promise.all([p.waitForURL(url=>!url.pathname.includes('/login/')),p.locator('[name=password]').locator('xpath=ancestor::form').locator('button[type=submit],input[type=submit]').first().click()]); }
  catch(error){console.error('Login did not complete:',role,await p.locator('body').innerText());throw error;}
  return p;
+ });
 }
 async function reveal(locator){
  const phoneSlot=locator.locator('xpath=ancestor::*[@data-km-phone-slot][1]');

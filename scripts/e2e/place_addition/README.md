@@ -3,6 +3,13 @@
 Runs the actual administrator and owner forms, CSRF, uploads, PostgreSQL saves,
 moderation and public pages. All data is fictional. No production profile is accepted.
 
+The first login for each browser, synthetic user and language uses the real form.
+Later scenarios reuse those session cookies in fresh browser contexts, with fresh
+DOM/local storage. Cookies stay in memory and never enter artifacts. This avoids
+exhausting the real authentication budget during the large responsive matrix;
+production throttling remains enabled and unchanged. An expired/rejected reused
+session fails the test instead of silently submitting more passwords.
+
 First run `scripts/run_isolated_quality.py` with a new disposable Unix-socket
 PostgreSQL profile. Use the same `--profile-root` and `--socket-dir` below.
 The profile must attest `qa_stage04` and have isolated media, cache, email and locales.
