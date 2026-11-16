@@ -51,7 +51,7 @@ from django.template.loader import get_template
 from django.utils.translation import override
 from catalog.services.moderation_changes import describe_change, review_copy
 from catalog.services.place_readiness import _readiness_names
-assert _readiness_names(SimpleNamespace(name='test', name_az='Studio', name_ru='', name_en='')) == ('Studio', '', '')
+assert _readiness_names({'name':'test', 'name_az':'Studio', 'name_ru':'', 'name_en':''}.get) == ('Studio', '', '')
 for lang, title in [('ru','Решение по заявке'),('az','Təklif üzrə qərar'),('en','Review decision')]:
     with override(lang):
         assert review_copy()['decision'] == title
