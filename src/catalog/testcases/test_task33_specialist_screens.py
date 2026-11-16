@@ -118,9 +118,9 @@ class SpecialistPublicScreensTests(TestCase):
         self.assertFalse(speech_chip['is_active'])
 
         content = response.content.decode()
-        self.assertIn('catalog-category-strip-wrap', content)
-        self.assertIn('catalog-category-strip', content)
-        self.assertIn('catalog-category-chip', content)
+        self.assertIn('km-other-specialists', content)
+        self.assertIn('<details', content)
+        self.assertIn('data-spec-chip=', content)
 
         # 2. Filtered by specialization: speech_therapist chip is active, "Все" is not active
         filtered_resp = self.client.get('/ru/specialists/?specialization=speech_therapist&format=online')

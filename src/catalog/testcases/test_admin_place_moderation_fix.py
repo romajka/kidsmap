@@ -14,6 +14,9 @@ from catalog.testcases import test_ownership_admin_preview as fixtures
 class AdminPlaceModerationFixTests(TestCase):
     def setUp(self):
         fixtures.OwnershipAdminPreviewTests.setUp(self)
+        # A read-only rendering probe needs the existing production configuration.
+        from catalog.models import SiteSettings
+        SiteSettings.get_solo()
         self.preview_url = f'/admin/catalog/place/{self.place.pk}/site-preview/'
         self.owner_admin = admin.site._registry[PlaceOwnershipRequest]
 

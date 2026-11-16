@@ -554,7 +554,7 @@ def unpublish(*, actor, target_type, target_id, expected_version):
         raise ValidationError('Publication source conflict.')
     revision = VolunteerPlaceRevision.objects.select_for_update().filter(**{target_type: target}).first()
     if revision and revision.status in {'draft', 'pending'}:
-        raise ValidationError('Resolve the current candidate before unpublishing.')
+        raise ValidationError('Resolve the current candidate before unpublishing.', code='pending_candidate')
     if target.status != 'published':
         raise ValidationError('Target is not published.')
     values = {'status': 'draft', 'content_version': F('content_version') + 1, 'updated_at': timezone.now()}

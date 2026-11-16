@@ -172,6 +172,9 @@ def _build_admin_language_switch_items(request, current_language: str):
     items = []
     for code in lang_codes:
         next_path = base_path if code == default_lang else f"/{code}{base_path}"
+        query = request.META.get("QUERY_STRING", "")
+        if query:
+            next_path += "?" + query
         items.append(
             {
                 "code": code,

@@ -48,7 +48,7 @@ exit 0
         calls=root/'calls'
         env={'PATH':str(bin_dir)+os.pathsep+os.defpath,'AUDIT_CALLS':str(calls),'AUDIT_MOUNTS':mounts,
              'AUDIT_STOPPED':'1' if stopped else '0'}
-        result=subprocess.run(['bash',str(scripts/'deploy-server.sh')],cwd=root,env=env,capture_output=True,text=True,timeout=15)
+        result=subprocess.run(['bash',str(scripts/'check-private-storage.sh')],cwd=root,env=env,capture_output=True,text=True,timeout=15)
         return result,calls.read_text() if calls.exists() else ''
 
     def test_unmounted_private_bytes_block_before_any_build_or_recreate(self):
@@ -58,10 +58,11 @@ exit 0
         self.assertNotIn('compose up',calls)
         self.assertNotIn('release-server.sh',calls)
 
-    def test_persisted_private_roots_allow_existing_release_path(self):
+    def test_persisted_private_roots_pass_read_only_storage_guard(self):
         result,calls=self.run_deploy('/app/media\n/app/staticfiles\n/kidsmap-private-media\n/app/private_media_drafts')
         self.assertEqual(result.returncode,0,result.stderr)
-        self.assertIn('compose build web',calls)
+        self.assertNotIn('compose build',calls)
+        self.assertIn('inspect',calls)
 
     def test_stopped_container_with_private_bytes_blocks_before_recreation(self):
         result,calls=self.run_deploy('/app/media\n/app/staticfiles',stopped=True)

@@ -47,8 +47,9 @@ class AdminHostRedirectMiddleware:
 
         current_host = request.get_host().split(":", 1)[0].lower()
         is_admin_path = bool(self.ADMIN_PATH_RE.match(request.path))
-        # Crawlers need host-specific rules to discover the public-route 301s.
-        if current_host == admin_host and request.path == "/robots.txt":
+        # Keep robots host-specific and process language POSTs on the admin origin;
+        # redirecting the POST would lose both its body and the admin language cookie.
+        if current_host == admin_host and request.path in {"/robots.txt", "/i18n/setlang/"}:
             return self.get_response(request)
         if current_host == admin_host and not is_admin_path and public_origin():
             return HttpResponsePermanentRedirect(f"{public_origin()}{request.get_full_path()}")

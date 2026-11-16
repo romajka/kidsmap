@@ -824,13 +824,19 @@ class OwnerPlacesController:
 
         previous_active = place.is_active
         previous_status = place.status
-        if is_active:
-            from catalog.services.publication import publish
-            publish(actor=request.user,place_id=place.pk,expected_version=place.content_version)
-            place.refresh_from_db()
-        else:
-            place.is_active=False;place.status=Place.STATUS_DRAFT
-            place.save(update_fields=["is_active","status","updated_at"])
+        from catalog.services.publication import publish, unpublish
+        try:
+            if is_active:
+                publish(actor=request.user, place_id=place.pk, expected_version=place.content_version)
+            else:
+                unpublish(actor=request.user, target_type="place", target_id=place.pk,
+                          expected_version=place.content_version)
+        except ValidationError as exc:
+            message = " ".join(exc.messages)
+            if getattr(exc, "code", None) == "pending_candidate":
+                message = _("Сначала одобрите или верните на доработку текущую заявку. Затем снимите карточку с публикации.")
+            return OwnerPlaceActionResult(ok=False, message=message, place=place)
+        place.refresh_from_db()
         self.place_audit_repository.create_entries(
             place=place,
             changed_by=request.user,

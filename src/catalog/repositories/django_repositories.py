@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from contextlib import contextmanager
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
@@ -177,6 +178,12 @@ class DjangoUserProfileRepository(IUserProfileRepository):
 
 
 class DjangoEmailVerificationRepository(IEmailVerificationRepository):
+    @contextmanager
+    def locked_user(self, *, user):
+        # A stable parent row also serializes the first challenge and resends.
+        with transaction.atomic():
+            yield User.objects.select_for_update().get(pk=user.pk)
+
     def get_by_user(self, *, user) -> UserEmailVerification | None:
         return UserEmailVerification.objects.filter(user=user).first()
 

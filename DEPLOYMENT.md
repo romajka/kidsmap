@@ -18,76 +18,24 @@ $env:GOOGLE_MAPS_MAP_ID="YOUR_MAP_ID"
 python manage.py runserver 0.0.0.0:8000
 ```
 
-## Publish from your PC
+## Publish and deploy
 
-## Быстрая памятка: отправить изменения и обновить сервер
+Review and commit only the intended files, push a feature branch, and merge through
+`main` after the quality job passes. Never use an automatic stash to hide server edits.
 
-### 1. На своём компьютере: отправить файлы в GitHub
+The production workflow passes its exact tested `${{ github.sha }}` to the release
+runner. It does not resolve `main` again as the version to build. Deploy jobs are
+serialized without cancelling a running activation; the server uses the same
+`/run/lock/kidsmap-release.lock` as dedicated releases.
 
-```bash
-cd /home/ramin/kidsmap
-git status --short
-git add -A
-git commit -m "карта: фото, цена и кнопка закрытия"
-git push origin main
-```
-
-### 2. Подключиться к серверу
+For an operator-triggered deployment after that exact commit passes CI:
 
 ```bash
-ssh root@157.173.119.227
+./scripts/deploy-production.sh <40-character-tested-SHA>
 ```
 
-### 3. Уже на сервере: применить изменения
-
-```bash
-cd /opt/kidsmap
-./scripts/deploy-server.sh main
-```
-
-Скрипт на сервере сам подтянет `main`, пересоберёт приложение, применит миграции при необходимости и проверит сайт. Ничего вручную копировать на VPS не нужно.
-
-Если хотите сначала посмотреть, какие файлы попадут в коммит:
-
-```bash
-git status --short
-git diff --stat
-```
-
-Если надо выполнить обновление прямо на сервере:
-
-```bash
-ssh root@157.173.119.227
-cd /opt/kidsmap
-./scripts/deploy-server.sh main
-```
-
-The two commands used for everyday production updates are:
-
-```bash
-./scripts/publish-main.sh "краткое описание изменений"
-./scripts/deploy-production.sh
-```
-
-The first command commits and pushes the current `main`. The second one asks
-for the server SSH password (or uses your configured SSH key), then runs the
-full server deployment with migrations and smoke checks. It never stores a
-password in the repository.
-
-Run this from the project directory. It publishes the branch you are currently on, so it works for `main` and for feature branches such as `postgres-cutover-20260722`.
-
-```bash
-cd /home/ramin/kidsmap
-git status --short
-git add -A
-git commit -m "update" # replace update with a short description
-git push -u origin HEAD
-```
-
-Notes:
-1. `.env` is ignored and is not sent to GitHub. Keep server secrets only in `/opt/kidsmap/.env`.
-2. `git push -u origin HEAD` is intentional: it pushes the current branch instead of accidentally pushing an outdated local `main`.
-3. To update production, merge the branch into `main` through GitHub first. Do not force-push to `main`.
+Both CI and this helper load the runner from that commit, so an older server
+checkout cannot silently run the former unsafe script.
 
 ## Fast local suites
 Для локальной проверки и AI-сессий используйте выборочные сьюты вместо полного `manage.py test`:
@@ -102,49 +50,46 @@ Notes:
 ./scripts/run_kidsmap_tests.sh full
 ```
 
-## Server deploy (one command)
-
-Run this on the server after the change is in remote `main`:
+## Pinned code-only server releases
 
 ```bash
 cd /opt/kidsmap
-./scripts/deploy-server.sh main
+./scripts/deploy-server.sh <40-character-tested-SHA>
 ```
 
-Or run the whole server deploy from your PC:
+The installed wrapper must already contain the pinned runner. For the first upgrade
+use CI or `deploy-production.sh`, which loads it from the reviewed commit.
+
+The runner refuses dirty checkouts, stale/non-main commits, unrelated live revisions,
+uncommitted image overlays, changed Compose settings, and pending migrations.
+It builds a clean `git archive` with an allowlisted Docker context. It does not modify
+the checkout, stash changes, apply migrations, seed data, or restart PostgreSQL/Redis.
+The live image revision label is the source of truth; server `HEAD` may be older.
+
+Before activation it checks the candidate, migration drift and the applied migration
+set, then saves the exact previous image ID, resolved Compose configuration, static
+files and hashes. These contain secrets and stay in a private mode-0700 directory
+under `/opt/kidsmap-releases/`. Keep these directories while their Compose files are
+referenced by a running container.
+
+A failure before activation leaves the existing application alone. A failure during
+static collection, container replacement or health verification restores the previous
+static manifest and immutable image. It verifies runtime settings and health again.
+It never restores an old database over current user writes. If recovery fails, the
+journal blocks further deployments until explicit recovery:
 
 ```bash
-ssh root@157.173.119.227 'cd /opt/kidsmap && ./scripts/deploy-server.sh main'
+./scripts/deploy-server.sh --rollback /opt/kidsmap-releases/<release-directory>
 ```
 
-To deploy a non-main branch temporarily for review, pass its exact name:
+A stopped/unlabelled application, initial installation, configuration changes or schema
+migrations need a separate reviewed maintenance procedure: enumerate writers, prepare
+and test database/media backups, assess backward compatibility, apply the batch, and
+verify the schema before returning to the code-only path. `scripts/release-server.sh`
+is a manual migration tool; do not use it to bypass a blocked automatic release.
 
-```bash
-./scripts/deploy-server.sh postgres-cutover-20260722
-```
-
-Do this only on a test server, not on production.
-
-What it does:
-1. Stashes local server edits (if any).
-2. Fetches and fast-forwards the selected branch from `origin`.
-3. Rebuilds the web image, runs explicit release tasks, then starts containers.
-4. Verifies there is no model/migration drift (`makemigrations --check --dry-run`).
-5. Runs `python manage.py check`.
-6. Restores the three featured public clubs if they were quarantined or edited.
-7. Runs smoke checks for `/`, `/catalog/`, `/admin/` (with redirect follow and final `200`).
-
-Optional custom branch:
-```bash
-./scripts/deploy-server.sh release
-```
-
-Useful overrides:
-```bash
-APP_BASE_URL=http://127.0.0.1:8000 ./scripts/deploy-server.sh main
-REMOTE=origin ./scripts/deploy-server.sh main
-BACKUP_DIR=/opt/backups ./scripts/deploy-server.sh main
-```
+If baseline-source-drift.json lists image overlays, reconcile those source files into
+the release branch first. Do not remove the guard or relabel the image to force a pass.
 
 ## Fix `git pull` on server via SSH to GitHub
 If server deploy fails with `Permission denied (publickey)` or `Could not read from remote repository`, configure GitHub SSH on the VPS once:
@@ -222,7 +167,7 @@ Expected headers:
 Repo includes workflow: `.github/workflows/deploy.yml`  
 It has two stages:
 1. `quality`: runs migrations + `makemigrations --check --dry-run` + `check` + `test` against PostgreSQL in CI.
-2. `deploy`: runs `./scripts/deploy-server.sh main` only after `quality` passes on push to `main`.
+2. `deploy`: runs the runner from the exact tested commit only after `quality` passes on push to `main`.
 
 Set these repository secrets in GitHub (`Settings -> Secrets and variables -> Actions`):
 1. `DEPLOY_HOST` (example: `157.173.119.227`)
@@ -257,8 +202,8 @@ docker compose run --rm web ./scripts/migrate.sh
 2. Avoid editing tracked files on server (`docker-compose.yml`, `src/config/settings.py`); keep server-specific values in `.env`.
 3. Ensure server can access GitHub via SSH (`./scripts/setup-github-ssh.sh` + `ssh -T git@github.com`).
 4. Install/update nginx config from `deploy/nginx/kidsmap.az.conf`.
-5. Run `./scripts/deploy-server.sh`.
-6. Run `docker compose run --rm web ./scripts/release-server.sh` manually only if you need to re-apply release tasks.
+5. Run the pinned release with the exact SHA from a successful quality job.
+6. Pending migrations stop automatic deployment; use the reviewed maintenance procedure described above.
 7. Run `python manage.py check` (optional extra).
 8. Verify:
    - `/healthz`

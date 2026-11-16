@@ -145,6 +145,9 @@ jobs:
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: quality
+    concurrency:
+      group: kidsmap-production
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - name: Deploy over SSH
@@ -153,7 +156,12 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 30m
           script: |
-            set -e
+            set -eu
             cd /opt/kidsmap
-            ./scripts/deploy-server.sh main
+            git fetch origin main
+            runner=$(mktemp /tmp/kidsmap-deploy-XXXXXXXX.py)
+            trap 'rm -f "$runner"' EXIT
+            git show '${{ github.sha }}:scripts/deploy_server.py' > "$runner"
+            python3 "$runner" --root /opt/kidsmap '${{ github.sha }}'

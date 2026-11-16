@@ -94,6 +94,11 @@ class IUserProfileRepository(ABC):
 
 class IEmailVerificationRepository(ABC):
     @abstractmethod
+    def locked_user(self, *, user):
+        """Transaction context yielding a fresh user; serialize challenge mutations."""
+        raise NotImplementedError
+
+    @abstractmethod
     def get_by_user(self, *, user) -> UserEmailVerification | None:
         raise NotImplementedError
 

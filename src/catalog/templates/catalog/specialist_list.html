@@ -6,9 +6,8 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/components/specialist_subjects.css' %}?v=20261105_subjects_r2" />
-<link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261104_mobile_public" />
+<link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261116_discovery_r1" />
 <script src="{% static 'js/specialists.js' %}?v=20261105_all_r1" defer></script>
-<script src="{% static 'js/catalog_category_strip.js' %}?v=20261028_strip_r1" defer></script>
 {% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
@@ -80,8 +79,20 @@
         <div class="km-subject-quick-links">
           {% for item in subject_options|slice:':4' %}<a class="km-subject-quick-link" href="{{ item.url }}" {% if selected.subject == item.value %}aria-current="true"{% endif %}><span class="material-symbols-rounded" aria-hidden="true">{{ item.icon }}</span>{{ item.label }}</a>{% endfor %}
           <a class="km-subject-quick-link" href="{{ all_tutors_url }}" {% if selected.specialization == 'tutor' and not selected.subject %}aria-current="true"{% endif %}><span class="material-symbols-rounded" aria-hidden="true">school</span>{% if language == 'az' %}Bütün repetitorlar{% elif language == 'en' %}All tutors{% else %}Все репетиторы{% endif %}</a>
-          <a class="km-subject-quick-link km-subject-quick-link--secondary" href="#specialist-categories"><span class="material-symbols-rounded" aria-hidden="true">apps</span>{% if language == 'az' %}Digər mütəxəssislər{% elif language == 'en' %}Other specialists{% else %}Другие специалисты{% endif %}</a>
         </div>
+        {% if specialization_chips %}
+        <details class="km-other-specialists" id="specialist-categories"{% if selected.specialization and selected.specialization != 'tutor' %} open{% endif %}>
+          <summary><span class="material-symbols-rounded" aria-hidden="true">apps</span><span>{% if language == 'az' %}Digər mütəxəssislər{% elif language == 'en' %}Other specialists{% else %}Другие специалисты{% endif %}</span><span class="material-symbols-rounded km-other-specialists__chevron" aria-hidden="true">expand_more</span></summary>
+          <nav class="km-other-specialists__options" aria-label="{% if language == 'az' %}İxtisaslar{% elif language == 'en' %}Specializations{% else %}Специализации{% endif %}">
+            <a href="{{ all_specializations_url }}" class="km-subject-quick-link"{% if not selected.specialization %} aria-current="true"{% endif %}>{% if language == 'az' %}Bütün mütəxəssislər{% elif language == 'en' %}All specialists{% else %}Все специалисты{% endif %}</a>
+            {% for chip in specialization_chips %}{% if chip.value != 'tutor' %}
+            <a href="{{ chip.url }}" class="km-subject-quick-link" data-spec-chip="{{ chip.value }}"{% if chip.is_active %} aria-current="true"{% endif %}>
+              <span class="material-symbols-rounded" aria-hidden="true">{{ chip.icon }}</span><span>{{ chip.label }}</span>{% if chip.count %}<span class="km-other-specialists__count">{{ chip.count }}</span>{% endif %}
+            </a>
+            {% endif %}{% endfor %}
+          </nav>
+        </details>
+        {% endif %}
       </nav>
     </div>
 
@@ -391,49 +402,6 @@
 
     <!-- Main Results Column -->
     <div class="km-catalog-main-content">
-
-      <!-- Horizontal Specializations Strip (matching main catalog) -->
-      {% if specialization_chips %}
-        <div class="catalog-category-strip-wrap" data-catalog-categories-scroll>
-          <button type="button" class="catalog-category-strip__arrow catalog-category-strip__arrow--prev" data-strip-prev aria-label="{% if language == 'az' %}Əvvəlki ixtisaslar{% elif language == 'en' %}Previous specializations{% else %}{% trans 'Предыдущие специализации' %}{% endif %}" tabindex="-1" hidden>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
-          </button>
-          <div class="catalog-category-strip" id="specialist-categories" tabindex="-1" role="tablist" aria-label="{% if language == 'az' %}İxtisaslar{% elif language == 'en' %}Specializations{% else %}{% trans 'Специализации' %}{% endif %}">
-            <a
-              role="tab"
-              href="{{ all_specializations_url }}"
-              class="catalog-category-chip{% if not selected.specialization %} is-active{% endif %}"
-              aria-selected="{% if not selected.specialization %}true{% else %}false{% endif %}"
-              data-spec-chip=""
-            >
-              <span class="catalog-category-chip__icon catalog-category-chip__icon--all" aria-hidden="true">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-              </span>
-              <span class="catalog-category-chip__label">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
-            </a>
-            {% for chip in specialization_chips %}
-              <a
-                role="tab"
-                href="{{ chip.url }}"
-                class="catalog-category-chip{% if chip.is_active %} is-active{% endif %}"
-                aria-selected="{% if chip.is_active %}true{% else %}false{% endif %}"
-                data-spec-chip="{{ chip.value }}"
-              >
-                <span class="catalog-category-chip__icon" style="background-color: {{ chip.color_bg }}; color: {{ chip.color_text }};" aria-hidden="true">
-                  <span class="material-symbols-rounded">{{ chip.icon }}</span>
-                </span>
-                <span class="catalog-category-chip__label">{{ chip.label }}</span>
-                {% if chip.count %}
-                  <span class="catalog-category-chip__count">{{ chip.count }}</span>
-                {% endif %}
-              </a>
-            {% endfor %}
-          </div>
-          <button type="button" class="catalog-category-strip__arrow catalog-category-strip__arrow--next" data-strip-next aria-label="{% if language == 'az' %}Növbəti ixtisaslar{% elif language == 'en' %}Next specializations{% else %}{% trans 'Следующие специализации' %}{% endif %}" tabindex="-1">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </button>
-        </div>
-      {% endif %}
 
       <!-- Toolbar: Count and Sorting -->
       <div class="km-catalog-toolbar">
