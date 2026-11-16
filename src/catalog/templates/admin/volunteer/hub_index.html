@@ -63,8 +63,12 @@
       <span class="km-hub-stat-card__val">{{ counts.approved|default:0 }}</span>
     </a>
     <a href="?status=rejected" class="km-hub-stat-card km-hub-stat-card--rejected{% if filters.status == 'rejected' %} is-active{% endif %}">
-      <span class="km-hub-stat-card__label">{% translate "Отклонённые" %}</span>
+      <span class="km-hub-stat-card__label">{% translate "На доработке" %}</span>
       <span class="km-hub-stat-card__val">{{ counts.rejected|default:0 }}</span>
+    </a>
+    <a href="?status=declined" class="km-hub-stat-card km-hub-stat-card--rejected{% if filters.status == 'declined' %} is-active{% endif %}">
+      <span class="km-hub-stat-card__label">{% translate "Отклонено" %}</span>
+      <span class="km-hub-stat-card__val">{{ counts.declined|default:0 }}</span>
     </a>
     <a href="?status=draft" class="km-hub-stat-card{% if filters.status == 'draft' %} is-active{% endif %}">
       <span class="km-hub-stat-card__label">{% translate "Черновики" %}</span>
@@ -187,7 +191,7 @@
                   </a>
                 </strong>
                 {% if row.change_labels %}<div class="km-change-list-summary">
-                  <span>{% translate "Изменения" %} · {{ row.change_count }}</span>
+                  <span>{{ row.review_copy.fields }} · {{ row.change_count }}</span>
                   <ul>{% for label in row.change_labels|slice:':4' %}<li>{{ label }}</li>{% endfor %}</ul>
                   {% if row.change_count > 4 %}<span>+{{ row.change_count|add:'-4' }}</span>{% endif %}
                 </div>{% endif %}

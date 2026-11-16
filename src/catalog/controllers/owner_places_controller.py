@@ -255,9 +255,9 @@ class OwnerPlacesController:
                 "is_ready": False,
                 "is_complete": False,
                 "tier": "low",
-                "total_steps": 6,
+                "total_steps": 4,
                 "completed_steps": 0,
-                "remaining_steps": 6,
+                "remaining_steps": 4,
                 "steps": [],
                 "missing": [],
                 "next_hint_ru": "",
@@ -272,48 +272,14 @@ class OwnerPlacesController:
         items_by_code = {item.code: item for item in readiness.items}
 
         step_definitions = (
-            {
-                "number": 1,
-                "title_ru": "О месте",
-                "title_az": "Məkan haqqında",
-                "title_en": "About the place",
-                "req_codes": ("name", "description", "category", "subcategory"),
-            },
-            {
-                "number": 2,
-                "title_ru": "Возраст детей",
-                "title_az": "Yaş aralığı",
-                "title_en": "Age range",
-                "req_codes": ("age",),
-            },
-            {
-                "number": 3,
-                "title_ru": "Тарифы и цены",
-                "title_az": "Tariflər",
-                "title_en": "Pricing",
-                "req_codes": ("price",),
-            },
-            {
-                "number": 4,
-                "title_ru": "Адрес и карта",
-                "title_az": "Ünvan və xəritə",
-                "title_en": "Address and map",
-                "req_codes": ("region", "address", "coordinates"),
-            },
-            {
-                "number": 5,
-                "title_ru": "Контакты и расписание",
-                "title_az": "Əlaqə və cədvəl",
-                "title_en": "Contact and schedule",
-                "req_codes": ("phone", "schedule"),
-            },
-            {
-                "number": 6,
-                "title_ru": "Главное фото",
-                "title_az": "Əsas şəkil",
-                "title_en": "Main photo",
-                "req_codes": ("photo",),
-            },
+            dict(number=1, title_ru="О месте", title_az="Məkan haqqında", title_en="About the place",
+                 req_codes=("name", "description", "category", "subcategory")),
+            dict(number=2, title_ru="Адрес и контакты", title_az="Ünvan və əlaqə", title_en="Address and contacts",
+                 req_codes=("region", "address", "coordinates", "phone", "schedule")),
+            dict(number=3, title_ru="Возраст и цены", title_az="Yaş və qiymətlər", title_en="Age and pricing",
+                 req_codes=("age", "price")),
+            dict(number=4, title_ru="Фото и проверка", title_az="Şəkillər və yoxlama", title_en="Photos and review",
+                 req_codes=("photo",)),
         )
 
         steps = []
@@ -374,9 +340,9 @@ class OwnerPlacesController:
             next_hint_ru = "✓ Все обязательные шаги выполнены"
             next_hint_az = "✓ Bütün məcburi addımlar tamamlandı"
             next_hint_en = "✓ All required steps completed"
-            steps_summary_ru = "Все 6 обязательных шагов выполнены"
-            steps_summary_az = "Bütün 6 məcburi addım tamamlandı"
-            steps_summary_en = "All 6 required steps completed"
+            steps_summary_ru = "Все 4 обязательных шага выполнены"
+            steps_summary_az = "Bütün 4 məcburi addım tamamlandı"
+            steps_summary_en = "All 4 required steps completed"
         else:
             next_hint_ru = first_missing_hint_ru or f"Осталось заполнить: {missing_step_titles_ru[0]}"
             next_hint_az = first_missing_hint_az or f"Doldurulmalıdır: {missing_step_titles_az[0]}"

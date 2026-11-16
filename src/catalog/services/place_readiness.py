@@ -539,10 +539,7 @@ def readiness_data_from_place(place) -> PlaceReadinessData:
 
     return PlaceReadinessData(
         name_az=getattr(place, "name_az", "") or "",
-        name_texts=tuple(
-            getattr(place, field_name, "") or ""
-            for field_name in ("name", "name_az", "name_ru", "name_en")
-        ),
+        name_texts=_readiness_names(lambda field: getattr(place, field, '')),
         description_az=getattr(place, "description_az", "") or "",
         description_texts=tuple(
             getattr(place, field_name, "") or ""
@@ -571,6 +568,12 @@ def readiness_data_from_place(place) -> PlaceReadinessData:
         has_main_photo=bool(photo) or bool(cover_photo),
         has_cover_photo_only=bool(cover_photo) and not bool(photo),
     )
+
+
+def _readiness_names(value):
+    """Validate visible localized names, using the legacy name only as fallback."""
+    localized = tuple(value(field) or '' for field in ('name_az', 'name_ru', 'name_en'))
+    return localized if any(localized) else (value('name') or '',)
 
 
 def evaluate_place_readiness(place) -> PlaceReadiness:
@@ -697,7 +700,7 @@ def readiness_data_from_form(form, instance=None) -> PlaceReadinessData:
 
     return PlaceReadinessData(
         name_az=text("name_az"),
-        name_texts=tuple(text(field_name) for field_name in ("name", "name_az", "name_ru", "name_en")),
+        name_texts=_readiness_names(text),
         description_az=text("description_az"),
         description_texts=tuple(
             text(field_name) for field_name in ("description_az", "description_ru", "description_en")

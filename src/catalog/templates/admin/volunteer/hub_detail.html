@@ -8,6 +8,7 @@
 {% if row.source == 'content' and row.kind == 'place' %}<p><a class="btn btn-outline-success" data-moderation-full-preview href="{% url 'admin:volunteer_revision_preview' row.id %}" target="_blank" rel="noopener">{% translate "Проверить карточку" %} ↗</a></p>{% endif %}
 {% if error %}<div class="alert alert-danger" role="alert" id="hub-error" tabindex="-1">{{ error }}</div>{% endif %}
 {% if row.conflict and row.status == 'pending' %}<div class="alert alert-warning" role="alert">{% translate "Исходные данные изменились. Сначала верните предложение на доработку." %}</div>{% endif %}
+{% if row.status == 'pending' %}<a class="km-change-review-link" href="#review-decision">{{ row.review_copy.decision }} ↓</a>{% endif %}
 <section class="km-change-summary{% if row.status == 'pending' %} km-change-attention{% endif %}" aria-labelledby="change-summary-title">
   <div class="km-change-summary__heading"><h2 id="change-summary-title">{{ row.review_copy.title }}</h2><span>{{ row.review_copy.fields }}: <strong>{{ row.change_count }}</strong></span></div>
   <p>{% if row.status == 'pending' %}{{ row.review_copy.help }}{% elif row.status == 'draft' %}{{ row.review_copy.draft }}{% else %}{{ row.review_copy.history }}{% endif %}</p>
@@ -20,12 +21,13 @@
 <section id="{{ change.anchor }}" class="km-change-field" tabindex="-1" aria-labelledby="{{ change.anchor }}-title">
   <div class="km-change-field__heading"><h3 id="{{ change.anchor }}-title">{{ change.label }}</h3><span class="km-change-badge km-change-badge--{{ change.change_type }}">{{ change.change_label }}</span></div>
   {% if row.status == 'pending' %}<p class="km-change-hint"><strong>{{ row.review_copy.attention }}:</strong> {{ change.hint }}</p>{% endif %}
-  <div class="km-change-values">
-    <div class="km-change-value km-change-value--before"><h4>{{ row.review_copy.now }}</h4>
-      {% if change.media %}{% include "admin/volunteer/hub_media.html" with images=change.before_images side=current_photo only %}{% else %}<div class="km-change-text">{% for part in change.before_parts %}{% if part.changed %}<del>{{ part.text }}</del>{% else %}{{ part.text }}{% endif %}{% endfor %}</div>{% endif %}
+  {% if change.details_changed %}<p class="km-change-hint"><strong>{{ row.review_copy.details_changed }}</strong></p>{% endif %}
+  <div class="km-change-values{% if change.change_type == 'unchanged' %} km-change-values--single{% endif %}">
+    {% if change.change_type != 'unchanged' %}<div class="km-change-value km-change-value--before"><h4>{{ row.review_copy.now }}</h4>
+      {% if change.media %}{% include "admin/volunteer/hub_media.html" with images=change.before_images side=current_photo only %}{% else %}<div class="km-change-text">{% for part in change.before_parts %}{% if part.changed %}<del>{{ part.text }}</del>{% else %}{{ part.text }}{% endif %}{% endfor %}</div>{% endif %}{% if change.before_raw %}<details class="km-change-raw"><summary>{{ row.review_copy.details }}</summary><pre>{{ change.before_raw }}</pre></details>{% endif %}
     </div>
-    <div class="km-change-value km-change-value--after"><h4>{{ row.review_copy.proposed }}</h4>
-      {% if change.media %}{% include "admin/volunteer/hub_media.html" with images=change.after_images side=proposed_photo only %}{% else %}<div class="km-change-text">{% for part in change.after_parts %}{% if part.changed %}<ins>{{ part.text }}</ins>{% else %}{{ part.text }}{% endif %}{% endfor %}</div>{% endif %}
+    {% endif %}<div class="km-change-value km-change-value--after"><h4>{{ row.review_copy.proposed }}</h4>
+      {% if change.media %}{% include "admin/volunteer/hub_media.html" with images=change.after_images side=proposed_photo only %}{% else %}<div class="km-change-text">{% for part in change.after_parts %}{% if part.changed %}<ins>{{ part.text }}</ins>{% else %}{{ part.text }}{% endif %}{% endfor %}</div>{% endif %}{% if change.after_raw %}<details class="km-change-raw"><summary>{{ row.review_copy.details }}</summary><pre>{{ change.after_raw }}</pre></details>{% endif %}
     </div>
   </div>
 </section>
@@ -40,5 +42,5 @@
 </section>
 {% endif %}
 {% endif %}
-{% if row.status == 'pending' %}<form method="post">{% csrf_token %}<input type="hidden" name="version" value="{{ row.version }}"><label for="hub-reason">{% translate "Причина решения" %}</label><textarea id="hub-reason" name="reason" rows="3" required aria-describedby="hub-reason-help"></textarea><p id="hub-reason-help">{% translate "Причина обязательна для любого решения." %}</p><div class="km-volunteer-actions"><button class="btn btn-success" name="action" value="approve" type="submit"{% if row.conflict %} disabled aria-describedby="hub-conflict-help"{% endif %}>{% translate "Одобрить" %}</button><button class="btn btn-outline-secondary" name="action" value="return" type="submit">{% translate "Вернуть на доработку" %}</button><button class="btn btn-danger" name="action" value="reject" type="submit">{% translate "Отклонить" %}</button></div>{% if row.conflict and row.status == 'pending' %}<p id="hub-conflict-help">{% translate "Одобрение недоступно из-за конфликта версии." %}</p>{% endif %}</form>{% endif %}
+{% if row.status == 'pending' %}<section class="km-review-decision" id="review-decision" aria-labelledby="review-decision-title"><h2 id="review-decision-title">{{ row.review_copy.decision }}</h2><p>{{ row.review_copy.decision_help }}</p><form method="post">{% csrf_token %}<input type="hidden" name="version" value="{{ row.version }}"><label for="hub-reason">{% translate "Причина решения" %}</label><textarea id="hub-reason" name="reason" rows="3" required aria-describedby="hub-reason-help"></textarea><p id="hub-reason-help">{% translate "Причина обязательна для любого решения." %}</p><div class="km-volunteer-actions"><button class="btn btn-success" name="action" value="approve" type="submit"{% if row.conflict %} disabled aria-describedby="hub-conflict-help"{% endif %}>{% translate "Одобрить" %}</button><button class="btn km-review-return" name="action" value="return" type="submit">{% translate "Вернуть на доработку" %}</button><button class="btn km-review-reject" name="action" value="reject" type="submit">{% translate "Отклонить" %}</button></div>{% if row.conflict and row.status == 'pending' %}<p id="hub-conflict-help">{% translate "Одобрение недоступно из-за конфликта версии." %}</p>{% endif %}<p class="km-review-help">{{ row.review_copy.return_help }}</p></form></section>{% endif %}
 {% endblock %}
