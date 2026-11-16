@@ -38,12 +38,15 @@ def digest(value):
 
 
 def fingerprint(w):
+    hostconfig = dict(w['HostConfig'])
+    if hostconfig.get('Binds') is not None:
+        hostconfig['Binds'] = sorted(hostconfig['Binds'])
     return digest({
         'env': sorted(w['Config']['Env']),
         'mounts': sorted([{k: m.get(k) for k in ('Type', 'Source', 'Destination', 'RW')}
                           for m in w['Mounts']], key=lambda m: m['Destination']),
         'config': {k: w['Config'].get(k) for k in ('Cmd', 'Entrypoint', 'User', 'WorkingDir', 'Healthcheck', 'ExposedPorts')},
-        'hostconfig': w['HostConfig'],
+        'hostconfig': hostconfig,
         'networks': sorted(w['NetworkSettings']['Networks']),
     })
 
@@ -129,6 +132,7 @@ def prepare():
     previous['services']['web'].pop('build', None)
     candidate = json.loads(json.dumps(previous))
     candidate['services']['web']['image'] = tag
+    candidate['services']['web'].setdefault('labels', {})['org.opencontainers.image.revision'] = RELEASE_REVISION
     for name, value in (('candidate.compose.json', candidate), ('rollback.compose.json', previous)):
         escaped = escape(value)
         # Compose already preserves escaped dollars in shell healthcheck commands.
@@ -140,6 +144,7 @@ def prepare():
     resolved = json.loads(output(command('candidate.compose.json', 'config', '--format', 'json')))
     expected = json.loads(json.dumps(previous))
     expected['services']['web']['image'] = tag
+    expected['services']['web'].setdefault('labels', {})['org.opencontainers.image.revision'] = RELEASE_REVISION
     assert resolved == expected, 'Compose resolution changed runtime configuration'
     with (R / 'database.before.dump').open('wb') as target:
         subprocess.run(['docker', 'exec', 'kidsmap-postgres', 'sh', '-c',
