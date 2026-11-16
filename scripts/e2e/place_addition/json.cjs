@@ -9,8 +9,16 @@ async function apply(p,data,expected=200,confirm=true){
  if(response){const r=await response;H.assert.equal(r.status(),expected);}
  const modal=p.locator('.km-modal-backdrop');
  if(expected===200&&typeof data!=='string'&&hasData){await modal.waitFor({state:'visible'});await modal.getByRole('button',{name:confirm?'Продолжить импорт':'Отмена',exact:true}).click();await modal.waitFor({state:'hidden'});}
- if(expected!==200||!confirm||typeof data==='string')H.assert.equal(await p.locator('[name=pricing_plans]').inputValue(),old,'Rejected/cancelled JSON cannot mutate prices');
- if(await p.locator('[data-place-json-import-dialog]').isVisible())await p.locator('[data-place-json-import-close]').first().click();
+ const dialog=p.locator('[data-place-json-import-dialog]');
+ if(expected===200&&confirm&&typeof data!=='string'){
+  // The response event precedes JSON parsing and applyData(), which closes the dialog.
+  await dialog.waitFor({state:'hidden'});
+ }else{
+  if(expected!==200||typeof data==='string')await p.locator('[data-place-json-import-message].is-error').waitFor({state:'visible'});
+  H.assert.equal(await p.locator('[name=pricing_plans]').inputValue(),old,'Rejected/cancelled JSON cannot mutate prices');
+  await dialog.locator('[data-place-json-import-close]').first().click();
+  await dialog.waitFor({state:'hidden'});
+ }
 }
 async function json(ctx){
  const imported=await require('./create.cjs').create({...ctx,intake:async(p,role,name)=>{
