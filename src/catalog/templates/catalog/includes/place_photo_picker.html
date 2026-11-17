@@ -1,4 +1,5 @@
 {% load i18n %}
+{% get_current_language as picker_language %}
 <div class="km-place-photo-picker" data-km-editor-field="photo">
   <label class="km-place-photo-picker__dropzone">
     <div class="km-place-photo-picker__icon" aria-hidden="true">
@@ -9,10 +10,10 @@
       </svg>
     </div>
     <div class="km-place-photo-picker__body">
-      <span class="km-place-photo-picker__cta">{% translate 'Загрузить фотографии' %}</span>
-      <span class="km-place-photo-picker__hint">{% translate 'или перетащите файлы сюда' %}</span>
+      <span class="km-place-photo-picker__cta"><strong>{% translate 'Добавить фотографии' %}</strong></span>
+      <span class="km-place-photo-picker__hint">{% if picker_language == 'az' %}və ya faylları buraya sürükləyin{% elif picker_language == 'en' %}or drag files here{% else %}или перетащите файлы сюда{% endif %}</span>
     </div>
     <input type="file" multiple accept="image/jpeg,image/png,image/webp,.heic,.heif,.hif" data-place-photos-picker class="km-place-photo-picker__input">
   </label>
-  <p class="km-place-photo-picker__note">{% translate 'Первое фото станет обложкой карточки. Остальные добавятся в галерею (до 10 фото). Форматы: JPG, PNG, WEBP, HEIC до 15 МБ.' %}</p>
+  <p class="km-place-photo-picker__note">{% translate 'У нового места первое фото станет обложкой. Остальные добавятся в галерею. Существующая обложка сохраняется.' %} {% if picker_language == 'az' %}Qalereyada 10-dək foto. JPG, PNG, WEBP, HEIC — hər fayl 15 MB-dək.{% elif picker_language == 'en' %}Up to 10 gallery photos. JPG, PNG, WEBP, HEIC — up to 15 MB per file.{% else %}До 10 фото в галерее. JPG, PNG, WEBP, HEIC — до 15 МБ на файл.{% endif %}</p>
 </div>

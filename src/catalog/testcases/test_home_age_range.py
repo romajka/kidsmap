@@ -44,7 +44,7 @@ class HomeAgeRangeTests(TestCase):
         self.assertEqual(html.count('id="home-hero-search-input"'), 1)
         self.assertIn('class="home-search-refine" open', html)
 
-    def test_map_search_is_one_form_inside_explorer_without_duplicate_controls(self):
+    def test_map_search_is_one_form_before_explorer_without_duplicate_controls(self):
         request, context = self.context({})
         context['map_places'] = [{'id': 1}]
         with override('ru'):
@@ -69,7 +69,8 @@ class HomeAgeRangeTests(TestCase):
                     self.in_map = False
         parser = Structure()
         parser.feed(html)
-        self.assertEqual(parser.forms, [True])
+        self.assertEqual(parser.forms, [False])
+        self.assertLess(html.index("data-home-map-filter-form"), html.index('id="home-map-section"'))
         self.assertEqual(parser.counts, dict.fromkeys(('q', 'district', 'category', 'age_from', 'age_to'), 1))
         self.assertNotIn('id="home-map-toolbar-category"', html)
         self.assertNotIn('data-home-map-filter-from', html)
