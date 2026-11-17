@@ -5,6 +5,7 @@ assigned to all of its lessons. Unknown legacy suitability remains discoverable
 in the general catalog and by its direct URL.
 """
 from django.db.models import Exists, F, OuterRef, Q
+from catalog.services.search_terms import text_query
 from catalog.models import Activity, OfferingGroup, PricingPlan
 
 
@@ -18,12 +19,10 @@ def current_org_q(prefix=''):
 
 
 def text_q(query, prefix=''):
-    result=Q()
-    for field in ('name','name_az','name_ru','name_en','description_az','description_ru','description_en','address'):
-        result |= Q(**{prefix+field+'__icontains':query})
-    org=Q()
-    for lang in ('az','ru','en'):
-        org |= Q(**{prefix+'organization__name_'+lang+'__icontains':query})
+    fields = ('name', 'name_az', 'name_ru', 'name_en', 'description_az',
+              'description_ru', 'description_en', 'address')
+    result = text_query(query, [prefix + field for field in fields])
+    org = text_query(query, [prefix + 'organization__name_' + lang for lang in ('az', 'ru', 'en')])
     return result | (current_org_q(prefix) & org)
 
 
@@ -44,10 +43,9 @@ def matching_groups(filters):
     if low is not None:qs=qs.filter(Q(age_to__isnull=True)|Q(age_to__gte=low))
     if high is not None:qs=qs.filter(Q(age_from__isnull=True)|Q(age_from__lte=high))
     if filters.query:
-        names=Q()
-        for lang in ('az','ru','en'):
-            names |= Q(**{'activity__name_'+lang+'__icontains':filters.query}) | Q(**{'name_'+lang+'__icontains':filters.query})
-            names |= Q(**{'activity__program_snapshot__name_'+lang+'__icontains':filters.query})
+        fields = [prefix + lang for lang in ('az', 'ru', 'en')
+                  for prefix in ('activity__name_', 'name_', 'activity__program_snapshot__name_')]
+        names = text_query(filters.query, fields)
         qs=qs.filter(text_q(filters.query,'activity__place__') | names)
     return qs
 

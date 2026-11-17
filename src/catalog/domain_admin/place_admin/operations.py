@@ -822,9 +822,16 @@ class PlaceAdminOperationsMixin:
         is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest" or "application/json" in request.headers.get("accept", "")
 
         if place.status == Place.STATUS_PUBLISHED and place.is_active:
-            place.status = Place.STATUS_DRAFT
-            place.is_active = False
-            place.save(update_fields=["status", "is_active", "updated_at"])
+            from catalog.services.publication import unpublish
+            try:
+                place = unpublish(actor=request.user, target_type="place", target_id=place.pk,
+                                  expected_version=place.content_version)
+            except ValidationError:
+                detail = str(_("Состояние карточки изменилось. Обновите список и повторите действие."))
+                if is_ajax:
+                    return JsonResponse({"ok": False, "error": "conflict", "message": detail}, status=409)
+                self.message_user(request, detail, messages.ERROR)
+                return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("admin:catalog_place_changelist"))
             msg = _("Карточка снята с публикации — на сайте больше не показывается")
             if is_ajax:
                 return JsonResponse({
@@ -892,9 +899,16 @@ class PlaceAdminOperationsMixin:
             return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("admin:catalog_place_changelist"))
 
         if action == "to_draft":
-            place.status = Place.STATUS_DRAFT
-            place.is_active = False
-            place.save(update_fields=["status", "is_active", "updated_at"])
+            from catalog.services.publication import unpublish
+            try:
+                place = unpublish(actor=request.user, target_type="place", target_id=place.pk,
+                                  expected_version=place.content_version)
+            except ValidationError:
+                detail = str(_("Состояние карточки изменилось. Обновите список и повторите действие."))
+                if is_ajax:
+                    return JsonResponse({"ok": False, "error": "conflict", "message": detail}, status=409)
+                self.message_user(request, detail, messages.ERROR)
+                return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("admin:catalog_place_changelist"))
             msg = _("Карточка возвращена в черновик.")
         elif action == "to_pending":
             place.status = Place.STATUS_PENDING
@@ -1039,11 +1053,7 @@ class PlaceAdminOperationsMixin:
 
     @admin.action(description=_("Сделать неактивными"))
     def mark_inactive(self, request, queryset):
-        updated_count = queryset.update(
-            is_active=False,
-            status=Place.STATUS_DRAFT,
-            updated_at=timezone.now(),
-        )
+        updated_count = self._unpublish_places(request, queryset)
         self.message_user(
             request,
             ngettext(
@@ -1091,17 +1101,30 @@ class PlaceAdminOperationsMixin:
 
     @admin.action(description=_("Вернуть в черновик"))
     def mark_draft(self, request, queryset):
-        updated_count = queryset.update(
-            status=Place.STATUS_DRAFT,
-            is_active=False,
-            updated_at=timezone.now(),
-        )
+        updated_count = self._unpublish_places(request, queryset)
         self.message_user(
             request,
             ngettext("%(count)d карточка переведена в черновик.", "%(count)d карточки переведены в черновик.", updated_count)
             % {"count": updated_count},
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
+
+    def _unpublish_places(self, request, queryset):
+        from catalog.services.publication import unpublish
+        updated_count = skipped_count = 0
+        for place in queryset.iterator(chunk_size=100):
+            try:
+                unpublish(actor=request.user, target_type="place", target_id=place.pk,
+                          expected_version=place.content_version)
+            except ValidationError:
+                skipped_count += 1
+            else:
+                updated_count += 1
+        if skipped_count:
+            self.message_user(request,
+                _("Выполнено: %(done)s. Пропущено: %(skipped)s. Для публикации нужны ожидающая заявка и права модерации; для снятия — отсутствие незавершённых изменений.")
+                % {"done": updated_count, "skipped": skipped_count}, level=messages.WARNING)
+        return updated_count
 
 
 

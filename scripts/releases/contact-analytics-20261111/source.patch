@@ -1,0 +1,95 @@
+diff --git a/src/catalog/context_processors.py b/src/catalog/context_processors.py
+index e6b28654..ebfd7d25 100644
+--- a/src/catalog/context_processors.py
++++ b/src/catalog/context_processors.py
+@@ -18,7 +18,6 @@ from .services.auth_redirects import build_header_login_url
+ DEFAULT_FOOTER_PHONE = "+994 55 497 97 23"
+ DEFAULT_FOOTER_WHATSAPP_URL = "https://wa.me/994554979723"
+ DEFAULT_FOOTER_EMAIL = "info@kidsmap.az"
+-LOCAL_ANALYTICS_HOSTS = {"localhost", "127.0.0.1", "testserver"}
+ # Visitor pages only; keep account and authentication workflows quiet.
+ LIVING_MAP_URL_NAMES = frozenset({
+     "home", "place_list", "place_new", "seo_landing", "place_detail",
+@@ -234,8 +233,21 @@ def seo_urls(request):
+ 
+ def _google_analytics_context(request) -> dict[str, object]:
+     measurement_id = (getattr(settings, "GOOGLE_ANALYTICS_MEASUREMENT_ID", "") or "").strip()
+-    hostname = request.get_host().partition(":")[0].lower()
+-    enabled = bool(measurement_id) and not settings.DEBUG and hostname not in LOCAL_ANALYTICS_HOSTS
++    hostname = urlsplit("//" + request.get_host()).hostname
++    public_host = urlsplit(getattr(settings, "PUBLIC_BASE_URL", "") or "https://kidsmap.az").hostname
++    user = getattr(request, "user", None)
++    path_parts = request.path.strip("/").split("/")
++    if path_parts[0] in {"az", "ru", "en"}:
++        path_parts = path_parts[1:]
++    service_path = bool(path_parts and path_parts[0] in {"admin", "i18n"})
++    enabled = bool(
++        measurement_id and not settings.DEBUG and not getattr(settings, "TESTING", False)
++        and hostname == public_host == "kidsmap.az"
++        and not getattr(request, "site_preview", False)
++        and not getattr(user, "is_staff", False)
++        and not getattr(user, "is_superuser", False)
++        and not service_path
++    )
+     return {
+         "google_analytics_measurement_id": measurement_id if enabled else "",
+         "google_analytics_enabled": enabled,
+diff --git a/src/catalog/templates/base.html b/src/catalog/templates/base.html
+index 2638b000..c3d0d2c9 100644
+--- a/src/catalog/templates/base.html
++++ b/src/catalog/templates/base.html
+@@ -119,7 +119,7 @@
+     data-page-language="{{ current_lang_code }}">
+     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
+     <div hidden data-phone-config data-phone-endpoint="{% url 'place_phone_reveal' 0 %}">{% csrf_token %}</div>
+-    <script src="{% static 'js/place_phone_reveal.js' %}?v=20261022_release_all_r1"></script>
++    <script src="{% static 'js/place_phone_reveal.js' %}?v=20261111_contact_analytics_r1"></script>
+     <div class="site-shell">
+       {% include "includes/header.html" %}
+       {% include "catalog/includes/place_editor_result.html" %}
+diff --git a/static/js/place_phone_reveal.js b/static/js/place_phone_reveal.js
+index c9f91529..3b9805d6 100644
+--- a/static/js/place_phone_reveal.js
++++ b/static/js/place_phone_reveal.js
+@@ -225,6 +225,19 @@
+     });
+   }
+ 
++  function callFromCard(id, phone) {
++    if (!phone || !phone.href) return;
++    if (typeof window.kidsMapTrackEvent === 'function') {
++      window.kidsMapTrackEvent({
++        event_type: 'phone_click',
++        place_id: Number(id),
++        source: 'card-cta-call',
++        path: window.location.pathname,
++      });
++    }
++    window.location.href = phone.href;
++  }
++
+   // Handle copy buttons
+   document.addEventListener('click', async event => {
+     const copyBtn = event.target.closest('.km-phone-copy-btn');
+@@ -257,9 +270,7 @@
+       reveal(id, data);
+       if (isCard && button.dataset.phoneWhatsapp !== '1') {
+         const phone = data.phones[Number(button.dataset.phoneIndex || 0)];
+-        if (phone && phone.href) {
+-          window.location.href = phone.href;
+-        }
++        callFromCard(id, phone);
+       }
+       return;
+     }
+@@ -309,9 +320,7 @@
+       reveal(id, data);
+       if (isCard && button.dataset.phoneWhatsapp !== '1') {
+         const phone = data.phones[Number(button.dataset.phoneIndex || 0)];
+-        if (phone && phone.href) {
+-          window.location.href = phone.href;
+-        }
++        callFromCard(id, phone);
+       }
+     } catch (error) {
+       button.disabled = false;

@@ -88,10 +88,14 @@ def send_registration_code(
     if not email_normalized:
         return EmailVerificationResult(ok=False, message=_("Укажите email для отправки кода."))
 
-    with repository.locked_user(user=user) as user:
+    with repository.locked_user(user_id=user.pk) as user:
+        if user is None:
+            return EmailVerificationResult(ok=False, message=_("Пользователь с таким email не найден."))
+        # Serialize SMTP and replacement: failed delivery leaves the previous
+        # challenge intact, and another send cannot bypass the cooldown.
         now = timezone.now()
         record = repository.get_by_user(user=user)
-        if record and record.is_verified and user.is_active:
+        if record and record.is_verified:
             return EmailVerificationResult(ok=True, message=_("Email уже подтвержден."), user=user)
 
         if not force and record and record.resend_available_at and now < record.resend_available_at:
@@ -145,12 +149,12 @@ def verify_registration_code(
     if record is None:
         return EmailVerificationResult(ok=False, message=_("Заявка на подтверждение не найдена."))
 
-    with repository.locked_user(user=record.user) as user:
-        # Never validate a snapshot read before waiting for another request.
-        record = repository.get_by_user(user=user)
+    # The unlocked lookup resolves identity only. Never validate a challenge
+    # snapshot obtained before the user lock (resend may replace it meanwhile).
+    with repository.locked_user(user_id=record.user_id) as user:
+        record = repository.get_by_user(user=user) if user is not None else None
         if record is None or _normalize_email(record.email) != email_normalized:
             return EmailVerificationResult(ok=False, message=_("Заявка на подтверждение не найдена."))
-        user = record.user
         if record.is_verified:
             # Verification records are consumed registration challenges, not login
             # credentials (including records created by the Google sign-in bridge).

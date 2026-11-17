@@ -6,10 +6,10 @@
 {% block robots_meta %}noindex, follow{% endblock %}
 {% block googlebot_meta %}noindex, follow{% endblock %}
 {% block meta_description %}{% trans "Посмотрите доступные места и занятия в каталоге." %}{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/public_unavailable.css' %}?v=20261106_mappy" />{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/public_unavailable.css' %}?v=20261117_mappy3d" />{% endblock %}
 {% block content %}
 <section class="public-unavailable" aria-labelledby="unavailable-heading">
-  <img class="public-unavailable-mappy" src="{% static 'img/mappy/mappy-map.webp' %}" width="160" height="160" alt="" decoding="async">
+  <span class="public-unavailable-mappy-box" data-mappy3d="lost" data-bleed="0.35 0.5 0.04 0.5"><img data-mappy-fallback class="public-unavailable-mappy" src="{% static '3d/mappy-idle.png' %}" width="160" height="160" alt="" decoding="async"></span>
   <h1 id="unavailable-heading">{% trans "Страница недоступна" %}</h1>
   <p>{% trans "Посмотрите доступные места и занятия в каталоге." %}</p>
   <form class="public-unavailable-search" method="get" action="{% url 'place_list' %}" role="search">

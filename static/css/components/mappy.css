@@ -549,3 +549,164 @@ body.page-home .home-hero .mappy-helper .mappy-bubble p {
     justify-content: center !important;
   }
 }
+
+/* Mappy 3D: the live bear replaces the picture once it is ready (static/js/mappy3d_boot.js) */
+[data-mappy3d] { position: relative; }
+[data-mappy3d][data-mappy3d-state="ready"] { animation: none; outline-offset: 6px; }
+[data-mappy3d]:focus-visible { outline: 3px solid var(--brand-turf, #136f38); border-radius: 16px; }
+.mappy-portrait[data-mappy3d-state="ready"]::after,
+.mappy-scene[data-mappy3d-state="ready"]::after { display: none; }
+
+/* words of what the 3D bear says appear one by one, like in his speech cloud */
+.mappy-bubble .mappy-say__w { display: inline-block; white-space: pre; opacity: 0; translate: 0 6px; scale: .88; animation: mappy-say-word .42s cubic-bezier(.2, 1.2, .35, 1) forwards; animation-delay: calc(var(--i) * 55ms + 90ms); }
+@keyframes mappy-say-word { to { opacity: 1; translate: 0 0; scale: 1; } }
+@media (prefers-reduced-motion: reduce) { .mappy-bubble .mappy-say__w { animation: none; opacity: 1; translate: none; scale: none; } }
+
+/* Home companion: a stable stage and a soft thought cloud above his shoulder. */
+.page-home .mappy-helper { margin: 20px 0 14px; }
+.page-home .mappy-content {
+  display: grid;
+  grid-template-columns: clamp(180px, 16vw, 220px) minmax(0, 1fr);
+  gap: 0;
+  align-items: start;
+  min-height: 254px;
+  cursor: default;
+}
+.page-home .mappy-portrait {
+  width: 100%; height: 232px; margin-top: 22px;
+  flex: none; z-index: 1;
+}
+.page-home .mappy-portrait::after { display: none; }
+.page-home .mappy-portrait img {
+  width: 100%; height: 100%; object-fit: contain;
+  animation: none !important; transform: none; filter: none;
+}
+.page-home .mappy-cloud { position: relative; z-index: 2; margin: 0 0 0 -14px; }
+.page-home .mappy-bubble,
+.page-home .mappy-content:hover .mappy-bubble {
+  display: grid; place-items: center;
+  width: 100%; max-width: 318px; min-height: 116px;
+  margin: 0; padding: 29px 33px 30px;
+  border: 0; border-radius: 42%;
+  background: transparent; box-shadow: none;
+  color: #173e2d; font: inherit; font-size: 14px; font-weight: 650;
+  line-height: 1.45; text-align: center; overflow-wrap: anywhere;
+  transform: none;
+}
+.mappy-cloud-art {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  overflow: visible; pointer-events: none;
+  filter: drop-shadow(0 6px 10px rgb(19 111 56 / 9%));
+}
+.mappy-cloud-art path {
+  fill: #fffef9; stroke: #d9e9dc; stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transition: fill .2s ease, stroke .2s ease;
+}
+.page-home .mappy-bubble:hover .mappy-cloud-art path { fill: #ffffff; stroke: #b8d8c1; }
+.page-home .mappy-bubble::before,
+.page-home .mappy-bubble::after,
+.page-home .mappy-content:hover .mappy-bubble::before {
+  content: ""; position: absolute;
+  top: auto; bottom: 2px; left: 27px; width: 12px; height: 10px;
+  background: #fffef9; border: 1px solid #d9e9dc; border-radius: 50%;
+  transform: none; pointer-events: none;
+  box-shadow: 0 3px 6px rgb(19 111 56 / 5%);
+}
+.page-home .mappy-bubble::after { bottom: -10px; left: 16px; width: 6px; height: 6px; }
+.page-home .mappy-bubble:focus-visible { outline: 3px solid #136f38; outline-offset: 5px; }
+.page-home .mappy-bubble [data-mappy-text] {
+  position: relative; z-index: 1; display: block;
+  transition: opacity .22s ease, transform .22s ease;
+}
+.page-home .mappy-bubble [data-mappy-text].is-switching { opacity: 0; transform: translateY(4px); }
+.mappy-live {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+/* Sleep is a persistent state: the model breathes, the letters mark each snore. */
+.mappy-sleep-sign {
+  display: none; position: absolute; z-index: 4;
+  top: -12px; left: 53%; width: 64px; height: 66px;
+  color: #41705c; pointer-events: none;
+  font: 800 23px/1 system-ui, sans-serif;
+}
+[data-mappy-state="sleeping"] .mappy-sleep-sign { display: block; }
+.mappy-sleep-sign span {
+  position: absolute; left: 0; bottom: 0; opacity: 0;
+  animation: mappy-snore 3s ease-in-out infinite;
+}
+.mappy-sleep-sign span:nth-child(2) { animation-delay: 1s; font-size: 27px; }
+.mappy-sleep-sign span:nth-child(3) { animation-delay: 2s; font-size: 31px; }
+@keyframes mappy-snore {
+  0% { opacity: 0; transform: translate(0, 0) rotate(-12deg) scale(.65); }
+  20% { opacity: .9; }
+  75% { opacity: .7; }
+  100% { opacity: 0; transform: translate(24px, -40px) rotate(8deg) scale(1.1); }
+}
+.page-home [data-mappy-state="sleeping"] .mappy-cloud-art path { fill: #f1f5ff; stroke: #d4dfef; }
+.page-home [data-mappy-state="sleeping"] .mappy-bubble::before,
+.page-home [data-mappy-state="sleeping"] .mappy-bubble::after { background: #f1f5ff; border-color: #d4dfef; }
+/* Contextual companions stay inside their message, clear of the next action. */
+.mappy-context { position: relative; min-width: 0; padding-top: 22px; }
+.mappy-context-cloud {
+  position: relative; z-index: 3;
+  display: grid; place-items: center;
+  width: 218px; max-width: 100%; min-height: 82px;
+  margin: -22px auto -2px; padding: 19px 25px 22px;
+  color: #173e2d; font-size: 13px; font-weight: 650; line-height: 1.4; text-align: center;
+}
+.mappy-context-cloud > span { position: relative; z-index: 1; }
+.mappy-context-cloud::after {
+  content: ""; position: absolute; bottom: -6px; left: 36%;
+  width: 7px; height: 7px; border: 1px solid #d9e9dc;
+  border-radius: 50%; background: #fffef9;
+}
+:is(.page-place_list, .page-place_new) .catalog-empty-state.mappy-empty-state .mappy-context .mappy-scene,
+.mappy-submission .mappy-context .mappy-scene { width: 180px; height: 196px; margin: auto; }
+:is(.page-place_list, .page-place_new) .catalog-empty-state.mappy-empty-state .mappy-context img,
+.mappy-submission .mappy-context img { width: 100%; height: 100%; }
+@media (prefers-reduced-motion: reduce) {
+  .mappy-sleep-sign span { animation: none; opacity: 1; }
+  .mappy-sleep-sign span:nth-child(2) { left: 17px; bottom: 17px; }
+  .mappy-sleep-sign span:nth-child(3) { left: 37px; bottom: 37px; }
+}
+@media (max-width: 767px) {
+  .mappy-context {
+    display: grid; grid-template-columns: 112px minmax(0, 1fr);
+    align-items: start; max-width: 318px; margin: auto; padding-top: 8px;
+  }
+  .mappy-context-cloud {
+    grid-column: 2; grid-row: 1; width: 100%; min-height: 98px;
+    margin: 0; padding: 22px 17px;
+  }
+  .mappy-context-cloud::after { left: 12%; }
+  :is(.page-place_list, .page-place_new) .catalog-empty-state.mappy-empty-state .mappy-context .mappy-scene,
+  .mappy-submission .mappy-context .mappy-scene {
+    grid-column: 1; grid-row: 1; width: 112px; height: 124px; margin: 24px 0 0;
+  }
+  .page-home .mappy-content {
+    grid-template-columns: clamp(124px, 40vw, 164px) minmax(0, 1fr);
+    min-height: 210px;
+  }
+  .page-home .mappy-portrait { height: 184px; margin-top: 26px; }
+  .page-home .mappy-cloud { margin-left: -12px; }
+  .page-home .mappy-bubble,
+  .page-home .mappy-content:hover .mappy-bubble {
+    min-height: 112px; padding: 25px 23px 27px;
+    font-size: 13px; line-height: 1.4;
+  }
+  .page-home .mappy-bubble::before,
+  .page-home .mappy-content:hover .mappy-bubble::before { left: 20px; }
+  .page-home .mappy-bubble::after { left: 10px; }
+}
+
+@media (max-width: 767px) {
+  body.page-home .home-hero-grid .home-hero-copy > .home-hero-search-area {
+    order: 3; margin: 4px 0 12px;
+  }
+  body.page-home .home-hero-grid .home-hero-visual > .home-hero-slider,
+  body.page-home .home-hero-grid .home-hero-visual > .home-hero-slide-grid { order: 4; }
+  body.page-home .home-hero-grid .home-hero-copy > .mappy-helper { order: 5; }
+  body.page-home .home-hero-grid .home-hero-copy > .home-redesign-actions { order: 6; }
+}

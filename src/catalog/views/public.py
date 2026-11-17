@@ -69,11 +69,13 @@ def catalog_search_suggestions(request):
 
     matching_categories = []
     from catalog.models import Category
-    q_lower = query.lower()
+    from catalog.services.search_terms import query_variants
+    variants = query_variants(query)
     for cat in Category.active.all():
         name = cat.name_i18n(language)
         alt_names = [getattr(cat, f"name_{l}", "") for l in ("ru", "az", "en")]
-        if q_lower in name.lower() or any(q_lower in (a or "").lower() for a in alt_names):
+        if any(term.casefold() in (label or "").casefold()
+               for term in variants for label in [name, *alt_names]):
             matching_categories.append({
                 "code": cat.code,
                 "name": name,
@@ -433,6 +435,13 @@ def track_event(request):
     return JsonResponse(result.as_payload(), status=result.status_code)
 
 def seo_landing(request, seo_slug):
+    from catalog.content_data import SEO_LANDING_ALIASES
+
+    canonical_slug = SEO_LANDING_ALIASES.get(seo_slug)
+    if canonical_slug:
+        # Landing pages own no query parameters. Merge alias and query cleanup
+        # in one locale-preserving redirect, including old campaign links.
+        return redirect("seo_landing", seo_slug=canonical_slug, permanent=True)
     context = seo_controller.build_landing_context(request=request, seo_slug=seo_slug)
     return render(request, "catalog/seo_landing.html", context)
 
@@ -493,14 +502,14 @@ def faq_page(request):
 def contacts(request):
     lang = (request.LANGUAGE_CODE or "az").split("-")[0]
     titles = {
-        "az": "KidsMap Əlaqə | Telefon, ünvan və əlaqə vasitələri",
-        "ru": "Контакты KidsMap | Связаться с нами и адрес в Баку",
-        "en": "Contact KidsMap | Address, Phone & Support in Baku",
+        "az": "KidsMap dəstəyi | Sayt komandası ilə əlaqə",
+        "ru": "Поддержка KidsMap | Связь с командой сайта",
+        "en": "KidsMap support | Contact the website team",
     }
     meta_descriptions = {
-        "az": "KidsMap layihəsi ilə əlaqə: telefon, e-poçt, ünvan və rəy forması.",
-        "ru": "Контакты проекта KidsMap: телефон, e-mail, адрес и форма обратной связи.",
-        "en": "Contact KidsMap team: phone, email, address and feedback form.",
+        "az": "KidsMap saytının dəstək xidməti ilə əlaqə. Məkanların qiymətləri, cədvəli və qeydiyyat üçün onların kataloq səhifəsindəki əlaqə vasitələrindən istifadə edin.",
+        "ru": "Контакты поддержки сайта KidsMap. Цены, расписание и запись уточняйте у самого места по контактам в его карточке.",
+        "en": "Contact KidsMap website support. For venue prices, schedules and bookings, use the contacts on the venue listing.",
     }
     return render(
         request,

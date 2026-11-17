@@ -34,7 +34,7 @@ def llms_txt(request):
     routes.extend([
         ("about", "About KidsMap", "What the project does and who it serves."),
         ("faq_page", "Frequently asked questions", "Help with finding activities and using the site."),
-        ("contacts", "Contact KidsMap", "Project contacts and feedback."),
+        ("contacts", "KidsMap support", "Website support only; not venue contacts or a booking service."),
         ("add_place", "Submit a listing", "Public entry point for adding a place or activity to the catalog."),
     ])
 

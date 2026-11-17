@@ -14,10 +14,10 @@
 <script defer src="{% static 'js/home_guide_slider.js' %}?v=20261104_auto_v1"></script>
 <link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20261105_route_r4" />
 <link rel="stylesheet" href="{% static 'css/pages/home_search.css' %}?v=20261103_mobile_compact" />
-<link rel="stylesheet" href="{% static 'css/pages/home_layout.css' %}?v=20261104_guide_auto_v2" />
+<link rel="stylesheet" href="{% static 'css/pages/home_layout.css' %}?v=20261117_search_first" />
 <link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261103_mobile_compact" />
-<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261104_hero_framing" />
-<script defer src="{% static 'js/mappy.js' %}?v=20261105_polish_r1"></script>
+<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_search_first" />
+<script defer src="{% static 'js/mappy.js' %}?v=20261117_search_first"></script>
 {% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
@@ -53,6 +53,7 @@
       <div class="home-redesign-eyebrow"><span aria-hidden="true"></span>{% if request.LANGUAGE_CODE == 'az' %}Azərbaycanın uşaq məkanları xəritəsi{% elif request.LANGUAGE_CODE == 'en' %}Azerbaijan’s map of places for kids{% else %}Карта детских мест Азербайджана{% endif %}</div>
       <h1>{{ hero_title }}</h1>
       <p>{{ hero_subtitle }}</p>
+      {% include "pages/includes/home_map_search.html" %}
       {% include "includes/mappy_helper.html" %}
       <div class="home-redesign-actions">
 {% if map_places %}
@@ -179,9 +180,6 @@
         </a>
       </div>
     </div>
-    {% if not map_places %}
-    {% include "pages/includes/home_map_search.html" %}
-    {% endif %}
   </div>
 </section>
 

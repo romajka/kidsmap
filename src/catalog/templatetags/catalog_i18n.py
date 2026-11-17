@@ -130,9 +130,10 @@ def parent_review_label(value) -> str:
 
 
 @register.filter
-def clean_public_note(value) -> str:
+def clean_public_note(value, language=None) -> str:
     """Keep visiting information separate from photo credits and internal markers."""
-    return _public_note_parts(value)[0]
+    from catalog.services.localized_content import separate_bilingual_note
+    return separate_bilingual_note(_public_note_parts(value)[0], language)
 
 
 def _public_note_parts(value):
