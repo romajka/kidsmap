@@ -73,12 +73,24 @@
         const tips = TIPS[docLang] || TIPS.ru;
         let tipIndex = 0;
         let rotationTimer = null;
+        let switchTimer = null;
+        let sleeping = false;
+
+        function cancelSwitch() {
+          clearTimeout(switchTimer);
+          textEl.classList.remove('is-switching');
+        }
 
         function cycleTip() {
-          if (document.hidden || reduced.matches || content.hidden) return;
+          if (sleeping || document.hidden || content.hidden) return;
+          cancelSwitch();
           tipIndex = (tipIndex + 1) % tips.length;
+          if (reduced.matches) {
+            textEl.textContent = tips[tipIndex];
+            return;
+          }
           textEl.classList.add('is-switching');
-          setTimeout(function () {
+          switchTimer = setTimeout(function () {
             textEl.textContent = tips[tipIndex];
             textEl.classList.remove('is-switching');
             content.classList.remove('mappy-react');
@@ -89,6 +101,7 @@
 
         function startRotation() {
           stopRotation();
+          if (sleeping || reduced.matches || document.hidden) return;
           rotationTimer = setInterval(cycleTip, 6500);
           if (rotationTimer && typeof rotationTimer.unref === 'function') {
             rotationTimer.unref();
@@ -103,6 +116,25 @@
         }
 
         startRotation();
+        // A reaction from the 3D bear owns the cloud until the next full tip interval.
+        helper.addEventListener('mappy:say', function () {
+          cancelSwitch();
+          startRotation();
+        });
+        helper.addEventListener('mappy:sleep', function () {
+          sleeping = true;
+          cancelSwitch();
+          stopRotation();
+          content.classList.remove('mappy-react');
+        });
+        helper.addEventListener('mappy:wake', function () {
+          sleeping = false;
+          startRotation();
+        });
+        reduced.addEventListener('change', function () {
+          cancelSwitch();
+          startRotation();
+        });
         document.addEventListener('visibilitychange', function () {
           if (document.hidden) stopRotation();
           else startRotation();

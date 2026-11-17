@@ -1,6 +1,6 @@
 {% load i18n catalog_i18n %}
 {% get_current_language as pricing_note_language %}
-{% with conditions=place.extra_conditions_i18n|clean_public_note %}
+{% with conditions=place.extra_conditions_i18n|clean_public_note:pricing_note_language %}
 {% if conditions %}
   <div class="detail-pricing-note detail-pricing-note--conditions">
     <div class="detail-pricing-note__icon" aria-hidden="true">
@@ -13,7 +13,7 @@
 {% endif %}
 {% endwith %}
 {% if place.additional_info_i18n %}
-  {% with cleaned_info=place.additional_info_i18n|clean_public_note %}
+  {% with cleaned_info=place.additional_info_i18n|clean_public_note:pricing_note_language %}
     {% if cleaned_info %}
       <div class="detail-pricing-note detail-pricing-note--info">
         <div class="detail-pricing-note__body">

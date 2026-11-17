@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261022_release_all_r1" />
+<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_sleep" />
   <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261106_live_filters3" />
   {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=20261106_card_height" />{% endif %}
 {% endblock %}
@@ -1058,7 +1058,7 @@
       {% if site_settings.empty_results_image %}
         <img class="empty-custom-image" src="{{ site_settings.empty_results_image.url }}" alt="{% if language == 'az' %}Hələ uyğun məkan tapılmadı{% else %}{% trans 'Ничего не найдено.' %}{% endif %}" loading="lazy" decoding="async" />
       {% else %}
-        <div class="mappy-scene" aria-hidden="true"><img class="mappy-empty-image" src="{% static 'img/mappy/mappy-empty.webp' %}" width="384" height="420" alt="" loading="lazy" decoding="async"></div>
+        {% include "includes/mappy_context.html" with mappy_mood="empty" %}
       {% endif %}
       <div class="mappy-empty-copy">
       {% if site_empty_results_text %}

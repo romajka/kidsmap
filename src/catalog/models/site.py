@@ -759,18 +759,18 @@ class CatalogContentSettings(models.Model):
         return BAKU_METRO_STATIONS
 
     def seo_pages(self, language_code=None):
-        from catalog.content_data import seo_landing_pages
+        from catalog.content_data import normalize_seo_landing_pages, seo_landing_pages
         from django.utils.translation import get_language
 
         language_code = (language_code or get_language() or "az").split("-")[0]
         if isinstance(self.seo_pages_json, dict) and self.seo_pages_json:
             localized_pages = self.seo_pages_json.get(language_code)
             if isinstance(localized_pages, dict):
-                return localized_pages
+                return normalize_seo_landing_pages(localized_pages)
             if language_code == "az" and not any(
                 key in self.seo_pages_json for key in {"az", "ru", "en"}
             ):
-                return self.seo_pages_json
+                return normalize_seo_landing_pages(self.seo_pages_json)
         return seo_landing_pages(language_code)
 
     class Meta:

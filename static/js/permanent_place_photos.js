@@ -85,34 +85,125 @@
         const active = document.activeElement?.dataset.photoAction, activeId = document.activeElement?.closest('[data-photo-id]')?.dataset.photoId;
         targets[target].replaceChildren();
         list.forEach((item, index) => {
-          const row = document.createElement('article'); row.className = 'pw-photo-item'; row.dataset.photoId = item.id; row.dataset.state = item.state;
+          const row = document.createElement('article');
+          row.className = 'pw-photo-item' + (target === 'main' ? ' pw-photo-item--main' : ' pw-photo-item--gallery');
+          row.dataset.photoId = item.id;
+          row.dataset.state = item.state;
           row.draggable = target === 'gallery' && !saving && !busy;
-          row.addEventListener('dragstart', event => { event.dataTransfer.setData('application/x-kidsmap-photo', item.id); event.dataTransfer.effectAllowed = 'move'; });
-          row.addEventListener('dragover', event => { if (event.dataTransfer.types.includes('application/x-kidsmap-photo')) event.preventDefault(); });
+          row.addEventListener('dragstart', event => {
+            event.dataTransfer.setData('application/x-kidsmap-photo', item.id);
+            event.dataTransfer.effectAllowed = 'move';
+            row.classList.add('is-dragging');
+          });
+          row.addEventListener('dragend', () => {
+            row.classList.remove('is-dragging');
+            targets.gallery.querySelectorAll('.is-drop-target').forEach(node => node.classList.remove('is-drop-target'));
+          });
+          row.addEventListener('dragenter', event => {
+            if (event.dataTransfer.types.includes('application/x-kidsmap-photo') && target === 'gallery') {
+              row.classList.add('is-drop-target');
+            }
+          });
+          row.addEventListener('dragleave', event => {
+            if (!row.contains(event.relatedTarget)) row.classList.remove('is-drop-target');
+          });
+          row.addEventListener('dragover', event => {
+            if (event.dataTransfer.types.includes('application/x-kidsmap-photo')) event.preventDefault();
+          });
           row.addEventListener('drop', event => {
+            row.classList.remove('is-drop-target');
             const id = event.dataTransfer.getData('application/x-kidsmap-photo');
             if (!id) return;
             event.preventDefault(); event.stopPropagation();
             const from = gallery.findIndex(entry => entry.id === id);
             if (from >= 0 && !saving && !busy) { const moved = gallery.splice(from,1)[0]; gallery.splice(index,0,moved); sync(); render(); }
           });
-          if (item.preview) { const image = document.createElement('img'); image.src = item.preview; image.alt = item.name; image.width = 160; image.height = 120; image.loading = 'lazy'; image.decoding = 'async'; row.append(image); }
-          const info = document.createElement('div'); info.className = 'pw-photo-item-info';
-          if (target === 'main') { const label = document.createElement('p'); label.className = 'pw-photo-cover-label'; label.dataset.photoMainLabel = ''; label.textContent = copy.cover; info.append(label); }
-          const name = document.createElement('strong'); name.textContent = item.name; info.append(name);
-          const state = document.createElement('p'); state.className = 'pw-photo-item-status'; state.setAttribute('aria-live','polite');
-          state.textContent = item.error || (copy[item.state] || copy.ready) + (item.progress != null ? ` ${item.progress}%` : ''); info.append(state);
-          const actions = document.createElement('div'); actions.className = 'pw-photo-item-actions';
-          function button(action, title, handler, disabled = false) {
-            const node = document.createElement('button'); node.type = 'button'; node.textContent = title; node.dataset.photoAction = action; node.setAttribute('aria-label', `${title}: ${item.name}`); node.disabled = saving || busy > 0 || disabled; node.addEventListener('click', handler); actions.append(node);
+          const thumb = document.createElement('div');
+          thumb.className = 'pw-photo-thumb';
+          if (item.preview) {
+            const image = document.createElement('img');
+            image.src = item.preview;
+            image.alt = item.name;
+            image.width = 160;
+            image.height = 120;
+            image.loading = 'lazy';
+            image.decoding = 'async';
+            thumb.append(image);
           }
-          if (item.state === 'error') button('retry',copy.retry,() => { item.error = ''; item.state = 'queued'; enqueue(item,target); render(); });
           if (target === 'gallery') {
-            button('main',copy.main,() => promote(item), !['ready','saved','save-error'].includes(item.state));
-            button('up','↑ ' + copy.up,() => move(item,-1), index === 0);
-            button('down','↓ ' + copy.down,() => move(item,1), index === gallery.length - 1);
+            const orderBadge = document.createElement('span');
+            orderBadge.className = 'pw-photo-order-badge';
+            orderBadge.setAttribute('aria-hidden', 'true');
+            orderBadge.textContent = `#${index + 1}`;
+            thumb.append(orderBadge);
+            const dragPill = document.createElement('span');
+            dragPill.className = 'pw-photo-drag-pill';
+            dragPill.setAttribute('aria-hidden', 'true');
+            dragPill.setAttribute('title', copy.order);
+            dragPill.textContent = '⠿';
+            thumb.append(dragPill);
+          } else {
+            const coverBadge = document.createElement('span');
+            coverBadge.className = 'pw-photo-cover-badge';
+            coverBadge.setAttribute('aria-hidden', 'true');
+            coverBadge.textContent = '★ ' + copy.cover;
+            thumb.append(coverBadge);
           }
-          button('remove',copy.remove,() => { if (target === 'main') main = item.previous || null; else gallery = gallery.filter(entry => entry !== item); release(item); sync(); render(); });
+          row.append(thumb);
+          const info = document.createElement('div'); info.className = 'pw-photo-item-info';
+          if (target === 'main') {
+            const label = document.createElement('p');
+            label.className = 'pw-photo-cover-label';
+            label.dataset.photoMainLabel = '';
+            label.textContent = copy.cover;
+            info.append(label);
+          }
+          const name = document.createElement('strong');
+          name.className = 'pw-photo-name';
+          name.textContent = item.name;
+          name.title = item.name;
+          info.append(name);
+          const state = document.createElement('p');
+          state.className = 'pw-photo-item-status';
+          state.setAttribute('aria-live','polite');
+          state.textContent = item.error || (copy[item.state] || copy.ready) + (item.progress != null ? ` ${item.progress}%` : '');
+          info.append(state);
+          const actions = document.createElement('div'); actions.className = 'pw-photo-item-actions';
+          function button(action, title, handler, disabled = false, btnKind = '', icon = '') {
+            const node = document.createElement('button');
+            node.type = 'button';
+            node.className = 'pw-photo-btn' + (btnKind ? ` pw-photo-btn--${btnKind}` : '');
+            node.dataset.photoAction = action;
+            node.setAttribute('aria-label', `${title}: ${item.name}`);
+            node.disabled = saving || busy > 0 || disabled;
+            if (icon) {
+              const iconSpan = document.createElement('span');
+              iconSpan.className = 'pw-photo-btn-icon';
+              iconSpan.setAttribute('aria-hidden', 'true');
+              iconSpan.textContent = icon;
+              const textSpan = document.createElement('span');
+              textSpan.className = 'pw-photo-btn-text';
+              textSpan.textContent = title;
+              node.append(iconSpan, textSpan);
+            } else {
+              node.textContent = title;
+            }
+            node.addEventListener('click', handler);
+            actions.append(node);
+          }
+          if (item.state === 'error') button('retry', copy.retry, () => { item.error = ''; item.state = 'queued'; enqueue(item,target); render(); }, false, 'retry', '↻');
+          if (target === 'gallery') {
+            button('main', copy.main, () => promote(item), !['ready','saved','save-error'].includes(item.state), 'main', '★');
+            button('up', copy.up, () => move(item,-1), index === 0, 'up', '←');
+            button('down', copy.down, () => move(item,1), index === gallery.length - 1, 'down', '→');
+          }
+          button('remove', copy.remove, () => {
+            if (target === 'main') main = item.previous || null;
+            else gallery = gallery.filter(entry => entry !== item);
+            release(item);
+            sync();
+            render();
+          }, false, 'remove', '✕');
           info.append(actions); row.append(info); targets[target].append(row);
         });
         if (activeId && active) targets[target].querySelector(`[data-photo-id="${activeId}"] [data-photo-action="${active}"]`)?.focus({preventScroll:true});

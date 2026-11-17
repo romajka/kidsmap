@@ -2,7 +2,7 @@ import re
 
 from django.conf import settings
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
-from django.urls import is_valid_path
+from django.urls import is_valid_path, resolve
 
 from catalog.services.public_urls import (
     canonical_public_path,
@@ -78,6 +78,10 @@ class CleanPublicQueryMiddleware:
             # Doing query cleanup here first creates a second redirect hop.
             if resolve_url_name(request.path) in {"place_detail", "place_detail_legacy", "place_detail_root_legacy"}:
                 return self.get_response(request)
+            if resolve_url_name(request.path) == "seo_landing":
+                from catalog.content_data import SEO_LANDING_ALIASES
+                if resolve(request.path).kwargs.get("seo_slug") in SEO_LANDING_ALIASES:
+                    return self.get_response(request)
             target_path = canonical_public_path(request.path)
             if not target_path.endswith("/") and is_valid_path(f"{target_path}/"):
                 target_path = f"{target_path}/"

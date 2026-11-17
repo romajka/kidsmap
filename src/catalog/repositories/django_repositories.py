@@ -179,10 +179,12 @@ class DjangoUserProfileRepository(IUserProfileRepository):
 
 class DjangoEmailVerificationRepository(IEmailVerificationRepository):
     @contextmanager
-    def locked_user(self, *, user):
-        # A stable parent row also serializes the first challenge and resends.
+    def locked_user(self, *, user_id):
+        # The user exists before the first challenge. Locking only a challenge
+        # cannot serialize concurrent first sends; all lifecycle paths lock the
+        # user first, also matching Google/email-change lock ordering.
         with transaction.atomic():
-            yield User.objects.select_for_update().get(pk=user.pk)
+            yield User.objects.select_for_update().filter(pk=user_id).first()
 
     def get_by_user(self, *, user) -> UserEmailVerification | None:
         return UserEmailVerification.objects.filter(user=user).first()
