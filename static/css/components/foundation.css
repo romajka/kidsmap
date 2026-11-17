@@ -5,6 +5,21 @@
      small controls (the hit area grows, the drawing stays).
    ========================================================================== */
 
+/* Keep card shadows inside the viewport without clipping the page shell.
+   Individual galleries and decorative layers retain their own clipping. */
+body .site-shell {
+  width: min(1300px, calc(100% - 60px));
+  overflow: visible;
+}
+
+@media (max-width: 767px) {
+  body .site-shell {
+    box-sizing: border-box;
+    width: 100%;
+    padding-inline: 16px;
+  }
+}
+
 /* Headings: Chiron everywhere, not only on the home page. The :is() with an
    attribute selector lifts specificity above single-class component rules. */
 .site-shell :is(h1, h2, h1[class], h2[class]) {

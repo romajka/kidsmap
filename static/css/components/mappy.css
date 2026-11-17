@@ -703,10 +703,26 @@ body.page-home .home-hero .mappy-helper .mappy-bubble p {
 
 @media (max-width: 767px) {
   body.page-home .home-hero-grid .home-hero-copy > .home-hero-search-area {
-    order: 3; margin: 4px 0 12px;
+    order: 3; margin: 4px 0 4px;
   }
   body.page-home .home-hero-grid .home-hero-visual > .home-hero-slider,
   body.page-home .home-hero-grid .home-hero-visual > .home-hero-slide-grid { order: 4; }
   body.page-home .home-hero-grid .home-hero-copy > .mappy-helper { order: 5; }
   body.page-home .home-hero-grid .home-hero-copy > .home-redesign-actions { order: 6; }
+}
+
+/* Mobile introduction: search and a compact companion, then useful content. */
+@media (max-width: 767px) {
+  body.page-home .home-hero-grid > .home-hero-visual { display: none; }
+  body.page-home .home-hero-grid { gap: 10px; }
+  body.page-home .home-hero-grid .home-hero-copy > .mappy-helper {
+    margin: 0;
+  }
+  .page-home .home-hero .mappy-content {
+    grid-template-columns: clamp(112px, 34vw, 140px) minmax(0, 1fr);
+    min-height: 166px;
+    max-width: 430px;
+    margin-inline: auto;
+  }
+  .page-home .home-hero .mappy-portrait { height: 148px; margin-top: 18px; }
 }

@@ -3067,3 +3067,53 @@
   body:has(.catalog-category-strip) .filters-catalog.is-live-filters .filter-category { display: none; }
   .page-place_list .catalog-layout .filters-catalog.is-live-filters .km-btn-apply { display: none !important; } /* beats catalog_polish.css !important */
 }
+
+/* Photo suggestions: a scrollable tile grid with a persistent results button. */
+.catalog-search-dropdown {
+  box-sizing: border-box; display: flex; flex-direction: column; padding: 0;
+  max-height: min(400px, 55dvh, var(--suggestions-available-height, 400px)); overflow: hidden;
+}
+.catalog-suggestions-heading { flex: none; padding: 10px 14px; border-bottom: 1px solid #e9efeb; }
+.catalog-suggestions-heading strong { display: block; font-size: 12px; color: #28603b; }
+.catalog-suggestions-heading span { display: block; font-size: 11px; color: #66776b; margin-top: 4px; }
+.catalog-suggestions-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 10px; }
+.catalog-search-dropdown .search-dropdown-category-chips:empty { display: none; }
+.catalog-search-dropdown .search-dropdown-category-chips:not(:empty) { margin-bottom: 10px; }
+.catalog-search-dropdown .search-dropdown-cards-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: max-content; gap: 10px; }
+.catalog-search-dropdown .search-card-item { display: flex; flex-direction: column; align-items: stretch; gap: 0; min-width: 0; padding: 0; border: 1px solid #e0eae3; border-radius: 14px; overflow: hidden; }
+.catalog-search-dropdown .search-card-item.is-selected { outline: 2px solid #136f38; outline-offset: -2px; }
+.catalog-suggestion-cover { position: relative; display: grid; place-items: center; height: 76px; flex: none; background: #edf5ef; color: #136f38; font-size: 28px; }
+.catalog-search-dropdown .search-card-thumb { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 0; object-fit: cover; }
+.catalog-search-dropdown .search-card-thumb[hidden] { display: none; }
+.catalog-search-dropdown .search-card-body { padding: 10px; gap: 5px; }
+.catalog-search-dropdown .search-card-title { white-space: normal; overflow-wrap: anywhere; font-size: 13px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.catalog-search-dropdown .search-card-price { padding: 0; background: transparent; border: 0; color: #64736b; font-size: 11px; font-weight: 500; white-space: normal; }
+.catalog-search-dropdown .search-card-meta-primary { display: block; color: #64736b; font-size: 11px; white-space: normal; overflow-wrap: anywhere; }
+.catalog-search-dropdown .search-dropdown-footer { flex: none; }
+.catalog-search-dropdown .search-dropdown-all-btn { min-height: 44px; }
+.catalog-suggestions-status { padding: 16px; margin: 0; color: #64736b; font-size: 14px; }
+.catalog-hero-search-wrap:has(.catalog-search-dropdown:not([hidden])),
+.mobile-catalog-controls:has(.catalog-search-dropdown:not([hidden])) { position: relative; z-index: 100; }
+@media (min-width: 768px) {
+  .catalog-search-dropdown .search-card-item { flex-direction: row; align-items: center; min-height: 104px; }
+  .catalog-suggestion-cover {
+    width: clamp(84px, 30%, 112px); height: auto; aspect-ratio: 4 / 3;
+    margin: 10px 0 10px 10px; border-radius: 10px; overflow: hidden;
+  }
+  .catalog-search-dropdown .search-card-thumb { object-fit: contain; background: #edf5ef; }
+}
+@media (max-width: 767px) {
+  .catalog-search-dropdown { max-height: min(340px, 44dvh, var(--suggestions-available-height, 340px)); }
+  .catalog-suggestion-cover { height: 60px; }
+}
+@media (max-width: 359px) {
+  .catalog-search-dropdown .search-dropdown-cards-list { grid-template-columns: minmax(0, 1fr); }
+  .catalog-search-dropdown .search-card-item { flex-direction: row; }
+  .catalog-suggestion-cover { width: 72px; height: auto; min-height: 100px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .catalog-search-dropdown .search-card-item { animation: searchDropdownSlideDown 180ms ease-out both; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .catalog-search-dropdown, .catalog-search-dropdown .search-card-item { animation: none; transition: none; }
+}

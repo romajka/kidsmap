@@ -12,7 +12,7 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_sleep" />
-  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261106_live_filters3" />
+  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261117_desktop_search_cards" />
   {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=20261106_card_height" />{% endif %}
 {% endblock %}
 
@@ -1319,6 +1319,7 @@
   {% if is_events_section_enabled %}
     <script src="{% static 'js/temporary_event_timer.js' %}"></script>
   {% endif %}
+  <script defer src="{% static 'js/catalog_search.js' %}?v=20261117_search_tiles"></script>
   <script src="{% static 'js/catalog_category_strip.js' %}?v=20261028_strip_r1"></script>
   <script>
     (function () {
@@ -3018,283 +3019,9 @@
       });
     })();
 
-      /* ── Search Autocomplete with Rich Mini-Cards ── */
       (function () {
-        const currentLang = document.documentElement.lang || 'az';
-        const suggestionsCache = new Map();
-
-        const labels = {
-          az: {
-            categories: "Kateqoriyalar",
-            places: "Dərnəklər və bölmələr",
-            showAll: "«{query}» üzrə bütün nəticələrə bax",
-            emptyTitle: "Nəticə tapılmadı",
-            emptyDesc: "Açar sözü dəyişərək yenidən yoxlayın (məs: robototexnika, rəsm)",
-          },
-          en: {
-            categories: "Categories",
-            places: "Clubs & Activities",
-            showAll: "See all results for “{query}”",
-            emptyTitle: "No matches found",
-            emptyDesc: "Try searching with another keyword (e.g. robotics, chess)",
-          },
-          ru: {
-            categories: "Категории",
-            places: "Кружки и секции",
-            showAll: "Показать все результаты для «{query}»",
-            emptyTitle: "Ничего не найдено",
-            emptyDesc: "Попробуйте изменить запрос (например: робототехника, шахматы)",
-          }
-        }[currentLang] || {
-          categories: "Категории",
-          places: "Кружки и секции",
-          showAll: "Показать все результаты для «{query}»",
-          emptyTitle: "Ничего не найдено",
-          emptyDesc: "Попробуйте изменить запрос (например: робототехника, шахматы)",
-        };
-
-        function escapeHtml(str) {
-          if (!str) return '';
-          return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-        }
-
-        function highlightMatch(text, query) {
-          if (!text) return '';
-          if (!query) return escapeHtml(text);
-          const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const regex = new RegExp('(' + escaped + ')', 'gi');
-          return escapeHtml(text).replace(regex, '<mark class="search-highlight">$1</mark>');
-        }
-
-        function setupAutocomplete(inputEl, dropdownEl, formEl) {
-          if (!inputEl || !dropdownEl) return;
-
-          let debounceTimer = null;
-          let activeIndex = -1;
-          let itemsList = [];
-
-          function closeDropdown() {
-            dropdownEl.hidden = true;
-            dropdownEl.innerHTML = "";
-            activeIndex = -1;
-            itemsList = [];
-          }
-
-          function renderDropdown(data, query) {
-            dropdownEl.innerHTML = "";
-            itemsList = [];
-            const hasCategories = data.categories && data.categories.length > 0;
-            const hasPlaces = data.places && data.places.length > 0;
-
-            if (!hasCategories && !hasPlaces) {
-              dropdownEl.innerHTML = `
-                <div class="search-dropdown-empty">
-                  <div class="search-dropdown-empty-icon">🔍</div>
-                  <div class="search-dropdown-empty-title">${labels.emptyTitle}</div>
-                  <div class="search-dropdown-empty-desc">${labels.emptyDesc}</div>
-                </div>
-              `;
-              dropdownEl.hidden = false;
-              return;
-            }
-
-            if (hasCategories) {
-              const catSection = document.createElement("div");
-              catSection.className = "search-dropdown-section search-dropdown-cats-section";
-              catSection.innerHTML = `
-                <div class="search-dropdown-section-title">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-                  <span>${labels.categories}</span>
-                </div>
-              `;
-              const catChips = document.createElement("div");
-              catChips.className = "search-dropdown-category-chips";
-              data.categories.forEach(function (cat) {
-                const catLink = document.createElement("a");
-                catLink.className = "search-dropdown-cat-chip";
-                catLink.href = cat.url;
-                catLink.innerHTML = `<span>${escapeHtml(cat.name)}</span> <span aria-hidden="true">→</span>`;
-                catLink.addEventListener("click", function (e) {
-                  e.preventDefault();
-                  const catSelect = document.querySelector('select[name="category"]');
-                  if (catSelect) {
-                    catSelect.value = cat.code;
-                    catSelect.dispatchEvent(new Event("change", { bubbles: true }));
-                  } else {
-                    window.location.href = cat.url;
-                  }
-                  closeDropdown();
-                });
-                catChips.appendChild(catLink);
-              });
-              catSection.appendChild(catChips);
-              dropdownEl.appendChild(catSection);
-            }
-
-            if (hasPlaces) {
-              const placeSection = document.createElement("div");
-              placeSection.className = "search-dropdown-section";
-              placeSection.innerHTML = `
-                <div class="search-dropdown-section-title">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                  <span>${labels.places}</span>
-                </div>
-              `;
-              const cardsList = document.createElement("div");
-              cardsList.className = "search-dropdown-cards-list";
-
-              data.places.forEach(function (place) {
-                const card = document.createElement("a");
-                card.className = "search-card-item";
-                card.href = place.url;
-
-                const thumbSrc = place.image || '/static/img/banners/listing-placeholder.webp';
-                const ratingHtml = place.rating
-                  ? `<span class="search-card-rating">★ ${place.rating}</span>`
-                  : '';
-                const ageHtml = place.age
-                  ? `<span class="search-card-age">${escapeHtml(place.age)}</span>`
-                  : '';
-                const catHtml = place.category
-                  ? `<span class="search-card-badge-cat">${escapeHtml(place.category)}</span>`
-                  : '';
-                const locHtml = place.district
-                  ? `<span class="search-card-loc"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${escapeHtml(place.district)}</span>`
-                  : '';
-                const priceHtml = place.price
-                  ? `<span class="search-card-price">${escapeHtml(place.price)}</span>`
-                  : '';
-
-                card.innerHTML = `
-                  <img class="search-card-thumb" src="${escapeHtml(thumbSrc)}" alt="" loading="lazy" onerror="this.src='/static/img/banners/listing-placeholder.webp'" />
-                  <div class="search-card-body">
-                    <div class="search-card-title">${highlightMatch(place.name, query)}</div>
-                    <div class="search-card-meta-primary">
-                      ${catHtml}
-                      ${locHtml}
-                    </div>
-                    ${(ratingHtml || ageHtml) ? `<div class="search-card-meta-secondary">${ratingHtml}${ageHtml}</div>` : ''}
-                  </div>
-                  <div class="search-card-aside">
-                    ${priceHtml}
-                    <span class="search-card-arrow" aria-hidden="true">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                    </span>
-                  </div>
-                `;
-
-                cardsList.appendChild(card);
-                itemsList.push(card);
-              });
-
-              placeSection.appendChild(cardsList);
-              dropdownEl.appendChild(placeSection);
-            }
-
-            // Footer / Show all button
-            const footer = document.createElement("div");
-            footer.className = "search-dropdown-footer";
-            footer.innerHTML = `
-              <button type="button" class="search-dropdown-all-btn">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <span>${labels.showAll.replace('{query}', escapeHtml(query))}</span>
-                <span class="search-dropdown-all-arrow" aria-hidden="true">→</span>
-              </button>
-            `;
-            footer.querySelector("button").addEventListener("click", function () {
-              if (formEl) {
-                formEl.submit();
-              }
-            });
-            dropdownEl.appendChild(footer);
-
-            dropdownEl.hidden = false;
-          }
-
-          function fetchSuggestions(query) {
-            const cacheKey = `${currentLang}:${query.toLowerCase()}`;
-            if (suggestionsCache.has(cacheKey)) {
-              renderDropdown(suggestionsCache.get(cacheKey), query);
-              return;
-            }
-
-            fetch(`/api/catalog/suggestions/?q=${encodeURIComponent(query)}&lang=${encodeURIComponent(currentLang)}`)
-              .then(function (res) {
-                if (!res.ok) throw new Error('Network error');
-                return res.json();
-              })
-              .then(function (data) {
-                suggestionsCache.set(cacheKey, data);
-                if (inputEl.value.trim() === query) {
-                  renderDropdown(data, query);
-                }
-              })
-              .catch(function () {
-                closeDropdown();
-              });
-          }
-
-          inputEl.addEventListener("input", function () {
-            clearTimeout(debounceTimer);
-            const q = inputEl.value.trim();
-            if (!q) {
-              closeDropdown();
-              return;
-            }
-            debounceTimer = setTimeout(function () {
-              fetchSuggestions(q);
-            }, 120);
-          });
-
-          inputEl.addEventListener("focus", function () {
-            const q = inputEl.value.trim();
-            if (q) {
-              fetchSuggestions(q);
-            }
-          });
-
-          inputEl.addEventListener("keydown", function (e) {
-            if (dropdownEl.hidden || !itemsList.length) return;
-            if (e.key === "ArrowDown") {
-              e.preventDefault();
-              activeIndex = Math.min(activeIndex + 1, itemsList.length - 1);
-              itemsList.forEach((el, idx) => el.classList.toggle("is-selected", idx === activeIndex));
-              if (itemsList[activeIndex]) itemsList[activeIndex].scrollIntoView({ block: "nearest" });
-            } else if (e.key === "ArrowUp") {
-              e.preventDefault();
-              activeIndex = Math.max(activeIndex - 1, 0);
-              itemsList.forEach((el, idx) => el.classList.toggle("is-selected", idx === activeIndex));
-              if (itemsList[activeIndex]) itemsList[activeIndex].scrollIntoView({ block: "nearest" });
-            } else if (e.key === "Enter" && activeIndex >= 0 && itemsList[activeIndex]) {
-              e.preventDefault();
-              itemsList[activeIndex].click();
-            } else if (e.key === "Escape") {
-              closeDropdown();
-            }
-          });
-
-          document.addEventListener("click", function (e) {
-            if (!inputEl.contains(e.target) && !dropdownEl.contains(e.target)) {
-              closeDropdown();
-            }
-          });
-        }
-
         const heroInput = document.getElementById("catalog-hero-search-input");
-        const heroDropdown = document.getElementById("catalog-search-dropdown");
         const heroForm = document.getElementById("catalog-hero-search-form");
-        setupAutocomplete(heroInput, heroDropdown, heroForm);
-
-        const mobileInput = document.getElementById("catalog-mobile-search");
-        const mobileDropdown = document.getElementById("catalog-mobile-search-dropdown");
-        const mobileForm = document.querySelector(".mobile-catalog-search");
-        setupAutocomplete(mobileInput, mobileDropdown, mobileForm);
-
         document.querySelectorAll("[data-search-preset]").forEach(function (btn) {
           btn.addEventListener("click", function () {
             if (heroInput) {
@@ -3313,6 +3040,7 @@
           });
         });
       })();
+
 
       /* ── Age & Price Presets Handler ── */
       (function () {

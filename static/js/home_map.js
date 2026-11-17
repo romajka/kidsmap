@@ -688,15 +688,38 @@
     let autocompleteGeneration = 0;
     let selectedIndex = -1;
     let currentMatches = [];
+    let autocompleteController = null;
+    let autocompleteTimer = null;
+    const statusEl = autocompleteEl.querySelector('[data-hs-ac-status]');
+    queryInput.setAttribute('role', 'combobox');
+    queryInput.setAttribute('aria-autocomplete', 'list');
+    queryInput.setAttribute('aria-controls', 'home-search-options');
+    queryInput.setAttribute('aria-expanded', 'false');
 
     function hideAutocomplete() {
       autocompleteGeneration += 1;
+      window.clearTimeout(autocompleteTimer);
+      autocompleteController?.abort();
       autocompleteEl.hidden = true;
+      queryInput.setAttribute('aria-expanded', 'false');
+      queryInput.removeAttribute('aria-activedescendant');
       selectedIndex = -1;
     }
 
+    function fitAutocompleteToViewport() {
+      if (autocompleteEl.hidden || !window.visualViewport) return;
+      const viewport = window.visualViewport;
+      const top = queryInput.getBoundingClientRect().bottom + 8;
+      const available = Math.max(100, viewport.height + viewport.offsetTop - top - 12);
+      autocompleteEl.style.setProperty('--suggestions-available-height', available + 'px');
+    }
+    window.visualViewport?.addEventListener('resize', fitAutocompleteToViewport);
+    window.visualViewport?.addEventListener('scroll', fitAutocompleteToViewport);
+
     async function showAutocomplete() {
       const generation = ++autocompleteGeneration;
+      autocompleteController?.abort();
+      autocompleteController = new AbortController();
       const q = normalizeSearch(queryInput.value);
       if (!q) {
         hideAutocomplete();
@@ -704,11 +727,20 @@
       }
 
       try {
-        const points = await fetchFilteredPoints();
-        if (generation !== autocompleteGeneration || !normalizeSearch(queryInput.value)) return;
+        const points = await fetchFilteredPoints(autocompleteController.signal);
+        if (generation !== autocompleteGeneration || q !== normalizeSearch(queryInput.value)) return;
         allPlaces = points.flatMap(pointMembers);
         currentMatches = allPlaces;
-      } catch (_error) { hideAutocomplete(); return; }
+      } catch (error) {
+        if (generation !== autocompleteGeneration || error.name === 'AbortError') return;
+        autocompleteEl.setAttribute('aria-busy', 'false');
+        if (statusEl) { statusEl.hidden = false; statusEl.textContent = autocompleteEl.dataset.labelError || 'Could not load results'; }
+        return;
+      }
+
+      autocompleteEl.setAttribute('aria-busy', 'false');
+      if (statusEl) statusEl.hidden = true;
+      queryInput.setAttribute('aria-expanded', 'true');
 
       selectedIndex = -1;
 
@@ -735,15 +767,16 @@
             range: "{from}–{to}",
             from: "{from}+",
             to: "0–{to}"
-          });
+          }) || place.age || "";
 
           const highlightedName = highlightMatch(place.name, queryInput.value);
-          const onMapLabel = autocompleteEl.dataset.labelOnMap || "На карте";
+          const imageUrl = safeHomeMapUrl(place.image_url, true);
 
           return (
-            '<li role="option" class="hs-ac-item" data-place-id="' + escapeHtml(place.id || place.url || place.name) + '" data-index="' + idx + '" tabindex="0">' +
-              '<div class="hs-ac-item-icon" style="background:' + escapeHtml(place.category_color_bg || '#f1f5f9') + ';color:' + escapeHtml(place.category_color_text || '#136f38') + ';">' +
-                iconHtml +
+            '<li role="option" aria-selected="false" id="home-search-option-' + idx + '" class="hs-ac-item" data-place-id="' + escapeHtml(place.id || place.url || place.name) + '" data-index="' + idx + '">' +
+              '<div class="hs-ac-item-cover" aria-hidden="true">' +
+                '<span class="hs-ac-item-icon">' + iconHtml + '</span>' +
+                (imageUrl ? '<img class="hs-ac-item-photo" src="' + escapeHtml(imageUrl) + '" alt="" decoding="async" />' : '') +
               '</div>' +
               '<div class="hs-ac-item-content">' +
                 '<div class="hs-ac-item-top">' +
@@ -756,18 +789,17 @@
                   (ageBadge ? '<span class="hs-ac-item-sep">•</span><span class="hs-ac-item-age">' + escapeHtml(ageBadge) + '</span>' : '') +
                 '</div>' +
               '</div>' +
-              '<div class="hs-ac-item-badge">' +
-                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>' +
-                '<span>' + escapeHtml(onMapLabel) + '</span>' +
-              '</div>' +
             '</li>'
           );
         }).join('');
+        listEl.querySelectorAll('.hs-ac-item-photo').forEach(function (img) {
+          img.addEventListener('error', function () { img.hidden = true; });
+        });
       }
 
-      if (currentMatches.length > 7 && footerEl && showAllText) {
+      if (currentMatches.length && footerEl && showAllText) {
         footerEl.hidden = false;
-        const pattern = autocompleteEl.dataset.labelShowAll || "Показать все {count} мест на карте";
+        const pattern = autocompleteEl.dataset.labelShowAll || "Все результаты";
         showAllText.textContent = pattern.replace("{count}", String(currentMatches.length));
       } else if (footerEl) {
         footerEl.hidden = true;
@@ -787,19 +819,37 @@
       hideAutocomplete();
       queryInput.value = place.name;
       if (clearBtn) clearBtn.hidden = false;
+      pendingFocusPlaceId = place.id;
+      homeExplorer?.showMap();
       if (typeof updateMap === "function") {
         updateMap();
       }
-      pendingFocusPlaceId = place.id;
+      queryInput.blur();
+      scrollToMap();
     }
 
-    queryInput.addEventListener("input", function () {
-      showAutocomplete();
-    });
+    function scheduleAutocomplete(event) {
+      hideAutocomplete();
+      if (event?.isComposing || !normalizeSearch(queryInput.value)) return;
+      currentMatches = []; selectedIndex = -1;
+      if (listEl) listEl.replaceChildren();
+      if (emptyEl) emptyEl.hidden = true;
+      if (footerEl) footerEl.hidden = true;
+      if (statusEl) { statusEl.hidden = false; statusEl.textContent = autocompleteEl.dataset.labelLoading || 'Searching…'; }
+      autocompleteEl.hidden = false;
+      autocompleteEl.setAttribute('aria-busy', 'true');
+      queryInput.setAttribute('aria-expanded', 'true');
+      fitAutocompleteToViewport();
+      autocompleteTimer = window.setTimeout(showAutocomplete, 180);
+    }
+    queryInput.addEventListener('input', scheduleAutocomplete);
+    queryInput.addEventListener('compositionend', scheduleAutocomplete);
+    clearBtn?.addEventListener('click', hideAutocomplete);
+    form.addEventListener('submit', hideAutocomplete);
 
     queryInput.addEventListener("focus", function () {
       if (queryInput.value.trim()) {
-        showAutocomplete();
+        scheduleAutocomplete();
       }
     });
 
@@ -818,6 +868,8 @@
         if (typeof updateMap === "function") {
           updateMap();
         }
+        homeExplorer?.showMap();
+        queryInput.blur();
         scrollToMap();
       });
     }
@@ -825,6 +877,7 @@
     // Keyboard navigation
     queryInput.addEventListener("keydown", function (e) {
       if (autocompleteEl.hidden) return;
+      if (e.key === 'Escape' || e.key === 'Tab') { hideAutocomplete(); return; }
 
       const items = listEl ? Array.from(listEl.querySelectorAll(".hs-ac-item")) : [];
       if (!items.length) return;
@@ -852,6 +905,7 @@
         el.classList.toggle("is-selected", isSel);
         el.setAttribute("aria-selected", isSel ? "true" : "false");
         if (isSel) {
+          queryInput.setAttribute('aria-activedescendant', el.id);
           el.scrollIntoView({ block: "nearest" });
         }
       });
