@@ -1,6 +1,18 @@
 /* Home layout refinement. Loaded after home_redesign.css and home_search.css.
    Existing map, search, photo and native details controls retain their contracts. */
 
+.home-hero-mobile-copy { display: none; }
+
+@media (max-width: 767px) {
+  body.page-home .home-hero .home-hero-desktop-copy,
+  body.page-home .home-hero .home-redesign-eyebrow,
+  body.page-home .home-hero .home-search-popular-row,
+  body.page-home .home-hero .home-hero-visual {
+    display: none;
+  }
+  .home-hero-mobile-copy { display: inline; }
+}
+
 /* Illustrated guides: native horizontal scrolling scales with the guide list. */
 body.page-home .home-parent-guide {
   order:4;
@@ -112,7 +124,11 @@ body.page-home .home-parent-guide__cta-short { display:none; }
 }
 
 body.page-home .home-hero.panel {
-  padding-top: 32px;
+  padding: 30px;
+}
+
+body.page-home .home-steps.panel {
+  padding-inline: 30px;
 }
 
 body.page-home .home-hero-grid {
@@ -530,7 +546,7 @@ body.page-home #add-place.home-owner-banner {
 
 @media (max-width: 960px) {
   body.page-home .home-hero.panel {
-    padding-top: 20px;
+    padding: 24px;
   }
 
   body.page-home .home-hero-grid {
@@ -567,7 +583,11 @@ body.page-home #add-place.home-owner-banner {
 
 @media (max-width: 620px) {
   body.page-home .home-hero.panel {
-    padding-top: 12px;
+    padding: 20px 16px;
+  }
+
+  body.page-home .home-steps.panel {
+    padding-inline: 16px;
   }
 
   body.page-home .home-hero-grid {
@@ -662,10 +682,17 @@ body.page-home #add-place.home-owner-banner {
   }
 }
 
-/* Keep side photographs close to their original 3:2 framing on phones. */
+/* A compact gallery keeps the companion and next section within easy reach. */
 @media (max-width: 767px) {
+  /* The page shell supplies the 16px mobile gutter. Do not add it twice. */
+  body.page-home .site-shell > main,
+  body.page-home .home-hero.panel {
+    padding-inline: 0;
+  }
+
   body.page-home .home-hero-grid .home-hero-slide-grid {
-    aspect-ratio: 1.85;
+    aspect-ratio: 2.2;
+    max-height: 220px;
     grid-template-rows: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
@@ -752,4 +779,84 @@ body.page-home .home-hero-copy > .home-hero-search-area {
 }
 body.page-home .home-hero-copy > .is-catalog-search .home-search-primary-row {
   grid-template-columns: minmax(0, 1fr) auto;
+}
+
+/* Suggestions use the whole search row, above the companion and map. */
+body.page-home .home-hero-copy:has(.home-search-autocomplete:not([hidden])),
+body.page-home .home-hero-search-area:has(.home-search-autocomplete:not([hidden])) {
+  position: relative;
+  z-index: 30;
+}
+body.page-home .home-search-primary-row { position: relative; }
+body.page-home .home-search-autocomplete {
+  width: 100%; box-sizing: border-box;
+  max-height: min(400px, 55dvh, var(--suggestions-available-height, 400px));
+}
+body.page-home .hs-ac-header { display: block; padding: 10px 14px; }
+body.page-home .hs-ac-hint { display: block; margin-top: 4px; }
+body.page-home .hs-ac-list {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: max-content; align-content: start;
+  gap: 10px; padding: 10px; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+}
+body.page-home .hs-ac-list:empty { display: none; }
+body.page-home .hs-ac-item {
+  position: relative; display: flex; flex-direction: column; align-items: stretch;
+  gap: 0; padding: 0; min-width: 0; border: 1px solid #e0eae3;
+  border-radius: 14px; overflow: hidden; background: #fff;
+}
+body.page-home .hs-ac-item:hover,
+body.page-home .hs-ac-item.is-selected { border-color: #6ca983; background: #f3faf5; }
+body.page-home .hs-ac-item.is-selected { outline: 2px solid #136f38; outline-offset: -2px; }
+body.page-home .hs-ac-item-cover {
+  position: relative; display: grid; place-items: center;
+  height: 76px; flex: none; overflow: hidden; background: #edf5ef;
+}
+body.page-home .hs-ac-item-icon { color: #136f38; background: #dfede2; }
+body.page-home .hs-ac-item-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+body.page-home .hs-ac-item-photo[hidden] { display: none; }
+body.page-home .hs-ac-item-content { padding: 10px; gap: 6px; }
+body.page-home .hs-ac-item-top { flex-wrap: wrap; gap: 4px 8px; }
+body.page-home .hs-ac-item-name {
+  flex: 1 0 100%; white-space: normal; overflow-wrap: anywhere;
+  font-size: 13px; line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+}
+body.page-home .hs-ac-item-meta { font-size: 11px; gap: 3px; overflow-wrap: anywhere; }
+body.page-home .hs-ac-item-price {
+  padding: 0; background: transparent; border: 0; color: #64736b;
+  font-size: 11px; font-weight: 500; white-space: normal;
+}
+body.page-home .hs-ac-header,
+body.page-home .hs-ac-footer { flex: none; }
+body.page-home .hs-ac-show-all-btn { min-height: 44px; }
+@media (min-width: 768px) {
+  body.page-home .hs-ac-item { flex-direction: row; align-items: center; min-height: 104px; }
+  body.page-home .hs-ac-item-cover {
+    width: clamp(84px, 30%, 112px); height: auto; aspect-ratio: 4 / 3;
+    margin: 10px 0 10px 10px; border-radius: 10px;
+  }
+  body.page-home .hs-ac-item-photo { object-fit: contain; background: #edf5ef; }
+}
+@media (max-width: 767px) {
+  body.page-home .home-search-autocomplete {
+    max-height: min(340px, 44dvh, var(--suggestions-available-height, 340px));
+  }
+  body.page-home .hs-ac-item-cover { height: 60px; }
+}
+body.page-home .hs-ac-status { margin: 0; padding: 16px; color: var(--home-muted); font-size: 14px; }
+@media (max-width: 359px) {
+  body.page-home .hs-ac-list { grid-template-columns: minmax(0, 1fr); }
+  body.page-home .hs-ac-item { flex-direction: row; }
+  body.page-home .hs-ac-item-cover { width: 72px; height: auto; min-height: 100px; }
+}
+@keyframes home-suggestion-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  body.page-home .hs-ac-item { animation: home-suggestion-enter 180ms ease-out both; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.page-home .home-search-autocomplete { animation: none; }
 }

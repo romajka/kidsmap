@@ -86,7 +86,7 @@ def catalog_search_suggestions(request):
                 break
 
     from catalog.services.filtering import PlaceListFilters
-    filters = PlaceListFilters(query=query)
+    filters = PlaceListFilters.from_request(request)
     base_qs = place_controller.place_repository.filtered_active_queryset()
     places_qs = filters.apply(base_qs).prefetch_related(None).select_related("category", "subcategory")[:6]
     from catalog.services.public_presentation import prepare_cards, organization_matches

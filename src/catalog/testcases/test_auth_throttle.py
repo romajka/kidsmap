@@ -1,4 +1,5 @@
 """Authentication abuse controls must stop work before credentials/mail are used."""
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
@@ -16,6 +17,12 @@ LIMITS = {
 @override_settings(AUTH_THROTTLE_LIMITS=LIMITS, AUTH_THROTTLE_TRUSTED_PROXIES=[])
 class AuthThrottleTests(TestCase):
     def setUp(self):
+        # These cases exercise identity/proxy rules within one fixed window.
+        # Wall-clock minute changes must not reset their budget mid-assertion.
+        # The dedicated expiry test below still advances this clock explicitly.
+        clock = patch('catalog.services.auth_throttle.time', SimpleNamespace(time=lambda: 1200))
+        clock.start()
+        self.addCleanup(clock.stop)
         cache.clear()
         self.user = get_user_model().objects.create_user(
             username='parent', email='parent@example.test', password='Good-password-42')

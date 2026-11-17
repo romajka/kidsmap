@@ -1,7 +1,7 @@
 {% load static %}
 <div class="mappy-helper" data-mappy-helper>
   <div class="mappy-content" data-mappy-content>
-    <span class="mappy-portrait" data-mappy3d="welcome" data-bleed="0.25 0.2 0.04 0.2" data-label="{% if request.LANGUAGE_CODE == 'az' %}Mappy ilə oyna{% elif request.LANGUAGE_CODE == 'en' %}Play with Mappy{% else %}Поиграть с Маппи{% endif %}"><span class="mappy-sleep-sign" aria-hidden="true"><span>z</span><span>z</span><span>Z</span></span><img data-mappy-fallback src="{% static '3d/mappy-idle.png' %}" width="420" height="464" alt="Mappy" fetchpriority="high" decoding="async"></span>
+    <span class="mappy-portrait" data-mappy3d="welcome" data-bleed="0.25 0.2 0.18 0.2" data-label="{% if request.LANGUAGE_CODE == 'az' %}Mappy ilə oyna{% elif request.LANGUAGE_CODE == 'en' %}Play with Mappy{% else %}Поиграть с Маппи{% endif %}"><span class="mappy-sleep-sign" aria-hidden="true"><span>z</span><span>z</span><span>Z</span></span><img data-mappy-fallback src="{% static '3d/mappy-idle.png' %}" width="420" height="464" alt="Mappy" fetchpriority="high" decoding="async"></span>
     <div class="mappy-cloud">
       <button type="button" class="mappy-bubble" aria-describedby="mappy-tip-text" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Növbəti ipucu{% elif request.LANGUAGE_CODE == 'en' %}Next tip{% else %}Следующая подсказка{% endif %}">
         {% include "includes/mappy_cloud_art.html" %}
