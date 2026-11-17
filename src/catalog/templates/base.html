@@ -52,7 +52,7 @@
     {% endif %}
     <link rel="stylesheet" href="{% static 'css/components/icons.css' %}" />
     <link rel="stylesheet" href="{% static 'css/components/auth_navigation.css' %}?v=20261117" />
-    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261105_all_r1" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261117_filter_shortcuts" />
     <link rel="stylesheet" href="{% static 'css/components/states.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
     <style>
@@ -278,10 +278,10 @@
                     <a href="{% url 'organization_list' %}">{% if CURRENT_LANGUAGE == "az" %}Təşkilatlar{% elif CURRENT_LANGUAGE == "en" %}Organizations{% else %}Организации{% endif %}</a>
                   {% endif %}
                   <a href="{% url 'place_list' %}">{% if CURRENT_LANGUAGE == "az" %}Bütün dərnəklər və məkanlar{% elif CURRENT_LANGUAGE == "en" %}All clubs & venues{% else %}Все кружки и заведения{% endif %}</a>
-                  <a href="{% url 'place_list' %}?category=SPRT">{% if CURRENT_LANGUAGE == "az" %}İdman bölmələri{% elif CURRENT_LANGUAGE == "en" %}Sports & martial arts{% else %}Спорт и единоборства{% endif %}</a>
-                  <a href="{% url 'place_list' %}?category=EDU">{% if CURRENT_LANGUAGE == "az" %}Təhsil və kurslar{% elif CURRENT_LANGUAGE == "en" %}Education & courses{% else %}Образование и курсы{% endif %}</a>
-                  <a href="{% url 'place_list' %}?category=ART">{% if CURRENT_LANGUAGE == "az" %}Yaradıcılıq və incəsənət{% elif CURRENT_LANGUAGE == "en" %}Arts & creativity{% else %}Творчество и музыка{% endif %}</a>
-                  <a href="{% url 'place_list' %}?category=FUN">{% if CURRENT_LANGUAGE == "az" %}Əyləncə və asudə vaxt{% elif CURRENT_LANGUAGE == "en" %}Entertainment & fun{% else %}Развлечения и досуг{% endif %}</a>
+                  <form class="footer-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}"><input type="hidden" name="category" value="SPRT"><button class="footer-filter-button" type="submit">{% if CURRENT_LANGUAGE == "az" %}İdman bölmələri{% elif CURRENT_LANGUAGE == "en" %}Sports & martial arts{% else %}Спорт и единоборства{% endif %}</button></form>
+                  <form class="footer-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}"><input type="hidden" name="category" value="EDU"><button class="footer-filter-button" type="submit">{% if CURRENT_LANGUAGE == "az" %}Təhsil və kurslar{% elif CURRENT_LANGUAGE == "en" %}Education & courses{% else %}Образование и курсы{% endif %}</button></form>
+                  <form class="footer-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}"><input type="hidden" name="category" value="ART"><button class="footer-filter-button" type="submit">{% if CURRENT_LANGUAGE == "az" %}Yaradıcılıq və incəsənət{% elif CURRENT_LANGUAGE == "en" %}Arts & creativity{% else %}Творчество и музыка{% endif %}</button></form>
+                  <form class="footer-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}"><input type="hidden" name="category" value="FUN"><button class="footer-filter-button" type="submit">{% if CURRENT_LANGUAGE == "az" %}Əyləncə və asudə vaxt{% elif CURRENT_LANGUAGE == "en" %}Entertainment & fun{% else %}Развлечения и досуг{% endif %}</button></form>
                   {% if is_specialists_section_enabled %}
                     <a href="{% url 'specialist_list' %}">{% if CURRENT_LANGUAGE == "az" %}Pedaqoqlar və mütəxəssislər{% elif CURRENT_LANGUAGE == "en" %}Educators & specialists{% else %}{% trans "Педагоги и специалисты" %}{% endif %}</a>
                   {% endif %}
