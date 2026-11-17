@@ -186,8 +186,14 @@
         <div class="review-auth-note">
           <p>{% trans "Письменные отзывы доступны только после входа в аккаунт." %}</p>
           <div class="review-auth-actions">
-            <a class="btn" href="{% url 'account_login' %}?next={{ request.path|add:'#site-reviews'|urlencode }}">{% trans "Войти" %}</a>
-            <a class="link-btn" href="{% url 'account_register' %}?next={{ request.path|add:'#site-reviews'|urlencode }}">{% trans "Регистрация" %}</a>
+            <form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation>
+              {% include "includes/auth_navigation_fields.html" with auth_next=request.path|add:'#site-reviews' %}
+              <button type="submit" class="auth-navigation-button btn">{% trans "Войти" %}</button>
+            </form>
+            <form method="post" action="{% url 'account_register' %}" class="auth-navigation-form" data-auth-navigation>
+              {% include "includes/auth_navigation_fields.html" with auth_next=request.path|add:'#site-reviews' %}
+              <button type="submit" class="auth-navigation-button link-btn">{% trans "Регистрация" %}</button>
+            </form>
           </div>
         </div>
       {% endif %}

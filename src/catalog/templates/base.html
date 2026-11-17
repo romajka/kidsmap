@@ -51,6 +51,7 @@
       </script>
     {% endif %}
     <link rel="stylesheet" href="{% static 'css/components/icons.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/components/auth_navigation.css' %}?v=20261117" />
     <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261105_all_r1" />
     <link rel="stylesheet" href="{% static 'css/components/states.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
@@ -719,21 +720,6 @@
         });
 
         (function () {
-          const accountLink = document.querySelector(".user-entry-link[data-preserve-current-hash]");
-          if (!accountLink || !window.location.hash) return;
-
-          const loginUrl = new URL(accountLink.href, window.location.origin);
-          const returnTarget = loginUrl.searchParams.get("next");
-          if (!returnTarget) return;
-
-          const returnUrl = new URL(returnTarget, window.location.origin);
-          if (returnUrl.origin !== window.location.origin) return;
-          returnUrl.hash = window.location.hash;
-          loginUrl.searchParams.set("next", returnUrl.pathname + returnUrl.search + returnUrl.hash);
-          accountLink.href = loginUrl.pathname + loginUrl.search;
-        })();
-
-        (function () {
           const headerMenus = Array.from(document.querySelectorAll(".header-menu"));
           if (!headerMenus.length) return;
 
@@ -987,6 +973,7 @@
       })();
     </script>
     {% if not site_preview %}<script src="{% static 'js/ai_referral_tracking.js' %}"></script>{% endif %}
+    <script src="{% static 'js/auth_navigation.js' %}?v=20261117" defer></script>
     <script src="{% static 'js/review_submission.js' %}?v=20261104_mobile_public" defer></script>
     <script src="{% static 'js/mappy3d_boot.js' %}?v=20261117_sleep" data-module="{% static '3d/mappy3d.js' %}?v=20261117_sleep" data-model="{% static '3d/mappy.glb' %}" defer></script>
     {% if analytics_events %}

@@ -1,0 +1,4 @@
+{% csrf_token %}
+<input type="hidden" name="auth_navigation" value="1">
+<input type="hidden" name="next" value="{{ auth_next|default:'' }}">
+{% if auth_intent_value %}<input type="hidden" name="intent" value="{{ auth_intent_value }}">{% endif %}

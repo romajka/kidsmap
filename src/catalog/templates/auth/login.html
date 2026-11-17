@@ -113,7 +113,7 @@
         </div>
 
         {% include "auth/includes/google_button.html" %}
-        <form method="post" class="auth-form register-form register-form--login" data-loading-form novalidate>
+        <form method="post" action="{% url 'account_login' %}" class="auth-form register-form register-form--login" data-loading-form novalidate>
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ next_url }}" />
           <input type="hidden" name="intent" value="{{ auth_intent }}" />
@@ -170,7 +170,8 @@
           </button>
         </form>
 
-        <p class="register-login-note">
+        <form method="post" action="{% url 'account_register' %}" class="register-login-note" data-auth-navigation>
+          {% include "includes/auth_navigation_fields.html" with auth_next=next_url auth_intent_value=auth_intent %}
           {% if CURRENT_LANGUAGE == "az" %}
             Hesabınız yoxdur?
           {% elif CURRENT_LANGUAGE == "en" %}
@@ -178,10 +179,10 @@
           {% else %}
             Нет аккаунта?
           {% endif %}
-          <a href="{% url 'account_register' %}?intent={{ auth_intent|urlencode }}&next={{ next_url|urlencode }}">
+          <button type="submit" class="auth-navigation-button auth-navigation-text">
             {% if CURRENT_LANGUAGE == "az" %}Qeydiyyatdan keçin{% elif CURRENT_LANGUAGE == "en" %}Register{% else %}Зарегистрируйтесь{% endif %}
-          </a>
-        </p>
+          </button>
+        </form>
       </div>
     </div>
   </section>

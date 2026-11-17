@@ -13,7 +13,7 @@ from .services.tracking import (
 )
 from .services.features import is_events_section_enabled, is_specialists_section_enabled, is_organizations_section_enabled
 from .services.public_urls import build_public_absolute_uri, filtered_query_string, public_origin
-from .services.auth_redirects import build_header_login_url
+from .services.auth_redirects import build_header_login_next, build_header_login_url
 
 DEFAULT_FOOTER_PHONE = "+994 55 497 97 23"
 DEFAULT_FOOTER_WHATSAPP_URL = "https://wa.me/994554979723"
@@ -217,6 +217,7 @@ def seo_urls(request):
         "og_locale_alternates": og_locale_alternates,
         "language_switch_query": filtered_query_string(request),
         "header_account_login_url": build_header_login_url(request),
+        "header_account_login_next": build_header_login_next(request),
         "analytics_page_type": PUBLIC_ANALYTICS_PAGE_TYPES.get(url_name, ""),
         "living_map_enabled": url_name in LIVING_MAP_URL_NAMES,
         "google_site_verification": (

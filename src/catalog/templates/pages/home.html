@@ -318,15 +318,17 @@
           <span class="cta-plus" aria-hidden="true">+</span>
         </a>
         {% else %}
-        <a class="home-owner-cta-new"
-          href="{% url 'account_login' %}?intent=add_place&amp;next={{ owner_dashboard_url|urlencode }}">
+        <form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation>
+          {% include "includes/auth_navigation_fields.html" with auth_next=owner_dashboard_url auth_intent_value="add_place" %}
+          <button type="submit" class="auth-navigation-button home-owner-cta-new">
           <span>
             {% if request.LANGUAGE_CODE == 'az' %}Məkanınızı əlavə edin
             {% elif request.LANGUAGE_CODE == 'en' %}Add your place
             {% else %}{% trans "Добавить свое место" %}{% endif %}
           </span>
           <span class="cta-plus" aria-hidden="true">+</span>
-        </a>
+        </button>
+        </form>
         {% endif %}
         <a class="home-owner-link" href="#how-it-works">
           <span>

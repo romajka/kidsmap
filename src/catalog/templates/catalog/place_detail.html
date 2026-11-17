@@ -696,8 +696,14 @@
                   </span>
                   <p class="detail-compose__auth-copy">{% trans "Чтобы оставить отзыв, войдите или зарегистрируйтесь." %}</p>
                   <div class="detail-compose__auth-actions">
-                    <a class="detail-cta detail-cta--primary" href="{% url 'account_login' %}?next={{ place.get_absolute_url|add:'#reviews'|urlencode }}">{% trans "Войти" %}</a>
-                    <a class="detail-cta detail-cta--ghost" href="{% url 'account_register' %}?next={{ place.get_absolute_url|add:'#reviews'|urlencode }}">{% trans "Регистрация" %}</a>
+                    <form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation>
+                      {% include "includes/auth_navigation_fields.html" with auth_next=place.get_absolute_url|add:'#reviews' %}
+                      <button type="submit" class="auth-navigation-button detail-cta detail-cta--primary">{% trans "Войти" %}</button>
+                    </form>
+                    <form method="post" action="{% url 'account_register' %}" class="auth-navigation-form" data-auth-navigation>
+                      {% include "includes/auth_navigation_fields.html" with auth_next=place.get_absolute_url|add:'#reviews' %}
+                      <button type="submit" class="auth-navigation-button detail-cta detail-cta--ghost">{% trans "Регистрация" %}</button>
+                    </form>
                   </div>
                 </div>
               {% endif %}

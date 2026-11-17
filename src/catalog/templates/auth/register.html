@@ -113,7 +113,7 @@
         </div>
 
         {% include "auth/includes/google_button.html" %}
-        <form method="post" class="auth-form register-form" data-loading-form novalidate>
+        <form method="post" action="{% url 'account_register' %}" class="auth-form register-form" data-loading-form novalidate>
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ next_url }}" />
           <input type="hidden" name="intent" value="{{ auth_intent }}" />
@@ -232,7 +232,8 @@
           </button>
         </form>
 
-        <p class="register-login-note">
+        <form method="post" action="{% url 'account_login' %}" class="register-login-note" data-auth-navigation>
+          {% include "includes/auth_navigation_fields.html" with auth_next=next_url auth_intent_value=auth_intent %}
           {% if CURRENT_LANGUAGE == "az" %}
             Artıq hesabınız var?
           {% elif CURRENT_LANGUAGE == "en" %}
@@ -240,10 +241,10 @@
           {% else %}
             Уже есть аккаунт?
           {% endif %}
-          <a href="{% url 'account_login' %}?intent={{ auth_intent|urlencode }}&next={{ next_url|urlencode }}">
+          <button type="submit" class="auth-navigation-button auth-navigation-text">
             {% if CURRENT_LANGUAGE == "az" %}Daxil ol{% elif CURRENT_LANGUAGE == "en" %}Sign in{% else %}Войти{% endif %}
-          </a>
-        </p>
+          </button>
+        </form>
       </div>
     </div>
   </section>

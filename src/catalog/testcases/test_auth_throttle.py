@@ -34,6 +34,46 @@ class AuthThrottleTests(TestCase):
         self.assertNotIn('_auth_user_id', self.client.session)
         self.assertIn('no-store', response['Cache-Control'])
 
+    def test_navigation_does_not_consume_credential_attempt_budget(self):
+        for path in ('/auth/login/', '/ru/auth/login/', '/en/auth/login/'):
+            for _ in range(3):
+                response = self.client.post(path, {
+                    'auth_navigation': '1', 'next': '/catalog/',
+                    'username': 'parent', 'password': 'Good-password-42',
+                })
+                self.assertEqual(response.status_code, 200)
+                self.assertFalse(response.context['form'].is_bound)
+                self.assertNotIn('_auth_user_id', self.client.session)
+        response = self.client.post('/ru/auth/login/', {
+            'username': 'parent', 'password': 'Good-password-42', 'next': '/catalog/',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/catalog/')
+
+    def test_navigation_does_not_reset_an_exhausted_login_budget(self):
+        self.login('parent')
+        self.login('parent')
+        response = self.client.post('/ru/auth/login/', {'auth_navigation': '1', 'next': '/catalog/'})
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post('/ru/auth/login/', {
+            'username': 'parent', 'password': 'Good-password-42',
+        })
+        self.assertEqual(response.status_code, 429)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_navigation_marker_does_not_exempt_admin_or_password_reset(self):
+        for path, payload in (
+            ('/admin/login/', {'username': 'parent', 'password': 'wrong'}),
+            ('/ru/admin/login/', {'username': 'parent', 'password': 'wrong'}),
+            ('/en/auth/password-reset/', {'email': 'missing@example.test'}),
+        ):
+            with self.subTest(path=path):
+                cache.clear()
+                for _ in range(2):
+                    self.client.post(path, {**payload, 'auth_navigation': '1'})
+                response = self.client.post(path, {**payload, 'auth_navigation': '1'})
+                self.assertEqual(response.status_code, 429)
+
     def test_ip_limit_ignores_forged_forwarding_headers(self):
         for number in range(4):
             self.login(str(number), HTTP_X_REAL_IP=f'192.0.2.{number}',

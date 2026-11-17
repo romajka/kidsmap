@@ -653,8 +653,10 @@ def account_register(request):
 
     auth_intent = _resolve_auth_intent(request)
     language = (request.LANGUAGE_CODE or "az").split("-")[0]
-    form = auth_controller.build_registration_form(data=request.POST or None)
-    if request.method == "POST" and form.is_valid():
+    # Navigation POST carries context only; it must not submit credentials.
+    is_submission = request.method == "POST" and request.POST.get("auth_navigation") != "1"
+    form = auth_controller.build_registration_form(data=(request.POST or None) if is_submission else None)
+    if is_submission and form.is_valid():
         try:
             user = auth_controller.register_user_from_form(form=form)
         except IntegrityError:
@@ -716,8 +718,10 @@ def account_login(request):
 
     auth_intent = _resolve_auth_intent(request)
     language = (request.LANGUAGE_CODE or "az").split("-")[0]
-    form = auth_controller.build_login_form(request=request, data=request.POST or None)
-    if request.method == "POST" and form.is_valid():
+    # Navigation POST carries context only; it must not submit credentials.
+    is_submission = request.method == "POST" and request.POST.get("auth_navigation") != "1"
+    form = auth_controller.build_login_form(request=request, data=(request.POST or None) if is_submission else None)
+    if is_submission and form.is_valid():
         auth_login(request, form.get_user())
         if form.cleaned_data.get("remember_me"):
             request.session.set_expiry(int(getattr(settings, "SESSION_COOKIE_AGE", 1209600)))

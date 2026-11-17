@@ -95,10 +95,11 @@
       </div>
     {% endif %}
 
-    <p class="verify-alt-box">
+    <form method="post" action="{% url 'account_login' %}" class="verify-alt-box" data-auth-navigation>
+      {% include "includes/auth_navigation_fields.html" with auth_next=next_url auth_intent_value=auth_intent %}
       <span>{% trans "Уже подтверждали email?" %}</span>
-      <a href="{% url 'account_login' %}?intent={{ auth_intent|urlencode }}&next={{ next_url|urlencode }}" class="verify-alt-link">{% trans "Войти" %}</a>
-    </p>
+      <button type="submit" class="auth-navigation-button verify-alt-link">{% trans "Войти" %}</button>
+    </form>
   </section>
 </div>
 {% endblock %}

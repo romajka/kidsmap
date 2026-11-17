@@ -184,16 +184,17 @@
             </div>
           </div>
         {% else %}
-          <a
-            class="km-login-btn user-entry-link user-entry-logged-out"
-            href="{{ header_account_login_url }}"
-            data-preserve-current-hash
-            aria-label="{% trans 'Войти или зарегистрироваться' %}"
-            title="{% trans 'Войти или зарегистрироваться' %}"
-          >
-            <span class="km-login-icon material-symbols-rounded" aria-hidden="true">login</span>
-            <span class="km-login-text">{% trans "Войти" %}</span>
-          </a>
+          <form method="post" action="{{ header_account_login_url }}" class="auth-navigation-form" data-auth-navigation data-preserve-current-hash>
+            {% include "includes/auth_navigation_fields.html" with auth_next=header_account_login_next %}
+            <button type="submit"
+              class="auth-navigation-button km-login-btn user-entry-link user-entry-logged-out"
+              aria-label="{% trans 'Войти или зарегистрироваться' %}"
+              title="{% trans 'Войти или зарегистрироваться' %}"
+            >
+              <span class="km-login-icon material-symbols-rounded" aria-hidden="true">login</span>
+              <span class="km-login-text">{% trans "Войти" %}</span>
+            </button>
+          </form>
         {% endif %}
       </div>
 
@@ -348,14 +349,13 @@
               <strong>{% trans "Личный кабинет" %}</strong>
               <p>{% trans "Войдите для сохранения избранного и управления местами" %}</p>
             </div>
-            <a
-              href="{{ header_account_login_url }}"
-              class="km-drawer-login-cta"
-              data-preserve-current-hash
-            >
-              <span class="material-symbols-rounded">login</span>
-              <span>{% trans "Войти или зарегистрироваться" %}</span>
-            </a>
+            <form method="post" action="{{ header_account_login_url }}" class="auth-navigation-form" data-auth-navigation data-preserve-current-hash>
+              {% include "includes/auth_navigation_fields.html" with auth_next=header_account_login_next %}
+              <button type="submit" class="auth-navigation-button km-drawer-login-cta">
+                <span class="material-symbols-rounded">login</span>
+                <span>{% trans "Войти или зарегистрироваться" %}</span>
+              </button>
+            </form>
           </div>
         {% endif %}
       </div>

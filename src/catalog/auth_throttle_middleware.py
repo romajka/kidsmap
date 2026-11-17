@@ -26,6 +26,10 @@ class AuthThrottleMiddleware(MiddlewareMixin):
         match = request.resolver_match
         if request.method != 'POST' or match is None:
             return None
+        if match.view_name == 'account_login' and request.POST.get('auth_navigation') == '1':
+            # The public view renders an unbound form and ignores credentials
+            # in this branch. Opening it must not spend the login budget.
+            return None
         if match.view_name in {'account_login', 'admin:login', 'localized_admin:login'}:
             action = 'login'
         elif match.view_name == 'password_reset':

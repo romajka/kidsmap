@@ -127,9 +127,10 @@ class TestAuthValidationAndNextSecurity(TestCase):
 
         login_url = urlparse(response.context["header_account_login_url"])
         self.assertEqual(login_url.path, reverse("account_login"))
+        self.assertEqual(login_url.query, "")
         self.assertEqual(
-            parse_qs(login_url.query).get("next"),
-            [f"{reverse('place_list')}?category=EDU&q=robotics"],
+            response.context["header_account_login_next"],
+            f"{reverse('place_list')}?category=EDU&q=robotics",
         )
 
     def test_place_reviews_fragment_survives_login_redirect(self):

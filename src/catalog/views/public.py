@@ -16,6 +16,7 @@ from ..services.content_quality import approved_review_queryset, public_place_qu
 from ..services.pricing_plans import public_pricing_plans
 from ..services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
 from ..services.features import is_events_section_enabled
+from .decorators import noindex_response
 from .common import (
     _engagement_login_required_response,
     _has_allowed_tracking_origin,
@@ -419,6 +420,7 @@ def vote_site_review(request, review_id):
     return redirect(reverse("site_reviews"))
 
 @csrf_exempt
+@noindex_response
 @require_POST
 def track_event(request):
     from catalog.services.analytics_quality import record_analytics_ingress

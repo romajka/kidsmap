@@ -143,7 +143,10 @@
     <section class="typed-reviews__section typed-reviews__guest" data-review-guest>
       <h2>{% if language == 'ru' %}Поделитесь впечатлениями{% elif language == 'en' %}Share your experience{% else %}Təəssüratlarınızı bölüşün{% endif %}</h2>
       <p>{% if language == 'ru' %}Войдите, чтобы оставить отзыв.{% elif language == 'en' %}Sign in to leave a review.{% else %}Rəy yazmaq üçün daxil olun.{% endif %}</p>
-      <a class="typed-reviews__btn typed-reviews__btn--primary" href="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}">{% if language == 'ru' %}Войти{% elif language == 'en' %}Sign in{% else %}Daxil ol{% endif %}</a>
+      <form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation>
+        {% include "includes/auth_navigation_fields.html" with auth_next=request.get_full_path %}
+        <button type="submit" class="auth-navigation-button typed-reviews__btn typed-reviews__btn--primary">{% if language == 'ru' %}Войти{% elif language == 'en' %}Sign in{% else %}Daxil ol{% endif %}</button>
+      </form>
     </section>
   {% endif %}
 

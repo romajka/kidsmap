@@ -193,7 +193,10 @@
           <p class="sp-review-rating"><span aria-hidden="true">{% if r.rating == 5 %}★★★★★{% elif r.rating == 4 %}★★★★☆{% elif r.rating == 3 %}★★★☆☆{% elif r.rating == 2 %}★★☆☆☆{% else %}★☆☆☆☆{% endif %}</span><span class="sp-sr-only">{{ r.rating }} / 5</span></p><p class="sp-review-text">{{ r.text }}</p>
         </article>{% empty %}<p class="sp-muted">{% if language == 'az' %}Hələ dərc olunmuş rəy yoxdur.{% elif language == 'en' %}No published reviews yet.{% else %}Пока нет опубликованных отзывов.{% endif %}</p>{% endfor %}</div>
         {% if request.user.is_authenticated %}
-          <a data-review-login hidden href="{% url 'account_login' %}?next={{ request.path|add:'#reviews'|urlencode }}" target="_blank" rel="noopener">{% if language == 'az' %}Yeni vərəqdə daxil olun, sonra bu rəyə qayıdın. Mətn burada qalacaq.{% elif language == 'en' %}Sign in in a new tab, then return to this review. Your text stays here.{% else %}Войдите в новой вкладке и вернитесь к отзыву. Текст останется здесь.{% endif %}</a>
+          <form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation data-review-login hidden target="_blank" rel="noopener">
+            {% include "includes/auth_navigation_fields.html" with auth_next=request.path|add:'#reviews' %}
+            <button type="submit" class="auth-navigation-button">{% if language == 'az' %}Yeni vərəqdə daxil olun, sonra bu rəyə qayıdın. Mətn burada qalacaq.{% elif language == 'en' %}Sign in in a new tab, then return to this review. Your text stays here.{% else %}Войдите в новой вкладке и вернитесь к отзыву. Текст останется здесь.{% endif %}</button>
+          </form>
           <div class="sp-review-composer" data-review-composer><h3>{% if language == 'az' %}Rəy yazın{% elif language == 'en' %}Write a review{% else %}Оставить отзыв{% endif %}</h3>
             <form action="{% url 'add_specialist_review' specialist.pk %}" method="post" data-review-submission>
               {% csrf_token %}
@@ -207,7 +210,10 @@
             </form>
           </div>
         {% else %}
-          <div class="sp-guest-review"><p>{% if language == 'az' %}Rəy yazmaq üçün hesabınıza daxil olun.{% elif language == 'en' %}Sign in to share your experience.{% else %}Войдите, чтобы поделиться своим опытом.{% endif %}</p><a class="sp-button" href="{% url 'account_login' %}?next={{ request.path|add:'#reviews'|urlencode }}">{% if language == 'az' %}Daxil ol və rəy yaz{% elif language == 'en' %}Sign in to review{% else %}Войти и оставить отзыв{% endif %}</a></div>
+          <div class="sp-guest-review"><p>{% if language == 'az' %}Rəy yazmaq üçün hesabınıza daxil olun.{% elif language == 'en' %}Sign in to share your experience.{% else %}Войдите, чтобы поделиться своим опытом.{% endif %}</p><form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation>
+{% include "includes/auth_navigation_fields.html" with auth_next=request.path|add:'#reviews' %}
+<button type="submit" class="auth-navigation-button sp-button">{% if language == 'az' %}Daxil ol və rəy yaz{% elif language == 'en' %}Sign in to review{% else %}Войти и оставить отзыв{% endif %}</button>
+</form></div>
         {% endif %}
       </section>
     </div>

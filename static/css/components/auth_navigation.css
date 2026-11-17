@@ -1,0 +1,28 @@
+/* Native POST navigation retains the appearance of the existing auth controls. */
+.auth-navigation-form {
+  display: inline-flex;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+.auth-navigation-form[hidden],
+.auth-navigation-form[data-review-login][hidden] {
+  display: none;
+}
+.auth-navigation-button {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+.register-login-note .auth-navigation-text {
+  color: var(--register-emerald);
+  font-weight: 900;
+}
+.auth-navigation-text:hover {
+  text-decoration: underline;
+}

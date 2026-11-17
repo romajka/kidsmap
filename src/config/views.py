@@ -99,11 +99,12 @@ def robots_txt(request):
         "",
     ]
 
+    # Tracking stays crawlable so crawlers can observe its noindex/405 response.
+    # robots.txt is crawl policy, not access control.
     private_sections = (
         "/admin/",
         "/auth/",
         "/account/",
-        "/events/track/",
         "/place-review/",
         "/site-review/",
         "/review/",
@@ -118,7 +119,6 @@ def robots_txt(request):
                 f"Disallow: /{lang_code}/admin/",
                 f"Disallow: /{lang_code}/auth/",
                 f"Disallow: /{lang_code}/account/",
-                f"Disallow: /{lang_code}/events/track/",
                 f"Disallow: /{lang_code}/place-review/",
                 f"Disallow: /{lang_code}/site-review/",
                 f"Disallow: /{lang_code}/review/",

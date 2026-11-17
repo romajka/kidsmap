@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import urlsplit
 
 from django.urls import Resolver404, resolve, reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -48,13 +48,18 @@ def resolve_safe_next_url(request, fallback_url: str) -> str:
     return target
 
 
-def build_header_login_url(request) -> str:
+def build_header_login_next(request) -> str:
     resolver_match = getattr(request, "resolver_match", None)
     if getattr(resolver_match, "url_name", "") in AUTH_URL_NAMES:
-        return reverse("account_login")
+        return ""
 
     return_url = request.path
     query_string = filtered_query_string(request)
     if query_string:
         return_url = f"{return_url}?{query_string}"
-    return f"{reverse('account_login')}?{urlencode({'next': return_url})}"
+    return return_url
+
+
+def build_header_login_url(request) -> str:
+    """Public navigation carries return context in a POST body, not this URL."""
+    return reverse("account_login")
