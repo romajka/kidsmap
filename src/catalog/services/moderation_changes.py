@@ -26,6 +26,17 @@ def review_copy():
         'new': t('Новая карточка: проверьте все данные перед первой публикацией.',
                  'Yeni kart: ilk dərcdən əvvəl bütün məlumatları yoxlayın.',
                  'New entry: check all information before its first publication.'),
+        'decision': t('Решение по заявке', 'Təklif üzrə qərar', 'Review decision'),
+        'decision_help': t('Напишите, что проверено или что нужно исправить. При доработке или отказе автор увидит причину в кабинете.',
+                           'Nəyin yoxlanıldığını və ya düzəldilməli olduğunu yazın. Düzəliş və ya imtina zamanı müəllif səbəbi kabinetində görəcək.',
+                           'Explain what you checked or what needs changing. For changes or rejection, the author will see the reason in their account.'),
+        'return_help': t('Автор сможет исправить данные и отправить их снова.',
+                         'Müəllif məlumatları düzəldib yenidən göndərə bilər.',
+                         'The author can correct the details and resubmit.'),
+        'details': t('Все данные для сверки', 'Yoxlama üçün bütün məlumatlar', 'All data for verification'),
+        'details_changed': t('Изменены дополнительные данные. Раскройте все данные для сверки.',
+                             'Əlavə məlumatlar dəyişib. Yoxlama üçün bütün məlumatları açın.',
+                             'Additional details changed. Expand all data to compare them.'),
     }
 
 
@@ -49,9 +60,95 @@ def _empty(value):
     return value is None or value == '' or value == [] or value == {}
 
 
+def _structured_text(value, key):
+    """Readable review, including inactive/future tariffs; no public-only filtering."""
+    if key == 'structured_schedule' and isinstance(value, list):
+        from catalog.services.place_schedule import build_schedule_summary
+        return build_schedule_summary(value)
+    if key == 'pricing_plans' and isinstance(value, list):
+        from catalog.models import PricingPlan
+        lines = []
+        for index, plan in enumerate(value, 1):
+            if not isinstance(plan, dict):
+                return None
+            # Keep every nonempty business field; IDs/order are available in raw details.
+            parts = []
+            for field in PricingPlan._meta.concrete_fields:
+                if field.is_relation or field.name in {'id', 'sort_order', 'created_at', 'updated_at', 'verified_at'}:
+                    continue
+                item = plan.get(field.name)
+                if _empty(item):
+                    continue
+                if isinstance(item, bool):
+                    if field.name != 'is_active' and not item:
+                        continue
+                    item = t('Да', 'Bəli', 'Yes') if item else t('Нет', 'Xeyr', 'No')
+                elif field.choices:
+                    item = dict(field.flatchoices).get(item, item)
+                parts.append(f'{_tariff_label(field.name)}: {item}')
+            lines.append(f'{index}. ' + '\n   '.join(parts))
+        return '\n\n'.join(lines) or t('Нет тарифов', 'Tarif yoxdur', 'No pricing plans')
+    if key == 'nested_pricing' and isinstance(value, dict):
+        lines = []
+        for activity in value.get('activities', []):
+            for group in activity.get('groups', []):
+                name = lambda row: row.get('name_az') or row.get('name_ru') or row.get('name_en') or '—'
+                lines.append(f'{name(activity)} · {name(group)}\n' +
+                             (_structured_text(group.get('pricing_plans', []), 'pricing_plans') or ''))
+        return '\n\n'.join(lines) or t('Отдельные направления не добавлены', 'Ayrıca istiqamət əlavə edilməyib', 'No separate activities added')
+    return None
+
+
+def _tariff_label(name):
+    labels = {
+        'product_type': ('Тип тарифа', 'Tarif növü', 'Pricing type'),
+        'lesson_format': ('Формат', 'Format', 'Format'),
+        'charge_role': ('Назначение платежа', 'Ödənişin təyinatı', 'Charge role'),
+        'billing_mode': ('Оплата', 'Ödəniş', 'Billing'),
+        'billing_interval': ('Период оплаты', 'Ödəniş dövrü', 'Billing interval'),
+        'billing_interval_count': ('Длительность периода', 'Dövrün müddəti', 'Interval count'),
+        'billing_cycles': ('Количество платежей', 'Ödəniş sayı', 'Number of payments'),
+        'price_kind': ('Вид цены', 'Qiymət növü', 'Price type'),
+        'price': ('Стоимость', 'Qiymət', 'Price'),
+        'price_min': ('Цена от', 'Başlanğıc qiymət', 'Price from'),
+        'price_max': ('Цена до', 'Maksimum qiymət', 'Price to'),
+        'currency': ('Валюта', 'Valyuta', 'Currency'),
+        'quantity': ('Количество', 'Say', 'Quantity'),
+        'quantity_unit': ('Единица', 'Vahid', 'Unit'),
+        'sessions_per_week': ('Занятий в неделю', 'Həftədə məşğələ', 'Sessions per week'),
+        'sessions_per_month': ('Занятий в месяц', 'Ayda məşğələ', 'Sessions per month'),
+        'is_unlimited': ('Безлимит', 'Limitsiz', 'Unlimited'),
+        'validity_interval': ('Срок использования', 'İstifadə müddəti', 'Validity interval'),
+        'validity_interval_count': ('Длительность', 'Müddət', 'Duration'),
+        'valid_from': ('Действует с', 'Başlanğıc tarixi', 'Valid from'),
+        'valid_until': ('Действует до', 'Son tarix', 'Valid until'),
+        'audience_type': ('Для кого', 'Kimlər üçün', 'Audience'),
+        'age_from': ('Возраст от', 'Minimum yaş', 'Minimum age'),
+        'age_to': ('Возраст до', 'Maksimum yaş', 'Maximum age'),
+        'min_people': ('Минимум участников', 'Minimum iştirakçı', 'Minimum people'),
+        'max_people': ('Максимум участников', 'Maksimum iştirakçı', 'Maximum people'),
+        'day_type': ('Дни', 'Günlər', 'Days'),
+        'is_required': ('Обязательный платёж', 'Məcburi ödəniş', 'Required charge'),
+        'is_trial': ('Пробное занятие', 'Sınaq məşğələsi', 'Trial'),
+        'is_active': ('Активен', 'Aktiv', 'Active'),
+        'source_url': ('Источник', 'Mənbə', 'Source'),
+    }
+    if name.startswith(('title_', 'conditions_')):
+        label = t('Название', 'Ad', 'Title') if name.startswith('title_') else t('Условия', 'Şərtlər', 'Conditions')
+        return f'{label} ({name[-2:].upper()})'
+    return t(*labels[name]) if name in labels else name
+
+
 def _text(value, target=None, key=''):
     if _empty(value):
         return t('Не указано', 'Göstərilməyib', 'Not specified')
+    if key in {'structured_schedule', 'pricing_plans', 'nested_pricing'}:
+        try:
+            rendered = _structured_text(value, key)
+        except (TypeError, ValueError, KeyError, AttributeError):
+            rendered = None
+        if rendered is not None:
+            return rendered
     if isinstance(value, bool):
         return t('Да', 'Bəli', 'Yes') if value else t('Нет', 'Xeyr', 'No')
     if isinstance(value, str) and key in {'district', 'region', 'metro'}:
@@ -96,4 +193,7 @@ def describe_change(key, before, after, target=None):
         old = [{'text': before_text, 'changed': kind != 'unchanged'}]
         new = [{'text': after_text, 'changed': kind != 'unchanged'}]
     return {'key': key, 'change_type': kind, 'change_label': labels[kind], 'hint': review_hint(key),
+            'details_changed': before != after and before_text == after_text and isinstance(after, (dict, list)),
+            'before_raw': json.dumps(before, ensure_ascii=False, indent=2) if isinstance(before, (dict, list)) else '',
+            'after_raw': json.dumps(after, ensure_ascii=False, indent=2) if isinstance(after, (dict, list)) else '',
             'before_text': before_text, 'after_text': after_text, 'before_parts': old, 'after_parts': new}

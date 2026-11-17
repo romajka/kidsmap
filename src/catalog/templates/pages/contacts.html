@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/pages/contacts.css' %}?v=20260928_1" />
+  <link rel="stylesheet" href="{% static 'css/pages/contacts.css' %}?v=20261117_support_contacts" />
 {% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
@@ -41,14 +41,15 @@
 
       <h1 class="contacts-hero-title">
         {% if CURRENT_LANGUAGE == "az" %}
-          Bizimlə əlaqə
+          KidsMap dəstəyi
         {% elif CURRENT_LANGUAGE == "en" %}
-          Contact Us
+          KidsMap support
         {% else %}
-          Контакты и связь
+          Поддержка KidsMap
         {% endif %}
       </h1>
 
+      <div data-nosnippet>
       <p class="contacts-hero-lead">
         {% if site_contacts_text %}
           {{ site_contacts_text|linebreaksbr }}
@@ -58,6 +59,17 @@
           Choose the most convenient way to reach us: phone, email or WhatsApp.
         {% else %}
           Выберите удобный способ связи: прямой звонок, email или быстрое сообщение в WhatsApp.
+        {% endif %}
+      </p>
+      </div>
+
+      <p class="contacts-support-scope">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Bu əlaqə vasitələri KidsMap saytının dəstək xidmətinə aiddir, kataloqdakı məkanlara yox. Qiymətlər, cədvəl və qeydiyyat barədə məkanın səhifəsindəki əlaqə vasitələrindən istifadə edin.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          These contacts belong to KidsMap website support, not to the listed venues. For prices, schedules and bookings, use the contacts on the venue's own listing.
+        {% else %}
+          Это поддержка сайта KidsMap, а не организаций из каталога. Цены, расписание и запись уточняйте по контактам в карточке места.
         {% endif %}
       </p>
 
@@ -134,7 +146,7 @@
           </div>
         </div>
 
-        <div class="contacts-action-list">
+        <div class="contacts-action-list" data-nosnippet>
 
           <!-- Phone Block -->
           {% if footer_phone %}
@@ -144,7 +156,7 @@
               </div>
               <div class="contacts-channel-info">
                 <span class="contacts-channel-label">
-                  {% if CURRENT_LANGUAGE == "az" %}Telefon zəngi{% elif CURRENT_LANGUAGE == "en" %}Phone Call{% else %}Телефонная линия{% endif %}
+                  {% if CURRENT_LANGUAGE == "az" %}KidsMap dəstək telefonu{% elif CURRENT_LANGUAGE == "en" %}KidsMap support phone{% else %}Телефон поддержки KidsMap{% endif %}
                 </span>
                 <a class="contacts-channel-value" href="tel:{{ footer_phone|cut:' ' }}" title="{% trans 'Позвонить' %}">
                   {{ footer_phone }}
@@ -218,7 +230,7 @@
               </div>
               <div class="contacts-channel-info">
                 <span class="contacts-channel-label">
-                  {% if CURRENT_LANGUAGE == "az" %}WhatsApp Dəstək{% elif CURRENT_LANGUAGE == "en" %}WhatsApp Support{% else %}Поддержка WhatsApp{% endif %}
+                  {% if CURRENT_LANGUAGE == "az" %}KidsMap dəstəyi — WhatsApp{% elif CURRENT_LANGUAGE == "en" %}KidsMap support — WhatsApp{% else %}Поддержка KidsMap — WhatsApp{% endif %}
                 </span>
                 <span class="contacts-channel-value highlight-green">
                   {% if CURRENT_LANGUAGE == "az" %}Dərhal mesaj yazın{% elif CURRENT_LANGUAGE == "en" %}Instant Chat Available{% else %}Мгновенный чат онлайн{% endif %}
@@ -668,7 +680,7 @@
           </span>
           <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
         </summary>
-        <div class="faq-acc-body-wrap">
+        <div class="faq-acc-body-wrap" data-nosnippet>
           <div class="faq-acc-body-inner">
             <p>
               {% if CURRENT_LANGUAGE == "az" %}

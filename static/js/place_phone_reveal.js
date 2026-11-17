@@ -225,6 +225,19 @@
     });
   }
 
+  function callFromCard(id, phone) {
+    if (!phone || !phone.href) return;
+    if (typeof window.kidsMapTrackEvent === 'function') {
+      window.kidsMapTrackEvent({
+        event_type: 'phone_click',
+        place_id: Number(id),
+        source: 'card-cta-call',
+        path: window.location.pathname,
+      });
+    }
+    window.location.href = phone.href;
+  }
+
   // Handle copy buttons
   document.addEventListener('click', async event => {
     const copyBtn = event.target.closest('.km-phone-copy-btn');
@@ -257,9 +270,7 @@
       reveal(id, data);
       if (isCard && button.dataset.phoneWhatsapp !== '1') {
         const phone = data.phones[Number(button.dataset.phoneIndex || 0)];
-        if (phone && phone.href) {
-          window.location.href = phone.href;
-        }
+        callFromCard(id, phone);
       }
       return;
     }
@@ -309,9 +320,7 @@
       reveal(id, data);
       if (isCard && button.dataset.phoneWhatsapp !== '1') {
         const phone = data.phones[Number(button.dataset.phoneIndex || 0)];
-        if (phone && phone.href) {
-          window.location.href = phone.href;
-        }
+        callFromCard(id, phone);
       }
     } catch (error) {
       button.disabled = false;

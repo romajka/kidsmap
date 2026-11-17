@@ -1,0 +1,10 @@
+{% load static %}
+<div class="mappy-context" data-mappy-context>
+  <div class="mappy-context-cloud">
+    {% include "includes/mappy_cloud_art.html" %}
+    <span>{% if mappy_mood == 'success' %}{% if request.LANGUAGE_CODE == 'az' %}Göndərildi! Statusu izləyin.{% elif request.LANGUAGE_CODE == 'en' %}Sent! Follow your request’s status.{% else %}Отправлено! Следите за статусом.{% endif %}{% else %}{% if request.LANGUAGE_CODE == 'az' %}Gəlin başqa cür axtaraq!{% elif request.LANGUAGE_CODE == 'en' %}Let’s try another search!{% else %}Давайте поищем по-другому!{% endif %}{% endif %}</span>
+  </div>
+  <div class="mappy-scene" data-mappy3d="{{ mappy_mood }}" data-bleed="0.35 0.35 0.04 0.35" data-label="{% if request.LANGUAGE_CODE == 'az' %}Mappy ilə oyna{% elif request.LANGUAGE_CODE == 'en' %}Play with Mappy{% else %}Поиграть с Маппи{% endif %}">
+    <img data-mappy-fallback class="{% if mappy_mood == 'success' %}mappy-success-image{% else %}mappy-empty-image{% endif %}" src="{% static '3d/mappy-idle.png' %}" width="384" height="420" alt="" loading="lazy" decoding="async">
+  </div>
+</div>

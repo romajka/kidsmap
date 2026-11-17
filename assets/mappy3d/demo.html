@@ -1,0 +1,24 @@
+<!doctype html><html lang="az"><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#f7f9f5;overflow:hidden}#m{position:absolute;left:0;top:90px;width:540px;height:620px}</style></head>
+<body><div id="m"></div>
+<script type="module">
+import { mountMappy } from './mappy3d.js';
+const lang = new URLSearchParams(location.search).get('lang') || 'az';
+const m = mountMappy(document.getElementById('m'), { src: './mappy.glb', lang, manual: true, sleepAfter: 1e9 });
+window.__m = m;
+// scripted tour for the preview video: [time, action]
+const S = [[0.4,'head'],[2.2,'nose'],[3.9,'belly'],[6.0,'hand'],[7.7,'foot'],[9.5,'ear'],[10.9,'bow'],[12.8,'pack'],[15.0,'head'],[17.0,'hand'],[19.6,'belly'],[22.4,'sleep']];
+let t = 0, i = 0, rel = null;
+window.__step = (dt) => {
+  t += dt;
+  if (rel && t >= rel[0]) { m.pressAt(rel[1], false); rel = null; }
+  while (i < S.length && t >= S[i][0]) {
+    const [, z] = S[i++];
+    if (z === 'sleep') { m.play('sleep', 0.8); m.express('asleep'); }
+    else { m.pressAt(z, true, z === 'hand' ? 0.5 : 0); rel = [t + 0.22, z]; }
+  }
+  m.lookAt(Math.sin(t * 0.9) * 0.6, Math.sin(t * 0.6) * 0.3);
+  m.update(dt);
+};
+window.__ready = () => m.ready;
+</script></body></html>

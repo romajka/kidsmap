@@ -4092,3 +4092,14 @@
   margin-top: 2px;
   flex-shrink: 0;
 }
+
+/* A moderation note is actionable content, not a small status badge. */
+.account-rejection-callout {font-size:14px;font-weight:400;line-height:1.65;overflow-wrap:anywhere}
+.account-rejection-callout__content {gap:6px;min-width:0}
+.account-rejection-callout--changes {background:var(--tint-turf-050,#f1f7ef);border-color:var(--brand-celadon,#cde7c5);color:var(--ink,#24352b)}
+.account-rejection-callout--changes .material-symbols-rounded {color:var(--brand-turf,#136f38)}
+@keyframes km-review-note-in {from {opacity:0;transform:translateY(6px)} to {opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:no-preference) {
+  .account-rejection-callout {animation:km-review-note-in var(--dur-base,260ms) var(--ease-out-quint,cubic-bezier(.22,1,.36,1)) both}
+  .account-card-steps[open] .account-card-steps__content {animation:km-review-note-in var(--dur-fast,160ms) ease-out both}
+}

@@ -88,45 +88,50 @@ def send_registration_code(
     if not email_normalized:
         return EmailVerificationResult(ok=False, message=_("Укажите email для отправки кода."))
 
-    now = timezone.now()
-    record = repository.get_by_user(user=user)
-    if record and record.is_verified and user.is_active:
-        return EmailVerificationResult(ok=True, message=_("Email уже подтвержден."), user=user)
+    with repository.locked_user(user_id=user.pk) as user:
+        if user is None:
+            return EmailVerificationResult(ok=False, message=_("Пользователь с таким email не найден."))
+        # Serialize SMTP and replacement: failed delivery leaves the previous
+        # challenge intact, and another send cannot bypass the cooldown.
+        now = timezone.now()
+        record = repository.get_by_user(user=user)
+        if record and record.is_verified:
+            return EmailVerificationResult(ok=True, message=_("Email уже подтвержден."), user=user)
 
-    if not force and record and record.resend_available_at and now < record.resend_available_at:
-        remaining = ceil((record.resend_available_at - now).total_seconds())
-        return EmailVerificationResult(
-            ok=False,
-            message=_("Код уже отправлен. Повторная отправка будет доступна через %(sec)s сек.") % {"sec": remaining},
-            cooldown_seconds=max(remaining, 0),
+        if not force and record and record.resend_available_at and now < record.resend_available_at:
+            remaining = ceil((record.resend_available_at - now).total_seconds())
+            return EmailVerificationResult(
+                ok=False,
+                message=_("Код уже отправлен. Повторная отправка будет доступна через %(sec)s сек.") % {"sec": remaining},
+                cooldown_seconds=max(remaining, 0),
+            )
+
+        ttl = _ttl_minutes()
+        cooldown = _cooldown_seconds()
+        attempts = _max_attempts()
+        code = _generate_code()
+
+        try:
+            _send_code(email_normalized, code, ttl)
+        except Exception:
+            return EmailVerificationResult(
+                ok=False,
+                message=_("Не удалось отправить письмо с кодом. Попробуйте снова через минуту."),
+            )
+
+        repository.save_challenge(
+            user=user,
+            email=email_normalized,
+            code_hash=make_password(code),
+            expires_at=now + timedelta(minutes=ttl),
+            resend_available_at=now + timedelta(seconds=cooldown),
+            attempts_left=attempts,
         )
-
-    ttl = _ttl_minutes()
-    cooldown = _cooldown_seconds()
-    attempts = _max_attempts()
-    code = _generate_code()
-
-    try:
-        _send_code(email_normalized, code, ttl)
-    except Exception:
         return EmailVerificationResult(
-            ok=False,
-            message=_("Не удалось отправить письмо с кодом. Попробуйте снова через минуту."),
+            ok=True,
+            message=_("Код подтверждения отправлен на ваш email."),
+            user=user,
         )
-
-    repository.save_challenge(
-        user=user,
-        email=email_normalized,
-        code_hash=make_password(code),
-        expires_at=now + timedelta(minutes=ttl),
-        resend_available_at=now + timedelta(seconds=cooldown),
-        attempts_left=attempts,
-    )
-    return EmailVerificationResult(
-        ok=True,
-        message=_("Код подтверждения отправлен на ваш email."),
-        user=user,
-    )
 
 
 def verify_registration_code(
@@ -144,45 +149,50 @@ def verify_registration_code(
     if record is None:
         return EmailVerificationResult(ok=False, message=_("Заявка на подтверждение не найдена."))
 
-    user = record.user
-    if record.is_verified:
-        # Verification records are consumed registration challenges, not login
-        # credentials (including records created by the Google sign-in bridge).
-        return EmailVerificationResult(ok=False, message=_("Email уже подтвержден."))
+    # The unlocked lookup resolves identity only. Never validate a challenge
+    # snapshot obtained before the user lock (resend may replace it meanwhile).
+    with repository.locked_user(user_id=record.user_id) as user:
+        record = repository.get_by_user(user=user) if user is not None else None
+        if record is None or _normalize_email(record.email) != email_normalized:
+            return EmailVerificationResult(ok=False, message=_("Заявка на подтверждение не найдена."))
+        if record.is_verified:
+            # Verification records are consumed registration challenges, not login
+            # credentials (including records created by the Google sign-in bridge).
+            return EmailVerificationResult(ok=False, message=_("Email уже подтвержден."))
 
-    now = timezone.now()
-    if record.expires_at is None or now > record.expires_at:
-        return EmailVerificationResult(
-            ok=False,
-            message=_("Срок действия кода истек. Запросите отправку нового кода."),
-        )
-
-    if int(record.attempts_left or 0) <= 0:
-        return EmailVerificationResult(
-            ok=False,
-            message=_("Лимит попыток исчерпан. Запросите отправку нового кода."),
-        )
-
-    if not check_password(raw_code, record.code_hash):
-        record = repository.decrement_attempts(verification=record)
-        if record.attempts_left <= 0:
+        now = timezone.now()
+        if record.expires_at is None or now > record.expires_at:
             return EmailVerificationResult(
                 ok=False,
-                message=_("Код введен неверно. Лимит попыток исчерпан, запросите новый код."),
+                message=_("Срок действия кода истек. Запросите отправку нового кода."),
             )
-        return EmailVerificationResult(
-            ok=False,
-            message=_("Неверный код. Осталось попыток: %(cnt)s.") % {"cnt": record.attempts_left},
-        )
 
-    user.is_active = True
-    user.save(update_fields=["is_active"])
-    repository.mark_verified(verification=record, verified_at=now)
-    return EmailVerificationResult(
-        ok=True,
-        message=_("Email подтвержден. Вы можете пользоваться аккаунтом."),
-        user=user,
-    )
+        if int(record.attempts_left or 0) <= 0:
+            return EmailVerificationResult(
+                ok=False,
+                message=_("Лимит попыток исчерпан. Запросите отправку нового кода."),
+            )
+
+        if not check_password(raw_code, record.code_hash):
+            record = repository.decrement_attempts(verification=record)
+            if record.attempts_left <= 0:
+                return EmailVerificationResult(
+                    ok=False,
+                    message=_("Код введен неверно. Лимит попыток исчерпан, запросите новый код."),
+                )
+            return EmailVerificationResult(
+                ok=False,
+                message=_("Неверный код. Осталось попыток: %(cnt)s.") % {"cnt": record.attempts_left},
+            )
+
+        user.is_active = True
+        user.save(update_fields=["is_active"])
+        repository.mark_verified(verification=record, verified_at=now)
+        return EmailVerificationResult(
+            ok=True,
+            message=_("Email подтвержден. Вы можете пользоваться аккаунтом."),
+            user=user,
+        )
 
 
 def resend_registration_code(

@@ -1,5 +1,18 @@
 {% load i18n %}
 <div class="km-place-photo-picker" data-km-editor-field="photo">
-  <label><strong>{% translate 'Добавить фотографии' %}</strong><input type="file" multiple accept="image/jpeg,image/png,image/webp,.heic,.heif,.hif" data-place-photos-picker></label>
-  <p>{% translate 'У нового места первое фото станет обложкой. Остальные добавятся в галерею. Существующая обложка сохраняется.' %}</p>
+  <label class="km-place-photo-picker__dropzone">
+    <div class="km-place-photo-picker__icon" aria-hidden="true">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <div class="km-place-photo-picker__body">
+      <span class="km-place-photo-picker__cta">{% translate 'Загрузить фотографии' %}</span>
+      <span class="km-place-photo-picker__hint">{% translate 'или перетащите файлы сюда' %}</span>
+    </div>
+    <input type="file" multiple accept="image/jpeg,image/png,image/webp,.heic,.heif,.hif" data-place-photos-picker class="km-place-photo-picker__input">
+  </label>
+  <p class="km-place-photo-picker__note">{% translate 'Первое фото станет обложкой карточки. Остальные добавятся в галерею (до 10 фото). Форматы: JPG, PNG, WEBP, HEIC до 15 МБ.' %}</p>
 </div>

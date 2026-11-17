@@ -5531,3 +5531,18 @@ body.km-filter-lock {
   .km-specialist-owner-form label:has(> input[type=radio]) { min-height: 44px; display: flex; align-items: center; gap: 10px; }
 }
 @media (max-width: 767px) and (prefers-reduced-motion: reduce) { .km-mobile-submit-bar { transition: none; } }
+
+/* Show the empty result before decorative discovery controls on small screens. */
+@media (max-width: 767px) {
+  .km-specialists-catalog.is-empty .hero-intro-text,
+  .km-specialists-catalog.is-empty .km-subject-discovery,
+  .km-specialists-catalog.is-empty .km-specialists-hero-stats,
+  .km-specialists-catalog.is-empty .catalog-category-strip-wrap,
+  .km-specialists-catalog.is-empty .km-sort-wrapper,
+  .km-specialists-catalog.is-empty .km-editorial-empty__art { display: none; }
+  .km-specialists-catalog.is-empty .km-specialists-hero { padding: 18px; }
+  .km-specialists-catalog.is-empty .km-specialist-add-profile { margin: 12px 0; }
+  .km-specialists-catalog.is-empty .km-catalog-toolbar { min-height: 0; padding: 10px 14px; margin-bottom: 12px; }
+  .km-specialists-catalog.is-empty .km-editorial-empty { padding: 20px 18px; }
+  .km-specialists-catalog.is-empty .km-state-card__title { margin-top: 0; }
+}

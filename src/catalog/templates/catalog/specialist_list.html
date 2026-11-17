@@ -6,14 +6,14 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/components/specialist_subjects.css' %}?v=20261105_subjects_r2" />
-<link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261104_mobile_public" />
+<link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261117_empty_compact" />
 <script src="{% static 'js/specialists.js' %}?v=20261105_all_r1" defer></script>
 <script src="{% static 'js/catalog_category_strip.js' %}?v=20261028_strip_r1" defer></script>
 {% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
 {% block content %}
-<div class="km-specialists-page km-specialists-catalog">
+<div class="km-specialists-page km-specialists-catalog{% if not page_obj.paginator.count %} is-empty{% endif %}">
   {% include "catalog/includes/breadcrumbs.html" with items=specialist_breadcrumb_items %}
 
   <!-- Hero Section matching Main Catalog Design System -->

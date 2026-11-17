@@ -1,11 +1,15 @@
 {% load static %}
 <div class="mappy-helper" data-mappy-helper>
   <div class="mappy-content" data-mappy-content>
-    <span class="mappy-portrait" aria-hidden="true"><img src="{% static 'img/mappy/mappy-welcome.webp' %}" width="384" height="420" alt="" decoding="async"></span>
-    <div class="mappy-bubble" role="status" aria-live="polite" title="{% if request.LANGUAGE_CODE == 'az' %}Növbəti ipucunu görmək üçün toxunun{% elif request.LANGUAGE_CODE == 'en' %}Click for next tip{% else %}Нажмите, чтобы увидеть следующий совет{% endif %}">
-      <p data-mappy-text>{% if request.LANGUAGE_CODE == 'az' %}Rayon və yaşı seçin — xəritədə uyğun məşğələlərə baxın.{% elif request.LANGUAGE_CODE == 'en' %}Choose an area and age — I’ll show you activities on the map.{% else %}Выберите район и возраст — покажу занятия на карте.{% endif %}</p>
-      <button type="button" class="mappy-dismiss" data-mappy-dismiss hidden aria-hidden="true" tabindex="-1"><span aria-hidden="true">×</span></button>
+    <span class="mappy-portrait" data-mappy3d="welcome" data-bleed="0.25 0.2 0.04 0.2" data-label="{% if request.LANGUAGE_CODE == 'az' %}Mappy ilə oyna{% elif request.LANGUAGE_CODE == 'en' %}Play with Mappy{% else %}Поиграть с Маппи{% endif %}"><span class="mappy-sleep-sign" aria-hidden="true"><span>z</span><span>z</span><span>Z</span></span><img data-mappy-fallback src="{% static '3d/mappy-idle.png' %}" width="420" height="464" alt="Mappy" fetchpriority="high" decoding="async"></span>
+    <div class="mappy-cloud">
+      <button type="button" class="mappy-bubble" aria-describedby="mappy-tip-text" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Növbəti ipucu{% elif request.LANGUAGE_CODE == 'en' %}Next tip{% else %}Следующая подсказка{% endif %}">
+        {% include "includes/mappy_cloud_art.html" %}
+        <span id="mappy-tip-text" data-mappy-text>{% if request.LANGUAGE_CODE == 'az' %}Rayon və yaşı seçin — xəritədə uyğun məşğələlərə baxın.{% elif request.LANGUAGE_CODE == 'en' %}Choose an area and age — I’ll show you activities on the map.{% else %}Выберите район и возраст — покажу занятия на карте.{% endif %}</span>
+      </button>
+      <span class="mappy-live" data-mappy-live role="status" aria-live="polite" aria-atomic="true"></span>
     </div>
+    <button type="button" class="mappy-dismiss" data-mappy-dismiss hidden aria-hidden="true" tabindex="-1"><span aria-hidden="true">×</span></button>
   </div>
   <button type="button" class="mappy-restore" data-mappy-restore hidden>{% if request.LANGUAGE_CODE == 'az' %}Mappinin ipucu{% elif request.LANGUAGE_CODE == 'en' %}Mappy’s tip{% else %}Подсказка Маппи{% endif %}</button>
 </div>

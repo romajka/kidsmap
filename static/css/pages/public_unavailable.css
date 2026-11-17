@@ -27,3 +27,7 @@
   border: 1.5px solid var(--tone-border, rgba(19, 111, 56, .22)); background: #fff;
   color: var(--brand-turf, #136f38); font-weight: 700; text-decoration: none;
 }
+
+.public-unavailable-mappy-box { position: relative; display: block; width: 160px; height: 160px; margin: 0 auto 12px; }
+.public-unavailable-mappy-box .public-unavailable-mappy { margin: 0; }
+.public-unavailable-mappy-box:focus-visible { outline: 3px solid var(--brand-turf, #136f38); outline-offset: 6px; border-radius: 16px; }

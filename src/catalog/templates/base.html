@@ -119,7 +119,7 @@
     data-page-language="{{ current_lang_code }}">
     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
     <div hidden data-phone-config data-phone-endpoint="{% url 'place_phone_reveal' 0 %}">{% csrf_token %}</div>
-    <script src="{% static 'js/place_phone_reveal.js' %}?v=20261022_release_all_r1"></script>
+    <script src="{% static 'js/place_phone_reveal.js' %}?v=20261111_contact_analytics_r1"></script>
     <div class="site-shell">
       {% include "includes/header.html" %}
       {% include "catalog/includes/place_editor_result.html" %}
@@ -130,7 +130,7 @@
             {% if 'review-submission' not in message.tags %}
             {% if 'mappy-submitted' in message.tags %}
             <section class="flash-message flash-success mappy-submission" role="status">
-              <div class="mappy-scene" aria-hidden="true"><img class="mappy-success-image" src="{% static 'img/mappy/mappy-success.webp' %}" width="384" height="420" alt="" decoding="async"></div>
+              {% include "includes/mappy_context.html" with mappy_mood="success" %}
               <div class="mappy-success-copy">
                 <span class="mappy-success-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></span>
                 <h2>{% if request.LANGUAGE_CODE == 'az' %}Yoxlamaya göndərildi{% elif request.LANGUAGE_CODE == 'en' %}Sent for review{% else %}Отправлено на проверку{% endif %}</h2>
@@ -311,26 +311,14 @@
             <!-- 4. Contact & Socials Column -->
             <section class="footer-links-block footer-contact-block" data-footer-accordion>
               <h3><button class="footer-accordion-trigger" type="button" aria-expanded="false">
-                <span>{% if CURRENT_LANGUAGE == "az" %}Əlaqə və sosial şəbəkələr{% elif CURRENT_LANGUAGE == "en" %}Contact & Support{% else %}Связь с нами{% endif %}</span>
+                <span>{% if CURRENT_LANGUAGE == "az" %}KidsMap ilə əlaqə{% elif CURRENT_LANGUAGE == "en" %}Contact KidsMap{% else %}Связь с KidsMap{% endif %}</span>
                 <span class="footer-accordion-icon" aria-hidden="true"></span>
               </button></h3>
               <div class="footer-accordion-content">
                 <div class="footer-contact-list">
-                  {% if footer_phone %}
-                    <a class="footer-contact-item" href="tel:{{ footer_phone|cut:' ' }}">
-                      <span class="footer-contact-icon material-symbols-rounded">call</span>
-                      <span class="footer-contact-val">{{ footer_phone }}</span>
-                    </a>
-                  {% endif %}
-                  {% if footer_email %}
-                    <a class="footer-contact-item" href="mailto:{{ footer_email }}">
-                      <span class="footer-contact-icon material-symbols-rounded">mail</span>
-                      <span class="footer-contact-val">{{ footer_email }}</span>
-                    </a>
-                  {% endif %}
-                  <a href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994554979723{% endif %}" class="footer-whatsapp-btn" target="_blank" rel="noopener">
-                    <span class="footer-whatsapp-icon material-symbols-rounded">chat</span>
-                    <span>{% if CURRENT_LANGUAGE == "az" %}WhatsApp ilə yazın{% elif CURRENT_LANGUAGE == "en" %}Message on WhatsApp{% else %}Написать в WhatsApp{% endif %}</span>
+                  <a href="{% url 'contacts' %}" class="footer-whatsapp-btn">
+                    <span class="footer-whatsapp-icon material-symbols-rounded" aria-hidden="true">support_agent</span>
+                    <span>{% if CURRENT_LANGUAGE == "az" %}KidsMap dəstəyi{% elif CURRENT_LANGUAGE == "en" %}KidsMap support{% else %}Поддержка KidsMap{% endif %}</span>
                   </a>
                 </div>
 
@@ -1000,6 +988,7 @@
     </script>
     {% if not site_preview %}<script src="{% static 'js/ai_referral_tracking.js' %}"></script>{% endif %}
     <script src="{% static 'js/review_submission.js' %}?v=20261104_mobile_public" defer></script>
+    <script src="{% static 'js/mappy3d_boot.js' %}?v=20261117_sleep" data-module="{% static '3d/mappy3d.js' %}?v=20261117_sleep" data-model="{% static '3d/mappy.glb' %}" defer></script>
     {% if analytics_events %}
       {{ analytics_events|json_script:"kidsmap-analytics-events" }}
     {% endif %}

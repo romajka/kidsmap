@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from contextlib import contextmanager
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
@@ -177,6 +178,14 @@ class DjangoUserProfileRepository(IUserProfileRepository):
 
 
 class DjangoEmailVerificationRepository(IEmailVerificationRepository):
+    @contextmanager
+    def locked_user(self, *, user_id):
+        # The user exists before the first challenge. Locking only a challenge
+        # cannot serialize concurrent first sends; all lifecycle paths lock the
+        # user first, also matching Google/email-change lock ordering.
+        with transaction.atomic():
+            yield User.objects.select_for_update().filter(pk=user_id).first()
+
     def get_by_user(self, *, user) -> UserEmailVerification | None:
         return UserEmailVerification.objects.filter(user=user).first()
 
