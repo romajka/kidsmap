@@ -12,6 +12,7 @@ from django.utils.translation import override
 from catalog.models import Activity, Category, Place, Specialist, SpecialistReview
 from catalog.services.place_schedule import build_open_status
 from catalog.forms import LoginForm
+from catalog.testcases.test_service_link_crawling import AnchorParser
 
 
 class PublicLoginLocaleTests(SimpleTestCase):
@@ -72,7 +73,19 @@ class PublicMobilePresentationTests(TestCase):
             back = reverse('activity_detail', args=[self.activity.pk])
         response = self.client.get(url)
         self.assertContains(response, f'href="{back}"')
-        self.assertContains(response, f'/ru/auth/login/?next={url}')
+        guest = response.content.decode().split('data-review-guest>', 1)[1].split('</section>', 1)[0]
+        forms = AnchorParser(guest).forms
+        self.assertEqual(len(forms), 1)
+        form = forms[0]
+        self.assertEqual(form['action'], '/ru/auth/login/')
+        self.assertEqual(form['method'], 'post')
+        self.assertEqual(form['fields']['auth_navigation'], '1')
+        self.assertEqual(form['fields']['next'], url)
+        self.assertTrue(form['fields']['csrfmiddlewaretoken'])
+        login = self.client.post(form['action'], form['fields'])
+        self.assertEqual(login.status_code, 200)
+        self.assertEqual(login.context['next_url'], url)
+        self.assertFalse(login.context['form'].is_bound)
         self.assertNotContains(response, 'data-review-edit')
 
     def test_authenticated_activity_guest_prompt_is_replaced_by_composer(self):
