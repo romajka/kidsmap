@@ -135,12 +135,20 @@ class WithdrawalPolicyTests(TestCase):
             'az': 'Kartın vəziyyəti dəyişib. Siyahını yeniləyin və əməliyyatı təkrarlayın.',
             'en': 'The place status changed. Refresh the list and try again.',
         }
+        # Current main gives the owner an actionable candidate explanation;
+        # legacy admin endpoints use localized conflict feedback. Test both
+        # contracts without replacing either with a raw service exception.
+        owner_expected = {
+            'ru': 'Сначала одобрите или верните на доработку текущую заявку. Затем снимите карточку с публикации.',
+            'az': 'Əvvəlcə cari müraciəti təsdiqləyin və ya düzəliş üçün geri qaytarın. Sonra kartı yayımdan çıxarın.',
+            'en': 'First approve the current submission or return it for changes. Then unpublish the listing.',
+        }
         for language, message in expected.items():
             with self.subTest(language=language), translation.override(language):
                 result = owner_places_controller.set_publication_state(request=self.request(),
                                                                       place_id=place.pk, is_active=False)
                 self.assertFalse(result.ok)
-                self.assertEqual(str(result.message), message)
+                self.assertEqual(str(result.message), owner_expected[language])
                 for action, method in [('unpublish', self.editor.toggle_publication_view),
                                        ('to_draft', self.editor.quick_action_view)]:
                     request = self.request({'intent': action, 'action': action})
