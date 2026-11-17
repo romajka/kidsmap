@@ -7,7 +7,9 @@ const path = require('node:path');
 const {JSDOM} = require(process.env.KIDSMAP_JSDOM || '../.tmp/phone-dom/node_modules/jsdom');
 const template = fs.readFileSync(path.join(__dirname, '../src/catalog/templates/base.html'), 'utf8');
 const start = template.indexOf('const toastStack =');
-const end = template.indexOf('        (function () {\n          const accountLink', start);
+// The next independent controller marks the end; auth navigation now lives
+// in its own script, so this fixture must not depend on the removed anchor code.
+const end = template.indexOf('        (function () {', start);
 assert.ok(start > 0 && end > start, 'shared controller boundary must be present');
 const script = template.slice(start, end).replace(/{% trans (['"])(.*?)\1 %}/g, (_, quote, text) => text);
 const settle = () => new Promise(resolve => setImmediate(resolve));
