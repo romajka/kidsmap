@@ -53,25 +53,25 @@ class HomeAgeRangeTests(TestCase):
             def __init__(self):
                 super().__init__()
                 self.in_map = False
-                self.in_main = False
+                self.in_footer = False
                 self.forms = []
                 self.counts = {}
             def handle_starttag(self, tag, attrs):
                 attrs = dict(attrs)
-                if tag == 'main':
-                    self.in_main = True
+                if tag == 'footer':
+                    self.in_footer = True
                 if tag == 'section' and attrs.get('id') == 'home-map-section':
                     self.in_map = True
                 if 'data-home-map-filter-form' in attrs:
                     self.forms.append(self.in_map)
-                # Footer shortcuts have their own hidden category fields.
-                # Duplicate search controls are forbidden in the homepage content.
-                if self.in_main and tag in ('input', 'select') and attrs.get('name') in ('q', 'district', 'category', 'age_from', 'age_to'):
+                # Footer shortcuts are separate native forms, not duplicate
+                # controls in the homepage search/map interface.
+                if not self.in_footer and tag in ('input', 'select') and attrs.get('name') in ('q', 'district', 'category', 'age_from', 'age_to'):
                     name = attrs['name']
                     self.counts[name] = self.counts.get(name, 0) + 1
             def handle_endtag(self, tag):
-                if tag == 'main':
-                    self.in_main = False
+                if tag == 'footer':
+                    self.in_footer = False
                 if tag == 'section':
                     self.in_map = False
         parser = Structure()
