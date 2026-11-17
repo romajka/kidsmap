@@ -30,6 +30,7 @@ from catalog.services.review_sorting import (
     normalize_review_sort,
 )
 from catalog.services.seo import build_catalog_seo_payload, build_place_seo_payload
+from catalog.services.seo_landing_visibility import build_seo_landing_visibility
 from catalog.services.tracking import TrackingService
 from catalog.services.features import is_events_section_enabled
 from catalog.services.rating_ranking import rating_sort_is_available
@@ -157,7 +158,13 @@ class PlaceController:
         catalog_places_total = public_place_queryset(Place.objects.all()).count()
         catalog_categories_total = len(public_filter_options.categories)
 
+        # Public recommendations follow the same eligibility as the sitemap.
+        catalog_seo_pages = build_seo_landing_visibility(
+            self.settings_repository.get_catalog_settings()
+        ).pages(language_code, indexable_only=True)
+
         context = {
+            "catalog_seo_pages": catalog_seo_pages,
             "catalog_places_total": catalog_places_total,
             "catalog_categories_total": catalog_categories_total,
             "organization_matches": organization_matches(filters.query, language_code),

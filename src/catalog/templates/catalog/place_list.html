@@ -1164,45 +1164,19 @@
       <div class="catalog-seo-column">
         <h3 class="catalog-seo-column-title">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-          <span>{% if language == 'az' %}Əsas istiqamətlər{% elif language == 'en' %}Main Categories{% else %}Основные направления{% endif %}</span>
+          <span>{% if language == 'az' %}Məkan seçimləri{% elif language == 'en' %}Place collections{% else %}Подборки мест{% endif %}</span>
         </h3>
         <ul class="catalog-seo-links-list">
+          {% for slug, collection in catalog_seo_pages.items %}
           <li>
-            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='sportivnye-sekcii-v-baku' %}">
-              <span class="catalog-seo-link-text">{% if language == 'az' %}Bakıda uşaqlar üçün idman bölmələri{% elif language == 'en' %}Sports clubs in Baku{% else %}Спортивные секции в Баку{% endif %}</span>
+            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug=slug %}">
+              <span class="catalog-seo-link-text">{{ collection.title }}</span>
               <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </a>
           </li>
-          <li>
-            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='kursy-dlya-detey-v-baku' %}">
-              <span class="catalog-seo-link-text">{% if language == 'az' %}Bakıda uşaqlar üçün kurslar{% elif language == 'en' %}Courses for children in Baku{% else %}Детские развивающие курсы в Баку{% endif %}</span>
-              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
-          </li>
-          <li>
-            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='tvorcheskie-kruzhki-v-baku' %}">
-              <span class="catalog-seo-link-text">{% if language == 'az' %}Bakıda yaradıcılıq dərnəkləri{% elif language == 'en' %}Creative clubs in Baku{% else %}Творческие кружки в Баку{% endif %}</span>
-              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
-          </li>
-          <li>
-            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='programmirovanie-dlya-detey-baku' %}">
-              <span class="catalog-seo-link-text">{% if language == 'az' %}Uşaqlar üçün proqramlaşdırma{% elif language == 'en' %}Coding for children{% else %}Программирование для детей{% endif %}</span>
-              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
-          </li>
-          <li>
-            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='dzudo-dlya-detey-v-baku' %}">
-              <span class="catalog-seo-link-text">{% if language == 'az' %}Bakıda uşaqlar üçün cüdo{% elif language == 'en' %}Judo for children in Baku{% else %}Дзюдо и единоборства в Баку{% endif %}</span>
-              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
-          </li>
-          <li>
-            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='kruzhki-v-baku' %}">
-              <span class="catalog-seo-link-text">{% if language == 'az' %}Bakıda bütün uşaq dərnəkləri{% elif language == 'en' %}All kids' clubs in Baku{% else %}Все кружки для детей в Баку{% endif %}</span>
-              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
-          </li>
+          {% empty %}
+          <li><a class="catalog-seo-link-item" href="{% url 'place_list' %}">{% if language == 'az' %}Bütün məkanlar{% elif language == 'en' %}All places{% else %}Все места{% endif %}</a></li>
+          {% endfor %}
         </ul>
       </div>
 
@@ -1214,40 +1188,58 @@
         </h3>
         <ul class="catalog-seo-links-list">
           <li>
-            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?category=EDU&q={% if language == 'az' %}ingilis{% elif language == 'en' %}english{% else %}английский{% endif %}">
+            <form class="catalog-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}">
+              <input type="hidden" name="category" value="EDU"><input type="hidden" name="q" value="{% if language == 'az' %}ingilis{% elif language == 'en' %}english{% else %}английский{% endif %}">
+              <button class="catalog-seo-link-item" type="submit">
               <span class="catalog-seo-link-text">{% if language == 'az' %}Uşaqlar üçün ingilis dili{% elif language == 'en' %}English for kids{% else %}Английский язык для детей{% endif %}</span>
               <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
+            </button>
+            </form>
           </li>
           <li>
-            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?category=SPRT&q={% if language == 'az' %}üzgüçülük{% elif language == 'en' %}swimming{% else %}плавание{% endif %}">
+            <form class="catalog-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}">
+              <input type="hidden" name="category" value="SPRT"><input type="hidden" name="q" value="{% if language == 'az' %}üzgüçülük{% elif language == 'en' %}swimming{% else %}плавание{% endif %}">
+              <button class="catalog-seo-link-item" type="submit">
               <span class="catalog-seo-link-text">{% if language == 'az' %}Uşaqlar üçün üzgüçülük{% elif language == 'en' %}Swimming for kids{% else %}Плавание для детей{% endif %}</span>
               <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
+            </button>
+            </form>
           </li>
           <li>
-            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?category=TECH&q={% if language == 'az' %}robototexnika{% elif language == 'en' %}robotics{% else %}робототехника{% endif %}">
+            <form class="catalog-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}">
+              <input type="hidden" name="category" value="TECH"><input type="hidden" name="q" value="{% if language == 'az' %}robototexnika{% elif language == 'en' %}robotics{% else %}робототехника{% endif %}">
+              <button class="catalog-seo-link-item" type="submit">
               <span class="catalog-seo-link-text">{% if language == 'az' %}Robototexnika və STEM{% elif language == 'en' %}Robotics and STEM{% else %}Робототехника и STEM{% endif %}</span>
               <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
+            </button>
+            </form>
           </li>
           <li>
-            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?q={% if language == 'az' %}şahmat{% elif language == 'en' %}chess{% else %}шахматы{% endif %}">
+            <form class="catalog-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}">
+              <input type="hidden" name="q" value="{% if language == 'az' %}şahmat{% elif language == 'en' %}chess{% else %}шахматы{% endif %}">
+              <button class="catalog-seo-link-item" type="submit">
               <span class="catalog-seo-link-text">{% if language == 'az' %}Uşaqlar üçün şahmat məktəbləri{% elif language == 'en' %}Chess clubs for kids{% else %}Шахматы для детей{% endif %}</span>
               <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
+            </button>
+            </form>
           </li>
           <li>
-            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?category=EDU&q={% if language == 'az' %}mental{% elif language == 'en' %}mental+arithmetic{% else %}ментальная+арифметика{% endif %}">
+            <form class="catalog-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}">
+              <input type="hidden" name="category" value="EDU"><input type="hidden" name="q" value="{% if language == 'az' %}mental{% elif language == 'en' %}mental arithmetic{% else %}ментальная арифметика{% endif %}">
+              <button class="catalog-seo-link-item" type="submit">
               <span class="catalog-seo-link-text">{% if language == 'az' %}Mental hesab dərsləri{% elif language == 'en' %}Mental arithmetic{% else %}Ментальная арифметика{% endif %}</span>
               <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
+            </button>
+            </form>
           </li>
           <li>
-            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?category=ART&q={% if language == 'az' %}rəsm{% elif language == 'en' %}drawing{% else %}рисование{% endif %}">
+            <form class="catalog-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}">
+              <input type="hidden" name="category" value="ART"><input type="hidden" name="q" value="{% if language == 'az' %}rəsm{% elif language == 'en' %}drawing{% else %}рисование{% endif %}">
+              <button class="catalog-seo-link-item" type="submit">
               <span class="catalog-seo-link-text">{% if language == 'az' %}Rəsm və boyakarlıq dərnəkləri{% elif language == 'en' %}Art and drawing classes{% else %}Рисование и живопись{% endif %}</span>
               <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
+            </button>
+            </form>
           </li>
         </ul>
       </div>
@@ -1260,40 +1252,49 @@
         </h3>
         <ul class="catalog-seo-links-list">
           <li>
-            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?district=baku_yasamal">
+            <form class="catalog-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}">
+              <input type="hidden" name="district" value="baku_yasamal">
+              <button class="catalog-seo-link-item" type="submit">
               <span class="catalog-seo-link-text">{% if language == 'az' %}Yasamal rayonunda dərnəklər{% elif language == 'en' %}Clubs in Yasamal district{% else %}Кружки в Ясамальском районе{% endif %}</span>
               <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
+            </button>
+            </form>
           </li>
           <li>
-            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?district=baku_narimanov">
+            <form class="catalog-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}">
+              <input type="hidden" name="district" value="baku_narimanov">
+              <button class="catalog-seo-link-item" type="submit">
               <span class="catalog-seo-link-text">{% if language == 'az' %}Nərimanov rayonunda dərnəklər{% elif language == 'en' %}Clubs in Narimanov district{% else %}Кружки в Наримановском районе{% endif %}</span>
               <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
+            </button>
+            </form>
           </li>
           <li>
-            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?district=baku_nasimi">
+            <form class="catalog-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}">
+              <input type="hidden" name="district" value="baku_nasimi">
+              <button class="catalog-seo-link-item" type="submit">
               <span class="catalog-seo-link-text">{% if language == 'az' %}Nəsimi rayonunda dərnəklər{% elif language == 'en' %}Clubs in Nasimi district{% else %}Кружки в Насиминском районе{% endif %}</span>
               <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
+            </button>
+            </form>
           </li>
           <li>
-            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?district=baku_sabail">
+            <form class="catalog-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}">
+              <input type="hidden" name="district" value="baku_sabail">
+              <button class="catalog-seo-link-item" type="submit">
               <span class="catalog-seo-link-text">{% if language == 'az' %}Səbail rayonunda dərnəklər{% elif language == 'en' %}Clubs in Sabail district{% else %}Кружки в Сабаильском районе{% endif %}</span>
               <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
+            </button>
+            </form>
           </li>
           <li>
-            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?district=baku_khatai">
+            <form class="catalog-filter-shortcut" data-catalog-shortcut method="get" action="{% url 'place_list' %}">
+              <input type="hidden" name="district" value="baku_khatai">
+              <button class="catalog-seo-link-item" type="submit">
               <span class="catalog-seo-link-text">{% if language == 'az' %}Xətai rayonunda dərnəklər{% elif language == 'en' %}Clubs in Khatai district{% else %}Кружки в Хатаинском районе{% endif %}</span>
               <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
-          </li>
-          <li>
-            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='kruzhki-v-absheron-azerbaydzhan' %}">
-              <span class="catalog-seo-link-text">{% if language == 'az' %}Abşeron regionunda dərnəklər{% elif language == 'en' %}Clubs in Absheron region{% else %}Кружки в регионе Абшерон{% endif %}</span>
-              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
+            </button>
+            </form>
           </li>
         </ul>
       </div>

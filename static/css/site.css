@@ -2926,7 +2926,8 @@ button.footer-accordion-trigger:focus-visible {
   gap: 6px;
 }
 
-.footer-nav-list a {
+.footer-nav-list a,
+.footer-filter-button {
   display: inline-block;
   width: fit-content;
   color: #4c5b58;
@@ -2937,10 +2938,27 @@ button.footer-accordion-trigger:focus-visible {
   transition: color 0.18s ease, transform 0.18s ease;
 }
 
-.footer-nav-list a:hover {
+.footer-nav-list a:hover,
+.footer-filter-button:hover {
   color: #136f38;
   transform: translateX(3px);
   text-decoration: none;
+}
+
+/* Filtering remains a native GET action, including without JavaScript. */
+.footer-filter-shortcut { margin: 0; }
+.footer-filter-button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.footer-filter-button:focus-visible {
+  outline: 2px solid var(--brand-turf);
+  outline-offset: 3px;
 }
 
 /* Contacts Column */
