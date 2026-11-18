@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261118_directory" />
 <script src="{% static 'js/specialists.js' %}?v=20261118_directory" defer></script>
 <link rel="stylesheet" href="{% static 'css/pages/specialist_directory.css' %}?v=20261118_card_link" />
+<link rel="stylesheet" href="{% static 'css/pages/specialists_refresh.css' %}?v=20261118_sp_r2" />
 {% endblock %}
 
 {% block content %}
@@ -323,7 +324,7 @@
             <span>{% if language == "az" %}Tətbiq et{% elif language == "en" %}Apply{% else %}Применить{% endif %}</span>
           </button>
           <a href="{{ reset_filters_url }}" class="km-btn-reset">
-            <span class="material-symbols-rounded" aria-hidden="true">restart_alt</span>
+            <span class="km-ico-reset" aria-hidden="true"></span>
             <span>{% if language == "az" %}Sıfırla{% elif language == "en" %}Reset{% else %}Сбросить{% endif %}</span>
           </a>
         </div>
@@ -445,7 +446,7 @@
             </div>
             <div class="sp-card-action">
               <strong>{% if specialist.card_price %}{{ specialist.card_price }}{% elif language == 'az' %}Qiyməti dəqiqləşdirin{% elif language == 'en' %}Ask for pricing{% else %}Уточните цену{% endif %}</strong>
-              <span class="sp-profile-label" id="sp-profile-{{ specialist.pk }}">{% if language == 'az' %}Profilə bax{% elif language == 'en' %}View profile{% else %}Смотреть профиль{% endif %}<span aria-hidden="true"> →</span></span>
+              <span class="sp-profile-label" id="sp-profile-{{ specialist.pk }}">{% if language == 'az' %}Profilə bax{% elif language == 'en' %}View profile{% else %}Смотреть профиль{% endif %}</span>
             </div>
           </a>
         {% empty %}

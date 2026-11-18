@@ -11,7 +11,7 @@
       <div class="card-media-blur-bg" style="background-image: url('{{ card_image.preview }}');" aria-hidden="true"></div>
       <img class="card-media-img" src="{{ card_image.src }}"
         {% if card_image.srcset %}srcset="{{ card_image.srcset }}" sizes="{% if request.resolver_match.url_name == 'home' %}(max-width: 760px) 280px, 320px{% else %}(max-width: 760px) calc(100vw - 28px), (max-width: 1100px) calc((100vw - 64px) / 2), 320px{% endif %}" width="{{ card_image.width }}" height="{{ card_image.height }}"{% endif %}
-        alt="{{ presentation.name }}" loading="lazy" decoding="async"
+        alt="{{ presentation.name }}" {% if card_priority %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async"
         data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
       <template data-card-image-placeholder>
         <div class="image-placeholder" data-category-placeholder role="img" aria-label="{% trans 'Фото скоро будет.' %}">

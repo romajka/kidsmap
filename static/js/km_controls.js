@@ -50,29 +50,33 @@
     track.classList.add("kmr-host");
     if (root) root.classList.add("kmr-root");
 
-    var layer = el("div", "kmr", track);
-    layer.setAttribute("aria-hidden", "true");
-    var rail = el("div", "kmr__rail", layer);
-    var ticks = el("div", "kmr__ticks", rail);
-    var fill = el("div", "kmr__fill", rail);
-    var thumbs = [el("div", "kmr__thumb kmr__thumb--from", layer), el("div", "kmr__thumb kmr__thumb--to", layer)];
-    var bubbles = thumbs.map(function (t) { return el("span", "kmr__bubble", t); });
+    // The layer may already be rendered by the server (no flash); otherwise draw it.
+    var layer = track.querySelector(":scope > .kmr");
+    var steps = isAge ? (max - min) : 6;
+    if (!layer) {
+      layer = el("div", "kmr", track);
+      layer.setAttribute("aria-hidden", "true");
+      var railNew = el("div", "kmr__rail", layer);
+      el("div", "kmr__ticks", railNew);
+      el("div", "kmr__fill", railNew);
+      el("span", "kmr__bubble", el("div", "kmr__thumb kmr__thumb--from", layer));
+      el("span", "kmr__bubble", el("div", "kmr__thumb kmr__thumb--to", layer));
+      layer.style.setProperty("--kmr-steps", steps > 0 && steps <= 30 ? steps : 6);
+    }
+    var rail = layer.querySelector(".kmr__rail");
+    var thumbs = [layer.querySelector(".kmr__thumb--from"), layer.querySelector(".kmr__thumb--to")];
+    var bubbles = thumbs.map(function (t) { return t.querySelector(".kmr__bubble"); });
     var inputs = [from, to];
 
-    // Ticks: one per year for age, ~6 even marks otherwise.
-    var tickCount = isAge ? (max - min) : 6;
-    if (tickCount > 0 && tickCount <= 30) {
-      for (var i = 1; i < tickCount; i++) {
-        var tk = el("i", "kmr__tick", ticks);
-        tk.style.left = (i / tickCount) * 100 + "%";
-        if (isAge && (min + i) % 6 === 0) tk.classList.add("is-major");
-      }
+    var scale = track.querySelector(":scope > .kmr__scale");
+    if (!scale) {
+      scale = el("div", "kmr__scale", track);
+      scale.setAttribute("aria-hidden", "true");
+      el("span", "", scale);
+      el("span", "", scale);
     }
-
-    var scale = el("div", "kmr__scale", track);
-    scale.setAttribute("aria-hidden", "true");
-    el("span", "", scale).textContent = format(min);
-    el("span", "", scale).textContent = format(max);
+    scale.children[0].textContent = format(min);
+    scale.children[1].textContent = format(max);
 
     function format(v) {
       if (isPrice) return v + " " + (unit || "₼");
@@ -207,7 +211,7 @@
   function indexMenu(menu) {
     var items = menu.querySelectorAll(OPTION_SEL);
     for (var i = 0; i < items.length; i++) {
-      items[i].style.setProperty("--kmi", Math.min(i, 10));
+      items[i].style.setProperty("--kmi", Math.min(i, 8));
     }
   }
 
@@ -267,10 +271,113 @@
     });
   }
 
+
+  /* ---------- Catalog sidebar: category list, applied chips, head reset ---------- */
+  function syncCatalogSidebar() {
+    var list = document.querySelector("[data-km-cat-list]");
+    if (list && list.dataset.kmInit !== "1") {
+      list.dataset.kmInit = "1";
+      var more = list.querySelector("[data-km-cat-more]");
+      function setExpanded(on) {
+        list.classList.toggle("is-expanded", on);
+        if (!more) return;
+        more.setAttribute("aria-expanded", on ? "true" : "false");
+        var m = more.querySelector("[data-more-label]"), l = more.querySelector("[data-less-label]");
+        if (m) m.hidden = on;
+        if (l) l.hidden = !on;
+      }
+      if (more) more.addEventListener("click", function () { setExpanded(!list.classList.contains("is-expanded")); });
+      // A chosen category further down the list stays visible.
+      if (list.querySelector(".km-cat-item.is-extra.is-active")) setExpanded(true);
+      list.addEventListener("click", function (e) {
+        var item = e.target.closest && e.target.closest(".km-cat-item");
+        if (!item) return;
+        // Instant feedback; the page script confirms the same state.
+        list.querySelectorAll(".km-cat-item").forEach(function (it) {
+          var on = it === item;
+          it.classList.toggle("is-active", on);
+          it.setAttribute("aria-checked", on ? "true" : "false");
+        });
+      });
+    }
+    if (list) {
+      list.querySelectorAll(".km-cat-item").forEach(function (it) {
+        var on = it.classList.contains("is-active");
+        if (it.getAttribute("aria-checked") !== (on ? "true" : "false")) it.setAttribute("aria-checked", on ? "true" : "false");
+      });
+    }
+
+    // Applied filters: the results header owns them (it is refreshed on every filter change);
+    // on desktop they are shown in the sidebar instead.
+    var slot = document.querySelector("[data-km-side-chips]");
+    if (slot) {
+      var bar = document.querySelector(".catalog-top-stack .active-filter-chips");
+      var html = bar ? bar.innerHTML.trim() : "";
+      if (slot.dataset.kmHtml !== html) {
+        slot.dataset.kmHtml = html;
+        slot.innerHTML = html;
+        slot.hidden = !html;
+      }
+      var headReset = document.querySelector("[data-km-head-reset]");
+      if (headReset) headReset.hidden = !html;
+    }
+  }
+
+
+  /* ---------- Place page: sticky column, phone bar, today in the week ---------- */
+  function initPlaceDetail() {
+    if (!document.body || !document.body.classList.contains("page-place_detail")) return;
+    if (document.body.dataset.kdInit === "1") return;
+    document.body.dataset.kdInit = "1";
+
+    // Tall right column: let it scroll with the page, then stick with its bottom in view.
+    var side = document.querySelector(".detail-side");
+    if (side) {
+      var placeSide = function () {
+        var top = Math.min(96, window.innerHeight - side.offsetHeight - 16);
+        side.style.setProperty("--kd-side-top", top + "px");
+      };
+      placeSide();
+      window.addEventListener("resize", placeSide);
+      if (window.ResizeObserver) new ResizeObserver(placeSide).observe(side);
+    }
+
+    // Phone bar hides while the card's own call button is on screen (no double buttons).
+    var bar = document.querySelector(".detail-mobile-bar");
+    var cta = document.querySelector(".detail-decision__cta");
+    if (bar && cta && window.IntersectionObserver) {
+      new IntersectionObserver(function (entries) {
+        bar.classList.toggle("is-tucked", entries[0].isIntersecting);
+      }, { threshold: 0.2 }).observe(cta);
+    }
+
+    // Week row on phones starts at today.
+    var week = document.querySelector(".detail-week");
+    var today = week && week.querySelector(".detail-week__day--today");
+    if (week && today && week.scrollWidth > week.clientWidth) {
+      week.scrollLeft = Math.max(0, today.offsetLeft - week.offsetLeft - 16);
+    }
+  }
+
+
+  /* ---------- Specialist page: phone contact bar hides while the contact card is visible ---------- */
+  function initSpecialistDetail() {
+    var bar = document.querySelector(".sp-mobile-contact");
+    var card = document.querySelector(".sp-contacts .sp-contact-actions");
+    if (!bar || !card || bar.dataset.kspInit === "1" || !window.IntersectionObserver) return;
+    bar.dataset.kspInit = "1";
+    new IntersectionObserver(function (entries) {
+      bar.classList.toggle("is-tucked", entries[0].isIntersecting);
+    }, { threshold: 0.2 }).observe(card);
+  }
+
   function init(scope) {
     enhanceAll(scope);
     watchMenus(scope);
     (scope || document).querySelectorAll(SEG_SEL).forEach(enhanceSegment);
+    syncCatalogSidebar();
+    initPlaceDetail();
+    initSpecialistDetail();
   }
 
   window.kidsMapEnhanceControls = init;

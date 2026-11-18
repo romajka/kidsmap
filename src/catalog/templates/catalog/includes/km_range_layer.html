@@ -1,0 +1,9 @@
+{% spaceless %}{# Drawn dual-range layer, rendered on the server so the slider looks final before any script runs. km_controls.js binds to it. #}
+{% widthratio from max 100 as kmr_a %}{% widthratio to max 100 as kmr_b %}
+<div class="kmr{% if from|stringformat:'s' == '0' and to|stringformat:'s' == max|stringformat:'s' %} is-full{% endif %}" aria-hidden="true" style="--kmr-a: {{ kmr_a }}%; --kmr-b: {{ kmr_b }}%; --kmr-steps: {{ steps|default:6 }};">
+  <div class="kmr__rail"><div class="kmr__ticks"></div><div class="kmr__fill"></div></div>
+  <div class="kmr__thumb kmr__thumb--from" style="left: {{ kmr_a }}%;"><span class="kmr__bubble">{{ from }}{{ suffix }}</span></div>
+  <div class="kmr__thumb kmr__thumb--to" style="left: {{ kmr_b }}%;"><span class="kmr__bubble">{{ to }}{{ suffix }}</span></div>
+</div>
+<div class="kmr__scale" aria-hidden="true"><span>0{{ suffix }}</span><span>{{ max }}{{ suffix }}</span></div>
+{% endspaceless %}

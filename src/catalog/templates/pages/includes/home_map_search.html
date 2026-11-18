@@ -57,14 +57,6 @@
             data-label-on-map="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə{% elif request.LANGUAGE_CODE == 'en' %}On map{% else %}На карте{% endif %}"
             data-label-show-all="{% if request.LANGUAGE_CODE == 'az' %}Bütün nəticələr{% elif request.LANGUAGE_CODE == 'en' %}All results{% else %}Все результаты{% endif %}"
             hidden>
-            <div class="hs-ac-header">
-              <span class="hs-ac-title" data-hs-ac-count-title>
-                {% if request.LANGUAGE_CODE == 'az' %}Tapılan məkanlar{% elif request.LANGUAGE_CODE == 'en' %}Found places{% else %}Найденные кружки и секции{% endif %}
-              </span>
-              <span class="hs-ac-hint">
-                {% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstərmək üçün klikləyin{% elif request.LANGUAGE_CODE == 'en' %}Click to show on map{% else %}Нажмите, чтобы показать на карте{% endif %}
-              </span>
-            </div>
             <p class="hs-ac-status" data-hs-ac-status role="status" hidden></p>
             <ul class="hs-ac-list" id="home-search-options" role="listbox" aria-label="{{ hero_search_label }}" data-hs-ac-list></ul>
             <div class="hs-ac-footer" data-hs-ac-footer hidden>
