@@ -250,16 +250,16 @@ class PlaceListFilters:
         if data.age_from == "0" and data.age_to == "18":
             data.age_from = data.age_to = ""
         data._normalize_subcategory()
-        # Only an upper price bound needs the ceiling. SEO and other non-price
-        # queries must not aggregate the whole catalog just to parse filters.
-        if (_price_amount(data.price_to) is not None
-                or _price_amount(data.price_max) is not None):
-            # URL normalization and context construction may parse the same
-            # request: share a consistent snapshot of its price scale.
+        price_from, price_to = data._normalized_price_bounds()
+        if price_to is not None and price_to > 0:
+            # The top end of the catalog slider means there is no upper limit.
             if not hasattr(request, "_catalog_price_max"):
                 request._catalog_price_max = data.catalog_price_max
             data.catalog_price_max = request._catalog_price_max
-        price_from, price_to = data._normalized_price_bounds()
+            # Older catalog forms submitted 0–500 even without priced listings.
+            legacy_full_range = not data.catalog_price_max and data.price_from == "0" and data.price_to == "500"
+            if 0 < data.catalog_price_max <= price_to or legacy_full_range:
+                price_to = None
         data.price_from = str(price_from) if price_from is not None else ""
         data.price_to = str(price_to) if price_to is not None else ""
         data.price_max = ""
@@ -334,8 +334,6 @@ class PlaceListFilters:
         if price_from_int is not None and price_to_int is not None and price_from_int > price_to_int:
             price_from_int, price_to_int = price_to_int, price_from_int
 
-        if price_to_int is not None and price_to_int > 0 and price_to_int >= self.catalog_price_max:
-            price_to_int = None
         if price_from_int == 0:
             price_from_int = None
 
