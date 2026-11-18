@@ -21,7 +21,7 @@ from catalog.parent_guide_family import family_situations
 from catalog.services.content_quality import public_place_queryset
 from catalog.services.filtering import PlaceListFilters
 from catalog.services.locations import get_location_translation
-from catalog.services.public_presentation import prepare_cards
+from catalog.services.public_presentation import prepare_cards, public_url, translated
 from catalog.services.public_urls import build_public_absolute_uri
 from catalog.services.place_duplicates import normalize_place_name
 
@@ -63,6 +63,24 @@ def _guide_venue_ids(candidates):
         if duplicate is None:
             peers.append(place)
     return ids
+
+
+def _topic_examples(choices, public_places, language):
+    """Resolve reviewed venues against current public Baku inventory in one query."""
+    ids = [place_id for place_id, _ in choices.values()]
+    matches = PlaceListFilters(district='baku').apply(
+        public_places.filter(pk__in=ids, category__is_active=True)
+    )
+    places = {place.pk: place for place in matches}
+    examples = {}
+    for topic_key, (place_id, reviewed_category) in choices.items():
+        place = places.get(place_id)
+        if place is not None and place.category_id == reviewed_category:
+            name, name_language = translated(place, 'name', language)
+            examples[topic_key] = {
+                'name': name, 'name_language': name_language, 'url': public_url(place, language),
+            }
+    return examples
 
 
 def _park_directory(candidates, language, guide):
@@ -136,6 +154,7 @@ def parent_guide(request, slug):
         public_places = (public_places.filter(subcategory=catalog_subcategory)
             if catalog_subcategory and catalog_subcategory.category_id == definition.get('catalog_category')
             else public_places.none())
+    examples = _topic_examples(definition.get('topic_example_ids', {}), public_places, language)
     for topic in guide['topics']:
         params = {'category': topic['category'], 'district': 'baku'}
         available = topic['category'] in active_categories
@@ -146,10 +165,15 @@ def parent_guide(request, slug):
             available = False
         matching = PlaceListFilters(category=topic['category'], district='baku',
             subcategory=str(params.get('subcategory', ''))).apply(public_places) if available else public_places.none()
-        topics.append({**topic, 'place_ids': list(matching.order_by('-updated_at', '-pk').values_list('pk', flat=True)[:6]),
+        count = matching.count()
+        topics.append({
+            **topic,
+            'example': examples.get(topic['key']),
+            'place_ids': list(matching.order_by('-updated_at', '-pk').values_list('pk', flat=True)[:6]),
             'choice_ids': list(matching.order_by('pk').values_list('pk', flat=True)) if slug == 'baku-with-kids' else [],
-            'count': matching.count(), 'url':
-            reverse('place_list') + '?' + urlencode(params) if available else None})
+            'count': count,
+            'url': reverse('place_list') + '?' + urlencode(params) if count else None,
+        })
 
     matching_categories = Q(pk__in=[])
     for category in definition['categories']:

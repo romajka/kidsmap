@@ -75,16 +75,6 @@ def specialist_list(request):
             | models.Q(specializations__code__in=subject_matches)
         )
 
-    # 2. Specialization
-    spec_code = (request.GET.get("specialization") or "").strip()
-    if spec_code == 'tutor':
-        qs = qs.filter(specializations__code__in=TUTOR_CODES)
-    elif spec_code:
-        qs = qs.filter(specializations__code=spec_code)
-    subject_code = (request.GET.get('subject') or '').strip()
-    if subject_code:
-        qs = qs.filter(specializations__code=subject_code) if subject_code in SUBJECTS else qs.none()
-
     # 3. Consultation Format
     cf = (request.GET.get("format") or "").strip()
     if cf:
@@ -152,6 +142,18 @@ def specialist_list(request):
             qs = qs.filter(rating_avg__gte=float(min_rating))
         except ValueError:
             pass
+
+    # Quick links replace the current direction and subject, keeping all other filters.
+    direction_candidates = qs
+    subject_code = (request.GET.get('subject') or '').strip()
+    if subject_code:
+        qs = qs.filter(specializations__code=subject_code) if subject_code in SUBJECTS else qs.none()
+    subject_candidates = qs
+    spec_code = (request.GET.get("specialization") or "").strip()
+    if spec_code == 'tutor':
+        qs = qs.filter(specializations__code__in=TUTOR_CODES)
+    elif spec_code:
+        qs = qs.filter(specializations__code=spec_code)
 
     # 7. Sorting
     sort = (request.GET.get("sort") or "new").strip()
@@ -288,12 +290,15 @@ def specialist_list(request):
             "remove_url": rebuild_url("min_rating")
         })
 
-    filter_options = build_public_specialist_filter_options(language_code=language)
+    filter_options = build_public_specialist_filter_options(
+        language_code=language, candidate_ids=direction_candidates.order_by().values("pk"),
+    )
 
     subject_options = [dict(subject_item(s['value'], language), count=s['count'])
                        for s in filter_options.specializations if s['value'] in SUBJECTS]
     subject_options.sort(key=lambda item: list(SUBJECTS).index(item['value']))
-    for item in subject_options:
+    quick_subjects = [item for item in subject_options if item['count']][:4]
+    for item in quick_subjects:
         params = specialist_query_params.copy()
         params['specialization'] = 'tutor'
         params['subject'] = item['value']
@@ -337,6 +342,13 @@ def specialist_list(request):
     specialization_chips = []
     for spec in filter_options.specializations:
         val = spec["value"]
+        count = spec['count']
+        # The exam-prep link keeps the selected subject. Other directions
+        # clear it, and the separate “All tutors” link also clears it.
+        if val == 'exam_prep_tutor' and subject_code and count:
+            count = subject_candidates.filter(specializations__code=val).distinct().count()
+        if not count:
+            continue
         visual = SPECIALIST_VISUALS.get(val, {"icon": "school", "color_bg": "#f1f5f9", "color_text": "#475569"})
         chip_params = specialist_query_params.copy()
         chip_params["specialization"] = val
@@ -346,7 +358,7 @@ def specialist_list(request):
         specialization_chips.append({
             "value": val,
             "label": spec["label"],
-            "count": spec.get("count", 0),
+            "count": count,
             "url": chip_url,
             "icon": visual["icon"],
             "color_bg": visual["color_bg"],
@@ -355,7 +367,7 @@ def specialist_list(request):
         })
 
     specialization_chips.sort(
-        key=lambda c: (0 if c["value"] == "tutor" else 1, 0 if (c["count"] > 0 or c["is_active"]) else 1, -c["count"])
+        key=lambda c: (c["value"] != "tutor", -c["count"])
     )
     all_params = specialist_query_params.copy()
     all_params.pop('specialization', None)
@@ -363,10 +375,11 @@ def specialist_list(request):
     all_specializations_url = '?' + all_params.urlencode() if all_params else '?'
     tutor_params = all_params.copy()
     tutor_params['specialization'] = 'tutor'
-    all_tutors_url = '?' + tutor_params.urlencode()
+    has_tutors = any(chip['value'] == 'tutor' for chip in specialization_chips)
+    all_tutors_url = '?' + tutor_params.urlencode() if has_tutors else None
 
     # Count specialists matching the current filters
-    count = qs.count()
+    count = paginator.count
     if language == "az":
         results_count_label = f"{count} mütəxəssis tapıldı"
     elif language == "en":
@@ -507,6 +520,8 @@ def specialist_list(request):
 
     context = {
         "subject_options": subject_options,
+        "quick_subjects": quick_subjects,
+        "has_other_directions": any(chip['value'] != 'tutor' for chip in specialization_chips),
         "specialist_price_max": specialist_price_max,
         "page_obj": page_obj,
         "specialists": page_obj,

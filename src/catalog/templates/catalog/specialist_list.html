@@ -74,13 +74,16 @@
         </form>
       </div>
 
-      <nav class="km-subject-discovery" aria-label="{% if language == 'az' %}Repetitor seçin{% elif language == 'en' %}Find a tutor{% else %}Подобрать репетитора{% endif %}">
+      {% if quick_subjects or all_tutors_url or has_other_directions %}
+      <nav class="km-subject-discovery" aria-label="{% if language == 'az' %}Mütəxəssis seçin{% elif language == 'en' %}Find a specialist{% else %}Подобрать специалиста{% endif %}">
+        {% if quick_subjects or all_tutors_url %}
         <p class="km-subject-discovery__title">{% if language == 'az' %}Hansı fənn üzrə kömək lazımdır?{% elif language == 'en' %}Which subject do you need help with?{% else %}По какому предмету нужна помощь?{% endif %}</p>
         <div class="km-subject-quick-links">
-          {% for item in subject_options|slice:':4' %}<a class="km-subject-quick-link" href="{{ item.url }}" {% if selected.subject == item.value %}aria-current="true"{% endif %}><span class="material-symbols-rounded" aria-hidden="true">{{ item.icon }}</span>{{ item.label }}</a>{% endfor %}
-          <a class="km-subject-quick-link" href="{{ all_tutors_url }}" {% if selected.specialization == 'tutor' and not selected.subject %}aria-current="true"{% endif %}><span class="material-symbols-rounded" aria-hidden="true">school</span>{% if language == 'az' %}Bütün repetitorlar{% elif language == 'en' %}All tutors{% else %}Все репетиторы{% endif %}</a>
+          {% for item in quick_subjects %}<a class="km-subject-quick-link" href="{{ item.url }}" {% if selected.subject == item.value %}aria-current="true"{% endif %}><span class="material-symbols-rounded" aria-hidden="true">{{ item.icon }}</span>{{ item.label }}</a>{% endfor %}
+          {% if all_tutors_url %}<a class="km-subject-quick-link" href="{{ all_tutors_url }}" {% if selected.specialization == 'tutor' and not selected.subject %}aria-current="true"{% endif %}><span class="material-symbols-rounded" aria-hidden="true">school</span>{% if language == 'az' %}Bütün repetitorlar{% elif language == 'en' %}All tutors{% else %}Все репетиторы{% endif %}</a>{% endif %}
         </div>
-        {% if specialization_chips %}
+        {% endif %}
+        {% if has_other_directions %}
         <details class="km-other-specialists" id="specialist-categories"{% if selected.specialization and selected.specialization != 'tutor' %} open{% endif %}>
           <summary><span class="material-symbols-rounded" aria-hidden="true">apps</span><span>{% if language == 'az' %}Digər mütəxəssislər{% elif language == 'en' %}Other specialists{% else %}Другие специалисты{% endif %}</span><span class="material-symbols-rounded km-other-specialists__chevron" aria-hidden="true">expand_more</span></summary>
           <nav class="km-other-specialists__options" aria-label="{% if language == 'az' %}İxtisaslar{% elif language == 'en' %}Specializations{% else %}Специализации{% endif %}">
@@ -94,6 +97,7 @@
         </details>
         {% endif %}
       </nav>
+      {% endif %}
     </div>
 
     <!-- Right Side: illustration and service advantages -->

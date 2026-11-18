@@ -14,7 +14,8 @@ _SOURCES = [
 ]
 
 MUSEUMS_GUIDE = {
-    'updated': '2026-11-04',
+    'updated': '2026-11-18',
+    'topic_example_ids': {'history': (377, 'museums-culture')},
     'hero_image': 'img/guides/museums-hero.webp',
     'hero_image_small': 'img/guides/museums-hero-small.webp',
     'hero_width': 1536,

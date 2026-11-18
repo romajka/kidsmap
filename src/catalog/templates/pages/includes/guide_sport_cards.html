@@ -12,10 +12,12 @@
         <p>{{ topic.text }}</p>
         <div class="pg-situation__art" aria-hidden="true"><img src="{% static topic.scene_image %}" alt="" width="360" height="240" loading="lazy" decoding="async"></div>
       </div>
-      <ul class="pg-situation__places"><li>
-        {% if topic.url %}<a href="{{ topic.url }}"><span>{{ guide.topic_link_label }}<span class="visually-hidden">: {{ topic.title }}</span></span><span class="pg-situation__arrow" aria-hidden="true">↗</span></a>
-        {% else %}<a href="{{ guide_add_url }}"><span>{{ guide.suggest_label }}<span class="visually-hidden">: {{ topic.title }}</span></span><span class="pg-situation__arrow" aria-hidden="true">↗</span></a>{% endif %}
-      </li></ul>
+      {% if topic.example or topic.url %}
+      <ul class="pg-situation__places">
+        {% if topic.example %}<li><a href="{{ topic.example.url }}"><span lang="{{ topic.example.name_language }}">{{ topic.example.name }}</span><span class="pg-situation__arrow" aria-hidden="true">↗</span></a></li>{% endif %}
+        {% if topic.url %}<li><a href="{{ topic.url }}"><span>{{ guide.topic_link_label }}<span class="visually-hidden">: {{ topic.title }}</span></span><span class="pg-situation__arrow" aria-hidden="true">↗</span></a></li>{% endif %}
+      </ul>
+      {% endif %}
       {% if topic.count %}<p class="pg-situation__count">{{ guide.availability_label }}: {{ topic.count }}</p>{% endif %}
     </section>
     {% endfor %}

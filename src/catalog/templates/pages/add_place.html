@@ -66,7 +66,7 @@
         <p class="add-place-hero__subtitle">{{ content.subtitle }}</p>
 
         <div class="add-place-hero__actions">
-          <a class="add-place-btn-primary" href="{% url 'owner_place_create' %}?fresh=1">
+          <a class="add-place-btn-primary" href="{% url 'owner_place_create' %}">
             <span class="material-symbols-rounded">add_circle</span>
             <span>{{ content.primary_cta }}</span>
           </a>
@@ -233,7 +233,7 @@
     </div>
 
     <div class="add-place-cta-actions">
-      <a class="add-place-cta-btn-white" href="{% url 'owner_place_create' %}?fresh=1">
+      <a class="add-place-cta-btn-white" href="{% url 'owner_place_create' %}">
         <span class="material-symbols-rounded">add_circle</span>
         <span>{{ content.primary_cta }}</span>
       </a>

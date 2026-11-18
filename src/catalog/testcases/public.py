@@ -239,17 +239,14 @@ class TestPublicPagesSmoke(TestCase):
                 for text in texts:
                     self.assertContains(response, text)
                 language_prefix = path.removesuffix("/add-place/")
-                self.assertContains(
-                    response,
-                    f'href="{language_prefix}/account/places/create/?fresh=1"',
-                    html=False,
-                )
+                create_url = f"{language_prefix}/account/places/create/"
+                self.assertContains(response, f'href="{create_url}"', count=2)
+                self.assertNotContains(response, f'href="{create_url}?fresh=1"')
                 self.assertContains(response, f'href="{language_prefix}/catalog/"', html=False)
                 self.assertNotContains(response, "готовую структуру", html=False)
                 self.assertNotContains(response, "Coming soon", html=False)
                 self.assertNotContains(response, "VIP", html=False)
 
-                create_url = f"{language_prefix}/account/places/create/?fresh=1"
                 create_response = self.client.get(create_url)
                 login_url = urlparse(create_response.headers["Location"])
                 self.assertEqual(login_url.path, f"{language_prefix}/auth/login/")
@@ -262,6 +259,25 @@ class TestPublicPagesSmoke(TestCase):
                     {"next": create_url},
                 )
                 self.assertEqual(register_response.context["next_url"], create_url)
+
+    def test_choosing_a_listing_type_only_starts_a_new_draft_on_selection(self):
+        self.client.force_login(User.objects.create_user(username="listing-selector"))
+        draft_key = "owner-place-create_last_key"
+        create_url = "/ru/account/places/create/"
+        for query in ("", "?fresh=1"):
+            chooser = self.client.get(create_url + query)
+            self.assertTemplateUsed(chooser, "pages/owner_listing_type_select.html")
+            self.assertContains(chooser, f'href="{create_url}?type=permanent&amp;fresh=1"')
+            self.assertNotIn(draft_key, self.client.session)
+
+        select_place = create_url + "?type=permanent&fresh=1"
+        first = self.client.get(select_place)
+        self.assertEqual(first.status_code, 200)
+        first_key = self.client.session[draft_key]
+        self.client.get(create_url)
+        self.assertEqual(self.client.session[draft_key], first_key)
+        self.assertEqual(self.client.get(select_place).status_code, 200)
+        self.assertNotEqual(self.client.session[draft_key], first_key)
 
     def test_legacy_for_business_url_redirects_permanently_to_add_place(self):
         checks = {

@@ -65,7 +65,8 @@ _LABELS = {'az': {'catalog_label': 'Kataloqa bax',
 GUIDE_PAGES = {
     'sport': {
         'published': '2026-10-22',
-        'updated': '2026-10-22',
+        'updated': '2026-11-18',
+        'topic_example_ids': {'gymnastics': (31, 'SPRT'), 'swimming': (398, 'water-leisure')},
         'hero_image': 'img/guides/sport-hero.webp',
         'hero_width': 1536,
         'hero_height': 1024,

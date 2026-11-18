@@ -10,7 +10,8 @@ _SOURCES = [
 ]
 
 PLAY_CENTERS_GUIDE = {
- 'updated': '2026-11-04',
+ 'updated': '2026-11-18',
+ 'topic_example_ids': {'centres': (361, 'FUN')},
  'hero_image': 'img/guides/play-centers-hero.webp',
  'hero_image_small': 'img/guides/play-centers-hero-small.webp',
  'hero_width': 1536, 'hero_height': 1024,

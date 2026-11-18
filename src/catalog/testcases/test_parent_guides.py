@@ -48,8 +48,66 @@ class ParentGuideTests(TestCase):
                 with self.subTest(prefix=prefix, slug=slug):
                     self.assertContains(response, f'href="{prefix}/parents/{slug}/"')
 
+    def test_empty_topic_preserves_copy_and_only_links_after_publication(self):
+        from django.utils.html import escape
+        subcategory = Subcategory.active.get(code='football')
+        place = create_quality_place(category='SPRT', subcategory=subcategory, status=Place.STATUS_DRAFT)
+        for status, has_matches in ((Place.STATUS_DRAFT, False), (Place.STATUS_PUBLISHED, True)):
+            Place.objects.filter(pk=place.pk).update(status=status)
+            for prefix in ('', '/ru', '/en'):
+                with self.subTest(prefix=prefix, status=status):
+                    response = self.client.get(prefix + '/parents/sport/')
+                    topic = next(t for t in response.context['guide_topics'] if t['key'] == 'football')
+                    self.assertContains(response, topic['title'])
+                    url = f'{prefix}/catalog/?category=SPRT&district=baku&subcategory={subcategory.pk}'
+                    self.assertEqual(topic['url'], url if has_matches else None)
+                    self.assertEqual(f'href="{escape(url)}"' in response.content.decode(), has_matches)
+
+    def test_empty_shortcuts_remain_absent_until_places_are_public(self):
+        park = create_quality_place(category='parks-playgrounds', status=Place.STATUS_DRAFT)
+        for status, show_park in ((Place.STATUS_DRAFT, False), (Place.STATUS_PUBLISHED, True)):
+            Place.objects.filter(pk=park.pk).update(status=status)
+            choices = self.client.get('/ru/parents/baku-with-kids/').context['guide_quick_choices']
+            self.assertEqual('parks' in [choice['key'] for choice in choices], show_park)
+            self.assertIn('rain', [choice['key'] for choice in choices])
+
+    def test_topic_examples_use_current_public_localized_cards_and_disappear_if_ineligible(self):
+        from django.utils.html import escape
+        from catalog.services.place_urls import place_path_for_language
+        gymnastics = create_quality_place(pk=31, category='SPRT', name_ru='Детская гимнастика',
+            name_en='Children’s gymnastics', name_az='Uşaq gimnastikası')
+        swimming = create_quality_place(pk=398, category='water-leisure', name_ru='Бассейн для детей')
+        examples = [('sport', 'gymnastics', gymnastics), ('sport', 'swimming', swimming),
+            ('museums', 'history', create_quality_place(pk=377, category='museums-culture')),
+            ('play-centers', 'centres', create_quality_place(pk=361, category='FUN',
+                subcategory=Subcategory.active.get(code='kids-play-centers')))]
+        for guide, key, place in examples:
+            for language, prefix in [('az', ''), ('ru', '/ru'), ('en', '/en')]:
+                with self.subTest(guide=guide, key=key, language=language):
+                    response = self.client.get(f'{prefix}/parents/{guide}/')
+                    topic = next(t for t in response.context['guide_topics'] if t['key'] == key)
+                    example = topic.get('example') or {}
+                    self.assertEqual(example.get('url'), place_path_for_language(place, language))
+                    sections = re.findall(
+                        r'<section [^>]*aria-labelledby="guide-topic-[0-9]+"[^>]*>(.*?)</section>',
+                        response.content.decode(), re.S)
+                    section = next(html for html in sections if f">{escape(topic['title'])}</h" in html)
+                    self.assertIn(f'href="{example["url"]}"', section)
+                    self.assertIn(escape(example['name']), section)
+                    if key == 'gymnastics':
+                        self.assertIsNone(topic['url'])
+        Place.objects.filter(pk=gymnastics.pk).update(status=Place.STATUS_DRAFT)
+        Place.objects.filter(pk=swimming.pk).update(district='ganja')
+        response = self.client.get('/ru/parents/sport/')
+        for topic in response.context['guide_topics']:
+            self.assertFalse(topic.get('example'))
+        self.assertNotContains(response, place_path_for_language(gymnastics, 'ru'))
+        self.assertNotContains(response, place_path_for_language(swimming, 'ru'))
+
     def test_day_out_shortcuts_preserve_format_and_never_open_all_baku(self):
         from urllib.parse import parse_qs, urlsplit
+        create_quality_place(category='parks-playgrounds')
+        create_quality_place(category='museums-culture')
         response = self.client.get('/ru/parents/baku-with-kids/')
         params = parse_qs(urlsplit(response.context['guide_catalog_url']).query)
         self.assertEqual(params.get('category'), ['FUN'])
@@ -91,6 +149,7 @@ class ParentGuideTests(TestCase):
 
     def test_inactive_leisure_taxonomy_does_not_broaden_catalog_shortcut(self):
         from catalog.models import Category
+        create_quality_place(category='museums-culture')
         Category.objects.filter(code='FUN').update(is_active=False)
         response = self.client.get('/ru/parents/baku-with-kids/')
         self.assertNotEqual(response.context['guide_catalog_url'], '/ru/catalog/?district=baku')

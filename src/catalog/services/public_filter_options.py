@@ -221,14 +221,17 @@ class PublicSpecialistFilterOptions:
     metro_stations: list[dict[str, object]]
 
 
-def build_public_specialist_filter_options(*, language_code: str) -> PublicSpecialistFilterOptions:
+def build_public_specialist_filter_options(*, language_code: str, candidate_ids=None) -> PublicSpecialistFilterOptions:
     from catalog.models import SpecialistSpecialization, Region, District, MetroStation, Specialist
     from django.db.models import Count
 
     active_specs = Specialist.objects.filter(status="published", is_active=True)
 
+    # Count every direction on the matching profiles, including when search
+    # found a profile through a different specialization on the same person.
+    matching_specs = active_specs.filter(pk__in=candidate_ids) if candidate_ids is not None else active_specs
     spec_counts = dict(
-        active_specs.values_list("specializations__code")
+        matching_specs.order_by().values_list("specializations__code")
         .annotate(total=Count("id"))
     )
 
@@ -248,7 +251,7 @@ def build_public_specialist_filter_options(*, language_code: str) -> PublicSpeci
     )
 
     from catalog.services.specialist_subjects import TUTOR_CODES
-    spec_counts['tutor'] = active_specs.filter(specializations__code__in=TUTOR_CODES).distinct().count()
+    spec_counts['tutor'] = matching_specs.filter(specializations__code__in=TUTOR_CODES).distinct().count()
 
     # 1. Specializations
     specializations = []
