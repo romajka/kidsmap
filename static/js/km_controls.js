@@ -197,7 +197,7 @@
   }
 
   function enhanceAll(scope) {
-    (scope || document).querySelectorAll(".range-filter-track, .km-age-slider-track, [data-kmr-track]").forEach(enhanceRange);
+    (scope || document).querySelectorAll(".range-filter-track, [data-kmr-track]").forEach(enhanceRange);
   }
 
   /* ---------- Dropdown option stagger index ---------- */
