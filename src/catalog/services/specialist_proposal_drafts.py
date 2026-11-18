@@ -28,6 +28,12 @@ def proposal_data(payload):
     return result
 
 
+def saved_profile_subject(draft):
+    # Earlier proposals did not carry a subject. They were proposals for other people.
+    values = draft.payload.get('profile_subject') or []
+    return 'self' if values and values[-1] == 'self' else 'other'
+
+
 def _payload(data):
     # Subject is an application intent, never identity proof or authority.
     # No authority IDs, consent, document metadata or arbitrary form keys.
@@ -76,7 +82,7 @@ def save_proposal(*,actor,draft_id,expected_version,data,files,submit=False):
             if draft and draft.payload.get('photo-clear') and not files.get('photo'):
                 data = data.copy()
                 data['photo-clear'] = 'on'
-            subject=data.get('profile_subject', 'other')
+            subject = saved_profile_subject(draft) if draft else data.get('profile_subject', 'other')
             if subject not in ('self', 'other'):
                 raise ValidationError(_('Выберите, чей профиль вы добавляете.'))
             if draft and draft.submitted_specialist_id:
@@ -102,7 +108,9 @@ def save_proposal(*,actor,draft_id,expected_version,data,files,submit=False):
                 draft.photo_content_type=getattr(uploaded,'content_type','image/jpeg')
             elif data.get('photo-clear'):
                 draft.photo='';draft.photo_content_type=''
-            draft.payload=_payload(data);draft.version+=1
+            draft.payload = _payload(data)
+            draft.payload['profile_subject'] = [subject]
+            draft.version += 1
             if submit:
                 # Temporary files stay outside public media until a valid send.
                 if draft.photo and not uploaded:

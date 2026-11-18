@@ -51,6 +51,28 @@
       </script>
     {% endif %}
     <link rel="stylesheet" href="{% static 'css/components/icons.css' %}" />
+    <style>
+      /* Icon-font glyphs are ligature words ("tune", "login"…). Until the font is ready,
+         keep them invisible and one icon wide, so the words never flash or push the layout. */
+      html:not(.km-icons-ready) .material-symbols-rounded,
+      html:not(.km-icons-ready) .material-symbols-outlined {
+        color: transparent !important;
+        max-width: 1em !important;
+        overflow: hidden !important;
+      }
+    </style>
+    <script>
+      (function (d) {
+        var h = d.documentElement, done = false;
+        function ready() { if (!done) { done = true; h.classList.add("km-icons-ready"); } }
+        if (!d.fonts || !d.fonts.load) { ready(); return; }
+        d.fonts.load('24px "Material Symbols Rounded"', "home").then(function (list) {
+          if (list && list.length) ready();
+        }, ready);
+        // Never keep icons hidden forever if the font fails.
+        window.setTimeout(ready, 12000);
+      })(document);
+    </script>
     <link rel="stylesheet" href="{% static 'css/components/auth_navigation.css' %}?v=20261117" />
     <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261117_filter_shortcuts" />
     <link rel="stylesheet" href="{% static 'css/components/states.css' %}" />
@@ -111,6 +133,10 @@
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=20261026_contacts_polish1">
     <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261106_tap_targets">
     <link rel="stylesheet" href="{% static 'css/components/foundation.css' %}?v=20261117_page_gutters">
+    <link rel="stylesheet" href="{% static 'css/components/km_controls.css' %}?v=20261118_layout_r1">
+    <script src="{% static 'js/km_controls.js' %}?v=20261118_sp_r1" defer></script>
+    <link rel="stylesheet" href="{% static 'css/components/km_search.css' %}?v=20261118_search_r1">
+    <link rel="stylesheet" href="{% static 'css/components/km_card.css' %}?v=20261118_card_r3">
     <script src="{% static 'js/header.js' %}?v=20261018_site18_r2" defer></script>
     <script src="{% static 'js/motion.js' %}?v=20261105_polish_r1"></script>
   </head>

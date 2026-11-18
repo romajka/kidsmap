@@ -7,7 +7,7 @@ from django.http import QueryDict
 from django.test import TestCase
 from django.utils import timezone
 
-from catalog.models import SiteSettings, Specialist, SpecialistClaim, SpecialistSpecialization
+from catalog.models import SiteSettings, Specialist, SpecialistClaim, SpecialistSpecialization, UserProfile
 from catalog.services import specialist_domain
 from catalog.services.specialist_proposal_drafts import save_proposal
 
@@ -65,6 +65,145 @@ class SpecialistSelfOnboardingTests(TestCase):
         self.assertContains(response, 'href="/ru/account/"')
         self.assertContains(response, '<input type="hidden" name="profile_subject" value="self">', html=True)
         self.assertNotContains(response, 'type="radio" name="profile_subject"')
+
+    def set_account_details(self, phone='(050) 123-45-67'):
+        self.actor.first_name = 'Synthetic'
+        self.actor.last_name = 'Applicant'
+        self.actor.save(update_fields=['first_name', 'last_name'])
+        UserProfile.objects.update_or_create(user=self.actor, defaults={'phone': phone})
+
+    def test_first_editor_suggests_own_name_and_keeps_phone_private(self):
+        self.set_account_details()
+        page = self.client.get('/ru/account/places/specialists/create/', follow=True)
+        form = page.context['form']
+        self.assertEqual(form['name'].value(), 'Synthetic Applicant')
+        self.assertFalse(form['phone'].value())
+        self.assertFalse(form['whatsapp'].value())
+        self.assertEqual(page.context.get('account_phone_for_public_profile'), '+994501234567')
+
+    def test_reopening_drafts_preserves_silent_or_edited_fields_and_all_work_formats(self):
+        self.set_account_details()
+        for selected_format, name in (('online', ''), ('offline', 'Edited name'), ('both', 'Second name')):
+            with self.subTest(selected_format=selected_format):
+                draft = self.save(self.data(name=name, consultation_format=selected_format, phone=''))
+                page = self.client.get(f'/ru/account/specialists/proposals/{draft.pk}/')
+                form = page.context['form']
+                self.assertEqual(form['name'].value(), name)
+                self.assertEqual(form['consultation_format'].value(), selected_format)
+                self.assertFalse(form['phone'].value())
+                self.assertEqual(page.context.get('account_phone_for_public_profile'), '+994501234567')
+
+    def test_other_and_legacy_drafts_never_offer_account_contacts(self):
+        self.set_account_details()
+        for subject in ('other', None):
+            with self.subTest(subject=subject):
+                data = self.data(subject=subject, name='Someone else', phone='')
+                if subject is None:
+                    del data['profile_subject']
+                draft = self.save(data)
+                url = f'/ru/account/specialists/proposals/{draft.pk}/'
+                page = self.client.get(url)
+                self.assertEqual(page.context['form']['name'].value(), 'Someone else')
+                self.assertFalse(page.context.get('account_phone_for_public_profile'))
+                # A resumed draft keeps its subject even after a stale or edited form POST.
+                page = self.client.post(url, {**data.dict(), 'profile_subject':'self',
+                                              'draft_key':str(draft.pk), 'draft_version':str(draft.version),
+                                              'form_action':'save_draft'}, follow=True)
+                self.assertEqual(page.context['profile_subject'], 'other')
+                self.assertFalse(page.context.get('account_phone_for_public_profile'))
+
+    def test_manual_phone_takes_precedence_and_invalid_account_contacts_are_never_offered(self):
+        self.set_account_details()
+        draft = self.save(self.data(phone='+994 55 123 45 67'))
+        url = f'/ru/account/specialists/proposals/{draft.pk}/'
+        page = self.client.get(url)
+        self.assertEqual(page.context['form']['phone'].value(), '+994 55 123 45 67')
+        self.assertFalse(page.context.get('account_phone_for_public_profile'))
+        self.assertEqual(self.client.get('/ru/account/specialists/proposals/new/').context.get(
+            'account_phone_for_public_profile'), '+994501234567')
+        for account_phone in ('', 'старый контакт', '1234'):
+            with self.subTest(account_phone=account_phone):
+                self.set_account_details(account_phone)
+                page = self.client.get('/ru/account/specialists/proposals/new/')
+                self.assertFalse(page.context.get('account_phone_for_public_profile'))
+
+    def test_missing_account_names_never_expose_login_or_email(self):
+        self.actor.email = 'private@example.test'
+        self.actor.save(update_fields=['email'])
+        page = self.client.get('/ru/account/specialists/proposals/new/')
+        self.assertFalse(page.context['form']['name'].value())
+        self.assertFalse(page.context.get('account_phone_for_public_profile'))
+
+    def test_stale_new_tab_keeps_existing_proposal_subject_and_manual_name_on_error(self):
+        self.set_account_details()
+        draft = self.save(self.data(subject='other', name='Original name', phone=''))
+        page = self.client.post('/ru/account/specialists/proposals/new/', {
+            **self.data(name='Manual correction', phone='').dict(),
+            'draft_key': str(draft.pk), 'draft_version': '0', 'form_action': 'save_draft',
+        })
+        self.assertEqual(page.status_code, 409)
+        self.assertEqual(page.context['form']['name'].value(), 'Manual correction')
+        self.assertEqual(page.context['profile_subject'], 'other')
+        self.assertFalse(page.context.get('account_phone_for_public_profile'))
+
+    def test_whatsapp_only_submit_does_not_copy_private_phone(self):
+        self.set_account_details()
+        draft = self.save(self.data(phone='', whatsapp='+994 55 123 45 67'), submit=True)
+        self.assertFalse(draft.submitted_specialist.phone)
+        self.assertEqual(draft.submitted_specialist.whatsapp, '+994551234567')
+
+    def test_entry_resumes_a_single_self_draft_and_keeps_explicit_new_entry(self):
+        foreign = get_user_model().objects.create_user('other-applicant')
+        save_proposal(actor=foreign, draft_id=uuid4(), expected_version='0', data=self.data(), files={})
+        self.save(self.data(subject='other'))
+        entry = '/ru/account/places/specialists/create/'
+        new = '/ru/account/specialists/proposals/new/'
+        self.assertRedirects(self.client.get(entry), new, fetch_redirect_response=False)
+        draft = self.save(self.data(name='Continue this draft'))
+        page = self.client.get(entry, follow=True)
+        self.assertEqual(page.redirect_chain, [(f'/ru/account/specialists/proposals/{draft.pk}/', 302)])
+        self.assertEqual(page.context['form']['name'].value(), 'Continue this draft')
+        self.assertRedirects(self.client.get(entry + '?fresh=1'), new, fetch_redirect_response=False)
+        self.assertIsNone(self.client.get(new).context['proposal_draft'])
+
+    def test_entry_offers_a_choice_if_several_self_drafts_exist(self):
+        drafts = [self.save(self.data(name=name)) for name in ('First draft', 'Second draft')]
+        page = self.client.get('/ru/account/places/specialists/create/', follow=True)
+        self.assertEqual(page.redirect_chain, [('/ru/account/specialists/', 302)])
+        for draft in drafts:
+            self.assertContains(page, f'href="/ru/account/specialists/proposals/{draft.pk}/"')
+        for locale, label in (('ru', 'Начать новую анкету'), ('az', 'Yeni anketə başla'), ('en', 'Start a new application')):
+            prefix = '' if locale == 'az' else f'/{locale}'
+            page = self.client.get(f'{prefix}/account/specialists/')
+            self.assertContains(page, f'href="{prefix}/account/specialists/proposals/new/"')
+            self.assertContains(page, label)
+
+    def test_entry_reports_pending_application_and_resumes_returned_corrections(self):
+        sent = self.save(self.data(), submit=True)
+        entry = '/ru/account/places/specialists/create/'
+        index = '/ru/account/specialists/'
+        page = self.client.get(entry, follow=True)
+        self.assertEqual(page.redirect_chain, [(index, 302)])
+        self.assertContains(page, 'О решении модератора')
+        self.assertContains(page, 'Подтверждение личности')
+        person = sent.submitted_specialist
+        person.status = Specialist.STATUS_DRAFT
+        person.rejection_reason = 'Уточните предмет'
+        person.save(update_fields=['status','rejection_reason'])
+        from catalog.services.specialist_moderation import reopen_author_draft
+        reopened = reopen_author_draft(person)
+        page = self.client.get(entry, follow=True)
+        self.assertEqual(page.redirect_chain, [(f'/ru/account/specialists/proposals/{reopened.pk}/', 302)])
+        self.assertContains(page, 'Уточните предмет')
+
+    def test_entry_takes_confirmed_owner_to_management_even_with_an_old_draft(self):
+        self.save(self.data())
+        person = Specialist.objects.create(name='Confirmed person', verified_person_user=self.actor,
+                                            person_verified_at=timezone.now(), status='published', is_active=True)
+        page = self.client.get('/ru/account/places/specialists/create/', follow=True)
+        self.assertEqual(page.redirect_chain, [('/ru/account/specialists/', 302)])
+        self.assertContains(page, f'href="/ru/account/specialists/{person.pk}/"')
+        self.assertNotContains(page, 'Начать новую анкету')
 
     def test_confirmed_profile_editor_uses_full_page_with_return_to_account(self):
         profile = Specialist.objects.create(name='Synthetic confirmed person', verified_person_user=self.actor,

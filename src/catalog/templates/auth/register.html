@@ -6,11 +6,12 @@
 {% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Qeydiyyat | KidsMap{% elif CURRENT_LANGUAGE == "en" %}Register | KidsMap{% else %}Регистрация | KidsMap{% endif %}{% endblock %}
 {% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Qeydiyyat | KidsMap{% elif CURRENT_LANGUAGE == "en" %}Register | KidsMap{% else %}Регистрация | KidsMap{% endif %}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/components/google_auth.css' %}" />{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/components/google_auth.css' %}" />{% if auth_intent == "specialist_profile" %}<link rel="stylesheet" href="{% static 'css/pages/specialist_auth.css' %}" />{% endif %}{% endblock %}
 
 {% block content %}
-  <section class="register-shell register-shell--compact-mobile">
+  <section class="register-shell register-shell--compact-mobile{% if auth_intent == "specialist_profile" %} specialist-auth{% endif %}">
     <div class="register-frame panel">
+      {% if auth_intent != "specialist_profile" %}
       <div class="register-aside">
         <div class="register-aside-copy">
           <span class="register-kicker">KidsMap.az</span>
@@ -98,7 +99,11 @@
         </div>
       </div>
 
+      {% endif %}
       <div class="register-form-card">
+        {% if auth_intent == "specialist_profile" %}
+          {% include "auth/includes/specialist_entry.html" with signup=True %}
+        {% else %}
         <div class="register-form-head">
           <h2>{% if CURRENT_LANGUAGE == "az" %}Hesab yaradın{% elif CURRENT_LANGUAGE == "en" %}Create your account{% else %}Создайте аккаунт{% endif %}</h2>
           <p>
@@ -112,6 +117,7 @@
           </p>
         </div>
 
+        {% endif %}
         {% include "auth/includes/google_button.html" %}
         <form method="post" action="{% url 'account_register' %}" class="auth-form register-form" data-loading-form novalidate>
           {% csrf_token %}
@@ -160,16 +166,17 @@
               {% if form.email.errors %}<span class="auth-field-error">{{ form.email.errors|join:", " }}</span>{% endif %}
             </label>
 
-            <label class="register-field {% if form.phone.errors %}has-error{% endif %}">
-              <span class="register-label">{{ form.phone.label }}</span>
+            <div class="register-field {% if form.phone.errors %}has-error{% endif %}">
+              <label for="{{ form.phone.id_for_label }}" class="register-label">{{ form.phone.label }}</label>
               <span class="register-input-wrap">
                 <span class="register-input-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" focusable="false"><path d="m6.843 4.75 1.34-.001c.495 0 .925.343 1.035.826l.577 2.535c.085.372-.035.76-.314 1.018l-1.147 1.058a12.203 12.203 0 0 0 5.48 5.48l1.058-1.147c.257-.279.646-.399 1.018-.314l2.535.577c.483.11.826.54.826 1.035v1.34A2.093 2.093 0 0 1 19.158 19.25 14.408 14.408 0 0 1 4.75 4.842 2.093 2.093 0 0 1 6.843 4.75Zm1.34 1.499H6.844a.593.593 0 0 0-.594.594c0 6.045 4.905 10.907 10.908 10.907a.593.593 0 0 0 .592-.593v-1.34l-2.476-.563-1.227 1.33a.75.75 0 0 1-.81.192 13.705 13.705 0 0 1-6.014-6.013.75.75 0 0 1 .193-.811l1.329-1.227-.562-2.476Z"/></svg>
                 </span>
                 {{ form.phone }}
               </span>
+              {% if auth_intent == "specialist_profile" %}<small id="signup-phone-privacy" class="specialist-auth-phone-note">{% if CURRENT_LANGUAGE == "az" %}Bu, hesabınızın nömrəsidir. Valideynlər üçün əlaqə nömrəsini anketdə özünüz seçəcəksiniz.{% elif CURRENT_LANGUAGE == "en" %}This number is for your account. You choose the contact number parents see in your profile.{% else %}Это номер для аккаунта. Какой контакт увидят родители, вы выберете в анкете.{% endif %}</small>{% endif %}
               {% if form.phone.errors %}<span class="auth-field-error">{{ form.phone.errors|join:", " }}</span>{% endif %}
-            </label>
+            </div>
 
             <label class="register-field register-field-full {% if form.password1.errors %}has-error{% endif %}">
               <span class="register-label">{{ form.password1.label }}</span>
@@ -232,6 +239,7 @@
           </button>
         </form>
 
+        {% if auth_intent != "specialist_profile" %}
         <form method="post" action="{% url 'account_login' %}" class="register-login-note" data-auth-navigation>
           {% include "includes/auth_navigation_fields.html" with auth_next=next_url auth_intent_value=auth_intent %}
           {% if CURRENT_LANGUAGE == "az" %}
@@ -245,6 +253,7 @@
             {% if CURRENT_LANGUAGE == "az" %}Daxil ol{% elif CURRENT_LANGUAGE == "en" %}Sign in{% else %}Войти{% endif %}
           </button>
         </form>
+        {% endif %}
       </div>
     </div>
   </section>

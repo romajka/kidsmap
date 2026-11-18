@@ -56,6 +56,20 @@ def specialist_list(request):
                  .select_related('place', 'region', 'district', 'metro')), 'specializations')
 
     from catalog.services.specialist_subjects import SUBJECTS, TUTOR_CODES, subject_item, profile_subjects
+    from catalog.services.age_display import format_age_range
+    from catalog.services.pricing_plans import format_price_range
+
+    # Compute the slider scale before unrelated filters are applied.
+    spec_code = (request.GET.get("specialization") or "").strip()
+    if spec_code == 'tutor':
+        qs = qs.filter(specializations__code__in=TUTOR_CODES)
+    elif spec_code:
+        qs = qs.filter(specializations__code=spec_code)
+    subject_code = (request.GET.get('subject') or '').strip()
+    if subject_code:
+        qs = qs.filter(specializations__code=subject_code) if subject_code in SUBJECTS else qs.none()
+
+    specialist_price_max = get_specialist_max_price(qs)
 
     # 1. Search Query
     q = (request.GET.get("q") or "").strip()
@@ -75,16 +89,6 @@ def specialist_list(request):
             | models.Q(specializations__code__in=subject_matches)
         )
 
-    # 2. Specialization
-    spec_code = (request.GET.get("specialization") or "").strip()
-    if spec_code == 'tutor':
-        qs = qs.filter(specializations__code__in=TUTOR_CODES)
-    elif spec_code:
-        qs = qs.filter(specializations__code=spec_code)
-    subject_code = (request.GET.get('subject') or '').strip()
-    if subject_code:
-        qs = qs.filter(specializations__code=subject_code) if subject_code in SUBJECTS else qs.none()
-
     # 3. Consultation Format
     cf = (request.GET.get("format") or "").strip()
     if cf:
@@ -97,6 +101,9 @@ def specialist_list(request):
     region_key = (request.GET.get("region") or "").strip()
     district_key = (request.GET.get("district") or "").strip()
     metro_key = (request.GET.get("metro") or "").strip()
+
+    if cf == "online":
+        region_key = district_key = metro_key = ""
 
     if region_key or district_key or metro_key:
         loc_q = models.Q(practice_locations__is_active=True)
@@ -128,8 +135,7 @@ def specialist_list(request):
             & (models.Q(age_to__isnull=True) | models.Q(age_to__gte=age_val))
         )
 
-    # 6. One global ceiling and semantic bounds for SQL, chips and forms.
-    specialist_price_max = get_specialist_max_price()
+    # Price bounds for SQL, chips and forms.
     price_lower, price_upper = normalize_specialist_price_bounds(
         request.GET.get("price_from"), request.GET.get("price_to"),
         ceiling=specialist_price_max,
@@ -185,6 +191,9 @@ def specialist_list(request):
 
     specialist_query_params = request.GET.copy()
     specialist_query_params.pop("page", None)
+    if cf == "online":
+        for key in ("region", "district", "metro"):
+            specialist_query_params.pop(key, None)
     for name, value in (("price_from", price_from), ("price_to", price_to)):
         specialist_query_params.pop(name, None)
         if value:
@@ -295,7 +304,7 @@ def specialist_list(request):
     subject_options.sort(key=lambda item: list(SUBJECTS).index(item['value']))
     for item in subject_options:
         params = specialist_query_params.copy()
-        params['specialization'] = 'tutor'
+        params['specialization'] = spec_code if spec_code in ('primary_teacher', 'exam_prep_tutor') else 'tutor'
         params['subject'] = item['value']
         item['url'] = '?' + params.urlencode()
     filter_options.specializations[:] = [s for s in filter_options.specializations
@@ -340,7 +349,7 @@ def specialist_list(request):
         visual = SPECIALIST_VISUALS.get(val, {"icon": "school", "color_bg": "#f1f5f9", "color_text": "#475569"})
         chip_params = specialist_query_params.copy()
         chip_params["specialization"] = val
-        if val not in ("tutor", "exam_prep_tutor"):
+        if val not in ("tutor", "exam_prep_tutor", "primary_teacher"):
             chip_params.pop("subject", None)
         chip_url = f"?{chip_params.urlencode()}"
         specialization_chips.append({
@@ -382,6 +391,7 @@ def specialist_list(request):
             results_count_label = f"Найдено {count} специалистов"
 
     # Enrich specialist cards with strictly ordered and preformatted metadata
+    age_unit = {"az": "yaş", "ru": "лет", "en": "yrs"}[language]
     for specialist in page_obj:
         # Check if photo exists on storage
         specialist.has_valid_photo = False
@@ -405,35 +415,8 @@ def specialist_list(request):
         specialist.card_subjects = profile_subjects(specialist, language)
         specialist.card_specializations = [s.name_i18n(language) for s in specialist.specializations.all() if s.code not in SUBJECTS]
 
-        # 2. Age range
-        if specialist.age_from and specialist.age_to:
-            if language == "az":
-                specialist.card_age = f"{specialist.age_from}–{specialist.age_to} yaş"
-            elif language == "en":
-                specialist.card_age = f"{specialist.age_from}–{specialist.age_to} yrs"
-            else:
-                specialist.card_age = f"{specialist.age_from}–{specialist.age_to} лет"
-        elif specialist.age_from:
-            if language == "az":
-                specialist.card_age = f"{specialist.age_from} yaşdan"
-            elif language == "en":
-                specialist.card_age = f"From {specialist.age_from} yrs"
-            else:
-                specialist.card_age = f"С {specialist.age_from} лет"
-        elif specialist.age_to:
-            if language == "az":
-                specialist.card_age = f"{specialist.age_to} yaşadək"
-            elif language == "en":
-                specialist.card_age = f"Up to {specialist.age_to} yrs"
-            else:
-                specialist.card_age = f"До {specialist.age_to} лет"
-        else:
-            if language == "az":
-                specialist.card_age = "İstənilən yaş"
-            elif language == "en":
-                specialist.card_age = "Any age"
-            else:
-                specialist.card_age = "Любой возраст"
+        age_range = format_age_range(specialist.age_from, specialist.age_to, language)
+        specialist.card_age = f"{age_range} {age_unit}" if age_range else ""
 
         # 3. Format
         fmt = specialist.consultation_format
@@ -447,63 +430,42 @@ def specialist_list(request):
             specialist.card_format_label = "Onlayn və əyani" if language == "az" else ("Online & In Office" if language == "en" else "Онлайн и очно")
             specialist.card_format_icon = "devices"
 
-        # 4. District / Location
-        if fmt == Specialist.FORMAT_ONLINE:
-            specialist.card_location = "Bütün Azərbaycan üzrə onlayn" if language == "az" else ("Online across Azerbaijan" if language == "en" else "Онлайн по всему Азербайджану")
-        else:
-            loc_names = []
-            for loc in specialist.practice_locations.all():
-                loc_label = None
+        locations = list(specialist.practice_locations.all())
+        location_names = []
+        if fmt != Specialist.FORMAT_ONLINE:
+            for loc in locations:
                 if loc.district:
-                    loc_label = loc.district.name_i18n(language)
+                    name = loc.district.name_i18n(language)
                 elif loc.metro:
-                    loc_label = loc.metro.name_i18n(language)
+                    name = loc.metro.name_i18n(language)
                 elif loc.place and loc.place.district:
-                    loc_label = loc.place.district_i18n(language)
-                elif loc.address:
-                    loc_label = loc.address
-                if loc_label and loc_label not in loc_names:
-                    loc_names.append(loc_label)
-            if loc_names:
-                specialist.card_location = ", ".join(loc_names)
-            elif fmt in [Specialist.FORMAT_ONLINE, Specialist.FORMAT_BOTH]:
-                specialist.card_location = "Bütün Azərbaycan üzrə onlayn" if language == "az" else ("Online across Azerbaijan" if language == "en" else "Онлайн по всему Азербайджану")
-            else:
-                specialist.card_location = "Bakı" if language == "az" else ("Baku" if language == "en" else "Баку")
-
-        # 5. Price
-        session_suffix = " / seans" if language == "az" else (" / session" if language == "en" else " / приём")
-        if specialist.price_from and specialist.price_to:
-            specialist.card_price = f"{specialist.price_from}–{specialist.price_to} AZN{session_suffix}"
-        elif specialist.price_from:
-            if language == "az":
-                specialist.card_price = f"{specialist.price_from} AZN-dən{session_suffix}"
-            elif language == "en":
-                specialist.card_price = f"from {specialist.price_from} AZN{session_suffix}"
-            else:
-                specialist.card_price = f"от {specialist.price_from} AZN{session_suffix}"
-        elif specialist.price_to:
-            if language == "az":
-                specialist.card_price = f"{specialist.price_to} AZN-dək{session_suffix}"
-            elif language == "en":
-                specialist.card_price = f"up to {specialist.price_to} AZN{session_suffix}"
-            else:
-                specialist.card_price = f"до {specialist.price_to} AZN{session_suffix}"
-        else:
-            locs = list(specialist.practice_locations.all())
-            is_free = any(l.price_per_session == 0 for l in locs)
-            prices = [l.price_per_session for l in locs if l.price_per_session and l.price_per_session > 0]
-            if is_free and not prices:
-                specialist.card_price = "Pulsuz" if language == "az" else ("Free" if language == "en" else "Бесплатно")
-            elif prices:
-                min_p = min(prices)
-                max_p = max(prices)
-                if min_p == max_p:
-                    specialist.card_price = f"{min_p} AZN{session_suffix}"
+                    name = loc.place.district_i18n(language)
                 else:
-                    specialist.card_price = f"{min_p}–{max_p} AZN{session_suffix}"
-            else:
-                specialist.card_price = "Razılaşma yolu ilə" if language == "az" else ("By agreement" if language == "en" else "По договорённости")
+                    name = loc.address or (loc.region.name_i18n(language) if loc.region else "")
+                if name and name not in location_names:
+                    location_names.append(name)
+        specialist.card_location = ", ".join(location_names)
+
+        low, high = specialist.price_from, specialist.price_to
+        if low is None and high is None:
+            fees = [loc.price_per_session for loc in locations if loc.price_per_session is not None]
+            if fees:
+                low, high = min(fees), max(fees)
+        if low is not None and high is not None:
+            price = format_price_range(low, high, language)["full"]
+        elif low is not None:
+            price = {"ru": f"от {low} AZN", "az": f"{low} AZN-dən", "en": f"from {low} AZN"}[language]
+        elif high is not None:
+            price = {"ru": f"до {high} AZN", "az": f"{high} AZN-dək", "en": f"up to {high} AZN"}[language]
+        else:
+            price = ""
+        duration = specialist.duration_minutes
+        if duration:
+            unit = {"az": "dəq", "ru": "мин", "en": "min"}[language]
+            session = f"{duration} {unit}"
+        else:
+            session = {"az": "seans", "ru": "занятие", "en": "session"}[language]
+        specialist.card_price = f"{price} / {session}" if price else ""
 
     context = {
         "subject_options": subject_options,
@@ -535,6 +497,11 @@ def specialist_list(request):
         "specialist_query_without_page": specialist_query_params.urlencode(),
         "reset_filters_url": request.path,
         "results_count_label": results_count_label,
+        "directory_has_profiles": bool(count) or Specialist.objects.filter(
+            status=Specialist.STATUS_PUBLISHED, is_active=True
+        ).exists(),
+        "education_alternative": not spec_code or spec_code in TUTOR_CODES or spec_code == "school_prep_teacher",
+        "primary_school": next((item for item in specialization_chips if item["value"] == "primary_teacher"), None),
         "language": language,
         "seo_title": _("Педагоги и специалисты для детей — KidsMap"),
         "meta_description": _("Найдите репетитора, педагога, психолога, логопеда, тренера или другого специалиста для ребёнка."),

@@ -21,7 +21,7 @@ SUBJECTS = {
     'german_teacher': ('Немецкий язык', 'Alman dili', 'German', 'translate'),
 }
 REQUIRES_SUBJECT = frozenset({'tutor', 'exam_prep_tutor'})
-TUTOR_CODES = REQUIRES_SUBJECT | SUBJECTS.keys()
+TUTOR_CODES = REQUIRES_SUBJECT | SUBJECTS.keys() | {'primary_teacher'}
 
 
 def subject_item(code, language=None):

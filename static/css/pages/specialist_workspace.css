@@ -2474,3 +2474,81 @@
 .sw-moderator-note .sw-moderator-note__label{margin-bottom:4px;font-size:13px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:#7a5200}
 .sw-actions form{margin:0}
 @media(max-width:767px){.sw-actions{display:grid}.sw-actions .sw-button,.sw-actions form{width:100%}}
+
+/* Keep the name and the next action in view when an applicant first opens the form. */
+.km-specialist-workspace-header {
+  display: block;
+  margin-bottom: 8px;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.km-specialist-workspace-header h1 {
+  margin-block: 0 4px;
+  font: 750 clamp(1.5rem, 3vw, 2.15rem)/1.15 var(--font-display);
+  color: var(--ink);
+}
+.km-specialist-workspace-header .km-back-pill { margin-bottom: 8px; }
+.km-specialist-workspace-header .km-workspace-subtitle {
+  color: var(--muted);
+  line-height: 1.4;
+}
+.km-specialist-workspace .spec-save-state {
+  margin: 0 0 12px;
+  font-size: .85rem;
+  color: var(--muted);
+}
+.km-specialist-owner-form .km-section-navigation {
+  padding: 0 14px;
+  box-shadow: none;
+}
+.km-specialist-owner-form .km-owner-nav-head {
+  margin: 0;
+  min-height: 48px;
+  justify-content: flex-start;
+  gap: 8px;
+}
+.km-specialist-owner-form .km-owner-nav-title {
+  margin-inline-end: auto;
+  font-weight: 750;
+  color: var(--ink);
+}
+.km-nav-completion { font-size: .8rem; color: var(--muted); }
+.km-nav-completion strong { white-space: nowrap; color: var(--brand-turf); }
+.km-specialist-owner-form .km-owner-toc-list { margin: 0; padding-bottom: 10px; }
+.km-specialist-owner-form .km-step-header { margin-bottom: 14px; }
+.km-specialist-owner-form .km-step-header:has(.km-step-desc) { margin-bottom: 16px; }
+.km-specialist-owner-form .km-profile-name { max-width: 38rem; }
+.km-profile-extras { margin-top: 12px; }
+.km-profile-extras > summary, .km-account-phone-button, .km-first-error {
+  min-height: 44px;
+  padding-block: 10px;
+  color: var(--brand-turf);
+  font: 650 .9rem/1.45 var(--font-body);
+  cursor: pointer;
+}
+.km-profile-extras > summary { width: fit-content; }
+.km-profile-extras > label { max-width: 38rem; margin-bottom: 12px; }
+.km-account-phone-button, .km-first-error {
+  width: fit-content;
+  padding-inline: 0;
+  background: transparent;
+  border: 0;
+  text-align: start;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+.km-profile-extras > summary:focus-visible, .km-account-phone-button:focus-visible, .km-first-error:focus-visible {
+  outline: 2px solid var(--brand-turf);
+  outline-offset: 2px;
+}
+.km-specialist-owner-form .km-review-note { margin: 0; color: var(--muted); }
+@media (max-width: 1023px) {
+  .km-specialist-workspace-grid { gap: 12px; }
+}
+@media (max-width: 767px) {
+  .km-specialist-workspace-header .km-workspace-subtitle { font-size: .875rem; }
+  .km-specialist-workspace .km-mobile-submit-bar { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+  .km-specialist-owner-form .km-mobile-submit-bar > button { padding-inline: 8px; }
+  .km-specialist-owner-form .km-mobile-submit-bar .material-symbols-rounded { display: none; }
+}
+.km-specialist-owner-form .km-nav-validation { margin: 0; color: var(--tone-danger-solid); font-size: .875rem; }

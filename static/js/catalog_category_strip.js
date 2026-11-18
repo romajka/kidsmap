@@ -10,12 +10,17 @@
 (function () {
   'use strict';
 
+  const windowListeners = new Map();
+
   function initCategoryStrip(wrap) {
     if (!wrap || wrap.dataset.categoryStripInit === 'true') return;
     wrap.dataset.categoryStripInit = 'true';
 
     var strip = wrap.querySelector('.catalog-category-strip');
     if (!strip) return;
+
+    const listeners = new AbortController();
+    windowListeners.set(wrap, listeners);
 
     var prevBtn = wrap.querySelector('[data-strip-prev]');
     var nextBtn = wrap.querySelector('[data-strip-next]');
@@ -94,7 +99,7 @@
       if (hasDragged) {
         strip.scrollLeft = scrollStart - delta;
       }
-    });
+    }, { signal: listeners.signal });
 
     function endDrag() {
       if (!isDown) return;
@@ -107,7 +112,7 @@
       }
     }
 
-    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('mouseup', endDrag, { signal: listeners.signal });
 
     // Suppress child click when dragging
     strip.addEventListener('click', function (e) {
@@ -132,7 +137,7 @@
     }
 
     strip.addEventListener('scroll', updateOverflowState, { passive: true });
-    window.addEventListener('resize', updateOverflowState);
+    window.addEventListener('resize', updateOverflowState, { signal: listeners.signal });
 
     // Initial check (and after webfonts/icons render)
     updateOverflowState();
@@ -141,6 +146,12 @@
   }
 
   function initAllStrips() {
+    for (const [wrap, listeners] of windowListeners) {
+      if (!wrap.isConnected) {
+        listeners.abort();
+        windowListeners.delete(wrap);
+      }
+    }
     document.querySelectorAll('[data-catalog-categories-scroll]').forEach(initCategoryStrip);
   }
 

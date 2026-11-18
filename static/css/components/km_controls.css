@@ -1,0 +1,1100 @@
+/*
+ * KidsMap filter controls — one look for every filter on the public site.
+ * Pairs with static/js/km_controls.js. Loaded last in base.html, so it wins
+ * over the page-level overrides (several of which use !important).
+ *
+ *  1. Dual range sliders (age, price…)
+ *  2. Dropdown menus: custom selects, sort, region tree, mobile quick menus
+ *  3. Dropdown triggers and native selects
+ *  4. Rating pills and the place-type segmented control
+ */
+
+:root {
+  --kmc-green: #167a3f;
+  --kmc-green-deep: #0e5f30;
+  --kmc-green-soft: #e9f6ee;
+  --kmc-mint: #4cc38a;
+  --kmc-rail: #e3ece6;
+  --kmc-line: #dbe7df;
+  --kmc-ink: #1d2b23;
+  --kmc-muted: #6a7d71;
+  --kmc-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --kmc-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --kmc-pop-shadow: 0 1px 2px rgba(17, 54, 33, 0.06), 0 12px 28px -6px rgba(17, 54, 33, 0.18), 0 28px 48px -24px rgba(17, 54, 33, 0.22);
+}
+
+/* ============ 1. Range sliders ============ */
+
+html body .kmr-host:not(#kmc-a):not(#kmc-b) {
+  position: relative !important;
+  height: auto !important;
+  min-height: 0 !important;
+  display: block !important;
+  margin: 12px 0 0 !important;
+  padding: 0 13px 2px !important;
+  overflow: visible !important;
+  touch-action: auto !important;
+}
+
+html body .kmr-host:not(#kmc-a):not(#kmc-b)::before,
+html body .kmr-host:not(#kmc-a):not(#kmc-b)::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Native inputs stay for keyboard / screen readers / the form, but are not drawn. */
+html body .kmr-host:not(#kmc-a):not(#kmc-b) > input[type="range"] {
+  position: absolute !important;
+  inset: 0 13px auto !important;
+  width: calc(100% - 26px) !important;
+  height: 28px !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+html body .kmr {
+  --kmr-a: 0%;
+  --kmr-b: 100%;
+  position: relative;
+  width: 100%;
+  flex: 1 1 100%;
+  height: 28px;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html body .kmr__rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 999px;
+  background: var(--kmc-rail);
+  box-shadow: inset 0 1px 2px rgba(17, 54, 33, 0.1);
+}
+
+html body .kmr__ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 3px;
+  margin-top: -1.5px;
+  pointer-events: none;
+  /* One small mark per step boundary, drawn by CSS so it is there before any script. */
+  background: repeating-linear-gradient(90deg, transparent 0 calc(100% / var(--kmr-steps, 6) - 3px), rgba(22, 122, 63, 0.3) calc(100% / var(--kmr-steps, 6) - 3px) calc(100% / var(--kmr-steps, 6)));
+  -webkit-mask: linear-gradient(90deg, transparent 6px, #000 6px, #000 calc(100% - 6px), transparent calc(100% - 6px));
+  mask: linear-gradient(90deg, transparent 6px, #000 6px, #000 calc(100% - 6px), transparent calc(100% - 6px));
+}
+
+html body .kmr__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--kmr-a);
+  right: calc(100% - var(--kmr-b));
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--kmc-mint), var(--kmc-green) 70%);
+  box-shadow: 0 2px 8px -2px rgba(22, 122, 63, 0.45);
+  overflow: hidden;
+}
+
+/* Ticks on the filled part turn white. */
+html body .kmr__fill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(115deg, rgba(255, 255, 255, 0) 0 10px, rgba(255, 255, 255, 0.18) 10px 16px);
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+html body .kmr.is-dragging .kmr__fill::before {
+  opacity: 1;
+  animation: kmr-stripes 0.9s linear infinite;
+}
+
+html body .kmr.is-full .kmr__fill {
+  background: linear-gradient(90deg, #8fd6ae, #4aa874);
+  box-shadow: none;
+}
+
+@keyframes kmr-stripes {
+  to { background-position: -32px 0; }
+}
+
+html body .kmr__thumb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(17, 54, 33, 0.08), 0 3px 8px rgba(17, 54, 33, 0.2), 0 1px 1px rgba(17, 54, 33, 0.12);
+  z-index: 2;
+  transition: transform 0.22s var(--kmc-spring), box-shadow 0.2s ease;
+  will-change: left, transform;
+}
+
+html body .kmr__thumb--to {
+  z-index: 3;
+}
+
+/* Inner dot */
+html body .kmr__thumb::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background: var(--kmc-green);
+  transition: transform 0.22s var(--kmc-spring), background-color 0.2s ease;
+}
+
+/* Soft halo */
+html body .kmr__thumb::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  background: rgba(22, 122, 63, 0.14);
+  transform: scale(0.4);
+  opacity: 0;
+  transition: transform 0.25s var(--kmc-out), opacity 0.2s ease;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  html body .kmr__thumb:hover {
+    transform: scale(1.08);
+  }
+  html body .kmr__thumb:hover::after {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+}
+
+html body .kmr__thumb.is-active {
+  transform: scale(1.14);
+  box-shadow: 0 0 0 1px rgba(17, 54, 33, 0.08), 0 8px 18px rgba(17, 54, 33, 0.24);
+}
+
+html body .kmr__thumb.is-active::before {
+  transform: scale(0.72);
+  background: var(--kmc-green-deep);
+}
+
+html body .kmr__thumb.is-active::after,
+html body .kmr__thumb.is-focus::after {
+  transform: scale(1);
+  opacity: 1;
+}
+
+html body .kmr__thumb.is-focus {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--kmc-green), 0 3px 8px rgba(17, 54, 33, 0.2);
+}
+
+html body .kmr__thumb.is-settle {
+  animation: kmr-settle 0.42s var(--kmc-out);
+}
+
+@keyframes kmr-settle {
+  0% { transform: scale(1.14); }
+  45% { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+
+/* Tap on the rail: glide instead of teleport. Never during a drag. */
+html body .kmr.is-jumping .kmr__thumb {
+  transition: left 0.24s var(--kmc-out), transform 0.22s var(--kmc-spring), box-shadow 0.2s ease;
+}
+
+html body .kmr.is-jumping .kmr__fill {
+  transition: left 0.24s var(--kmc-out), right 0.24s var(--kmc-out);
+}
+
+/* Value bubble */
+html body .kmr__bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 9px);
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--kmc-ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 6px) scale(0.6);
+  transform-origin: 50% 100%;
+  transition: opacity 0.16s ease, transform 0.26s var(--kmc-spring);
+}
+
+html body .kmr__bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  background: inherit;
+  border-radius: 0 0 2px 0;
+  transform: rotate(45deg);
+}
+
+html body .kmr__thumb.is-active .kmr__bubble,
+html body .kmr__thumb.is-focus .kmr__bubble {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
+/* Thumbs close together: one combined bubble centred between them. */
+html body .kmr.is-close .kmr__thumb--from .kmr__bubble {
+  opacity: 0 !important;
+}
+
+html body .kmr.is-close .kmr__thumb.is-active ~ .kmr__thumb--to .kmr__bubble,
+html body .kmr.is-close .kmr__thumb--to.is-active .kmr__bubble,
+html body .kmr.is-close .kmr__thumb--to.is-focus .kmr__bubble,
+html body .kmr.is-close:has(.kmr__thumb--from.is-focus) .kmr__thumb--to .kmr__bubble {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
+/* Min / max under the rail */
+html body .kmr__scale {
+  display: flex;
+  width: calc(100% + 26px);
+  justify-content: space-between;
+  margin: 4px -13px 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--kmc-muted);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+/* Caption next to the label becomes a soft pill. */
+html body .kmr-root:not(#kmc-a) [data-range-caption],
+html body .kmr-root:not(#kmc-a) .range-filter-current {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 3px 10px !important;
+  border-radius: 999px !important;
+  background: var(--kmc-green-soft) !important;
+  color: var(--kmc-green-deep) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 0.2s ease;
+}
+
+html body .kmr-root:has(.kmr.is-dragging) [data-range-caption] {
+  background: #d6efe0 !important;
+}
+
+/* ============ 2. Dropdown menus ============ */
+
+html body .km-pop:not(.mobile-quick-menu) {
+  border-radius: 16px !important;
+  border: 1px solid rgba(22, 122, 63, 0.14) !important;
+  background: #fff !important;
+  box-shadow: var(--kmc-pop-shadow) !important;
+  padding: 6px !important;
+  transform-origin: top center !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(22, 122, 63, 0.25) transparent;
+}
+
+/* Menus toggled by a class: animate both ways. */
+html body .km-custom-select .km-custom-select__menu.km-pop,
+html body [data-catalog-sort-wrap] .km-sort-menu.km-pop {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translateY(-8px) scale(0.96) !important;
+  pointer-events: none !important;
+  transition: opacity 0.16s ease, transform 0.18s var(--kmc-out), visibility 0s linear 0.18s !important;
+}
+
+html body [data-catalog-sort-wrap] .km-sort-menu.km-pop {
+  transform-origin: top right !important;
+}
+
+html body .km-custom-select.is-open .km-custom-select__menu.km-pop,
+html body [data-catalog-sort-wrap].is-open .km-sort-menu.km-pop {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  pointer-events: auto !important;
+  transition: opacity 0.14s ease, transform 0.32s var(--kmc-spring), visibility 0s !important;
+}
+
+html body .km-custom-select.opens-up .km-custom-select__menu.km-pop {
+  transform-origin: bottom center !important;
+  transform: translateY(8px) scale(0.96) !important;
+}
+
+html body .km-custom-select.opens-up.is-open .km-custom-select__menu.km-pop {
+  transform: none !important;
+}
+
+/* Menus toggled with [hidden]: animate on open. */
+html body .km-tree-dropdown.km-pop:not([hidden]),
+html body .mobile-quick-menu.km-pop:not([hidden]) {
+  animation: kmc-pop-in 0.3s var(--kmc-spring) both;
+}
+
+@keyframes kmc-pop-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  60% { opacity: 1; }
+  to { opacity: 1; transform: none; }
+}
+
+/* Options cascade in */
+html body .km-custom-select.is-open .km-custom-select__option,
+html body [data-catalog-sort-wrap].is-open .km-sort-option,
+html body .km-tree-dropdown:not([hidden]) .km-tree-row,
+html body .mobile-quick-menu:not([hidden]) :is(button, a) {
+  animation: kmc-item-in 0.24s var(--kmc-out) both;
+  animation-delay: calc(var(--kmi, 0) * 16ms + 30ms);
+}
+
+@keyframes kmc-item-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Option rows */
+html body .km-pop :is(.km-custom-select__option, .km-sort-option, .km-tree-row) {
+  position: relative !important;
+  border-radius: 10px !important;
+  min-height: 38px !important;
+  color: var(--kmc-ink) !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+  transform: none;
+  transition: background-color 0.14s ease, color 0.14s ease, padding-left 0.18s var(--kmc-out) !important;
+}
+
+html body .km-pop :is(.km-custom-select__option, .km-sort-option, .km-tree-row):hover,
+html body .km-pop :is(.km-custom-select__option, .km-sort-option, .km-tree-row):focus-visible {
+  background: #f1f8f3 !important;
+  color: var(--kmc-green-deep) !important;
+  padding-left: 16px !important;
+  outline: none !important;
+  transform: none !important;
+}
+
+html body .km-pop :is(.km-custom-select__option, .km-sort-option, .km-tree-row).is-selected {
+  background: var(--kmc-green-soft) !important;
+  color: var(--kmc-green-deep) !important;
+  font-weight: 700 !important;
+}
+
+/* Selected marker: green bar that grows in. */
+html body .km-pop :is(.km-custom-select__option, .km-sort-option, .km-tree-row).is-selected::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 4px !important;
+  top: 50% !important;
+  width: 3px !important;
+  height: 16px !important;
+  margin-top: -8px !important;
+  border-radius: 3px !important;
+  background: var(--kmc-green) !important;
+  animation: kmc-bar-in 0.35s var(--kmc-spring) both;
+}
+
+@keyframes kmc-bar-in {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+html body .km-pop .km-custom-select__option.is-selected::after {
+  content: none !important;
+}
+
+html body .km-pop .km-sort-option.is-selected .km-sort-option-check {
+  animation: kmc-check-in 0.35s var(--kmc-spring) both;
+}
+
+@keyframes kmc-check-in {
+  from { transform: scale(0) rotate(-20deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+html body .km-pop .km-custom-select__opt-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  color: var(--kmc-muted) !important;
+  background: #f2f5f3 !important;
+  border-radius: 999px !important;
+  padding: 1px 7px !important;
+  margin-left: auto !important;
+}
+
+html body .km-pop .km-tree-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--kmc-muted) !important;
+}
+
+/* Tree branches open with a slide. */
+html body .km-tree-dropdown .km-tree-children:not([hidden]) {
+  animation: kmc-item-in 0.26s var(--kmc-out) both;
+}
+
+html body .km-tree-dropdown .km-tree-chevron {
+  transition: transform 0.28s var(--kmc-spring), background-color 0.2s ease !important;
+}
+
+/* ============ 3. Triggers & native selects ============ */
+
+html body :is(.km-custom-select__trigger, .km-sort-trigger, .km-location-tree .km-tree-trigger) {
+  transition: border-color 0.18s ease, box-shadow 0.22s ease, background-color 0.18s ease, transform 0.18s var(--kmc-out) !important;
+}
+
+html body :is(.km-custom-select__trigger, .km-sort-trigger, .km-location-tree .km-tree-trigger):hover {
+  border-color: #a9d4b8 !important;
+  box-shadow: 0 4px 12px -4px rgba(22, 122, 63, 0.22) !important;
+}
+
+html body :is(.km-custom-select__trigger, .km-sort-trigger, .km-location-tree .km-tree-trigger):active {
+  transform: scale(0.985) !important;
+}
+
+html body .km-custom-select.is-open .km-custom-select__trigger,
+html body [data-catalog-sort-wrap].is-open .km-sort-trigger,
+html body .km-location-tree .km-tree-trigger[aria-expanded="true"] {
+  border-color: var(--kmc-green) !important;
+  box-shadow: 0 0 0 4px rgba(22, 122, 63, 0.12) !important;
+  background-color: #fff !important;
+}
+
+html body :is(.km-custom-select__trigger, .km-sort-trigger, .km-location-tree .km-tree-trigger):focus-visible {
+  outline: none !important;
+  border-color: var(--kmc-green) !important;
+  box-shadow: 0 0 0 4px rgba(22, 122, 63, 0.18) !important;
+}
+
+html body .km-custom-select__arrow,
+html body .km-sort-trigger-chevron {
+  transition: transform 0.34s var(--kmc-spring), color 0.18s ease !important;
+}
+
+/* Region tree: replace the hard triangle with the same chevron as the rest. */
+html body .km-location-tree .km-tree-trigger::after {
+  width: 16px !important;
+  height: 16px !important;
+  right: 14px !important;
+  clip-path: none !important;
+  background: currentColor !important;
+  color: #5f7567;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / 16px 16px no-repeat !important;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / 16px 16px no-repeat !important;
+  transition: transform 0.34s var(--kmc-spring), color 0.18s ease !important;
+}
+
+html body .km-location-tree .km-tree-trigger[aria-expanded="true"]::after {
+  color: var(--kmc-green);
+}
+
+/* Native selects that are shown to users get the same chevron and feel. */
+html body :is(select.filter-select, select.km-filter-select, select.events-filter-select, .org-directory-search select):not(.km-visually-hidden):not(.visually-hidden):not([aria-hidden="true"]):not([hidden]):not([multiple]) {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  padding-right: 40px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235f7567' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 16px 16px !important;
+  cursor: pointer;
+  transition: border-color 0.18s ease, box-shadow 0.22s ease !important;
+}
+
+html body :is(select.filter-select, select.km-filter-select, select.events-filter-select, .org-directory-search select):not([aria-hidden="true"]):hover {
+  border-color: #a9d4b8 !important;
+}
+
+html body :is(select.filter-select, select.km-filter-select, select.events-filter-select, .org-directory-search select):not([aria-hidden="true"]):focus-visible {
+  outline: none !important;
+  border-color: var(--kmc-green) !important;
+  box-shadow: 0 0 0 4px rgba(22, 122, 63, 0.14) !important;
+}
+
+/* ============ 4. Pills & segmented control ============ */
+
+html body .rating-filter-pill {
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.25s var(--kmc-spring), box-shadow 0.2s ease !important;
+}
+
+html body .rating-filter-pill:hover {
+  transform: translateY(-1px) !important;
+}
+
+html body .rating-filter-pill:active {
+  transform: scale(0.94) !important;
+}
+
+html body .rating-filter-pill.is-active {
+  animation: kmc-pill-pop 0.38s var(--kmc-spring);
+}
+
+@keyframes kmc-pill-pop {
+  0% { transform: scale(0.9); }
+  100% { transform: none; }
+}
+
+html body .event-type-option {
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.25s ease, transform 0.25s var(--kmc-spring) !important;
+}
+
+html body .event-type-option:active {
+  transform: scale(0.95) !important;
+}
+
+/* ============ 5. Buttons ============
+ * The :not(#kmc-a):not(#kmc-b) prefix only lifts specificity above the
+ * page files' !important chains; it matches every element.
+ */
+
+/* --- Segmented controls: place type, list / map --- */
+html body :is(.event-type-filter, .results-view-mode):not(#kmc-a):not(#kmc-b) {
+  position: relative !important;
+  display: flex !important;
+  gap: 2px !important;
+  padding: 4px !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: #eef3f0 !important;
+  box-shadow: inset 0 1px 2px rgba(17, 54, 33, 0.08) !important;
+  isolation: isolate;
+}
+
+html body .km-seg-ind {
+  position: absolute;
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  width: 0;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(17, 54, 33, 0.1), 0 4px 10px -4px rgba(17, 54, 33, 0.25);
+  transition: transform 0.38s var(--kmc-spring), width 0.38s var(--kmc-spring);
+  pointer-events: none;
+}
+
+html body .km-seg-ind.no-anim {
+  transition: none;
+}
+
+html body :is(.event-type-filter, .results-view-mode):not(#kmc-a):not(#kmc-b) > :is(.event-type-option, .results-view-btn) {
+  position: relative !important;
+  z-index: 1 !important;
+  flex: 1 1 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 36px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #5b6f62 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transform: none !important;
+  transition: color 0.2s ease, transform 0.2s var(--kmc-spring) !important;
+}
+
+html body .event-type-filter:not(#kmc-a):not(#kmc-b) > .event-type-option {
+  gap: 4px !important;
+  padding: 0 6px !important;
+  font-size: 12.5px !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+html body .event-type-filter:not(#kmc-a):not(#kmc-b) > .event-type-option span {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  max-width: none !important;
+}
+
+html body .event-type-option:not(#kmc-a):not(#kmc-b) svg {
+  width: 13px !important;
+  height: 13px !important;
+}
+
+html body :is(.event-type-filter, .results-view-mode):not(#kmc-a):not(#kmc-b) > :is(.event-type-option, .results-view-btn):hover {
+  color: var(--kmc-ink) !important;
+}
+
+html body :is(.event-type-filter, .results-view-mode):not(#kmc-a):not(#kmc-b) > :is(.event-type-option, .results-view-btn):active {
+  transform: scale(0.96) !important;
+}
+
+html body :is(.event-type-filter, .results-view-mode):not(#kmc-a):not(#kmc-b) > :is(.event-type-option, .results-view-btn).is-active {
+  color: var(--kmc-green-deep) !important;
+}
+
+/* No indicator yet (JS off): selected item draws its own white pill. */
+html body :is(.event-type-filter, .results-view-mode):not(.has-seg-ind):not(#kmc-a) > :is(.event-type-option, .results-view-btn).is-active {
+  background: #fff !important;
+  box-shadow: 0 1px 2px rgba(17, 54, 33, 0.1), 0 4px 10px -4px rgba(17, 54, 33, 0.25) !important;
+}
+
+html body .event-type-option:not(#kmc-a) svg,
+html body .results-view-btn:not(#kmc-a) svg {
+  width: 15px !important;
+  height: 15px !important;
+  flex-shrink: 0 !important;
+  opacity: 0.85;
+}
+
+html body .event-type-option:not(#kmc-a) input[type="radio"] {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html body .event-type-filter:not(#kmc-a):has(input:focus-visible) {
+  box-shadow: inset 0 1px 2px rgba(17, 54, 33, 0.08), 0 0 0 3px rgba(22, 122, 63, 0.25) !important;
+}
+
+/* The map count badge */
+html body .results-view-btn:not(#kmc-a) .results-map-count {
+  min-width: 22px !important;
+  height: 20px !important;
+  padding: 0 6px !important;
+  border-radius: 999px !important;
+  background: var(--kmc-green-soft) !important;
+  color: var(--kmc-green-deep) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  line-height: 20px !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Rating pills --- */
+html body .rating-filter-pills:not(#kmc-a) {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+}
+
+html body .rating-filter-pill:not(#kmc-a):not(#kmc-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  min-height: 38px !important;
+  height: auto !important;
+  padding: 0 8px !important;
+  border: 1.5px solid var(--kmc-line) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  color: #3d5045 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer !important;
+}
+
+html body .rating-filter-pill:not(#kmc-a):not(#kmc-b):hover {
+  border-color: #a9d4b8 !important;
+  background: #f7fbf8 !important;
+  transform: translateY(-1px) !important;
+}
+
+html body .rating-filter-pill:not(#kmc-a):not(#kmc-b).is-active {
+  border-color: var(--kmc-green) !important;
+  background: var(--kmc-green-soft) !important;
+  color: var(--kmc-green-deep) !important;
+  box-shadow: 0 0 0 3px rgba(22, 122, 63, 0.1) !important;
+}
+
+html body .rating-filter-pill:not(#kmc-a) :is(.rating-filter-pill-star, .material-symbols-rounded, svg) {
+  color: #f2a50c !important;
+  transition: transform 0.35s var(--kmc-spring) !important;
+}
+
+html body .rating-filter-pill:not(#kmc-a):hover :is(.rating-filter-pill-star, .material-symbols-rounded, svg),
+html body .rating-filter-pill.is-active:not(#kmc-a) :is(.rating-filter-pill-star, .material-symbols-rounded, svg) {
+  transform: rotate(-14deg) scale(1.15) !important;
+}
+
+/* --- Apply / Reset --- */
+html body .km-filter-actions:not(#kmc-a):not(#kmc-b) {
+  display: flex !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+}
+
+html body .km-filter-actions:not(#kmc-a):not(#kmc-b) > :is(.km-btn-apply, .km-btn-reset) {
+  flex: 1 1 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 46px !important;
+  height: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 0 16px !important;
+  border-radius: 14px !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.01em !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  transform: none !important;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.22s ease, transform 0.25s var(--kmc-spring) !important;
+}
+
+html body .km-filter-actions:not(#kmc-a):not(#kmc-b) > .km-btn-apply {
+  border: 0 !important;
+  color: #fff !important;
+  background: linear-gradient(180deg, #1f8f4c, var(--kmc-green)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 6px 14px -6px rgba(22, 122, 63, 0.6) !important;
+}
+
+html body .km-filter-actions:not(#kmc-a):not(#kmc-b) > .km-btn-apply:hover {
+  background: linear-gradient(180deg, #1a8445, var(--kmc-green-deep)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 20px -8px rgba(22, 122, 63, 0.7) !important;
+  transform: translateY(-1px) !important;
+}
+
+html body .km-filter-actions:not(#kmc-a):not(#kmc-b) > .km-btn-reset {
+  border: 1.5px solid var(--kmc-line) !important;
+  background: #fff !important;
+  color: #3d5045 !important;
+  box-shadow: none !important;
+}
+
+html body .km-filter-actions:not(#kmc-a):not(#kmc-b) > .km-btn-reset:hover {
+  border-color: #a9d4b8 !important;
+  background: #f7fbf8 !important;
+  color: var(--kmc-green-deep) !important;
+}
+
+html body .km-filter-actions:not(#kmc-a):not(#kmc-b) > :is(.km-btn-apply, .km-btn-reset):active {
+  transform: scale(0.97) !important;
+}
+
+html body .km-filter-actions:not(#kmc-a) .material-symbols-rounded {
+  font-size: 19px !important;
+  transition: transform 0.5s var(--kmc-spring) !important;
+}
+
+html body .km-btn-reset:not(#kmc-a):hover .material-symbols-rounded,
+html body .km-mobile-reset-btn:not(#kmc-a):hover .material-symbols-rounded {
+  transform: rotate(-200deg) !important;
+}
+
+html body .km-btn-apply:not(#kmc-a):hover .material-symbols-rounded {
+  transform: scale(1.15) !important;
+}
+
+/* Header "Reset" text link */
+html body .km-filter-head-reset:not(#kmc-a):not(#kmc-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 30px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  background: var(--kmc-green-soft) !important;
+  color: var(--kmc-green-deep) !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+  transition: background-color 0.18s ease, transform 0.25s var(--kmc-spring) !important;
+}
+
+html body .km-filter-head-reset:not(#kmc-a):not(#kmc-b):hover {
+  background: #d6efe0 !important;
+}
+
+html body .km-filter-head-reset:not(#kmc-a):not(#kmc-b):active {
+  transform: scale(0.95) !important;
+}
+
+/* --- Mobile: filters button, quick filters, active chips --- */
+html body :is(.mobile-search-filter, .mobile-filters-toggle, .km-mobile-filter-button):not(#kmc-a):not(#kmc-b) {
+  position: relative !important;
+  min-height: 44px !important;
+  border: 1.5px solid var(--kmc-line) !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  color: var(--kmc-green-deep) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 1px 2px rgba(17, 54, 33, 0.06) !important;
+  transition: border-color 0.18s ease, transform 0.25s var(--kmc-spring), box-shadow 0.2s ease !important;
+}
+
+html body :is(.mobile-search-filter, .mobile-filters-toggle, .km-mobile-filter-button):not(#kmc-a):not(#kmc-b):active {
+  transform: scale(0.96) !important;
+}
+
+html body :is(.mobile-search-filter__count, .km-badge-count):not(#kmc-a):not(#kmc-b) {
+  position: absolute !important;
+  top: -7px !important;
+  right: -7px !important;
+  min-width: 20px !important;
+  height: 20px !important;
+  padding: 0 5px !important;
+  border: 2px solid #fff !important;
+  border-radius: 999px !important;
+  background: var(--kmc-green) !important;
+  color: #fff !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  line-height: 16px !important;
+  text-align: center !important;
+  animation: kmc-badge-in 0.45s var(--kmc-spring) both;
+}
+
+@keyframes kmc-badge-in {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+html body .mobile-quick-filter:not(#kmc-a):not(#kmc-b) {
+  min-height: 36px !important;
+  padding: 0 14px !important;
+  border: 1.5px solid var(--kmc-line) !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  color: #3d5045 !important;
+  font-weight: 700 !important;
+  transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease, transform 0.25s var(--kmc-spring) !important;
+}
+
+html body .mobile-quick-filter:not(#kmc-a):not(#kmc-b).is-active,
+html body .mobile-quick-filter:not(#kmc-a):not(#kmc-b)[aria-expanded="true"] {
+  border-color: var(--kmc-green) !important;
+  background: var(--kmc-green-soft) !important;
+  color: var(--kmc-green-deep) !important;
+}
+
+html body .mobile-quick-filter:not(#kmc-a):not(#kmc-b):active {
+  transform: scale(0.95) !important;
+}
+
+html body .mobile-active-chip:not(.mobile-active-chip-reset):not(#kmc-a):not(#kmc-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 34px !important;
+  padding: 0 8px 0 12px !important;
+  border: 1.5px solid #bfe0cb !important;
+  border-radius: 999px !important;
+  background: var(--kmc-green-soft) !important;
+  color: var(--kmc-green-deep) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  animation: kmc-badge-in 0.4s var(--kmc-spring) both;
+}
+
+/* Reset in the chip row: quiet text button, not an alarm. */
+html body :is(.mobile-active-chip-reset, .km-mobile-reset-btn, .active-filter-reset, .km-chips-reset-link):not(#kmc-a):not(#kmc-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: auto !important;
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #5b6f62 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+html body :is(.mobile-active-chip-reset, .km-mobile-reset-btn, .active-filter-reset, .km-chips-reset-link):not(#kmc-a):not(#kmc-b) * {
+  color: inherit !important;
+  border: 0 !important;
+  text-decoration: none !important;
+}
+
+html body :is(.mobile-active-chip-reset, .km-mobile-reset-btn, .active-filter-reset, .km-chips-reset-link):not(#kmc-a):not(#kmc-b):hover {
+  color: var(--kmc-green-deep) !important;
+  background: #f1f6f3 !important;
+}
+
+/* Drawer close button */
+html body :is(.mobile-filters-close, .km-filter-close):not(#kmc-a):not(#kmc-b) {
+  box-shadow: none !important;
+  border: 1.5px solid var(--kmc-line) !important;
+  background: #fff !important;
+  transition: transform 0.3s var(--kmc-spring), background-color 0.18s ease !important;
+}
+
+html body :is(.mobile-filters-close, .km-filter-close):not(#kmc-a):not(#kmc-b):active {
+  transform: scale(0.9) rotate(90deg) !important;
+}
+
+/* Desktop applies filters live: keep Apply hidden there. */
+@media (min-width: 761px) {
+  html body .filters-catalog.is-live-filters .km-filter-actions:not(#kmc-a):not(#kmc-b) > .km-btn-apply {
+    display: none !important;
+  }
+}
+
+/* ============ 6. Icons ============ */
+
+:root {
+  /* One reset icon everywhere (rotate-ccw outline). Also replaces the old .icon-reset::before glyph. */
+  --km-ico-reset: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8'/%3E%3Cpath d='M3 3v5h5'/%3E%3C/svg%3E");
+}
+
+html body .km-ico-reset:not(#kmc-a):not(#kmc-b) {
+  display: inline-block !important;
+  flex: 0 0 auto !important;
+  width: 17px !important;
+  height: 17px !important;
+  background: currentColor !important;
+  -webkit-mask: var(--km-ico-reset) center / contain no-repeat !important;
+  mask: var(--km-ico-reset) center / contain no-repeat !important;
+  transition: transform 0.5s var(--kmc-spring) !important;
+}
+
+html body :is(.km-btn-reset, .km-mobile-reset-btn):not(#kmc-a):hover .km-ico-reset {
+  transform: rotate(-200deg) !important;
+}
+
+/* Buttons that carry their own icon element: drop the old ::before glyph. */
+html body .icon-reset:not(#kmc-a):has(.km-ico-reset)::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* Everything else that used the old reload glyph gets the same arrow. */
+html body .icon-reset:not(#kmc-a):not(:has(.km-ico-reset))::before {
+  -webkit-mask-image: var(--km-ico-reset) !important;
+  mask-image: var(--km-ico-reset) !important;
+  -webkit-mask-size: contain !important;
+  mask-size: contain !important;
+  -webkit-mask-position: center !important;
+  mask-position: center !important;
+  -webkit-mask-repeat: no-repeat !important;
+  mask-repeat: no-repeat !important;
+}
+
+/* Filter labels: every icon the same size, weight and centre line. */
+html body :is(.filters, .km-filters-panel, .km-specialist-filters, .events-filters, .org-directory-search) :is(label, legend, .range-filter-head > label, .filter-rating-head > *, .km-filter-title > *):not(#kmc-a) > .material-symbols-rounded {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 7px 0 0 !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  vertical-align: middle !important;
+  color: var(--kmc-green) !important;
+  font-variation-settings: "FILL" 0, "wght" 450, "GRAD" 0, "opsz" 20 !important;
+  overflow: visible !important;
+  transform: none !important;
+}
+
+html body :is(.filters, .km-filters-panel, .km-specialist-filters):not(#kmc-a) :is(legend, label):has(> .material-symbols-rounded) {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  float: none;
+  line-height: 1.25 !important;
+}
+
+html body :is(.filters, .km-filters-panel):not(#kmc-a) legend:has(> .material-symbols-rounded) {
+  padding: 0 !important;
+  margin: 0 0 8px !important;
+}
+
+html body .filters .filter-event-type:not(#kmc-a) {
+  margin-bottom: 6px !important;
+}
+
+/* Segmented control icons: crisp outlines on the text's centre line. */
+html body :is(.event-type-option, .results-view-btn):not(#kmc-a):not(#kmc-b) svg {
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  stroke-width: 2 !important;
+}
+
+/* "Ətraflı ›": chevron on the text's centre line, nudges on hover. */
+html body .card-go-btn:not(#kmc-a) {
+  align-items: center !important;
+}
+
+html body .card-go-btn:not(#kmc-a) .card-go-arrow {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 0 !important;
+  margin-left: 2px !important;
+  transform: none !important;
+  vertical-align: middle !important;
+  transition: transform 0.3s var(--kmc-spring) !important;
+}
+
+html body .card-go-btn:not(#kmc-a) .card-go-arrow svg {
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+html body .card-go-btn:not(#kmc-a):hover .card-go-arrow {
+  transform: translateX(3px) !important;
+}
+
+/* Rating stars: same size in every pill, active one just tilts. */
+html body .rating-filter-pill:not(#kmc-a):not(#kmc-b) .rating-star-icon {
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  overflow: visible !important;
+}
+
+/* ============ Reduced motion ============ */
+
+@media (prefers-reduced-motion: reduce) {
+  html body:not(#kmc-a) :is(.kmr, .kmr *, .km-pop, .km-pop *, .km-seg-ind, .rating-filter-pill, .rating-filter-pill *, .event-type-option, .results-view-btn, .km-btn-apply, .km-btn-reset, .km-ico-reset, .card-go-arrow, .mobile-search-filter__count, .km-badge-count, .mobile-active-chip, .kmr__bubble) {
+    animation: none !important;
+    transition: none !important;
+  }
+}

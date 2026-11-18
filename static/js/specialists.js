@@ -9,17 +9,15 @@
     var overlay = page.querySelector(".km-filter-overlay");
     var openButton = page.querySelector("[data-km-filter-open]");
     var closeButtons = page.querySelectorAll("[data-km-filter-close]");
-    var formatSelect = document.getElementById("filter-format");
-    var locFiltersContainer = document.getElementById("location-filters-container");
     var filtersForm = document.getElementById("filters-form");
     var categorySelect = page.querySelector('select[name="specialization"]');
     var subjectSelect = page.querySelector('select[name="subject"]');
     if (categorySelect && subjectSelect) {
       categorySelect.addEventListener('change', function () {
-        if (categorySelect.value !== 'tutor' && categorySelect.value !== 'exam_prep_tutor') subjectSelect.value = '';
+        if (categorySelect.value !== 'tutor' && categorySelect.value !== 'exam_prep_tutor' && categorySelect.value !== 'primary_teacher') subjectSelect.value = '';
       });
       subjectSelect.addEventListener('change', function () {
-        if (!subjectSelect.value || categorySelect.value === 'tutor' || categorySelect.value === 'exam_prep_tutor') return;
+        if (!subjectSelect.value || categorySelect.value === 'tutor' || categorySelect.value === 'exam_prep_tutor' || categorySelect.value === 'primary_teacher') return;
         categorySelect.value = 'tutor';
         var custom = categorySelect.closest('.km-custom-select');
         if (custom) {
@@ -89,32 +87,67 @@
       }
     });
 
-    // Sync online/offline layout
-    if (formatSelect && locFiltersContainer) {
-      function syncFormatLayout() {
-        var onlineOnly = formatSelect.value === "online";
-        locFiltersContainer.hidden = onlineOnly;
-        if (onlineOnly) {
-          locFiltersContainer.querySelectorAll("select").forEach(function (select) {
-            select.value = "";
-          });
-          // Also reset custom select display if present
-          var regionCs = document.getElementById("custom-select-region");
-          if (regionCs) {
-            var valSpan = regionCs.querySelector(".km-custom-select__value");
-            var firstOpt = regionCs.querySelector(".km-custom-select__option");
-            if (valSpan && firstOpt) {
-              valSpan.textContent = firstOpt.textContent.trim();
-            }
-            regionCs.querySelectorAll(".km-custom-select__option").forEach(function (opt, idx) {
-              opt.classList.toggle("is-selected", idx === 0);
-              opt.setAttribute("aria-selected", idx === 0 ? "true" : "false");
+    var region = page.querySelector('[name="region"][id="filter-region"]');
+    var district = page.querySelector('#filter-district');
+    var metro = page.querySelector('#filter-metro');
+    var format = page.querySelector('#filter-format');
+    if (region) {
+      function syncLocationOptions() {
+        var online = Boolean(format && format.value === "online");
+        var regionGroup = region.closest("#location-filters-container");
+        if (regionGroup) regionGroup.hidden = online;
+        region.disabled = online;
+        if (online && region.value) {
+          region.value = "";
+          var customRegion = region.closest(".km-custom-select");
+          if (customRegion) {
+            customRegion.querySelectorAll("[data-value]").forEach(function (option) {
+              var selected = !option.dataset.value;
+              option.classList.toggle("is-selected", selected);
+              option.setAttribute("aria-selected", String(selected));
+              if (selected) customRegion.querySelector(".km-custom-select__value").textContent = option.textContent.trim();
             });
           }
         }
+        if (district) {
+          Array.from(district.options).forEach(function (option) {
+            var excluded = Boolean(option.value && (online || (region.value && option.dataset.region !== region.value)));
+            option.hidden = excluded;
+            option.disabled = excluded;
+            if (excluded && option.selected) district.value = "";
+          });
+          var hasDistricts = Array.from(district.options).some(function (option) {
+            return option.value && !option.disabled;
+          });
+          district.closest('[data-specialist-district]').hidden = !hasDistricts;
+          district.disabled = !hasDistricts;
+        }
+        if (metro) {
+          var outsideBaku = Boolean(online || (region.value && region.value !== "baku"));
+          if (outsideBaku) metro.value = "";
+          metro.disabled = outsideBaku;
+          metro.closest('[data-specialist-metro]').hidden = outsideBaku;
+        }
       }
-      formatSelect.addEventListener("change", syncFormatLayout);
-      syncFormatLayout();
+      region.addEventListener("change", syncLocationOptions);
+      if (format) format.addEventListener("change", syncLocationOptions);
+      syncLocationOptions();
+    }
+    var specialties = page.querySelector("#specialist-categories");
+    if (specialties) {
+      if (specialties.open) {
+        var activeSpecialty = specialties.querySelector('[data-spec-chip][aria-current="true"]');
+        var menu = specialties.querySelector(".sp-specialties-menu");
+        if (activeSpecialty && menu) {
+          menu.scrollTop = activeSpecialty.getBoundingClientRect().top - menu.getBoundingClientRect().top - 5;
+        }
+      }
+      specialties.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && specialties.open) {
+          specialties.open = false;
+          specialties.querySelector("summary").focus();
+        }
+      });
     }
 
     /* ─── 1. Custom Selects Interactivity ─── */
@@ -479,6 +512,12 @@
           if (requiredMark) requiredMark.hidden = !needsSubject;
           var subjectNotice = form.querySelector('[data-subject-required]');
           if (subjectNotice) subjectNotice.hidden = !needsSubject || hasSubject;
+          var teacherHint = form.querySelector('[data-bio-teacher-hint]');
+          var generalHint = form.querySelector('[data-bio-general-hint]');
+          if (teacherHint && generalHint) {
+            teacherHint.hidden = !needsSubject && !hasSubject;
+            generalHint.hidden = !teacherHint.hidden;
+          }
         }
 
         var langChecked = form.querySelector("#id_language_az:checked, #id_language_ru:checked, #id_language_en:checked");
@@ -534,6 +573,8 @@
         var topFill = form.querySelector("[data-req-progress-fill]");
         var topBadge = form.querySelector("[data-req-badge]");
         var topStatus = form.querySelector("[data-req-status-text]");
+        var invalidNotice = form.querySelector("[data-req-invalid]");
+        if (invalidNotice) invalidNotice.hidden = !invalidField;
 
         if (topFill) {
           topFill.style.width = pct + "%";
@@ -545,6 +586,8 @@
           topBadge.textContent = (isAllDone ? "✓ " : "") + doneCount + " / " + totalReq;
           topBadge.classList.toggle("is-complete", isAllDone);
           topBadge.classList.toggle("is-low", pct < 50);
+          var progressCard = topBadge.closest("[data-req-progress-card]");
+          if (progressCard) progressCard.hidden = !readinessRules;
         }
         if (topStatus) {
           var langCode = (document.documentElement.lang || "ru").toLowerCase();
@@ -986,6 +1029,10 @@
         var subjectNotice = form.querySelector('[data-subject-required]');
         if (subjectNotice && !subjectNotice.hidden) target = form.querySelector('[data-subject-picker] input') || target;
       }
+      if (target.id === 'id_consultation_format') {
+        target = form.querySelector('[data-owner-format-card].is-selected, [data-owner-format-card]') || target;
+      }
+      if (target.id === 'id_photo') target = form.querySelector('[data-specialist-photo-choose]') || target;
       var panel = target.closest('[data-owner-lang-panel]');
       if (panel) {
         var tab = form.querySelector('[data-owner-lang-tab="' + panel.dataset.ownerLangPanel + '"]');

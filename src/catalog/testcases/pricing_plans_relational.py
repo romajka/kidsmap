@@ -108,6 +108,11 @@ class RelationalPricingPlanTests(TestCase):
         self.assertEqual(filters.sort, "new")
         self.assertEqual(filters.selected()["price_to"], "1")
 
+    def test_explicit_budget_survives_an_empty_public_price_scale(self):
+        filters = PlaceListFilters.from_request(RequestFactory().get("/catalog/", {"price_max": "50"}))
+        self.assertEqual(filters.catalog_price_max, 0)
+        self.assertEqual(filters.selected()["price_to"], "50")
+
     def test_full_ui_ranges_are_treated_as_unfiltered(self):
         request = RequestFactory().get("/catalog/", {
             "category": "EDU",
