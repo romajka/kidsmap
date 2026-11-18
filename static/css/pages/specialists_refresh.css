@@ -1,0 +1,1155 @@
+/*
+ * Specialists: directory cards, filters and the profile page.
+ * Same family as the place page (KidsMap green, Chiron headings, white cards on a
+ * pale page), adapted to people: the portrait and name lead, everything else is quiet.
+ * One orchestrated motion moment (the profile header); the rest only answers actions.
+ * ":not(#ksp-a):not(#ksp-b)" lifts specificity over the older !important rules.
+ */
+
+:root {
+  --ksp-green: #167a3f;
+  --ksp-green-deep: #0e5f30;
+  --ksp-mint: #e9f6ee;
+  --ksp-mint-2: #d6efe0;
+  --ksp-ink: #15231b;
+  --ksp-text: #36483d;
+  --ksp-muted: #677a6e;
+  --ksp-line: #e3ebe6;
+  --ksp-amber: #e59a0b;
+  --ksp-display: var(--font-display, "Chiron GoRound TC Public", system-ui, sans-serif);
+  --ksp-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ksp-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ======================================================================
+   Directory
+   ====================================================================== */
+
+/* Header: title, search, quick subjects */
+html body .sp-directory-head:not(#ksp-a):not(#ksp-b) h1 {
+  font-family: var(--ksp-display) !important;
+  font-size: clamp(26px, 2.6vw, 34px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.15 !important;
+  color: var(--ksp-ink) !important;
+}
+
+/* ---------- Card ---------- */
+html body .km-specialists-grid:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+html body .km-specialist-card.sp-directory-card:not(#ksp-a):not(#ksp-b) {
+  display: grid !important;
+  grid-template-columns: 92px minmax(0, 1fr) auto !important;
+  grid-template-areas: "avatar info action" !important;
+  align-items: start !important;
+  gap: 4px 20px !important;
+  margin: 0 !important;
+  padding: 20px 22px !important;
+  border: 1px solid var(--ksp-line) !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  box-shadow: 0 1px 2px rgba(17, 54, 33, 0.04) !important;
+  color: inherit !important;
+  text-decoration: none !important;
+  transform: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.25s ease !important;
+}
+
+html body .km-specialist-card.sp-directory-card:not(#ksp-a):not(#ksp-b):hover {
+  border-color: #b9dcc6 !important;
+  box-shadow: 0 14px 30px -22px rgba(17, 54, 33, 0.45) !important;
+  transform: none !important;
+}
+
+html body .km-specialist-card.sp-directory-card:not(#ksp-a):not(#ksp-b):focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--ksp-green) !important;
+}
+
+/* Portrait: squircle with initials underneath the photo */
+html body .sp-directory-card .sp-card-avatar:not(#ksp-a):not(#ksp-b) {
+  grid-area: avatar !important;
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 92px !important;
+  height: 92px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  border-radius: 28px !important;
+  background: radial-gradient(circle at 30% 25%, #f4fbf6, var(--ksp-mint) 70%) !important;
+  color: var(--ksp-green-deep) !important;
+  font-family: var(--ksp-display) !important;
+  font-size: 28px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em !important;
+  box-shadow: inset 0 0 0 1px rgba(22, 122, 63, 0.08) !important;
+}
+
+html body .sp-directory-card .sp-card-avatar img:not(#ksp-a):not(#ksp-b) {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 0 !important;
+}
+
+html body .sp-directory-card .sp-card-avatar img[hidden]:not(#ksp-a) {
+  display: none !important;
+}
+
+/* Info column */
+html body .sp-directory-card .sp-card-info:not(#ksp-a):not(#ksp-b) {
+  grid-area: info !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+html body .sp-directory-card .sp-card-info > *:not(#ksp-a):not(#ksp-b) {
+  margin: 0 !important;
+}
+
+html body .sp-directory-card .sp-card-info h3:not(#ksp-a):not(#ksp-b) {
+  font-family: var(--ksp-display) !important;
+  font-size: 19px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.25 !important;
+  color: var(--ksp-ink) !important;
+  transition: color 0.2s ease !important;
+}
+
+html body .sp-directory-card:not(#ksp-a):hover .sp-card-info h3 {
+  color: var(--ksp-green-deep) !important;
+}
+
+html body .sp-directory-card .sp-card-alt:not(#ksp-a):not(#ksp-b) {
+  margin-top: -4px !important;
+  font-size: 13px !important;
+  color: var(--ksp-muted) !important;
+}
+
+/* Specialisations / subjects: quiet mint tags */
+html body .sp-directory-card .sp-card-subjects:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  margin: 2px 0 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+html body .sp-directory-card .sp-card-subjects li:not(#ksp-a):not(#ksp-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 26px !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: var(--ksp-mint) !important;
+  color: var(--ksp-green-deep) !important;
+  font-size: 12.5px !important;
+  font-weight: 750 !important;
+}
+
+html body .sp-directory-card .sp-card-subjects li:not(#ksp-a)::before,
+html body .sp-directory-card .sp-card-subjects li:not(#ksp-a)::after {
+  content: none !important;
+}
+
+/* Facts: icon + value, one line that wraps calmly */
+html body .sp-directory-card .sp-card-facts:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px 16px !important;
+  margin: 2px 0 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+html body .sp-directory-card .sp-card-facts li:not(#ksp-a):not(#ksp-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  color: var(--ksp-text) !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+}
+
+html body .sp-directory-card .sp-card-facts .material-symbols-rounded:not(#ksp-a):not(#ksp-b) {
+  font-size: 17px !important;
+  color: var(--ksp-green) !important;
+  font-variation-settings: "FILL" 0, "wght" 450, "opsz" 20 !important;
+}
+
+html body .sp-directory-card .sp-card-bio:not(#ksp-a):not(#ksp-b) {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  overflow: hidden !important;
+  max-width: 68ch !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  color: var(--ksp-muted) !important;
+}
+
+html body .sp-directory-card .sp-card-reputation:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px 14px !important;
+  font-size: 13px !important;
+  color: var(--ksp-muted) !important;
+}
+
+html body .sp-directory-card .sp-card-reputation span:not(#ksp-a)::before,
+html body .sp-directory-card .sp-card-reputation span:not(#ksp-a)::after {
+  content: none !important;
+}
+
+/* Right column: price over the action */
+html body .sp-directory-card .sp-card-action:not(#ksp-a):not(#ksp-b) {
+  grid-area: action !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  align-self: stretch !important;
+  min-width: 150px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+html body .sp-directory-card .sp-card-action strong:not(#ksp-a):not(#ksp-b) {
+  font-family: var(--ksp-display) !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  text-align: right !important;
+  color: var(--ksp-ink) !important;
+  white-space: nowrap !important;
+}
+
+html body .sp-directory-card .sp-profile-label:not(#ksp-a):not(#ksp-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 42px !important;
+  padding: 0 18px !important;
+  border: 1.5px solid #cfe5d7 !important;
+  border-radius: 13px !important;
+  background: #fff !important;
+  color: var(--ksp-green-deep) !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease !important;
+}
+
+html body .sp-directory-card:not(#ksp-a):hover .sp-profile-label {
+  border-color: var(--ksp-green) !important;
+  background: var(--ksp-green) !important;
+  color: #fff !important;
+}
+
+/* Toolbar */
+html body .km-catalog-toolbar:not(#ksp-a):not(#ksp-b) {
+  border-radius: 20px !important;
+  border: 1px solid var(--ksp-line) !important;
+  box-shadow: none !important;
+}
+
+html body .sp-toolbar-count:not(#ksp-a):not(#ksp-b) {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: var(--ksp-ink) !important;
+}
+
+/* ---------- Phones: card ---------- */
+@media (max-width: 760px) {
+  html body .km-specialist-card.sp-directory-card:not(#ksp-a):not(#ksp-b) {
+    grid-template-columns: 60px minmax(0, 1fr) !important;
+    grid-template-areas: none !important;
+    gap: 12px 14px !important;
+    padding: 16px !important;
+    border-radius: 20px !important;
+  }
+
+  html body .sp-directory-card .sp-card-avatar:not(#ksp-a):not(#ksp-b) {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 20px !important;
+    font-size: 20px !important;
+  }
+
+  html body .sp-directory-card .sp-card-info h3:not(#ksp-a):not(#ksp-b) {
+    font-size: 17.5px !important;
+  }
+
+  /* Bio and the long facts row use the full card width */
+  html body .sp-directory-card .sp-card-info:not(#ksp-a):not(#ksp-b) {
+    display: contents !important;
+  }
+
+  html body .sp-directory-card .sp-card-info > :is(h3, .sp-card-alt, .sp-card-subjects):not(#ksp-a):not(#ksp-b) {
+    grid-column: 2 !important;
+  }
+
+  html body .sp-directory-card .sp-card-info > :is(.sp-card-facts, .sp-card-bio, .sp-card-reputation):not(#ksp-a):not(#ksp-b) {
+    grid-column: 1 / -1 !important;
+  }
+
+  html body .sp-directory-card .sp-card-info > h3:not(#ksp-a):not(#ksp-b) {
+    grid-row: 1 !important;
+    align-self: end !important;
+  }
+
+  html body .sp-directory-card .sp-card-avatar:not(#ksp-a):not(#ksp-b) {
+    grid-column: 1 !important;
+    grid-row: 1 / span 2 !important;
+  }
+
+  html body .sp-directory-card:not(:has(.sp-card-alt)) .sp-card-avatar:not(#ksp-a):not(#ksp-b) {
+    grid-row: 1 !important;
+  }
+
+  html body .sp-directory-card:not(:has(.sp-card-alt)) .sp-card-info > h3:not(#ksp-a):not(#ksp-b) {
+    align-self: center !important;
+  }
+
+  html body .sp-directory-card .sp-card-info > .sp-card-alt:not(#ksp-a):not(#ksp-b) {
+    grid-row: 2 !important;
+    margin-top: -8px !important;
+  }
+
+  html body .sp-directory-card .sp-card-info > .sp-card-subjects:not(#ksp-a):not(#ksp-b) {
+    grid-column: 1 / -1 !important;
+  }
+
+  html body .sp-directory-card :is(.sp-card-avatar, .sp-card-action):not(#ksp-a):not(#ksp-b) {
+    grid-area: auto !important;
+  }
+
+  html body .sp-directory-card .sp-card-action:not(#ksp-a):not(#ksp-b) {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    padding-top: 12px !important;
+    border-top: 1px solid #edf2ee !important;
+  }
+
+  html body .sp-directory-card .sp-card-action strong:not(#ksp-a):not(#ksp-b) {
+    text-align: left !important;
+    white-space: normal !important;
+  }
+
+  html body .sp-directory-card .sp-profile-label:not(#ksp-a):not(#ksp-b) {
+    border-color: var(--ksp-green) !important;
+    background: var(--ksp-green) !important;
+    color: #fff !important;
+  }
+}
+
+/* ---------- Phones: filter sheet ---------- */
+@media (max-width: 860px) {
+  html body .km-filters-panel.is-open:not(#ksp-a):not(#ksp-b) {
+    top: auto !important;
+    bottom: 0 !important;
+    max-height: min(88dvh, 780px) !important;
+    border-radius: 24px 24px 0 0 !important;
+    box-shadow: 0 -18px 40px -20px rgba(17, 54, 33, 0.35) !important;
+    animation: ksp-sheet 0.38s var(--ksp-out) both;
+  }
+
+  @keyframes ksp-sheet {
+    from { transform: translateY(40px); opacity: 0.6; }
+    to { transform: none; opacity: 1; }
+  }
+
+  html body .km-filters-panel form:not(#ksp-a):not(#ksp-b) {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px 10px !important;
+    padding: 0 16px !important;
+  }
+
+  html body .km-filters-panel form > *:not(#ksp-a):not(#ksp-b) {
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Selects pair up two per row; sliders, rating and buttons take the full width */
+  html body .km-filters-panel form > :is(.km-filter-title, .range-filter, .filter-rating, .km-filter-actions, .km-search-input-wrap, [class*="search"]):not(#ksp-a):not(#ksp-b) {
+    grid-column: 1 / -1 !important;
+  }
+
+  html body .km-filters-panel .km-filter-title:not(#ksp-a):not(#ksp-b) {
+    position: sticky !important;
+    z-index: 6 !important;
+    top: 0 !important;
+    margin: 0 -16px !important;
+    padding: 18px 16px 10px !important;
+    border-bottom: 1px solid #edf2ee !important;
+    background: rgba(255, 255, 255, 0.97) !important;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  html body .km-filters-panel .km-filter-title:not(#ksp-a)::before {
+    content: "" !important;
+    position: absolute !important;
+    top: 7px !important;
+    left: 50% !important;
+    width: 40px !important;
+    height: 4px !important;
+    margin-left: -20px !important;
+    border-radius: 4px !important;
+    background: #d5e2d9 !important;
+  }
+
+  html body .km-filters-panel .km-filter-group:not(#ksp-a):not(#ksp-b) > label,
+  html body .km-filters-panel .km-filter-group:not(#ksp-a):not(#ksp-b) > .km-filter-label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 0 6px !important;
+    overflow: hidden !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body .km-filters-panel .km-filter-group :is(select, .km-custom-select__trigger):not(#ksp-a):not(#ksp-b) {
+    min-height: 44px !important;
+    font-size: 13.5px !important;
+  }
+
+  html body .km-filters-panel .km-filter-actions:not(#ksp-a):not(#ksp-b) {
+    position: sticky !important;
+    z-index: 6 !important;
+    bottom: 0 !important;
+    display: flex !important;
+    gap: 8px !important;
+    margin: 4px -16px 0 !important;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    border-top: 1px solid #edf2ee !important;
+    background: rgba(255, 255, 255, 0.97) !important;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  html body .km-filters-panel .km-filter-actions > .km-btn-apply:not(#ksp-a):not(#ksp-b) {
+    flex: 1.6 1 0 !important;
+  }
+
+  html body .km-filters-panel .km-filter-actions > .km-btn-reset:not(#ksp-a):not(#ksp-b) {
+    flex: 1 1 0 !important;
+  }
+}
+
+/* ======================================================================
+   Profile page
+   ====================================================================== */
+
+/* ---------- Header: the portrait and the name lead ---------- */
+html body .sp-detail .sp-header:not(#ksp-a):not(#ksp-b) {
+  position: relative !important;
+  overflow: hidden !important;
+  padding: 28px 28px 0 !important;
+  border: 1px solid var(--ksp-line) !important;
+  border-radius: 28px !important;
+  background:
+    radial-gradient(520px 260px at 0% 0%, #eef8f2 0%, rgba(238, 248, 242, 0) 70%),
+    #fff !important;
+  box-shadow: 0 1px 2px rgba(17, 54, 33, 0.04), 0 22px 44px -36px rgba(17, 54, 33, 0.5) !important;
+}
+
+html body .sp-detail .sp-identity:not(#ksp-a):not(#ksp-b) {
+  display: grid !important;
+  grid-template-columns: 148px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 26px !important;
+  margin: 0 !important;
+}
+
+html body .sp-detail .sp-avatar:not(#ksp-a):not(#ksp-b) {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 148px !important;
+  height: 148px !important;
+  overflow: hidden !important;
+  border-radius: 44px !important;
+  background: radial-gradient(circle at 30% 25%, #f6fcf8, var(--ksp-mint-2) 75%) !important;
+  box-shadow: 0 0 0 6px #fff, 0 0 0 7px rgba(22, 122, 63, 0.16), 0 18px 36px -20px rgba(17, 54, 33, 0.55) !important;
+}
+
+html body .sp-detail .sp-avatar__initials:not(#ksp-a):not(#ksp-b) {
+  font-family: var(--ksp-display) !important;
+  font-size: 46px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--ksp-green-deep) !important;
+}
+
+html body .sp-detail .sp-avatar.has-photo .sp-avatar__initials:not(#ksp-a) {
+  visibility: hidden !important;
+}
+
+html body .sp-detail .sp-avatar .sp-photo:not(#ksp-a):not(#ksp-b) {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  object-fit: cover !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+html body .sp-detail .sp-identity-text:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+
+html body .sp-detail .sp-identity-text > *:not(#ksp-a):not(#ksp-b) {
+  margin: 0 !important;
+}
+
+html body .sp-detail .sp-identity-text h1:not(#ksp-a):not(#ksp-b) {
+  font-family: var(--ksp-display) !important;
+  font-size: clamp(28px, 3.2vw, 40px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.08 !important;
+  color: var(--ksp-ink) !important;
+  text-wrap: balance;
+}
+
+html body .sp-detail .sp-name-alt:not(#ksp-a):not(#ksp-b) {
+  margin-top: -4px !important;
+  font-size: 15px !important;
+  color: var(--ksp-muted) !important;
+}
+
+html body .sp-detail :is(.sp-tags, .sp-identity-text .km-subject-tags):not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  margin: 2px 0 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+html body .sp-detail :is(.sp-tags, .sp-identity-text .km-subject-tags) li:not(#ksp-a):not(#ksp-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  height: 30px !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: var(--ksp-mint) !important;
+  color: var(--ksp-green-deep) !important;
+  font-size: 13.5px !important;
+  font-weight: 750 !important;
+}
+
+html body .sp-detail .sp-rating-link:not(#ksp-a):not(#ksp-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: var(--ksp-text) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+html body .sp-detail .sp-rating-link:not(#ksp-a):hover {
+  color: var(--ksp-green-deep) !important;
+}
+
+html body .sp-detail :is(.sp-owner-link, .sp-claim-link, .sp-identity-text > a:last-child:not(.sp-rating-link)):not(#ksp-a):not(#ksp-b) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--ksp-muted) !important;
+}
+
+/* Facts: one strip of six answers, divided by hairlines, each with its own icon */
+html body .sp-detail .sp-facts:not(#ksp-a):not(#ksp-b) {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  margin: 26px -28px 0 !important;
+  padding: 0 !important;
+  border-top: 1px solid var(--ksp-line) !important;
+  background: #fbfdfc !important;
+}
+
+html body .sp-detail .sp-facts > div:not(#ksp-a):not(#ksp-b) {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 16px 18px 18px 18px !important;
+  border: 0 !important;
+  border-left: 1px solid var(--ksp-line) !important;
+  background: none !important;
+}
+
+html body .sp-detail .sp-facts > div:first-child:not(#ksp-a):not(#ksp-b) {
+  border-left: 0 !important;
+  padding-left: 28px !important;
+}
+
+html body .sp-detail .sp-facts dt:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  font-size: 12.5px !important;
+  font-weight: 650 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--ksp-muted) !important;
+}
+
+html body .sp-detail .sp-facts dt:not(#ksp-a)::before {
+  content: "" !important;
+  flex: 0 0 15px !important;
+  width: 15px !important;
+  height: 15px !important;
+  background: var(--ksp-green) !important;
+  -webkit-mask: var(--ksp-ico) center / contain no-repeat;
+  mask: var(--ksp-ico) center / contain no-repeat;
+}
+
+html body .sp-detail .sp-facts dd:not(#ksp-a):not(#ksp-b) {
+  margin: 0 !important;
+  font-size: 15.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.3 !important;
+  color: var(--ksp-ink) !important;
+  overflow-wrap: anywhere;
+}
+
+html body .sp-detail .sp-facts [data-fact="price"] dd:not(#ksp-a):not(#ksp-b) {
+  font-family: var(--ksp-display) !important;
+  font-size: 18px !important;
+  color: var(--ksp-green-deep) !important;
+}
+
+.sp-facts [data-fact="price"] { --ksp-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1'/%3E%3Cpath d='M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4'/%3E%3C/svg%3E"); }
+.sp-facts [data-fact="format"] { --ksp-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='4' width='20' height='13' rx='2'/%3E%3Cpath d='M8 21h8'/%3E%3Cpath d='M12 17v4'/%3E%3C/svg%3E"); }
+.sp-facts [data-fact="age"] { --ksp-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9 10h.01M15 10h.01'/%3E%3Cpath d='M9.5 15c.7.6 1.5.9 2.5.9s1.8-.3 2.5-.9'/%3E%3C/svg%3E"); }
+.sp-facts [data-fact="lang"] { --ksp-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 8 6 6'/%3E%3Cpath d='m4 14 6-6 2-3'/%3E%3Cpath d='M2 5h12'/%3E%3Cpath d='M7 2h1'/%3E%3Cpath d='m22 22-5-10-5 10'/%3E%3Cpath d='M14 18h6'/%3E%3C/svg%3E"); }
+.sp-facts [data-fact="duration"] { --ksp-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E"); }
+.sp-facts [data-fact="exp"] { --ksp-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.42 10.92a1 1 0 0 0-.02-1.84L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z'/%3E%3Cpath d='M22 10v6'/%3E%3Cpath d='M6 12.5V16a6 3 0 0 0 12 0v-3.5'/%3E%3C/svg%3E"); }
+
+/* The single orchestrated moment: header settles in */
+@media (prefers-reduced-motion: no-preference) {
+  html body .sp-detail .sp-avatar:not(#ksp-a) {
+    animation: ksp-avatar 0.7s var(--ksp-spring) both;
+  }
+
+  html body .sp-detail .sp-identity-text > *:not(#ksp-a) {
+    animation: ksp-rise 0.55s var(--ksp-out) both;
+  }
+
+  html body .sp-detail .sp-identity-text > :nth-child(2) { animation-delay: 0.06s; }
+  html body .sp-detail .sp-identity-text > :nth-child(3) { animation-delay: 0.12s; }
+  html body .sp-detail .sp-identity-text > :nth-child(4) { animation-delay: 0.18s; }
+  html body .sp-detail .sp-identity-text > :nth-child(n + 5) { animation-delay: 0.24s; }
+
+  html body .sp-detail .sp-facts:not(#ksp-a) {
+    animation: ksp-rise 0.55s var(--ksp-out) 0.28s both;
+  }
+}
+
+@keyframes ksp-avatar {
+  from { opacity: 0; transform: scale(0.86) rotate(-3deg); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes ksp-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Body ---------- */
+html body .sp-detail .sp-layout:not(#ksp-a):not(#ksp-b) {
+  gap: 16px !important;
+  margin-top: 16px !important;
+  align-items: start !important;
+}
+
+html body .sp-detail .sp-body:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+}
+
+html body .sp-detail :is(.sp-body > .sp-card, .sp-body > .km-detail-section, .sp-contact-column > .sp-card):not(#ksp-a):not(#ksp-b) {
+  margin: 0 !important;
+  padding: 22px 24px !important;
+  border: 1px solid var(--ksp-line) !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  box-shadow: 0 1px 2px rgba(17, 54, 33, 0.04) !important;
+}
+
+html body .sp-detail :is(.sp-card, .km-detail-section) h2:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 0 0 12px !important;
+  font-family: var(--ksp-display) !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--ksp-ink) !important;
+}
+
+html body .sp-detail :is(.sp-card, .km-detail-section) h2 .material-symbols-rounded:not(#ksp-a) {
+  font-size: 22px !important;
+  color: var(--ksp-green) !important;
+}
+
+html body .sp-detail #about-specialist :is(p, .detail-prose, div):not(#ksp-a):not(#ksp-b) {
+  max-width: 68ch !important;
+  font-size: 15.5px !important;
+  line-height: 1.7 !important;
+  color: var(--ksp-text) !important;
+}
+
+/* Education: accordion that answers the click */
+html body .sp-detail details.sp-optional:not(#ksp-a):not(#ksp-b) > summary {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin: -6px 0 !important;
+  padding: 6px 0 !important;
+  cursor: pointer !important;
+  list-style: none !important;
+}
+
+html body .sp-detail details.sp-optional:not(#ksp-a) > summary::-webkit-details-marker {
+  display: none !important;
+}
+
+html body .sp-detail details.sp-optional:not(#ksp-a) > summary h2 {
+  margin: 0 !important;
+}
+
+html body .sp-detail details.sp-optional:not(#ksp-a):not(#ksp-b) > summary::after {
+  content: "" !important;
+  flex: 0 0 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23167a3f' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / 18px no-repeat,
+    var(--ksp-mint) !important;
+  border: 0 !important;
+  transform: none !important;
+  transition: transform 0.35s var(--ksp-spring) !important;
+}
+
+html body .sp-detail details.sp-optional[open]:not(#ksp-a):not(#ksp-b) > summary::after {
+  transform: rotate(180deg) !important;
+}
+
+html body .sp-detail details.sp-optional[open]:not(#ksp-a) > :not(summary) {
+  animation: ksp-rise 0.35s var(--ksp-out) both;
+}
+
+html body .sp-detail .km-detail-info-block:not(#ksp-a):not(#ksp-b) {
+  margin-top: 16px !important;
+}
+
+html body .sp-detail .km-detail-info-block h3:not(#ksp-a):not(#ksp-b) {
+  margin: 0 0 6px !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: var(--ksp-ink) !important;
+}
+
+/* ---------- Contact column ---------- */
+@media (min-width: 981px) {
+  html body .sp-detail .sp-contact-column:not(#ksp-a):not(#ksp-b) {
+    position: sticky !important;
+    top: 96px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+}
+
+html body .sp-detail .sp-contact-actions:not(#ksp-a):not(#ksp-b) {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+}
+
+html body .sp-detail .sp-contact-actions > :only-child:not(#ksp-a) {
+  grid-column: 1 / -1 !important;
+}
+
+html body .sp-detail .sp-button:not(#ksp-a):not(#ksp-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  min-height: 48px !important;
+  padding: 0 16px !important;
+  border: 1.5px solid var(--ksp-line) !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  color: var(--ksp-ink) !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.25s var(--ksp-spring) !important;
+}
+
+html body .sp-detail .sp-button:not(#ksp-a):not(#ksp-b):hover {
+  border-color: #a9d4b8 !important;
+  background: #f7fbf8 !important;
+}
+
+html body .sp-detail .sp-button--primary:not(#ksp-a):not(#ksp-b),
+html body .sp-mobile-contact .sp-button--primary:not(#ksp-a):not(#ksp-b) {
+  border: 0 !important;
+  background: linear-gradient(180deg, #1f8f4c, var(--ksp-green)) !important;
+  color: #fff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 8px 18px -8px rgba(22, 122, 63, 0.6) !important;
+}
+
+html body .sp-detail .sp-button--primary:not(#ksp-a):not(#ksp-b):hover {
+  background: linear-gradient(180deg, #1a8445, var(--ksp-green-deep)) !important;
+}
+
+html body :is(.sp-detail, .sp-mobile-contact) .sp-button:not(#ksp-a):not(#ksp-b):active {
+  transform: scale(0.97) !important;
+}
+
+html body :is(.sp-detail, .sp-mobile-contact) .sp-button:not(#ksp-a):not(#ksp-b):focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--ksp-green) !important;
+}
+
+html body .sp-detail .sp-contact-number:not(#ksp-a):not(#ksp-b) {
+  margin: 12px 0 0 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--ksp-text) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+html body .sp-detail .sp-contact-links:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  margin: 10px 0 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+html body .sp-detail .sp-contact-links a:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 36px !important;
+  color: var(--ksp-green-deep) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+html body .sp-detail .sp-contact-links a:not(#ksp-a):hover {
+  text-decoration: underline !important;
+}
+
+html body .sp-detail .sp-contact-note:not(#ksp-a):not(#ksp-b) {
+  margin: 10px 0 0 !important;
+  font-size: 12.5px !important;
+  line-height: 1.5 !important;
+  color: var(--ksp-muted) !important;
+}
+
+html body .sp-detail .sp-location-list:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+html body .sp-detail .sp-location-list > li:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  padding: 14px 16px !important;
+  border-radius: 16px !important;
+  background: #f6f9f7 !important;
+}
+
+html body .sp-detail .sp-location-list > li > *:not(#ksp-a):not(#ksp-b) {
+  margin: 0 !important;
+  font-size: 14px !important;
+}
+
+html body .sp-detail .sp-location-list h3:not(#ksp-a):not(#ksp-b) {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: var(--ksp-ink) !important;
+}
+
+/* ---------- Reviews ---------- */
+html body .sp-detail .sp-section-head:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px 12px !important;
+  margin: 0 0 12px !important;
+}
+
+html body .sp-detail .sp-section-head h2:not(#ksp-a):not(#ksp-b) {
+  margin: 0 !important;
+}
+
+html body .sp-detail .sp-review-list:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+html body .sp-detail .sp-review:not(#ksp-a):not(#ksp-b) {
+  margin: 0 !important;
+  padding: 14px 16px !important;
+  border: 1px solid #e7efe9 !important;
+  border-radius: 16px !important;
+  background: #fbfcfb !important;
+}
+
+html body .sp-detail .sp-review header:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+}
+
+html body .sp-detail .sp-review h3:not(#ksp-a):not(#ksp-b) {
+  margin: 0 !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+}
+
+html body .sp-detail .sp-review time:not(#ksp-a):not(#ksp-b) {
+  font-size: 12.5px !important;
+  color: var(--ksp-muted) !important;
+}
+
+html body .sp-detail .sp-review-rating:not(#ksp-a):not(#ksp-b) {
+  margin: 4px 0 6px !important;
+  color: var(--ksp-amber) !important;
+  letter-spacing: 1px !important;
+}
+
+html body .sp-detail .sp-review p:not(.sp-review-rating):not(#ksp-a):not(#ksp-b) {
+  margin: 0 !important;
+  font-size: 14.5px !important;
+  line-height: 1.55 !important;
+  color: var(--ksp-text) !important;
+}
+
+html body .sp-detail .sp-guest-review:not(#ksp-a):not(#ksp-b) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px 16px !important;
+  margin-top: 14px !important;
+  padding: 14px 16px !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  background: #f3f8f5 !important;
+}
+
+html body .sp-detail .sp-guest-review > p:not(#ksp-a):not(#ksp-b) {
+  margin: 0 !important;
+  font-size: 14px !important;
+  color: var(--ksp-text) !important;
+}
+
+html body .sp-detail .sp-back:not(#ksp-a):not(#ksp-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin: 0 0 14px !important;
+  color: var(--ksp-green-deep) !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+}
+
+/* ---------- Tablet / phone ---------- */
+@media (max-width: 980px) {
+  html body .sp-detail .sp-facts:not(#ksp-a):not(#ksp-b) {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html body .sp-detail .sp-facts > div:not(#ksp-a):not(#ksp-b) {
+    border-top: 1px solid var(--ksp-line) !important;
+  }
+
+  html body .sp-detail .sp-facts > div:nth-child(-n + 3):not(#ksp-a):not(#ksp-b) {
+    border-top: 0 !important;
+  }
+
+  html body .sp-detail .sp-facts > div:nth-child(3n + 1):not(#ksp-a):not(#ksp-b) {
+    border-left: 0 !important;
+    padding-left: 28px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .sp-detail .sp-header:not(#ksp-a):not(#ksp-b) {
+    padding: 20px 16px 0 !important;
+    border-radius: 24px !important;
+  }
+
+  html body .sp-detail .sp-identity:not(#ksp-a):not(#ksp-b) {
+    grid-template-columns: 84px minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 16px !important;
+  }
+
+  html body .sp-detail .sp-avatar:not(#ksp-a):not(#ksp-b) {
+    width: 84px !important;
+    height: 84px !important;
+    border-radius: 28px !important;
+    box-shadow: 0 0 0 4px #fff, 0 0 0 5px rgba(22, 122, 63, 0.16), 0 12px 24px -16px rgba(17, 54, 33, 0.55) !important;
+  }
+
+  html body .sp-detail .sp-avatar__initials:not(#ksp-a):not(#ksp-b) {
+    font-size: 28px !important;
+  }
+
+  html body .sp-detail .sp-identity-text h1:not(#ksp-a):not(#ksp-b) {
+    font-size: 25px !important;
+  }
+
+  html body .sp-detail .sp-facts:not(#ksp-a):not(#ksp-b) {
+    grid-template-columns: 1fr 1fr !important;
+    margin: 18px -16px 0 !important;
+  }
+
+  html body .sp-detail .sp-facts > div:not(#ksp-a):not(#ksp-b) {
+    padding: 12px 16px !important;
+    border-left: 1px solid var(--ksp-line) !important;
+    border-top: 1px solid var(--ksp-line) !important;
+  }
+
+  html body .sp-detail .sp-facts > div:nth-child(-n + 2):not(#ksp-a):not(#ksp-b) {
+    border-top: 0 !important;
+  }
+
+  html body .sp-detail .sp-facts > div:nth-child(odd):not(#ksp-a):not(#ksp-b) {
+    border-left: 0 !important;
+    padding-left: 16px !important;
+  }
+
+  html body .sp-detail .sp-facts > div:nth-child(3n + 1):not(#ksp-a):not(#ksp-b) {
+    padding-left: 16px !important;
+  }
+
+  html body .sp-detail .sp-facts > div:nth-child(3):not(#ksp-a):not(#ksp-b) {
+    border-top: 1px solid var(--ksp-line) !important;
+  }
+
+  html body .sp-detail :is(.sp-body > .sp-card, .sp-body > .km-detail-section, .sp-contact-column > .sp-card):not(#ksp-a):not(#ksp-b) {
+    padding: 18px 16px !important;
+    border-radius: 20px !important;
+  }
+
+  html body .sp-detail :is(.sp-card, .km-detail-section) h2:not(#ksp-a):not(#ksp-b) {
+    font-size: 18px !important;
+  }
+
+  html body .sp-detail .sp-layout:not(#ksp-a):not(#ksp-b) {
+    gap: 12px !important;
+    margin-top: 12px !important;
+  }
+
+  /* Floating contact bar, hidden while the contact card itself is on screen */
+  html body .sp-mobile-contact:not(#ksp-a):not(#ksp-b) {
+    left: 12px !important;
+    right: 12px !important;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    width: auto !important;
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: 1fr !important;
+    gap: 8px !important;
+    padding: 8px !important;
+    border: 1px solid rgba(22, 122, 63, 0.14) !important;
+    border-radius: 20px !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    backdrop-filter: blur(14px) saturate(1.4);
+    box-shadow: 0 14px 30px -12px rgba(17, 54, 33, 0.35) !important;
+    transition: transform 0.35s var(--ksp-out), opacity 0.25s ease !important;
+  }
+
+  html body .sp-mobile-contact .sp-button:not(#ksp-a):not(#ksp-b) {
+    min-height: 46px !important;
+    border-radius: 14px !important;
+  }
+
+  html body .sp-mobile-contact .sp-button:not(.sp-button--primary):not(#ksp-a):not(#ksp-b) {
+    border: 1.5px solid var(--ksp-line) !important;
+    background: #fff !important;
+    color: var(--ksp-ink) !important;
+  }
+
+  html body .sp-mobile-contact.is-tucked:not(#ksp-a):not(#ksp-b) {
+    transform: translateY(calc(100% + 20px)) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body :is(.sp-detail, .sp-mobile-contact, .km-specialists-page, .km-filters-panel) *,
+  html body :is(.sp-mobile-contact, .km-filters-panel) {
+    animation: none !important;
+    transition: none !important;
+  }
+}

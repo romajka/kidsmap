@@ -23,13 +23,43 @@ test('catalog suggestions carry current filters and discard stale failures',asyn
 test('clearing or dismissing cannot reopen results from an old request',async()=>{
  const t=setup();try{t.type('art');t.flush();t.type('');t.requests[0].resolve({places:[{name:'Art',url:'/art/'}]});await tick();assert.equal(t.panel.hidden,true);}finally{t.close();}
 });
-test('mobile input uses the same photo fallback and safe text; errors differ from empty results',async()=>{
- const t=setup('catalog-mobile-search','catalog-mobile-search-dropdown');try{
- t.type('<');t.flush();t.requests[0].resolve({places:[{name:'<studio>',url:'/ru/place/art/',image:'/photo.jpg'}]});await tick();assert.equal(t.panel.querySelector('.search-card-title').textContent,'<studio>');assert.equal(t.panel.querySelector('studio'),null);
- const image=t.panel.querySelector('img');image.dispatchEvent(new t.w.Event('error'));assert.equal(image.hidden,true);
- t.type('none');t.flush();t.requests[1].resolve({places:[]});await tick();assert.match(t.panel.textContent,/Ничего не найдено/);
- t.type('offline');t.flush();t.requests[2].reject(new Error('offline'));await tick();assert.match(t.panel.textContent,/Не удалось загрузить/);
- }finally{t.close();}
+test('mobile search shows safe text and replaces a broken thumbnail with a decorative icon', async () => {
+ const t = setup('catalog-mobile-search', 'catalog-mobile-search-dropdown');
+ try {
+  t.type('<'); t.flush();
+  t.requests[0].resolve({places: [{name: '<studio>', url: '/ru/place/art/', image: '/photo.jpg'}]});
+  await tick();
+  const card = t.panel.querySelector('a[href$="/ru/place/art/"]');
+  assert.match(card.textContent, /<studio>/);
+  assert.equal(card.querySelector('studio'), null);
+  const image = card.querySelector('img');
+  const container = image.parentElement;
+  image.dispatchEvent(new t.w.Event('error'));
+  assert.equal(container.querySelector('img'), null);
+  assert.ok(container.querySelector('svg[aria-hidden="true"]'));
+ } finally { t.close(); }
+});
+test('empty, error and retry states are distinct, with no stale keyboard target', async () => {
+ const t = setup('catalog-mobile-search', 'catalog-mobile-search-dropdown');
+ try {
+  t.type('none'); t.flush(); t.requests[0].resolve({places: []}); await tick();
+  assert.match(t.panel.querySelector('[role="status"]').textContent, /Ничего не нашли/);
+  assert.equal(t.panel.querySelector('button'), null);
+  t.type('studio'); t.flush(); t.requests[1].resolve({places: [{name: 'Studio', url: '/ru/place/art/'}]}); await tick();
+  t.input.dispatchEvent(new t.w.KeyboardEvent('keydown', {key: 'ArrowDown'}));
+  assert.ok(t.input.getAttribute('aria-activedescendant'));
+  t.type('offline'); t.flush(); t.requests[2].reject(new Error('offline')); await tick();
+  assert.match(t.panel.querySelector('[role="status"]').textContent, /Не удалось загрузить/);
+  assert.equal(t.input.hasAttribute('aria-activedescendant'), false);
+  t.input.dispatchEvent(new t.w.KeyboardEvent('keydown', {key: 'ArrowDown'}));
+  assert.equal(t.input.hasAttribute('aria-activedescendant'), false);
+  const retry = t.panel.querySelector('button');
+  assert.equal(retry.textContent, 'Повторить');
+  retry.click(); t.flush();
+  assert.equal(new URL(t.requests[3].url, 'http://localhost').searchParams.get('q'), 'offline');
+  t.requests[3].resolve({places: [{name: 'Restored', url: '/ru/place/restored/'}]}); await tick();
+  assert.match(t.panel.textContent, /Restored/);
+ } finally { t.close(); }
 });
 test('regular form submission preserves the same filters as suggestions',()=>{
  const t=setup();try{

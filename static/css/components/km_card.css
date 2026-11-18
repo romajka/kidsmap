@@ -1,0 +1,716 @@
+/*
+ * Place card (catalog, home rails, nearby, favourites): photo fills the frame,
+ * light glass badges, compact info, clear buttons, soft motion.
+ * ":not(#kc-a):not(#kc-b)" only lifts specificity over older !important rules.
+ */
+
+html body .card.place-card:not(#kc-a):not(#kc-b) {
+  --kc-green: #167a3f;
+  --kc-green-deep: #0e5f30;
+  --kc-ink: #17251d;
+  --kc-muted: #66796d;
+  --kc-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --kc-out: cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  border: 1px solid #e4ece6 !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  box-shadow: 0 1px 2px rgba(17, 54, 33, 0.05), 0 12px 30px -24px rgba(17, 54, 33, 0.4) !important;
+  transition: transform 0.35s var(--kc-out), box-shadow 0.35s var(--kc-out), border-color 0.2s ease !important;
+}
+
+@media (hover: hover) {
+  html body .card.place-card:not(#kc-a):not(#kc-b):hover {
+    transform: translateY(-4px) !important;
+    border-color: #cfe3d6 !important;
+    box-shadow: 0 2px 4px rgba(17, 54, 33, 0.05), 0 24px 44px -24px rgba(17, 54, 33, 0.45) !important;
+  }
+}
+
+/* ============ Photo ============ */
+
+html body .place-card .card-media:not(#kc-a):not(#kc-b) {
+  position: relative !important;
+  flex: 0 0 auto !important;
+  height: auto !important;
+  aspect-ratio: 4 / 3 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  border-radius: 0 !important;
+  background: linear-gradient(140deg, #eef6f1, #e2efe7) !important;
+}
+
+html body .place-card .card-media-link:not(#kc-a):not(#kc-b) {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+}
+
+/* The photo fills the frame: no blurred side strips. */
+html body .place-card .card-media-blur-bg:not(#kc-a):not(#kc-b) {
+  display: none !important;
+}
+
+html body .place-card .card-media-img:not(#kc-a):not(#kc-b) {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center 35% !important;
+  border-radius: 0 !important;
+  transform: scale(1.001);
+  transition: transform 0.7s var(--kc-out) !important;
+}
+
+@media (hover: hover) {
+  html body .place-card:not(#kc-a):hover .card-media-img {
+    transform: scale(1.05) !important;
+  }
+}
+
+/* Gentle shade only at the very bottom, so the price reads without hiding the photo */
+html body .place-card .card-media:not(#kc-a)::after {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 1 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  height: 38% !important;
+  background: linear-gradient(to top, rgba(10, 20, 14, 0.42), rgba(10, 20, 14, 0)) !important;
+  pointer-events: none !important;
+}
+
+html body .place-card .card-media:not(#kc-a):has(.image-placeholder)::after {
+  height: 30% !important;
+  background: linear-gradient(to top, rgba(10, 20, 14, 0.12), rgba(10, 20, 14, 0)) !important;
+}
+
+/* No-photo placeholder: calmer */
+html body .place-card .image-placeholder:not(#kc-a):not(#kc-b) {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  background: transparent !important;
+}
+
+html body .place-card .image-placeholder-icon:not(#kc-a):not(#kc-b) {
+  width: 44px !important;
+  height: 44px !important;
+  color: #8fb39c !important;
+  opacity: 0.9 !important;
+}
+
+html body .place-card .image-placeholder-icon:not(#kc-a) svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+html body .place-card .image-placeholder-text:not(#kc-a):not(#kc-b) {
+  color: #7a9584 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+/* ============ Badges on the photo ============ */
+
+/* Category: small frosted chip, coloured icon only */
+html body .place-card .card-category-overlay:not(#kc-a):not(#kc-b) {
+  position: absolute !important;
+  z-index: 3 !important;
+  top: 10px !important;
+  left: 10px !important;
+  right: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  max-width: calc(100% - 70px) !important;
+  height: 26px !important;
+  margin: 0 !important;
+  padding: 0 9px 0 6px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  color: var(--kc-ink) !important;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.18) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(1.5);
+  backdrop-filter: blur(10px) saturate(1.5);
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  line-height: 1 !important;
+}
+
+html body .place-card .card-category-overlay:not(#kc-a) .category-icon {
+  display: inline-grid !important;
+  place-items: center !important;
+  flex: 0 0 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 !important;
+  background: none !important;
+}
+
+html body .place-card .card-category-overlay:not(#kc-a) .category-icon :is(svg, img, .category-visual-icon) {
+  width: 14px !important;
+  height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+  font-size: 14px !important;
+}
+
+html body .place-card .card-category-overlay:not(#kc-a) .category-name {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  color: var(--kc-ink) !important;
+}
+
+/* Heart: smaller frosted circle, springy */
+html body .place-card .like-form:not(#kc-a):not(#kc-b) {
+  position: absolute !important;
+  z-index: 3 !important;
+  top: 8px !important;
+  right: 8px !important;
+  margin: 0 !important;
+}
+
+html body .place-card .like-btn:not(#kc-a):not(#kc-b) {
+  display: grid !important;
+  place-items: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  color: #33463a !important;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.2) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(1.5);
+  backdrop-filter: blur(10px) saturate(1.5);
+  transition: transform 0.3s var(--kc-spring), background-color 0.18s ease, color 0.18s ease !important;
+}
+
+html body .place-card .like-btn:not(#kc-a):not(#kc-b):hover {
+  background: #fff !important;
+  color: #e5484d !important;
+  transform: scale(1.08) !important;
+}
+
+html body .place-card .like-btn:not(#kc-a):not(#kc-b):active {
+  transform: scale(0.86) !important;
+}
+
+html body .place-card .like-btn:not(#kc-a) .like-svg-icon {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+html body .place-card .like-btn.active:not(#kc-a) .like-svg-icon {
+  fill: #e5484d !important;
+  stroke: #e5484d !important;
+  animation: kc-heart 0.45s var(--kc-spring);
+}
+
+@keyframes kc-heart {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+/* Price: white pill at the bottom-left, readable on any photo */
+html body .place-card .card-price-pill:not(#kc-a):not(#kc-b) {
+  position: absolute !important;
+  z-index: 3 !important;
+  left: 10px !important;
+  bottom: 10px !important;
+  right: auto !important;
+  top: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  max-width: calc(100% - 20px) !important;
+  height: 28px !important;
+  margin: 0 !important;
+  padding: 0 11px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  color: var(--kc-green-deep) !important;
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.3) !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+html body .place-card .card-price-pill__amount:not(#kc-a) {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  color: inherit !important;
+  font: inherit !important;
+}
+
+/* ============ Body ============ */
+
+html body .place-card .card-body:not(#kc-a):not(#kc-b) {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 14px 16px 16px !important;
+}
+
+html body .place-card .card-body > *:not(#kc-a):not(#kc-b) {
+  margin: 0 !important;
+}
+
+html body .place-card .card-title:not(#kc-a):not(#kc-b) {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+  font-size: 17px !important;
+  font-weight: 850 !important;
+  line-height: 1.28 !important;
+  letter-spacing: -0.01em !important;
+}
+
+html body .place-card .card-title a:not(#kc-a) {
+  color: var(--kc-ink) !important;
+  text-decoration: none !important;
+  transition: color 0.18s ease !important;
+}
+
+html body .place-card:not(#kc-a):hover .card-title a {
+  color: var(--kc-green-deep) !important;
+}
+
+/* Age · type on one quiet line */
+html body .place-card .card-tags-row:not(#kc-a):not(#kc-b) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 0 !important;
+}
+
+html body .place-card .card-meta-chip:not(#kc-a):not(#kc-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 24px !important;
+  padding: 0 9px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+}
+
+html body .place-card .card-meta-chip--age:not(#kc-a):not(#kc-b) {
+  background: #e9f6ee !important;
+  color: var(--kc-green-deep) !important;
+}
+
+html body .place-card .card-meta-chip--type:not(#kc-a):not(#kc-b) {
+  background: #f2f5f3 !important;
+  color: var(--kc-muted) !important;
+}
+
+html body .place-card .card-age-program-note:not(#kc-a):not(#kc-b) {
+  margin-top: -4px !important;
+  color: var(--kc-muted) !important;
+  font-size: 12px !important;
+}
+
+/* Location: plain text line with icons, no stacked pills */
+html body .place-card .card-location:not(#kc-a):not(#kc-b) {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  color: var(--kc-muted) !important;
+}
+
+html body .place-card .card-location.is-empty:not(#kc-a):not(#kc-b) {
+  display: none !important;
+}
+
+html body .place-card .km-loc-badge:not(#kc-a):not(#kc-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  color: var(--kc-muted) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+}
+
+html body .place-card .km-loc-badge--district:not(#kc-a):not(#kc-b) {
+  flex: 0 1 auto !important;
+}
+
+html body .place-card .km-loc-badge--metro:not(#kc-a):not(#kc-b) {
+  flex: 0 1 auto !important;
+  color: #6a5ad1 !important;
+}
+
+html body .place-card .km-loc-badge__text:not(#kc-a) {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+html body .place-card .km-loc-badge__icon:not(#kc-a) {
+  flex: 0 0 13px !important;
+  width: 13px !important;
+  height: 13px !important;
+}
+
+html body .place-card .card-description:not(#kc-a):not(#kc-b) {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+  color: #4b5e52 !important;
+  font-size: 13.5px !important;
+  line-height: 1.45 !important;
+}
+
+html body .place-card .card-description.is-empty:not(#kc-a):not(#kc-b) {
+  display: none !important;
+}
+
+html body .place-card .card-organization:not(#kc-a):not(#kc-b) {
+  overflow: hidden !important;
+  font-size: 12.5px !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html body .place-card .card-organization a:not(#kc-a) {
+  color: var(--kc-green) !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+/* Rating: inline, empty state is quiet text */
+html body .place-card .card-rating-row:not(#kc-a):not(#kc-b) {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 0 !important;
+  margin-top: auto !important;
+  padding-top: 2px !important;
+}
+
+html body .place-card .card-score:not(#kc-a):not(#kc-b) {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+  color: var(--kc-ink) !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+
+html body .place-card .card-score-star:not(#kc-a):not(#kc-b) {
+  color: #f2a50c !important;
+}
+
+html body .place-card .card-review-count:not(#kc-a):not(#kc-b) {
+  color: var(--kc-muted) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+html body .place-card .card-score-empty:not(#kc-a):not(#kc-b) {
+  color: #9aaba0 !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+}
+
+html body .place-card .card-score-star--empty:not(#kc-a):not(#kc-b) {
+  color: #cdd8d1 !important;
+}
+
+html body .place-card .card-map-missing:not(#kc-a):not(#kc-b) {
+  color: #9aaba0 !important;
+  font-size: 12px !important;
+}
+
+/* ============ Buttons ============ */
+
+html body .place-card .card-action-stack:not(#kc-a):not(#kc-b) {
+  margin-top: 4px !important;
+}
+
+html body .place-card .card-bottom-row:not(#kc-a):not(#kc-b) {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+}
+
+html body .place-card .card-go-btn:not(#kc-a):not(#kc-b) {
+  flex: 1 1 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  height: 44px !important;
+  min-height: 0 !important;
+  padding: 0 16px !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: linear-gradient(180deg, #1f8f4c, var(--kc-green)) !important;
+  color: #fff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 6px 14px -8px rgba(22, 122, 63, 0.7) !important;
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+  transition: background 0.18s ease, box-shadow 0.22s ease, transform 0.25s var(--kc-spring) !important;
+}
+
+html body .place-card .card-go-btn:not(#kc-a):not(#kc-b):hover {
+  background: linear-gradient(180deg, #1a8445, var(--kc-green-deep)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 20px -10px rgba(22, 122, 63, 0.8) !important;
+}
+
+html body .place-card .card-go-btn:not(#kc-a):not(#kc-b):active {
+  transform: scale(0.97) !important;
+}
+
+html body .place-card .card-go-btn:not(#kc-a):not(#kc-b):focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--kc-green) !important;
+}
+
+/* Every other button in the row: square, outlined, same height */
+html body .place-card .card-bottom-row > :not(.card-go-btn):not(#kc-a):not(#kc-b),
+html body .place-card .card-bottom-row > :not(.card-go-btn):not(#kc-a) :is(a, button) {
+  flex: 0 0 44px !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border-radius: 14px !important;
+}
+
+html body .place-card .card-bottom-row > :not(.card-go-btn):not(#kc-a) :is(a, button),
+html body .place-card .card-bottom-row > :is(a, button):not(.card-go-btn):not(#kc-a):not(#kc-b) {
+  border: 1.5px solid #dbe7df !important;
+  background: #fff !important;
+  color: var(--kc-green) !important;
+  box-shadow: none !important;
+  transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.25s var(--kc-spring) !important;
+}
+
+html body .place-card .card-bottom-row > :not(.card-go-btn):not(#kc-a) :is(a, button):hover,
+html body .place-card .card-bottom-row > :is(a, button):not(.card-go-btn):not(#kc-a):not(#kc-b):hover {
+  border-color: var(--kc-green) !important;
+  background: #f1f8f3 !important;
+}
+
+html body .place-card .card-bottom-row > :not(.card-go-btn):not(#kc-a) :is(a, button):active,
+html body .place-card .card-bottom-row > :is(a, button):not(.card-go-btn):not(#kc-a):not(#kc-b):active {
+  transform: scale(0.92) !important;
+}
+
+/* ============ Phones ============ */
+
+@media (max-width: 760px) {
+  html body .card.place-card:not(#kc-a):not(#kc-b) {
+    border-radius: 20px !important;
+  }
+
+  html body .place-card .card-media:not(#kc-a):not(#kc-b) {
+    aspect-ratio: 16 / 10 !important;
+  }
+
+  html body .place-card .card-body:not(#kc-a):not(#kc-b) {
+    gap: 7px !important;
+    padding: 12px 14px 14px !important;
+  }
+
+  html body .place-card .card-title:not(#kc-a):not(#kc-b) {
+    font-size: 16.5px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body .place-card,
+  html body .place-card * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Call button: icon square, grows to fit "Zəng et" / the revealed number */
+html body .place-card .card-bottom-row > .km-phone-control:not(#kc-a):not(#kc-b) {
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: auto !important;
+  min-width: 44px !important;
+  max-width: 60% !important;
+  padding: 0 12px !important;
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+}
+
+html body .place-card .card-bottom-row > .km-phone-control:not(#kc-a) .km-phone-label {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Location: wrap instead of cutting both names */
+html body .place-card .card-location:not(#kc-a):not(#kc-b) {
+  flex-wrap: wrap !important;
+  gap: 4px 12px !important;
+}
+
+html body .place-card .km-loc-badge:not(#kc-a):not(#kc-b) {
+  max-width: 100% !important;
+}
+
+/* ============ v3: compact photo, symmetric rows, cleaner placeholder ============ */
+
+/* Photo takes less of the card everywhere */
+html body .place-card .card-media:not(#kc-a):not(#kc-b) {
+  aspect-ratio: 16 / 10 !important;
+}
+
+/* Same layout in every card of a row: title 2 lines, text 2 lines, rating + buttons at the bottom */
+html body .place-card .card-title:not(#kc-a):not(#kc-b) {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  min-height: calc(2 * 1.28em) !important;
+  overflow: hidden !important;
+  line-height: 1.28 !important;
+}
+
+html body .place-card .card-description:not(#kc-a):not(#kc-b) {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  min-height: calc(2 * 1.45em) !important;
+  overflow: hidden !important;
+  font-size: 13.5px !important;
+  line-height: 1.45 !important;
+}
+
+html body .place-card .card-rating-row:not(#kc-a):not(#kc-b) {
+  margin-top: auto !important;
+  padding-top: 2px !important;
+}
+
+html body .place-card .card-action-stack:not(#kc-a):not(#kc-b) {
+  margin-top: 0 !important;
+}
+
+/* Placeholder: soft tile with the category icon, crisp caption (no glow) */
+html body .place-card .image-placeholder:not(#kc-a):not(#kc-b) {
+  padding-bottom: 22px !important;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.75), transparent 46%),
+    linear-gradient(140deg, #eef7f1, #dcefe3) !important;
+}
+
+html body .place-card .image-placeholder-icon:not(#kc-a):not(#kc-b) {
+  display: grid !important;
+  place-items: center !important;
+  width: 52px !important;
+  height: 52px !important;
+  padding: 12px !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 8px 18px -12px rgba(17, 54, 33, 0.5) !important;
+  color: #4f9a6e !important;
+  opacity: 1 !important;
+}
+
+html body .place-card .image-placeholder-text:not(#kc-a):not(#kc-b) {
+  text-shadow: none !important;
+  filter: none !important;
+  -webkit-text-stroke: 0 !important;
+  color: #5d7d69 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Heart pops when liked */
+html body .place-card .like-btn.active:not(#kc-a) .like-svg-icon {
+  animation: kc-heart 0.45s var(--kc-spring);
+}
+
+@keyframes kc-heart {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+/* Cards cascade in as a row appears */
+@media (prefers-reduced-motion: no-preference) {
+  html body .grid > .place-card:nth-child(3n + 2) { animation-delay: 60ms; }
+  html body .grid > .place-card:nth-child(3n + 3) { animation-delay: 120ms; }
+}
+
+/* Long category names never collide with the heart */
+html body .place-card .card-category-overlay:not(#kc-a):not(#kc-b) {
+  max-width: calc(100% - 66px) !important;
+}
+
+html body .place-card .card-category-overlay .category-name:not(#kc-a) {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Long price labels ("Qiymət tədbirdən asılıdır") stay inside the photo */
+html body .place-card .card-price-pill:not(#kc-a):not(#kc-b) {
+  max-width: calc(100% - 24px) !important;
+}
+
+html body .place-card .card-price-pill__amount:not(#kc-a) {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 760px) {
+  /* One card per row on phones: no reserved empty lines */
+  html body .place-card .card-title:not(#kc-a):not(#kc-b),
+  html body .place-card .card-description:not(#kc-a):not(#kc-b) {
+    min-height: 0 !important;
+  }
+}

@@ -82,25 +82,16 @@ html body .kmr__rail {
 
 html body .kmr__ticks {
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-html body .kmr__tick {
-  position: absolute;
+  left: 0;
+  right: 0;
   top: 50%;
-  width: 3px;
   height: 3px;
-  margin: -1.5px 0 0 -1.5px;
-  border-radius: 50%;
-  background: rgba(22, 122, 63, 0.28);
-}
-
-html body .kmr__tick.is-major {
-  width: 4px;
-  height: 4px;
-  margin: -2px 0 0 -2px;
-  background: rgba(22, 122, 63, 0.42);
+  margin-top: -1.5px;
+  pointer-events: none;
+  /* One small mark per step boundary, drawn by CSS so it is there before any script. */
+  background: repeating-linear-gradient(90deg, transparent 0 calc(100% / var(--kmr-steps, 6) - 3px), rgba(22, 122, 63, 0.3) calc(100% / var(--kmr-steps, 6) - 3px) calc(100% / var(--kmr-steps, 6)));
+  -webkit-mask: linear-gradient(90deg, transparent 6px, #000 6px, #000 calc(100% - 6px), transparent calc(100% - 6px));
+  mask: linear-gradient(90deg, transparent 6px, #000 6px, #000 calc(100% - 6px), transparent calc(100% - 6px));
 }
 
 html body .kmr__fill {
@@ -381,8 +372,8 @@ html body .km-custom-select.is-open .km-custom-select__option,
 html body [data-catalog-sort-wrap].is-open .km-sort-option,
 html body .km-tree-dropdown:not([hidden]) .km-tree-row,
 html body .mobile-quick-menu:not([hidden]) :is(button, a) {
-  animation: kmc-item-in 0.32s var(--kmc-out) both;
-  animation-delay: calc(var(--kmi, 0) * 22ms + 40ms);
+  animation: kmc-item-in 0.24s var(--kmc-out) both;
+  animation-delay: calc(var(--kmi, 0) * 16ms + 30ms);
 }
 
 @keyframes kmc-item-in {
@@ -577,17 +568,6 @@ html body .event-type-option {
 
 html body .event-type-option:active {
   transform: scale(0.95) !important;
-}
-
-/* ============ Reduced motion ============ */
-
-@media (prefers-reduced-motion: reduce) {
-  html body .kmr *,
-  html body .km-pop,
-  html body .km-pop * {
-    animation: none !important;
-    transition-duration: 0.01ms !important;
-  }
 }
 
 /* ============ 5. Buttons ============
@@ -988,5 +968,133 @@ html body :is(.mobile-filters-close, .km-filter-close):not(#kmc-a):not(#kmc-b):a
 @media (min-width: 761px) {
   html body .filters-catalog.is-live-filters .km-filter-actions:not(#kmc-a):not(#kmc-b) > .km-btn-apply {
     display: none !important;
+  }
+}
+
+/* ============ 6. Icons ============ */
+
+:root {
+  /* One reset icon everywhere (rotate-ccw outline). Also replaces the old .icon-reset::before glyph. */
+  --km-ico-reset: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8'/%3E%3Cpath d='M3 3v5h5'/%3E%3C/svg%3E");
+}
+
+html body .km-ico-reset:not(#kmc-a):not(#kmc-b) {
+  display: inline-block !important;
+  flex: 0 0 auto !important;
+  width: 17px !important;
+  height: 17px !important;
+  background: currentColor !important;
+  -webkit-mask: var(--km-ico-reset) center / contain no-repeat !important;
+  mask: var(--km-ico-reset) center / contain no-repeat !important;
+  transition: transform 0.5s var(--kmc-spring) !important;
+}
+
+html body :is(.km-btn-reset, .km-mobile-reset-btn):not(#kmc-a):hover .km-ico-reset {
+  transform: rotate(-200deg) !important;
+}
+
+/* Buttons that carry their own icon element: drop the old ::before glyph. */
+html body .icon-reset:not(#kmc-a):has(.km-ico-reset)::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* Everything else that used the old reload glyph gets the same arrow. */
+html body .icon-reset:not(#kmc-a):not(:has(.km-ico-reset))::before {
+  -webkit-mask-image: var(--km-ico-reset) !important;
+  mask-image: var(--km-ico-reset) !important;
+  -webkit-mask-size: contain !important;
+  mask-size: contain !important;
+  -webkit-mask-position: center !important;
+  mask-position: center !important;
+  -webkit-mask-repeat: no-repeat !important;
+  mask-repeat: no-repeat !important;
+}
+
+/* Filter labels: every icon the same size, weight and centre line. */
+html body :is(.filters, .km-filters-panel, .km-specialist-filters, .events-filters, .org-directory-search) :is(label, legend, .range-filter-head > label, .filter-rating-head > *, .km-filter-title > *):not(#kmc-a) > .material-symbols-rounded {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 7px 0 0 !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  vertical-align: middle !important;
+  color: var(--kmc-green) !important;
+  font-variation-settings: "FILL" 0, "wght" 450, "GRAD" 0, "opsz" 20 !important;
+  overflow: visible !important;
+  transform: none !important;
+}
+
+html body :is(.filters, .km-filters-panel, .km-specialist-filters):not(#kmc-a) :is(legend, label):has(> .material-symbols-rounded) {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  float: none;
+  line-height: 1.25 !important;
+}
+
+html body :is(.filters, .km-filters-panel):not(#kmc-a) legend:has(> .material-symbols-rounded) {
+  padding: 0 !important;
+  margin: 0 0 8px !important;
+}
+
+html body .filters .filter-event-type:not(#kmc-a) {
+  margin-bottom: 6px !important;
+}
+
+/* Segmented control icons: crisp outlines on the text's centre line. */
+html body :is(.event-type-option, .results-view-btn):not(#kmc-a):not(#kmc-b) svg {
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  stroke-width: 2 !important;
+}
+
+/* "Ətraflı ›": chevron on the text's centre line, nudges on hover. */
+html body .card-go-btn:not(#kmc-a) {
+  align-items: center !important;
+}
+
+html body .card-go-btn:not(#kmc-a) .card-go-arrow {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 0 !important;
+  margin-left: 2px !important;
+  transform: none !important;
+  vertical-align: middle !important;
+  transition: transform 0.3s var(--kmc-spring) !important;
+}
+
+html body .card-go-btn:not(#kmc-a) .card-go-arrow svg {
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+html body .card-go-btn:not(#kmc-a):hover .card-go-arrow {
+  transform: translateX(3px) !important;
+}
+
+/* Rating stars: same size in every pill, active one just tilts. */
+html body .rating-filter-pill:not(#kmc-a):not(#kmc-b) .rating-star-icon {
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  overflow: visible !important;
+}
+
+/* ============ Reduced motion ============ */
+
+@media (prefers-reduced-motion: reduce) {
+  html body:not(#kmc-a) :is(.kmr, .kmr *, .km-pop, .km-pop *, .km-seg-ind, .rating-filter-pill, .rating-filter-pill *, .event-type-option, .results-view-btn, .km-btn-apply, .km-btn-reset, .km-ico-reset, .card-go-arrow, .mobile-search-filter__count, .km-badge-count, .mobile-active-chip, .kmr__bubble) {
+    animation: none !important;
+    transition: none !important;
   }
 }
