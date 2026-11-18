@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static public_breadcrumbs %}
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
@@ -10,6 +10,7 @@
 {% endblock %}
 {% block content %}
 <div class="org-directory">
+  {% section_breadcrumbs text.title %}
   <header class="org-hero">
     <div class="org-hero-copy">
       <div class="org-hero-badge">

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static public_breadcrumbs %}
 {% get_current_language as CURRENT_LANGUAGE %}
 
 {% block title %}{{ page_title }}{% endblock %}
@@ -18,19 +18,7 @@
 <div class="listing-rules-wrapper">
 
   <!-- 1. Breadcrumbs -->
-  <nav class="rules-crumbs" aria-label="{% trans 'Навигация' %}">
-    <a href="{% url 'home' %}">{% trans "Главная" %}</a>
-    <span class="sep material-symbols-rounded">chevron_right</span>
-    <span class="cur">
-      {% if CURRENT_LANGUAGE == "az" %}
-        Yerləşdirmə qaydaları
-      {% elif CURRENT_LANGUAGE == "en" %}
-        Listing Rules
-      {% else %}
-        Правила размещения
-      {% endif %}
-    </span>
-  </nav>
+  {% section_breadcrumbs _("Правила размещения") "rules-crumbs" %}
 
   <!-- 2. Hero Header Card -->
   <header class="rules-hero-card">

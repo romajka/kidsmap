@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static public_breadcrumbs %}
 {% get_current_language as CURRENT_LANGUAGE %}
 
 {% block title %}{{ page_title }}{% endblock %}
@@ -17,6 +17,7 @@
 
 {% block content %}
 <div class="contacts-page-wrapper">
+  {% section_breadcrumbs _("Контакты") %}
 
   <!-- 1. Hero Section -->
   <section class="contacts-hero-card km-editorial-hero">

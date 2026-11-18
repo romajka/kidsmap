@@ -98,6 +98,17 @@ def _build_breadcrumb_schema(items: list[dict]) -> str:
     )
 
 
+def build_section_breadcrumbs(request, label, path):
+    items = [
+        {"name": _("Главная"), "url": reverse("home")},
+        {"name": str(label), "url": path},
+    ]
+    schema = _build_breadcrumb_schema([
+        {"name": item["name"], "url": _absolute_uri(request, item["url"])} for item in items
+    ])
+    return items, schema
+
+
 def _build_item_list_schema(*, name: str, item_urls: list[dict], total_count: int | None = None) -> str:
     payload = {
         "@context": "https://schema.org",
@@ -577,16 +588,12 @@ def build_site_reviews_seo_payload(*, request, review_count: int) -> dict:
         }
     )
 
-    breadcrumb_schema_json = _build_breadcrumb_schema(
-        [
-            {"name": _("Главная"), "url": _absolute_uri(request, reverse("home"))},
-            {"name": _("Отзывы"), "url": _absolute_uri(request, reverse("site_reviews"))},
-        ]
-    )
+    items, breadcrumb_schema_json = build_section_breadcrumbs(request, _("Отзывы"), reverse("site_reviews"))
 
     return {
         "seo_title": f"{title} | KidsMap",
         "meta_description": _truncate_text(description, 180),
+        "site_reviews_breadcrumb_items": items,
         "site_reviews_breadcrumb_schema_json": breadcrumb_schema_json,
     }
 

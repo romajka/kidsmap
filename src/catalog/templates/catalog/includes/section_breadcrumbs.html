@@ -1,0 +1,11 @@
+{% load i18n %}
+{% if nav_class %}
+  <nav class="{{ nav_class }}" aria-label="{% trans 'Хлебные крошки' %}">
+    <a href="{{ items.0.url }}">{{ items.0.name }}</a>
+    <span class="sep material-symbols-rounded" aria-hidden="true">chevron_right</span>
+    <span class="cur" aria-current="page">{{ items.1.name }}</span>
+  </nav>
+{% else %}
+  {% include "catalog/includes/breadcrumbs.html" with items=items only %}
+{% endif %}
+{% if schema %}<script type="application/ld+json">{{ schema|safe }}</script>{% endif %}

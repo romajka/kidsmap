@@ -13,6 +13,7 @@
 {% endblock %}
 
 {% block content %}
+  {% include "catalog/includes/breadcrumbs.html" with items=site_reviews_breadcrumb_items only %}
   <section class="panel site-reviews-page site-reviews-page-polished">
     <div class="site-reviews-hero reviews-polished-hero">
       <picture class="reviews-hero-picture">

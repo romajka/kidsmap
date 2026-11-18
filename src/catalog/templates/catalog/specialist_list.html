@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static l10n %}
+{% load i18n static l10n public_breadcrumbs %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
@@ -13,7 +13,11 @@
 
 {% block content %}
 <div class="km-specialists-page km-specialists-catalog{% if not page_obj.paginator.count %} is-empty{% endif %}">
-  {% include "catalog/includes/breadcrumbs.html" with items=specialist_breadcrumb_items %}
+  {% if request.GET %}
+    {% include "catalog/includes/breadcrumbs.html" with items=specialist_breadcrumb_items only %}
+  {% else %}
+    {% section_breadcrumbs specialist_breadcrumb_items.1.name %}
+  {% endif %}
 
   <!-- Hero Section matching Main Catalog Design System -->
   <section class="hero km-specialists-hero catalog-faq-hero">

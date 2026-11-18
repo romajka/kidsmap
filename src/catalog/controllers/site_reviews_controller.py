@@ -58,7 +58,5 @@ class SiteReviewsController:
             "review_sort": review_sort,
             "review_sort_choices": REVIEW_SORT_CHOICES,
             "query_without_page": params.urlencode(),
-            "meta_description": seo_payload["meta_description"],
-            "seo_title": seo_payload["seo_title"],
-            "site_reviews_breadcrumb_schema_json": seo_payload["site_reviews_breadcrumb_schema_json"],
+            **seo_payload,
         }
