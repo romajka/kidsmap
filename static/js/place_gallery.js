@@ -193,7 +193,9 @@
     function onKey(e) {
       if (e.key === "Escape") { e.preventDefault(); close(); }
       if (e.key === "Tab") {
-        var buttons = root.querySelectorAll('button:not(:disabled):not([aria-disabled="true"])');
+        var buttons = Array.from(root.querySelectorAll('button:not(:disabled):not([aria-disabled="true"])')).filter(function (button) {
+          return window.getComputedStyle(button).display !== "none";
+        });
         var first = buttons[0], last = buttons[buttons.length - 1];
         if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
         if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }

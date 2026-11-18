@@ -94,6 +94,13 @@ test('a keyboard user can open the current photo, use localized viewer controls,
   const tab = new window.KeyboardEvent('keydown', {key: 'Tab', bubbles: true, cancelable: true});
   close.dispatchEvent(tab);
   assert.equal(tab.defaultPrevented, false);
+  previous.style.display = next.style.display = 'none';
+  for (const shiftKey of [false, true]) {
+    const touchTab = new window.KeyboardEvent('keydown', {key: 'Tab', shiftKey, bubbles: true, cancelable: true});
+    close.dispatchEvent(touchTab);
+    assert.equal(touchTab.defaultPrevented, true);
+    assert.equal(document.activeElement, close);
+  }
   sliders[1].slideTo(2);
   document.dispatchEvent(new window.KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
   await new Promise(resolve => window.setTimeout(resolve, 10));
