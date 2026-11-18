@@ -6,11 +6,12 @@
 {% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Daxil ol | KidsMap{% elif CURRENT_LANGUAGE == "en" %}Sign in | KidsMap{% else %}Вход | KidsMap{% endif %}{% endblock %}
 {% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Daxil ol | KidsMap{% elif CURRENT_LANGUAGE == "en" %}Sign in | KidsMap{% else %}Вход | KidsMap{% endif %}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/components/google_auth.css' %}" />{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/components/google_auth.css' %}" />{% if auth_intent == "specialist_profile" %}<link rel="stylesheet" href="{% static 'css/pages/specialist_auth.css' %}" />{% endif %}{% endblock %}
 
 {% block content %}
-  <section class="register-shell register-shell--compact-mobile">
+  <section class="register-shell register-shell--compact-mobile{% if auth_intent == "specialist_profile" %} specialist-auth{% endif %}">
     <div class="register-frame register-frame--login panel">
+      {% if auth_intent != "specialist_profile" %}
       <div class="register-aside">
         <div class="register-aside-copy">
           <span class="register-kicker">KidsMap.az</span>
@@ -98,7 +99,11 @@
         </div>
       </div>
 
+      {% endif %}
       <div class="register-form-card register-form-card--login">
+        {% if auth_intent == "specialist_profile" %}
+          {% include "auth/includes/specialist_entry.html" with signup=False %}
+        {% else %}
         <div class="register-form-head">
           <h2>{% if CURRENT_LANGUAGE == "az" %}Hesabınıza daxil olun{% elif CURRENT_LANGUAGE == "en" %}Sign in to your account{% else %}Войдите в аккаунт{% endif %}</h2>
           <p>
@@ -112,6 +117,7 @@
           </p>
         </div>
 
+        {% endif %}
         {% include "auth/includes/google_button.html" %}
         <form method="post" action="{% url 'account_login' %}" class="auth-form register-form register-form--login" data-loading-form novalidate>
           {% csrf_token %}
@@ -170,6 +176,7 @@
           </button>
         </form>
 
+        {% if auth_intent != "specialist_profile" %}
         <form method="post" action="{% url 'account_register' %}" class="register-login-note" data-auth-navigation>
           {% include "includes/auth_navigation_fields.html" with auth_next=next_url auth_intent_value=auth_intent %}
           {% if CURRENT_LANGUAGE == "az" %}
@@ -183,6 +190,7 @@
             {% if CURRENT_LANGUAGE == "az" %}Qeydiyyatdan keçin{% elif CURRENT_LANGUAGE == "en" %}Register{% else %}Зарегистрируйтесь{% endif %}
           </button>
         </form>
+        {% endif %}
       </div>
     </div>
   </section>

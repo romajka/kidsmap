@@ -656,6 +656,8 @@ def account_register(request):
     # Navigation POST carries context only; it must not submit credentials.
     is_submission = request.method == "POST" and request.POST.get("auth_navigation") != "1"
     form = auth_controller.build_registration_form(data=(request.POST or None) if is_submission else None)
+    if auth_intent == "specialist_profile":
+        form.fields["phone"].widget.attrs["aria-describedby"] = "signup-phone-privacy"
     if is_submission and form.is_valid():
         try:
             user = auth_controller.register_user_from_form(form=form)

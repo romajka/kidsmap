@@ -41,6 +41,46 @@ class SpecialistSubjectTests(TestCase):
         self.assertEqual(ids, {self.math.pk, self.english.pk, self.both.pk})
         self.assertEqual(page.context['page_obj'].paginator.count, 3)
 
+    def test_primary_teacher_is_discoverable_without_subject_and_has_a_direct_shortcut(self):
+        primary, _ = SpecialistSpecialization.objects.get_or_create(
+            code='primary_teacher', defaults={'name': 'Primary school'})
+        teacher = Specialist.objects.create(name='Primary only', status='published')
+        teacher.specializations.add(primary)
+        page, tutors = self.results(specialization='tutor')
+        self.assertIn(teacher.pk, tutors)
+        self.assertContains(page, 'data-primary-school-link')
+        self.assertEqual(self.results(specialization='tutor', subject='math_tutor')[1],
+                         {self.math.pk, self.both.pk})
+
+    def test_card_price_gives_real_session_duration_including_free_sessions(self):
+        self.math.price_from = self.math.price_to = 0
+        self.math.duration_minutes = 45
+        self.math.save()
+        page, _ = self.results(subject='math_tutor')
+        card = next(s for s in page.context['page_obj'] if s.pk == self.math.pk)
+        self.assertEqual(card.card_price, 'Бесплатно / 45 мин')
+
+    def test_filtered_empty_directory_does_not_offer_a_useless_reset(self):
+        Specialist.objects.update(is_active=False)
+        page, _ = self.results(specialization='primary_teacher')
+        self.assertContains(page, 'data-specialist-alternative')
+        self.assertNotContains(page, 'data-specialist-empty-reset')
+
+    def test_online_search_discards_in_person_address_from_saved_query(self):
+        response, ids = self.results(format='online', region='baku', district='baku_binagadi', metro='20-yanvar')
+        self.assertIn(self.math.pk, ids)
+        for key in ('region', 'district', 'metro'):
+            self.assertEqual(response.context['selected'][key], '')
+            self.assertNotIn(key + '=', response.context['all_tutors_url'])
+
+    def test_primary_school_shortcuts_keep_an_explicit_subject_intersection(self):
+        from urllib.parse import parse_qs, urlparse
+        response, _ = self.results(specialization='primary_teacher', subject='math_tutor')
+        math = next(item for item in response.context['subject_options'] if item['value'] == 'math_tutor')
+        for item in (math, response.context['primary_school']):
+            self.assertEqual(parse_qs(urlparse(item['url']).query),
+                             {'specialization': ['primary_teacher'], 'subject': ['math_tutor']})
+
     def test_subject_filters_real_subject_not_working_language(self):
         _, ids = self.results(specialization='tutor', subject='english_teacher')
         self.assertEqual(ids, {self.english.pk, self.both.pk})

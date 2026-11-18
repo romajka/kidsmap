@@ -2,7 +2,6 @@
 from unittest.mock import patch
 from urllib.parse import parse_qs
 
-from django.core.cache import cache
 from django.test import TestCase
 
 from catalog.models import SiteSettings, Specialist, SpecialistPracticeLocation
@@ -11,8 +10,6 @@ from catalog.services import specialist_filtering
 
 class SpecialistAdaptivePriceTests(TestCase):
     def setUp(self):
-        cache.delete('specialists:price_max:v1')
-        self.addCleanup(cache.delete, 'specialists:price_max:v1')
         site = SiteSettings.get_solo()
         site.specialists_section_enabled = True
         site.save()
@@ -44,35 +41,36 @@ class SpecialistAdaptivePriceTests(TestCase):
         inactive = self.profile('Inactive', is_active=False, price_to=9900)
         self.location(inactive, 9900)
         self.location(upper, 9900, is_active=False)
-        self.assertEqual(specialist_filtering.get_specialist_max_price(), 1400)
-        cache.set('catalog:price_max:v1', 9000)
-        self.assertEqual(specialist_filtering.get_specialist_max_price(), 1400)
+        self.assertEqual(specialist_filtering.get_specialist_max_price(), 1360)
 
-    def test_empty_free_and_rounding_boundaries(self):
+    def test_empty_free_and_exact_boundaries(self):
         maximum = specialist_filtering.get_specialist_max_price
-        self.assertEqual(maximum(), 500)
+        self.assertEqual(maximum(), 0)
         profile = self.profile()
-        for amount, expected in [(0,500), (499,500), (500,500), (501,550),
-                (1350,1350), (1360,1400), (2000,2000), (2001,2100), (2100,2100)]:
+        for amount in (0, 17, 499, 500, 501, 1350, 1360, 2000, 2001, 2100):
             for field in ('price_from','price_to'):
                 with self.subTest(amount=amount, field=field):
                     values = {'price_from':None,'price_to':None,field:amount}
                     Specialist.objects.filter(pk=profile.pk).update(**values)
-                    cache.delete('specialists:price_max:v1')
-                    self.assertEqual(maximum(), expected)
+                    self.assertEqual(maximum(), amount)
 
-    def test_cache_hit_ttl_and_refresh(self):
-        profile = self.profile(price_from=1360)
-        with patch('catalog.services.specialist_filtering.cache.set', wraps=cache.set) as setter:
-            with self.assertNumQueries(1):
-                self.assertEqual(specialist_filtering.get_specialist_max_price(), 1400)
-            setter.assert_called_once_with('specialists:price_max:v1', 1400, timeout=300)
-        with self.assertNumQueries(0):
-            self.assertEqual(specialist_filtering.get_specialist_max_price(), 1400)
-        Specialist.objects.filter(pk=profile.pk).update(price_from=2001)
-        self.assertEqual(specialist_filtering.get_specialist_max_price(), 1400)
-        cache.delete('specialists:price_max:v1')
-        self.assertEqual(specialist_filtering.get_specialist_max_price(), 2100)
+    def test_maximum_tracks_a_price_change_on_the_next_request(self):
+        profile = self.profile(price_from=17)
+        self.assertEqual(self.get().context['specialist_price_max'], 17)
+        Specialist.objects.filter(pk=profile.pk).update(price_from=9)
+        self.assertEqual(self.get().context['specialist_price_max'], 9)
+
+    def test_maximum_for_the_selected_specialty_and_subject(self):
+        from catalog.models import SpecialistSpecialization
+        primary = SpecialistSpecialization.objects.get(code='primary_teacher')
+        math = SpecialistSpecialization.objects.get(code='math_tutor')
+        self.profile('Primary only', price_to=75).specializations.add(primary)
+        self.profile('Math only', price_to=91).specializations.add(math)
+        self.profile('Both', price_to=27).specializations.add(math, primary)
+        self.assertEqual(self.get(specialization='primary_teacher').context['specialist_price_max'], 75)
+        self.assertEqual(self.get(subject='math_tutor').context['specialist_price_max'], 91)
+        self.assertEqual(self.get(specialization='primary_teacher', subject='math_tutor',
+                                  price_to='12').context['specialist_price_max'], 27)
 
     def test_normalization_neutral_open_reversed_invalid_and_free(self):
         normalize = specialist_filtering.normalize_specialist_price_bounds
@@ -119,11 +117,11 @@ class SpecialistAdaptivePriceTests(TestCase):
         self.profile('Paid', price_from=80)
         self.assertEqual(self.ids(price_from='0',price_to='0'), {free.pk,local_free.pk})
 
-    def test_cached_ceiling_does_not_cut_new_expensive_profile(self):
+    def test_open_lower_bound_includes_new_expensive_profile(self):
         self.profile(price_from=1360)
-        self.assertEqual(specialist_filtering.get_specialist_max_price(), 1400)
+        self.assertEqual(specialist_filtering.get_specialist_max_price(), 1360)
         later = self.profile('Later', price_from=1800)
-        self.assertIn(later.pk,self.ids(price_from='500',price_to='1400'))
+        self.assertIn(later.pk,self.ids(price_from='500'))
 
     def test_context_slider_bounds_chips_and_query_in_all_languages(self):
         self.profile('Visible educator', price_from=1360)
@@ -132,10 +130,10 @@ class SpecialistAdaptivePriceTests(TestCase):
                 path = '/'+lang+'/specialists/' if lang!='az' else '/specialists/'
                 response=self.client.get(path,{'price_from':'500','price_to':'1400','q':'Visible'},follow=True)
                 self.assertEqual(response.status_code,200)
-                self.assertEqual(response.context['specialist_price_max'],1400)
+                self.assertEqual(response.context['specialist_price_max'],1360)
                 self.assertContains(response,'class="km-filter-group range-filter filter-price-range"')
-                self.assertContains(response,'data-max="1400"')
-                self.assertContains(response,' max="1400"',count=2)
+                self.assertContains(response,'data-max="1360"')
+                self.assertContains(response,' max="1360"',count=2)
                 self.assertContains(response,'js/specialists.js')
                 self.assertContains(response,phrase)
                 selected=response.context['selected']
@@ -170,6 +168,6 @@ class SpecialistAdaptivePriceTests(TestCase):
         with patch('catalog.services.specialist_filtering.get_specialist_max_price',
                    wraps=specialist_filtering.get_specialist_max_price) as maximum:
             response = self.get(q='Cheap needle')
-        maximum.assert_called_once_with()
-        self.assertEqual(response.context['specialist_price_max'], 1400)
+        maximum.assert_called_once()
+        self.assertEqual(response.context['specialist_price_max'], 1360)
         self.assertEqual([item.pk for item in response.context['specialists']], [cheap.pk])

@@ -2355,7 +2355,7 @@ class OwnerSpecialistForm(forms.ModelForm):
             # A new profile has no format yet: the author picks one, so an online-only
             # specialist is never asked for an address because of a preselected default.
             self.fields['consultation_format'].choices = [('', _('Выберите формат'))] + list(Specialist.FORMAT_CHOICES)
-            self.initial['consultation_format'] = ''
+            self.initial['consultation_format'] = (kwargs.get('initial') or {}).get('consultation_format', '')
         self.fields["photo"].help_text = _("JPG, PNG или WEBP. Максимум 2 МБ.")
         self.fields["specializations"].widget = forms.CheckboxSelectMultiple()
         self.fields["specializations"].queryset = SpecialistSpecialization.objects.filter(is_active=True).order_by("order", "name_ru")

@@ -190,7 +190,7 @@ class CurrentTariffBudgetTests(TestCase):
         self.plan(price=9000, valid_until=today - timedelta(days=1))
         self.plan(price=10000, valid_from=today + timedelta(days=1))
         Place.objects.filter(pk=self.place.pk).update(price_from=9000, price_to=10000)
-        self.assertEqual(get_catalog_max_price(), 500)
+        self.assertEqual(get_catalog_max_price(), 0)
 
     def test_legacy_bounds_cannot_cross_lesson_and_month(self):
         Place.objects.filter(pk=self.place.pk).update(price_from=None, price_to=None, price_per_lesson=10, price_per_month=100)

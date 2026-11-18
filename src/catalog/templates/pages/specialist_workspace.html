@@ -68,6 +68,11 @@
             <ul class="sw-rows">{% for proposal in proposals %}<li><h3>{{ proposal.name }}</h3>{% include 'pages/includes/specialist_application_status.html' with person=proposal %}<div class="sw-actions">{% if proposal.pk in reopen_ids %}<form method="post" action="{% url 'specialist_workspace_reopen' proposal.pk %}">{% csrf_token %}<button type="submit" class="sw-button sw-primary">{% trans 'Исправить и отправить снова' %}</button></form>{% endif %}{% if proposal.status == 'published' and proposal.is_active %}<a class="sw-button" href="{{ proposal.get_absolute_url }}">{% trans 'Открыть профиль на сайте' %}</a>{% endif %}<a class="sw-button" href="{% url 'specialist_workspace_claims' proposal.pk %}">{% trans 'Это мой профиль' %}</a></div></li>{% endfor %}</ul>
           </section>
         {% endif %}
+        {% if not my_specialist %}
+          <div class="sw-actions">
+            <a class="sw-button" href="{% url 'specialist_workspace_proposal' %}">{% if language == 'az' %}Yeni anketə başla{% elif language == 'en' %}Start a new application{% else %}Начать новую анкету{% endif %}</a>
+          </div>
+        {% endif %}
         {% if owned_organizations %}<section class="sw-card"><h2>{% trans 'Специалисты организации' %}</h2><ul class="sw-rows">{% for org in owned_organizations %}<li><a href="{% url 'organization_specialists' org.pk %}">{% if language == 'ru' %}{{ org.name_ru|default:org.name_az }}{% elif language == 'en' %}{{ org.name_en|default:org.name_az }}{% else %}{{ org.name_az }}{% endif %}</a></li>{% endfor %}</ul></section>{% endif %}
         {% if review_profiles %}<section class="sw-card"><h2>{% trans 'Проверка KidsMap' %}</h2><ul class="sw-rows">{% for profile in review_profiles %}<li><a href="{% url 'specialist_workspace_review' profile.pk %}">{{ profile.name }}</a></li>{% endfor %}</ul></section>{% endif %}
       {% endif %}
