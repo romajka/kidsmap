@@ -1,14 +1,14 @@
 """Shared view helpers and the controller instances used by all views."""
 
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
 from uuid import uuid4
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.urls import Resolver404, resolve, reverse
+from django.utils.translation import get_language_from_path, gettext as _, override
 from django.utils.http import url_has_allowed_host_and_scheme
 from ..controllers.account_controller import AccountController
 from ..controllers.auth_controller import AuthController
@@ -203,4 +203,16 @@ def _resolve_auth_intent(request) -> str:
     intent = (request.POST.get("intent") or request.GET.get("intent") or "").strip()
     if intent in {AUTH_INTENT_ADD_PLACE, LEGACY_AUTH_INTENT_ADD_PLACE}:
         return AUTH_INTENT_ADD_PLACE
+    target = _resolve_safe_next_url(request, "")
+    if target:
+        path = urlsplit(target).path
+        with override(get_language_from_path(path) or settings.LANGUAGE_CODE):
+            try:
+                route = resolve(path).url_name
+            except Resolver404:
+                return ""
+        if route in {"owner_specialist_create", "specialist_workspace_proposal",
+                     "specialist_workspace_proposal_resume", "specialist_workspace_profile",
+                     "owner_specialist_edit"}:
+            return "specialist_profile"
     return ""

@@ -186,6 +186,9 @@ class PlaceController:
             "catalog_item_list_schema_json": seo_payload["catalog_item_list_schema_json"],
             "selected": selected,
             "catalog_price_max": filters.catalog_price_max,
+            "catalog_price_step": "0.01" if any("." in str(value) for value in (
+                filters.catalog_price_max, filters.price_from, filters.price_to,
+            )) else "1",
             "rating_sort_available": rating_sort_available,
             "categories": public_filter_options.categories,
             "active_category_codes": {item["value"] for item in public_filter_options.categories},

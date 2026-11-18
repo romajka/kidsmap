@@ -4,6 +4,40 @@
   document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('.km-specialist-owner-form');
     if (!form) return;
+    const phone = form.querySelector('#id_phone');
+    const accountPhone = form.querySelector('[data-account-phone]');
+    if (phone && accountPhone) {
+      function updatePhoneChoice() {
+        accountPhone.hidden = Boolean(phone.value.trim());
+      }
+      updatePhoneChoice();
+      phone.addEventListener('input', updatePhoneChoice);
+      form.addEventListener('change', updatePhoneChoice);
+      accountPhone.addEventListener('click', function () {
+        if (phone.value.trim()) return;
+        phone.value = accountPhone.dataset.accountPhone;
+        phone.dispatchEvent(new Event('input', { bubbles: true }));
+        phone.dispatchEvent(new Event('change', { bubbles: true }));
+        phone.focus();
+      });
+    }
+    const summary = form.querySelector('[data-error-summary]');
+    const firstError = form.querySelector('[data-first-error]');
+    if (summary && firstError) {
+      const firstLink = Array.from(summary.querySelectorAll('a[href^="#"]')).find(function (link) {
+        return document.getElementById(link.hash.slice(1));
+      });
+      const addLocation = firstError.hasAttribute('data-location-error') && form.querySelector('[data-practice-add]');
+      if (firstLink || addLocation) {
+        const heading = summary.querySelector('.km-form-error-summary__header');
+        if (heading) heading.after(firstError);
+        firstError.hidden = false;
+        firstError.addEventListener('click', function () {
+          if (firstLink) firstLink.click();
+          else addLocation.focus();
+        });
+      }
+    }
     form.querySelectorAll('label').forEach(function (label) {
       const field = label.querySelector('input:not([type=hidden]),select,textarea');
       if (!field || !field.id) return;

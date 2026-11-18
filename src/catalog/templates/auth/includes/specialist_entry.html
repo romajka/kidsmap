@@ -1,0 +1,20 @@
+{% load i18n %}
+{% get_current_language as lang %}
+<div class="register-form-head specialist-auth-intro">
+  <h1>{% if lang == "az" %}Mütəxəssis anketi{% elif lang == "en" %}Specialist profile{% else %}Анкета специалиста{% endif %}</h1>
+  {% if signup %}
+    <p>{% if lang == "az" %}Hesab yaradın və e-poçtunuzu təsdiqləyin. Sonra anketinizi doldurub yoxlanışa göndərə bilərsiniz.{% elif lang == "en" %}Create an account and confirm your email. Then you can fill in your profile and send it for review.{% else %}Создайте аккаунт и подтвердите почту. Затем вы сможете заполнить анкету и отправить её на проверку.{% endif %}</p>
+  {% else %}
+    <p>{% if lang == "az" %}Anketinizi açmaq üçün KidsMap hesabınıza daxil olun. Qaralamanı saxlayıb sonra davam edə bilərsiniz.{% elif lang == "en" %}Sign in to KidsMap to open your profile form. You can save a draft and finish it later.{% else %}Войдите в KidsMap, чтобы открыть анкету. Её можно сохранить как черновик и заполнить позже.{% endif %}</p>
+  {% endif %}
+</div>
+<form method="post" action="{% if signup %}{% url 'account_login' %}{% else %}{% url 'account_register' %}{% endif %}" class="specialist-auth-switch" data-auth-navigation>
+  {% include "includes/auth_navigation_fields.html" with auth_next=next_url auth_intent_value=auth_intent %}
+  {% if signup %}
+    <span>{% if lang == "az" %}Artıq hesabınız var?{% elif lang == "en" %}Already have an account?{% else %}Уже есть аккаунт?{% endif %}</span>
+    <button type="submit" class="auth-navigation-button auth-navigation-text">{% if lang == "az" %}Daxil ol{% elif lang == "en" %}Sign in{% else %}Войти{% endif %}</button>
+  {% else %}
+    <span>{% if lang == "az" %}KidsMap-də yenisiniz?{% elif lang == "en" %}New to KidsMap?{% else %}Впервые на KidsMap?{% endif %}</span>
+    <button type="submit" class="auth-navigation-button auth-navigation-text">{% if lang == "az" %}Hesab yarat{% elif lang == "en" %}Create an account{% else %}Создать аккаунт{% endif %}</button>
+  {% endif %}
+</form>

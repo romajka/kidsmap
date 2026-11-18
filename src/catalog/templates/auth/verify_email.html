@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block content %}
+{% get_current_language as lang %}
 <div class="verify-page-shell">
   <section class="panel verify-panel">
     <div class="verify-icon-badge" aria-hidden="true">
@@ -19,7 +20,11 @@
 
     <h1 class="verify-title">{% trans "Подтвердите email" %}</h1>
     <p class="verify-subtitle">
-      {% trans "Мы отправили 6-значный код на ваш email. Введите его, чтобы активировать аккаунт и войти." %}
+      {% if auth_intent == "specialist_profile" %}
+        {% if lang == "az" %}Mütəxəssis anketi e-poçt ünvanınızı təsdiqlədikdən sonra açılacaq. Məktubdakı altırəqəmli kodu daxil edin.{% elif lang == "en" %}Specialist profile setup will open after you confirm your email. Enter the six-digit code from the message.{% else %}Анкета специалиста откроется после подтверждения почты. Введите шестизначный код из письма.{% endif %}
+      {% else %}
+        {% trans "Мы отправили 6-значный код на ваш email. Введите его, чтобы активировать аккаунт и войти." %}
+      {% endif %}
     </p>
 
     <form method="post" class="verify-form" id="verifyForm" data-loading-form>
@@ -54,7 +59,7 @@
       <div class="verify-field-group">
         <label for="{{ verify_form.code.id_for_label }}" class="verify-field-label">
           <span>{{ verify_form.code.label }}</span>
-          <span class="verify-code-hint">6 цифр</span>
+          <span class="verify-code-hint">{% if lang == "az" %}6 rəqəm{% elif lang == "en" %}6 digits{% else %}6 цифр{% endif %}</span>
         </label>
         <div class="verify-code-input-wrap">
           {{ verify_form.code }}

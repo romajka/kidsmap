@@ -71,11 +71,11 @@
 
     var scale = el("div", "kmr__scale", track);
     scale.setAttribute("aria-hidden", "true");
-    el("span", "", scale).textContent = format(min, false);
-    el("span", "", scale).textContent = format(max, isPrice);
+    el("span", "", scale).textContent = format(min);
+    el("span", "", scale).textContent = format(max);
 
-    function format(v, open) {
-      if (isPrice) return v + (open ? "+" : "") + " " + (unit || "₼");
+    function format(v) {
+      if (isPrice) return v + " " + (unit || "₼");
       if (isAge) return v + (LANG === "ru" ? plural(v) : (AGE_SUFFIX[LANG] || ""));
       return String(v) + (unit ? " " + unit : "");
     }
@@ -91,12 +91,12 @@
       layer.style.setProperty("--kmr-b", pb + "%");
       thumbs[0].style.left = pa + "%";
       thumbs[1].style.left = pb + "%";
-      bubbles[0].textContent = format(a, false);
-      bubbles[1].textContent = format(b, isPrice && b >= max);
+      bubbles[0].textContent = format(a);
+      bubbles[1].textContent = format(b);
       // When thumbs are close, merge the bubbles to avoid overlap.
       var close = Math.abs(pb - pa) < 18;
       layer.classList.toggle("is-close", close);
-      if (close) bubbles[1].textContent = a === b ? format(a, isPrice && b >= max) : format(a, false) + " – " + format(b, isPrice && b >= max);
+      if (close) bubbles[1].textContent = a === b ? format(a) : format(a) + " – " + format(b);
       layer.classList.toggle("is-full", a <= min && b >= max);
       // Keep the thumb that can still move on top when both sit at an edge.
       thumbs[0].style.zIndex = a >= max - step ? 4 : 2;

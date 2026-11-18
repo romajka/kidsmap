@@ -11,6 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404, HttpResponseNotAllowed, FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -335,9 +336,34 @@ def specialist_workspace_index(request):
         owned_organizations=Organization.objects.filter(owner=actor, archived_at__isnull=True).order_by('pk')))
 
 
+def _self_profile_entry(actor):
+    if Specialist.objects.filter(verified_person_user=actor, person_verified_at__isnull=False).exists():
+        return redirect('specialist_workspace_index')
+
+    # A personal entry must not resume a proposal made for someone else.
+    applications = list(SpecialistProposalDraft.objects.filter(
+        Q(submitted_at__isnull=True, submitted_specialist__isnull=True) |
+        Q(submitted_specialist__created_by=actor, submitted_specialist__verified_person_user__isnull=True),
+        actor=actor, payload__profile_subject__0='self',
+    ).select_related('submitted_specialist').only('pk', 'submitted_at', 'submitted_specialist__status')[:2])
+    claims = SpecialistClaim.objects.filter(applicant=actor)
+    if len(applications) == 1:
+        draft = applications[0]
+        editable = not draft.submitted_at and (
+            not draft.submitted_specialist_id or draft.submitted_specialist.status == Specialist.STATUS_DRAFT)
+        if editable and not claims.exclude(specialist_id=draft.submitted_specialist_id).exists():
+            return redirect('specialist_workspace_proposal_resume', draft_id=draft.pk)
+    if applications or claims.exists():
+        return redirect('specialist_workspace_index')
+    return redirect('specialist_workspace_proposal')
+
+
 @workspace
 def specialist_workspace_profile(request, pk=None):
-    if pk is None and request.method == 'GET':return redirect('specialist_workspace_proposal')
+    if pk is None and request.method == 'GET':
+        if request.GET.get('fresh') == '1':
+            return redirect('specialist_workspace_proposal')
+        return _self_profile_entry(request.specialist_actor)
     person = _person(request, pk) if pk is not None else None
     status = 200
     form = OwnerSpecialistForm(request.POST if request.method == 'POST' else None,
@@ -577,7 +603,8 @@ def _claim_status(status):
 @workspace
 def specialist_workspace_proposal(request, draft_id=None):
     from uuid import uuid4,UUID
-    from catalog.services.specialist_proposal_drafts import get_proposal,proposal_forms,save_proposal
+    from catalog.services.phone_numbers import safe_phone
+    from catalog.services.specialist_proposal_drafts import get_proposal, proposal_forms, save_proposal, saved_profile_subject
     draft=None
     if draft_id is not None:
         draft=get_proposal(actor=request.specialist_actor,draft_id=draft_id)
@@ -605,6 +632,9 @@ def specialist_workspace_proposal(request, draft_id=None):
             messages.success(request, _('Черновик сохранён.'))
             return redirect('specialist_workspace_proposal_resume',draft_id=draft.pk)
         except ValidationError as exc:
+            if draft is None:
+                # Another tab may have saved this new form under the same draft key.
+                draft = SpecialistProposalDraft.objects.filter(pk=key, actor=request.specialist_actor).first()
             form=getattr(exc,'form',None)
             locations=getattr(exc,'locations',None)
             if form is None:
@@ -617,16 +647,23 @@ def specialist_workspace_proposal(request, draft_id=None):
             status=_error_status(exc)
     else:
         form,locations=proposal_forms(actor=request.specialist_actor,payload=draft.payload if draft else None,draft=draft)
-    if request.method == 'POST':
+    if draft:
+        profile_subject = saved_profile_subject(draft)
+    elif request.method == 'POST':
         profile_subject = request.POST.get('profile_subject', 'other')
-    elif draft:
-        profile_subject = (draft.payload.get('profile_subject') or ['other'])[-1]
     else:
         profile_subject = 'self'
+        account_name = request.specialist_actor.get_full_name().strip()
+        if account_name and len(account_name) <= form.fields['name'].max_length:
+            form.initial['name'] = account_name
+    account_phone = ''
+    if profile_subject == 'self' and not form['phone'].value():
+        account_profile = getattr(request.specialist_actor, 'profile', None)
+        account_phone = safe_phone(getattr(account_profile, 'phone', ''))
     lang=(get_language() or 'az').split('-')[0]
     return render(request,'pages/owner_specialist_create.html',_context(request,mode='profile',
         form=form,locations=locations,is_proposal=True,proposal_draft=draft,draft_key=key,
-        profile_subject=profile_subject,
+        profile_subject=profile_subject, account_phone_for_public_profile=account_phone,
         draft_version=request.POST.get('draft_version','0') if status==409 else draft.version if draft else '0',
         recovery_actor=request.specialist_actor.pk,recovery_entity=f'proposal-{key}' if draft else 'proposal-new',
         recovery_version=request.POST.get('draft_version','0') if status==409 else str(draft.version) if draft else '0',

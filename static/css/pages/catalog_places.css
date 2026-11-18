@@ -3069,9 +3069,20 @@
   grid-column: 1 / -1;
 }
 @media (max-width: 820px) {
+  body.page-place_list.filters-drawer-open {
+    overflow: hidden;
+  }
   body.page-place_list.filters-drawer-open .catalog-layout {
     z-index: auto !important;
     isolation: auto;
+  }
+  .page-place_list [data-filters-drawer] {
+    position: fixed !important;
+  }
+  .page-place_list .mobile-filters-backdrop:not([hidden]) {
+    position: fixed;
+    inset: 0;
+    display: block;
   }
 }
 .catalog-map-members > li + li { border-top: 1px solid var(--border-color, #e5e7eb); }
@@ -3079,11 +3090,8 @@
 .catalog-map-offers { margin: 8px 16px; padding-left: 16px; }
 .card-map-missing { margin: 0 0 8px; color: var(--text-secondary, #6b7280); font-size: .8rem; }
 
-/* Live filters (desktop): the strip above the results is the one category
-   control, filters apply on change, so the sidebar picker and the Apply
-   button are not shown. The hidden <select> stays in the form. */
-@media (min-width: 761px) {
-  body:has(.catalog-category-strip) .filters-catalog.is-live-filters .filter-category { display: none; }
+/* Desktop filters apply on change. */
+@media (min-width: 821px) {
   .page-place_list .catalog-layout .filters-catalog.is-live-filters .km-btn-apply { display: none !important; } /* beats catalog_polish.css !important */
 }
 

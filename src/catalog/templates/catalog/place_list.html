@@ -12,7 +12,7 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_sleep" />
-  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261117_desktop_search_cards" />
+  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261118_category_filter" />
   {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=20261106_card_height" />{% endif %}
 {% endblock %}
 
@@ -244,7 +244,7 @@
         <div class="mobile-quick-filters" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
           <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="district" data-filter-focus="district" aria-expanded="false" aria-controls="quick-menu-district">{% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}Район{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-filters-open data-filter-focus="age">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</button>
-          <button type="button" class="mobile-quick-filter{% if selected.price_from or selected.price_to %} is-active{% endif %}" data-filters-open data-filter-focus="price">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</button>
+          <button type="button" {% if not catalog_price_max %}hidden{% endif %} class="mobile-quick-filter{% if selected.price_from or selected.price_to %} is-active{% endif %}" data-filters-open data-filter-focus="price">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.min_rating %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="min_rating" data-filter-focus="min_rating" aria-expanded="false" aria-controls="quick-menu-min_rating">{% if language == "az" %}Reytinq{% elif language == "en" %}Rating{% else %}Рейтинг{% endif %}</button>
         </div>
 
@@ -524,7 +524,9 @@
           </div>
         </div>
 
-        <div class="range-filter filter-price-range km-filter-group" data-range data-min="0" data-max="{{ catalog_price_max|default:500|unlocalize }}" data-price-range data-from-label="{% if language == 'az' %}Qiymət: {% elif language == 'en' %}from {% else %}от {% endif %}" data-from-suffix="{% if language == 'az' %}-dən{% endif %}" data-step="5" data-unit="₼" data-mobile-filter-section="price">
+        <div data-price-filter-slot>
+        {% if catalog_price_max %}
+        <div class="range-filter filter-price-range km-filter-group" data-range data-min="0" data-max="{{ catalog_price_max|unlocalize }}" data-price-range data-from-label="{% if language == 'az' %}Qiymət: {% elif language == 'en' %}from {% else %}от {% endif %}" data-from-suffix="{% if language == 'az' %}-dən{% endif %}" data-step="{{ catalog_price_step }}" data-unit="₼" data-mobile-filter-section="price">
           <div class="range-filter-head">
             <label><span class="material-symbols-rounded" aria-hidden="true">payments</span> {% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}{% trans "Цена" %}{% endif %}</label>
             <strong class="range-filter-current" data-range-caption></strong>
@@ -532,9 +534,12 @@
           <input type="hidden" name="price_from" value="{{ selected.price_from|default:'0' }}" data-range-from-input />
           <input type="hidden" name="price_to" value="{{ selected.price_to|default:catalog_price_max|unlocalize }}" data-range-to-input />
           <div class="range-filter-track">
-            <input class="range-slider range-slider-from" type="range" min="0" max="{{ catalog_price_max|default:500|unlocalize }}" step="5" aria-label="{% if language == 'az' %}Minimum qiymət{% elif language == 'en' %}Minimum price{% else %}Минимальная цена{% endif %}" value="{{ selected.price_from|default:'0' }}" data-range-from-range />
-            <input class="range-slider range-slider-to" type="range" min="0" max="{{ catalog_price_max|default:500|unlocalize }}" step="5" aria-label="{% if language == 'az' %}Maksimum qiymət{% elif language == 'en' %}Maximum price{% else %}Максимальная цена{% endif %}" value="{{ selected.price_to|default:catalog_price_max|unlocalize }}" data-range-to-range />
+            <input class="range-slider range-slider-from" type="range" min="0" max="{{ catalog_price_max|unlocalize }}" step="{{ catalog_price_step }}" aria-label="{% if language == 'az' %}Minimum qiymət{% elif language == 'en' %}Minimum price{% else %}Минимальная цена{% endif %}" value="{{ selected.price_from|default:'0' }}" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="{{ catalog_price_max|unlocalize }}" step="{{ catalog_price_step }}" aria-label="{% if language == 'az' %}Maksimum qiymət{% elif language == 'en' %}Maximum price{% else %}Максимальная цена{% endif %}" value="{{ selected.price_to|default:catalog_price_max|unlocalize }}" data-range-to-range />
           </div>
+        </div>
+
+        {% endif %}
         </div>
 
         <div class="filter-item filter-rating km-filter-group" data-mobile-filter-section="min_rating">
@@ -1321,10 +1326,10 @@
     <script src="{% static 'js/temporary_event_timer.js' %}"></script>
   {% endif %}
   <script defer src="{% static 'js/catalog_search.js' %}?v=20261117_search_tiles"></script>
-  <script src="{% static 'js/catalog_category_strip.js' %}?v=20261028_strip_r1"></script>
+  <script src="{% static 'js/catalog_category_strip.js' %}?v=20261118_category_filter"></script>
   <script>
     (function () {
-      document.querySelectorAll("[data-range]").forEach(function (root) {
+      function initCatalogRange(root) {
         const min = Number(root.dataset.min || 0);
         const max = Number(root.dataset.max || 100);
         const unit = root.dataset.unit || "";
@@ -1338,7 +1343,7 @@
         function clamp(v) {
           const n = Number(v);
           if (!Number.isFinite(n)) return min;
-          return Math.min(max, Math.max(min, Math.round(n)));
+          return Math.min(max, Math.max(min, n));
         }
 
         function updateCaption(a, b) {
@@ -1389,7 +1394,9 @@
         });
 
         syncFromInput();
-      });
+      }
+      document.querySelectorAll("[data-range]").forEach(initCatalogRange);
+      window.kidsMapInitCatalogRange = initCatalogRange;
     })();
 
     /* ─── Unified Custom Selects Interactivity ─── */
@@ -1651,7 +1658,7 @@
 
       if (!openButtons.length || !closeBtn || !backdrop || !drawer) return;
 
-      const mobileMedia = window.matchMedia("(max-width: 760px)");
+      const mobileMedia = window.matchMedia("(max-width: 820px)");
       let pendingFilterFocus = "";
       let activeOpenButton = null;
       let drawerOpen = false;
@@ -2214,7 +2221,7 @@
           }
           targetField.dispatchEvent(new Event("change", { bubbles: true }));
           syncTargetButtons(targetName, targetValue);
-          if (targetName === "category" && window.matchMedia("(max-width: 760px)").matches) {
+          if (targetName === "category" && window.matchMedia("(max-width: 820px)").matches) {
             const filtersForm = document.getElementById("filters-form");
             if (filtersForm) {
               if (window.kidsMapBuildCatalogFiltersUrl) {
@@ -2246,7 +2253,7 @@
       const filtersForm = document.getElementById("filters-form");
       let resultsGrid = document.querySelector(".grid");
       const isListMode = document.body.classList.contains("results-list-mode") || (resultsGrid && resultsGrid.classList.contains("results-list-mode"));
-      const mobileMedia = window.matchMedia("(max-width: 760px)");
+      const mobileMedia = window.matchMedia("(max-width: 820px)");
       let activeRequest = null;
       let requestSequence = 0;
 
@@ -2354,10 +2361,13 @@
         }
         currentTopStack.replaceWith(nextTopStack);
         currentMainColumn.replaceWith(nextMainColumn);
+        window.kidsMapBindSelectTargets(nextTopStack);
+        if (window.kidsMapInitCategoryStrip) window.kidsMapInitCategoryStrip();
 
         const priceQuickFilter = document.querySelector('.mobile-quick-filter[data-filter-focus="price"]');
         const nextPriceQuickFilter = nextDocument.querySelector('.mobile-quick-filter[data-filter-focus="price"]');
         if (priceQuickFilter && nextPriceQuickFilter) {
+          priceQuickFilter.hidden = nextPriceQuickFilter.hidden;
           priceQuickFilter.classList.toggle("is-active", nextPriceQuickFilter.classList.contains("is-active"));
         }
 
@@ -2365,6 +2375,21 @@
         // зависит от выбранной категории — иначе после её смены в блоке
         // остались бы подкатегории прошлой категории.
         syncSubcategoryFilter(nextDocument);
+        const priceSlot = filtersForm.querySelector("[data-price-filter-slot]");
+        const nextSlot = nextDocument.querySelector("[data-price-filter-slot]");
+        if (priceSlot && nextSlot) {
+          const current = priceSlot.querySelector("[data-price-range]");
+          const next = nextSlot.querySelector("[data-price-range]");
+          if (current && next && current.dataset.max === next.dataset.max && current.dataset.step === next.dataset.step) {
+            const upper = current.querySelector("[data-range-to-range]");
+            current.querySelector("[data-range-from-range]").value = next.querySelector("[name=price_from]").value;
+            upper.value = next.querySelector("[name=price_to]").value;
+            upper.dispatchEvent(new Event("input", {bubbles: true}));
+          } else if (current || next) {
+            priceSlot.replaceWith(nextSlot);
+            if (next) window.kidsMapInitCatalogRange(next);
+          }
+        }
 
         const currentHeroSearch = document.getElementById("catalog-hero-search-input");
         const nextHeroSearch = nextDocument.getElementById("catalog-hero-search-input");
@@ -2546,7 +2571,11 @@
         // Desktop: every filter applies as soon as it changes (no "Apply"
         // step); the phone drawer keeps its explicit button.
         let liveFilterTimer = null;
-        filtersForm.classList.add("is-live-filters");
+        function syncLiveFilterMode() {
+          filtersForm.classList.toggle("is-live-filters", !mobileMedia.matches);
+        }
+        syncLiveFilterMode();
+        mobileMedia.addEventListener("change", syncLiveFilterMode);
         filtersForm.addEventListener("change", function (event) {
           if (mobileMedia.matches) return;
           if (event.target && event.target.name === "q") return;

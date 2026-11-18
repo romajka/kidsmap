@@ -1,23 +1,17 @@
+import re
 from dataclasses import dataclass, field
 from datetime import timedelta
-from decimal import Decimal, ROUND_CEILING
+from decimal import Decimal
 from functools import cached_property
 
-from django.core.cache import cache
 from django.db.models import Exists, Max, OuterRef, Q
 from django.utils import timezone
 
 
 
-CATALOG_PRICE_MAX_CACHE_KEY = "catalog:price_max:v1"
-
-
-def get_catalog_max_price() -> int:
-    """Ceiling for the public catalog, using the price filter's tariff scope."""
-    cached = cache.get(CATALOG_PRICE_MAX_CACHE_KEY)
-    if cached is not None:
-        return cached
-
+def get_catalog_max_price(category="", subcategory=""):
+    """Largest published AZN amount for the selected place or activity taxonomy."""
+    from catalog.services.catalog_search import matching_groups
     from catalog.models import Place, PricingPlan
     from catalog.services.content_quality import public_place_queryset
     from catalog.services.pricing_plans import current_pricing_plan_q
@@ -33,25 +27,38 @@ def get_catalog_max_price() -> int:
         offering_group__activity__archived_at__isnull=True,
         offering_group__archived_at__isnull=True,
     )
+    scope = PlaceListFilters(category=category, subcategory=subcategory)
+    direct_places = public_places.filter(_direct_price_audience_q(scope))
+    groups = live_group & Q(offering_group__activity__place_id__in=public_ids)
+    if category or subcategory:
+        groups &= Q(offering_group__in=matching_groups(scope))
     plan_maxima = eligible.filter(
-        Q(place_id__in=public_ids, offering_group__isnull=True)
-        | (live_group & Q(offering_group__activity__place_id__in=public_ids))
-    ).aggregate(**{name: Max(name) for name in ("price", "price_min", "price_max")})
+        Q(place_id__in=direct_places.values("pk"), offering_group__isnull=True) | groups
+    ).aggregate(
+        exact=Max("price", filter=Q(price_kind="exact")),
+        lower=Max("price_min", filter=Q(price_kind__in=("from", "range"))),
+        upper=Max("price_max", filter=Q(price_kind="range")),
+    )
     # Even expired/foreign tariffs supersede potentially stale AZN projections.
     existing_plans = PricingPlan.objects.filter(charge_role="primary", is_trial=False).filter(
         Q(place_id=OuterRef("pk"), offering_group__isnull=True)
         | (live_group & Q(offering_group__activity__place_id=OuterRef("pk")))
     )
-    legacy_maxima = public_places.filter(~Exists(existing_plans)).aggregate(
+    legacy_maxima = direct_places.filter(~Exists(existing_plans)).aggregate(
         **{name: Max(name) for name in
            ("price_from", "price_to", "price_per_month", "price_per_lesson")}
     )
     maximum = max((Decimal("0"), *(value for value in
         (*plan_maxima.values(), *legacy_maxima.values()) if value is not None)))
-    step = Decimal("50") if maximum <= 2000 else Decimal("100")
-    result = max(500, int((maximum / step).to_integral_value(rounding=ROUND_CEILING) * step))
-    cache.set(CATALOG_PRICE_MAX_CACHE_KEY, result, timeout=300)
-    return result
+    return int(maximum) if maximum == int(maximum) else maximum.normalize()
+
+
+def _price_amount(value):
+    text = str(value)
+    if not re.fullmatch(r"[0-9]{1,14}(?:\.[0-9]{1,2})?", text):
+        return None
+    amount = Decimal(text)
+    return int(amount) if amount == int(amount) else amount.normalize()
 
 
 def _direct_price_audience_q(filters, prefix=""):
@@ -209,8 +216,8 @@ class PlaceListFilters:
     rating_sort_available: bool | None = field(default=None, init=False)
 
     @cached_property
-    def catalog_price_max(self) -> int:
-        return get_catalog_max_price()
+    def catalog_price_max(self):
+        return get_catalog_max_price(self.category, self.subcategory)
 
     @classmethod
     def from_request(cls, request, force_new_only=False):
@@ -242,22 +249,22 @@ class PlaceListFilters:
             data.event_type = ""
         if data.age_from == "0" and data.age_to == "18":
             data.age_from = data.age_to = ""
-        # Only an upper price bound needs the ceiling. SEO and other non-price
-        # queries must not aggregate the whole catalog just to parse filters.
-        if (data._int_or_none(data.price_to) is not None
-                or data._int_or_none(data.price_max) is not None):
-            # URL normalization and context construction may parse the same
-            # request: keep one ceiling if the shared cache expires in between.
-            if not hasattr(request, "_catalog_price_max"):
-                request._catalog_price_max = get_catalog_max_price()
-            data.catalog_price_max = request._catalog_price_max
+        data._normalize_subcategory()
         price_from, price_to = data._normalized_price_bounds()
+        if price_to is not None and price_to > 0:
+            # The top end of the catalog slider means there is no upper limit.
+            if not hasattr(request, "_catalog_price_max"):
+                request._catalog_price_max = data.catalog_price_max
+            data.catalog_price_max = request._catalog_price_max
+            # Older catalog forms submitted 0–500 even without priced listings.
+            legacy_full_range = not data.catalog_price_max and data.price_from == "0" and data.price_to == "500"
+            if 0 < data.catalog_price_max <= price_to or legacy_full_range:
+                price_to = None
         data.price_from = str(price_from) if price_from is not None else ""
         data.price_to = str(price_to) if price_to is not None else ""
         data.price_max = ""
         if data.sort in {"price_asc", "price_desc"}:
             data.sort = "new"
-        data._normalize_subcategory()
         if data.force_new_only:
             data.sort = "new"
             if data.days not in {"7", "14", "30"}:
@@ -318,17 +325,15 @@ class PlaceListFilters:
         return age_from_int, age_to_int
 
     def _normalized_price_bounds(self):
-        price_from_int = self._int_or_none(self.price_from)
-        price_to_int = self._int_or_none(self.price_to)
+        price_from_int = _price_amount(self.price_from)
+        price_to_int = _price_amount(self.price_to)
 
         if price_to_int is None:
-            price_to_int = self._int_or_none(self.price_max)
+            price_to_int = _price_amount(self.price_max)
 
         if price_from_int is not None and price_to_int is not None and price_from_int > price_to_int:
             price_from_int, price_to_int = price_to_int, price_from_int
 
-        if price_to_int is not None and price_to_int >= self.catalog_price_max:
-            price_to_int = None
         if price_from_int == 0:
             price_from_int = None
 

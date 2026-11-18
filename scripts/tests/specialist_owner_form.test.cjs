@@ -15,7 +15,7 @@ async function setup({locale = 'ru', format = 'online', phone = '+994501234567',
       <div data-owner-selected-specs><span data-selected-count></span><div data-selected-chips></div><button type="button" data-clear-specs>Clear specializations</button></div>
       <select id="id_consultation_format"><option selected>${format}</option></select>
       <input id="id_phone" value="${phone}" pattern="[+0-9 ()-]{7,25}"><input id="id_whatsapp">
-      <div data-req-progress-fill></div><span data-req-badge></span><span data-req-status-text data-all-done="Filled"></span>
+      <div data-req-progress-fill></div><span data-req-badge></span><span data-req-invalid hidden>Correct the values</span><span data-req-status-text data-all-done="Filled"></span>
       <div data-owner-spec-dropdown><button type="button" data-owner-spec-dropdown-trigger aria-expanded="false"><span data-owner-spec-placeholder>Choose</span><span data-selected-count-badge></span></button>
         <div data-owner-spec-dropdown-panel hidden><input data-spec-search></div></div>
       <div role="tablist">${['az','ru','en'].map(l=>`<button type="button" data-owner-lang-tab="${l}">${l}</button>`).join('')}</div>
@@ -33,7 +33,7 @@ async function setup({locale = 'ru', format = 'online', phone = '+994501234567',
 }
 const locationRow = (fields='') => `<article data-practice-row><input name="locations-0-is_active" type="checkbox" checked><input name="locations-0-DELETE" type="checkbox">${fields}</article>`;
 test('tutor subject selection controls readiness and reveals only the relevant subject picker', async () => {
-  const t = await setup({row: `<script id="specialist-subject-rules" type="application/json">{"requires":["on"],"subjects":["subject-id"]}</script>
+  const t = await setup({row: `<script id="specialist-subject-rules" type="application/json">{"requires":["on"],"subjects":["subject-id"]}</script><p data-bio-general-hint>Practice</p><p data-bio-teacher-hint hidden>Grades</p>
     <fieldset data-subject-picker><label class="owner-specialist-chip"><input type="checkbox" name="specializations" value="subject-id"><strong class="chip-title">Mathematics</strong></label><p data-subject-required hidden>Choose a subject</p></fieldset>`});
   const category = t.form.querySelector('input[name="specializations"]');
   const subject = t.form.querySelector('input[value="subject-id"]');
@@ -43,6 +43,7 @@ test('tutor subject selection controls readiness and reveals only the relevant s
   assert.equal(complete(), false);
   assert.equal(t.doc.querySelector('[data-req-badge]').textContent, '6 / 7');
   assert.equal(picker.hidden, false);
+  assert.equal(t.doc.querySelector('[data-bio-teacher-hint]').hidden, false);
   assert.equal(t.form.querySelector('[data-subject-required]').hidden, false);
   change(subject, true);
   assert.equal(complete(), true);
@@ -53,6 +54,8 @@ test('tutor subject selection controls readiness and reveals only the relevant s
   assert.equal(picker.hidden, false, 'legacy subject alone remains editable');
   change(subject, false);
   assert.equal(picker.hidden, true, 'other specialists do not get irrelevant subject fields');
+  assert.equal(t.doc.querySelector('[data-bio-general-hint]').hidden, false);
+  assert.equal(t.doc.querySelector('[data-bio-teacher-hint]').hidden, true);
   assert.equal(complete(), false);
   t.dom.window.close();
 });
@@ -174,8 +177,10 @@ test('reversed optional age and price ranges prevent a ready-to-submit claim', a
     const t=await setup({row:`<input id="id_${prefix}_from" value="18"><input id="id_${prefix}_to" value="7">`});
     const complete=()=>t.doc.querySelector('[data-req-progress-fill]').classList.contains('is-complete');
     assert.equal(complete(),false);
+    assert.equal(t.doc.querySelector('[data-req-invalid]').hidden, false);
     const end=t.doc.querySelector('#id_'+prefix+'_to'); end.value='20';end.dispatchEvent(new t.w.Event('input',{bubbles:true}));
     assert.equal(complete(),true);
+    assert.equal(t.doc.querySelector('[data-req-invalid]').hidden, true);
     t.w.close();
   }
 });
@@ -185,4 +190,38 @@ test('a missing tutor subject error link focuses the visible subject choice',asy
  t.doc.querySelector('[data-owner-spec-dropdown-trigger]').id='id_specializations';
  t.doc.querySelector('a[href="#id_specializations"]').click();
  assert.equal(t.doc.activeElement,t.doc.querySelector('[value=math]'));t.w.close();
+});
+
+test('the public contact field only copies the account phone on an explicit choice', async () => {
+  const t = await setup({phone: '', row: '<button type="button" data-account-phone="+12025550101" hidden>Use account phone</button>'});
+  const input = t.doc.querySelector('#id_phone');
+  const button = t.doc.querySelector('[data-account-phone]');
+  assert.equal(input.value, '');
+  assert.equal(button.hidden, false);
+  input.value = '+12025550102';
+  input.dispatchEvent(new t.w.Event('input', {bubbles:true}));
+  assert.equal(button.hidden, true);
+  button.click();
+  assert.equal(input.value, '+12025550102');
+  input.value = '';
+  input.dispatchEvent(new t.w.Event('input', {bubbles:true}));
+  let notified = false;
+  input.addEventListener('change', () => { notified = true; });
+  button.click();
+  assert.equal(input.value, '+12025550101');
+  assert.equal(notified, true);
+  assert.equal(t.doc.activeElement, input);
+  assert.equal(input.readOnly, false);
+  t.w.close();
+});
+
+test('the first-error shortcut follows a visible field link and skips unresolved targets', async () => {
+  const t = await setup({row: `<div data-error-summary tabindex="-1"><button type="button" data-first-error hidden>Fix first field</button>
+    <a class="km-form-error-summary__link" href="#id_missing">Missing target</a>
+    <a class="km-form-error-summary__link" href="#id_phone">Phone</a></div>`});
+  const button = t.doc.querySelector('[data-first-error]');
+  assert.equal(button.hidden, false);
+  button.click();
+  assert.equal(t.doc.activeElement, t.doc.querySelector('#id_phone'));
+  t.w.close();
 });

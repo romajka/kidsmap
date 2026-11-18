@@ -63,6 +63,35 @@ class AuthNavigationTests(TestCase):
         self.assertFalse(response.context['form'].is_bound)
         self.assertNotIn('_auth_user_id', self.client.session)
 
+    def test_specialist_entry_keeps_its_purpose_through_login_signup_and_email_confirmation(self):
+        for language, heading in (
+            ('ru', 'Анкета специалиста'),
+            ('az', 'Mütəxəssis anketi'),
+            ('en', 'Specialist profile'),
+        ):
+            with override(language), self.subTest(language=language):
+                target = reverse('owner_specialist_create')
+                login = self.client.get(reverse('account_login'), {'next': target})
+                signup = self.navigate('account_register', HiddenFields(login).values['next'])
+                confirmation = self.client.get(reverse('account_verify_email'), {'next': target})
+                for response in (login, signup, confirmation):
+                    self.assertEqual(response.context['auth_intent'], 'specialist_profile')
+                    self.assertEqual(response.context['next_url'], target)
+                    self.assertContains(response, heading)
+                self.assertNotContains(signup, 'class="register-benefits"')
+                self.assertContains(signup, 'name="intent" value="specialist_profile"')
+
+    def test_only_a_specialist_editor_destination_selects_specialist_copy(self):
+        with override('ru'):
+            for target in (reverse('specialist_list'),
+                           'https://outside.example/ru/account/places/specialists/create/',
+                           '/ru/catalog/?q=/ru/account/places/specialists/create/'):
+                with self.subTest(target=target):
+                    response = self.navigate('account_register', target, intent='specialist_profile')
+                    self.assertEqual(response.context['auth_intent'], '')
+            response = self.navigate('account_login', reverse('specialist_workspace_proposal'))
+            self.assertEqual(response.context['auth_intent'], 'specialist_profile')
+
     def test_registration_navigation_does_not_submit_supplied_registration_fields(self):
         response = self.navigate('account_register', '/catalog/',
             first_name='Leyla', last_name='Aliyeva', email='synthetic@example.com',
