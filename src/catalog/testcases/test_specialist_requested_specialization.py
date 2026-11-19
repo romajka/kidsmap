@@ -1,9 +1,11 @@
 """A specialist whose specialty is not in the list can name it instead of picking one."""
+from django.db import connection
+from django.db.migrations.executor import MigrationExecutor
 from django.http import QueryDict
 from django.test import TestCase
 
 from catalog.forms import OwnerSpecialistForm
-from catalog.models import SpecialistSpecialization
+from catalog.models import Specialist, SpecialistSpecialization
 from catalog.services.specialist_proposal_drafts import _payload
 
 
@@ -40,3 +42,11 @@ class RequestedSpecializationTests(TestCase):
         data = QueryDict(mutable=True)
         data.update({'name': 'X', 'requested_specialization': 'Karate'})
         self.assertEqual(_payload(data).get('requested_specialization'), ['Karate'])
+
+    def test_previous_release_can_insert_without_the_new_column(self):
+        apps = MigrationExecutor(connection).loader.project_state(
+            ('catalog', '0154_workflow_email_delivery_guards')
+        ).apps
+        previous_model = apps.get_model('catalog', 'Specialist')
+        previous = previous_model.objects.create(name='QA Specialist', slug='qa-previous-writer')
+        self.assertEqual(Specialist.objects.get(pk=previous.pk).requested_specialization, '')

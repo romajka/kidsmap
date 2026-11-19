@@ -151,6 +151,7 @@ class Specialist(models.Model):
         max_length=120,
         blank=True,
         default="",
+        db_default="",
         help_text=_("Направление, которого нет в списке. Модератор может добавить его в справочник и отметить в анкете."),
     )
     
