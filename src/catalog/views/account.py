@@ -672,16 +672,9 @@ def account_register(request):
             user=user,
             email=form.cleaned_data["email"],
         )
-        if verification.ok:
-            success_message = {
-                "az": "Qeydiyyat demək olar ki, tamamlandı. E-poçta göndərilən kodu daxil edib hesabınızı təsdiqləyin.",
-                "en": "Registration is almost complete. Enter the code from your email to confirm your account.",
-            }.get(language, _("Регистрация почти завершена. Введите код из письма для подтверждения email."))
-            messages.success(
-                request,
-                success_message,
-            )
-        else:
+        # On success the verification page itself says what to do next, so a
+        # toast repeating it would only push the code field down.
+        if not verification.ok:
             messages.error(request, verification.message)
         query = urlencode(
             {

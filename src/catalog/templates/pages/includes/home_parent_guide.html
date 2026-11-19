@@ -2,9 +2,8 @@
 {% url 'parent_guide' slug='baku-with-kids' as day_out_url %}
 <section class="home-parent-guide" id="home-parent-guide" data-guide-slider aria-labelledby="home-parent-guide-title">
   <div class="home-parent-guide__copy">
-    <span class="home-redesign-kicker">{% if request.LANGUAGE_CODE == 'az' %}BAKIDA AİLƏVİ İSTİRAHƏT{% elif request.LANGUAGE_CODE == 'en' %}FAMILY DAYS OUT IN BAKU{% else %}СЕМЕЙНЫЙ ОТДЫХ В БАКУ{% endif %}</span>
     <h2 id="home-parent-guide-title"><a href="{{ day_out_url }}">{% if request.LANGUAGE_CODE == 'az' %}Bakıda uşaqlarla hara getmək olar{% elif request.LANGUAGE_CODE == 'en' %}Things to do in Baku with kids{% else %}Куда сходить с ребёнком в Баку{% endif %}</a></h2>
-    <p>{% if request.LANGUAGE_CODE == 'az' %}Parklar, muzeylər və oyun mərkəzləri — bu gün və ya həftəsonu bütün ailənizlə istirahət üçün məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Parks, museums and play centers — find somewhere for the whole family to enjoy today or at the weekend.{% else %}Парки, музеи и игровые центры — выберите, куда пойти всей семьёй сегодня или в выходные.{% endif %}</p>
+    <p>{% if request.LANGUAGE_CODE == 'az' %}Ailəvi istirahət üçün parklar, muzeylər və oyun mərkəzləri — bu gün və ya həftəsonu üçün məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Family days out: parks, museums and play centers to enjoy today or at the weekend.{% else %}Семейный отдых: парки, музеи и игровые центры — выберите, куда пойти сегодня или в выходные.{% endif %}</p>
   </div>
   <div class="home-parent-guide__destinations" id="home-guide-track" data-guide-track tabindex="0" role="region" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Ailəvi istirahət bələdçiləri{% elif request.LANGUAGE_CODE == 'en' %}Family day out guides{% else %}Гиды для семейного отдыха{% endif %}">
     <a class="home-parent-guide__destination" href="{% url 'parent_guide' slug='parks' %}">

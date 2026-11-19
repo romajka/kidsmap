@@ -936,6 +936,113 @@
         chip.classList.toggle("is-checked", cb.checked);
       }
     });
+    // ---- Picker extras: "suggest your own", live summary, phone sheet ----
+    var suggestBox = form.querySelector("[data-spec-suggest]");
+    var suggestInput = form.querySelector('[name="requested_specialization"]');
+    var suggestQueryBtn = form.querySelector("[data-spec-suggest-query]");
+    var doneCount = form.querySelector("[data-spec-done-count]");
+    var pickerLang = (document.documentElement.lang || "ru").slice(0, 2);
+    var ownLabel = { az: "Öz istiqamətiniz", en: "Your own" }[pickerLang] || "Своё";
+    var baseSyncSelected = syncSelectedSpecs;
+    syncSelectedSpecs = function () {
+      baseSyncSelected();
+      var names = specChips.filter(function (chip) {
+        var cb = chip.querySelector("input[type=checkbox]");
+        return cb && cb.checked && !cb.closest("[data-subject-picker]");
+      }).map(function (chip) { return (chip.querySelector(".chip-title") || chip).textContent.trim(); });
+      var own = suggestInput ? suggestInput.value.trim() : "";
+      if (own) names.push(own);
+      var total = names.length;
+      if (doneCount) { doneCount.hidden = !total; doneCount.textContent = total; }
+      var badge = form.querySelector("[data-selected-count-badge]");
+      if (badge) { badge.textContent = total; badge.hidden = !total; }
+      var placeholder = form.querySelector("[data-owner-spec-placeholder]");
+      if (placeholder && total) {
+        placeholder.textContent = names.slice(0, 2).join(", ") + (total > 2 ? " +" + (total - 2) : "");
+        placeholder.classList.add("has-value");
+      } else if (placeholder) {
+        placeholder.classList.remove("has-value");
+      }
+      if (selectedBar && selectedChipsBox && own) {
+        selectedBar.hidden = false;
+        var pill = document.createElement("span");
+        pill.className = "selected-chip-pill selected-chip-pill--own";
+        var title = document.createElement("span");
+        title.className = "pill-name";
+        title.textContent = ownLabel + ": " + own;
+        var remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "pill-remove";
+        remove.textContent = "×";
+        remove.setAttribute("aria-label", (selectedBar.dataset.removeLabel || "Remove") + " " + own);
+        remove.addEventListener("click", function () {
+          suggestInput.value = "";
+          if (suggestBox) suggestBox.classList.remove("is-open");
+          syncSelectedSpecs();
+          form.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        pill.append(title, remove);
+        selectedChipsBox.appendChild(pill);
+        if (selectedCountEl) selectedCountEl.textContent = String(parseInt(selectedCountEl.textContent || "0", 10) + 1);
+      }
+    };
+    function openSuggest(value) {
+      if (!suggestBox || !suggestInput) return;
+      suggestBox.classList.add("is-open");
+      if (typeof value === "string") suggestInput.value = value;
+      syncSelectedSpecs();
+      setTimeout(function () { suggestInput.focus(); suggestBox.scrollIntoView({ block: "nearest" }); }, 60);
+    }
+    if (suggestBox && suggestInput) {
+      var openBtn = suggestBox.querySelector("[data-spec-suggest-open]");
+      var saveBtn = suggestBox.querySelector("[data-spec-suggest-save]");
+      if (openBtn) openBtn.addEventListener("click", function () { openSuggest(); });
+      if (saveBtn) saveBtn.addEventListener("click", function () {
+        suggestInput.value = suggestInput.value.replace(/\s+/g, " ").trim();
+        syncSelectedSpecs();
+        if (suggestInput.value) { saveBtn.classList.add("is-saved"); setTimeout(function () { saveBtn.classList.remove("is-saved"); }, 1200); }
+        else suggestInput.focus();
+      });
+      suggestInput.addEventListener("input", function () { syncSelectedSpecs(); });
+      suggestInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); if (saveBtn) saveBtn.click(); }
+      });
+    }
+    if (suggestQueryBtn) {
+      suggestQueryBtn.addEventListener("click", function () {
+        openSuggest(searchInput ? searchInput.value.trim() : "");
+        if (searchInput) { searchInput.value = ""; searchInput.dispatchEvent(new Event("input")); }
+      });
+    }
+    if (searchInput) {
+      searchInput.addEventListener("input", function () {
+        var q = searchInput.value.trim();
+        if (dropdownPanel) dropdownPanel.classList.toggle("is-searching", !!q);
+        if (suggestQueryBtn) {
+          suggestQueryBtn.hidden = !q;
+          suggestQueryBtn.textContent = (suggestQueryBtn.dataset.template || "%s").replace("%s", q);
+        }
+      });
+    }
+    // Phone: the picker opens as a bottom sheet over a dimmed page.
+    var backdrop = form.querySelector("[data-spec-backdrop]");
+    var phoneQuery = window.matchMedia ? window.matchMedia("(max-width: 760px)") : null;
+    function closePicker() { if (dropdownDoneBtn) dropdownDoneBtn.click(); }
+    if (dropdownPanel) {
+      var syncSheet = function () {
+        var open = !dropdownPanel.hidden;
+        if (backdrop) backdrop.hidden = !open;
+        document.documentElement.classList.toggle("km-sheet-open", open && !!(phoneQuery && phoneQuery.matches));
+      };
+      new MutationObserver(syncSheet).observe(dropdownPanel, { attributes: true, attributeFilter: ["hidden"] });
+      syncSheet();
+    }
+    if (backdrop) backdrop.addEventListener("click", function (e) { e.stopPropagation(); closePicker(); });
+    form.querySelectorAll("[data-spec-close]").forEach(function (btn) {
+      btn.addEventListener("click", function (e) { e.stopPropagation(); closePicker(); });
+    });
+    syncSelectedSpecs();
+
     syncSelectedSpecs();
 
     if (searchInput) {

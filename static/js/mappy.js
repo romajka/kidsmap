@@ -70,7 +70,15 @@
       const textEl = helper.querySelector('[data-mappy-text]') || content.querySelector('p');
       if (textEl) {
         const docLang = (document.documentElement.lang || 'ru').toLowerCase().slice(0, 2);
-        const tips = TIPS[docLang] || TIPS.ru;
+        const tips = (TIPS[docLang] || TIPS.ru).slice();
+        if (document.querySelector('[data-mappy-specialists]')) {
+          tips.splice(1, 0, ({
+            ru: "Ищете логопеда, репетитора или психолога? Теперь они тоже есть на KidsMap!",
+            az: "Loqoped, repetitor və ya psixoloq axtarırsınız? Onlar artıq KidsMap-dədir!",
+            en: "Looking for a speech therapist, tutor or psychologist? They're on KidsMap now!"
+          })[docLang] || "");
+          if (!tips[1]) tips.splice(1, 1);
+        }
         let tipIndex = 0;
         let rotationTimer = null;
         let switchTimer = null;

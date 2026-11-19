@@ -278,6 +278,89 @@
         isTouching = false;
       }, { passive: true });
     }
+
+    /* ── 5. Header Language Pickers (desktop + mobile) ── */
+    document.querySelectorAll('[data-mlang]').forEach(function (mobileLang) {
+      const mlangTrigger = mobileLang.querySelector('[data-dropdown-trigger]');
+      const mlangOptions = Array.from(mobileLang.querySelectorAll('.km-mlang__option'));
+      const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let mlangNavigating = false;
+
+      // Keyboard users land on the current language when the menu opens
+      if (mlangTrigger) {
+        mlangTrigger.addEventListener('click', function (e) {
+          if (e.detail !== 0 || !mobileLang.classList.contains('is-open')) return;
+          const current = mobileLang.querySelector('.km-mlang__option.is-active') || mlangOptions[0];
+          if (current) window.setTimeout(function () { current.focus({ preventScroll: true }); }, 60);
+        });
+      }
+
+      mobileLang.addEventListener('keydown', function (e) {
+        if (!mobileLang.classList.contains('is-open')) return;
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'Home' && e.key !== 'End') return;
+        e.preventDefault();
+        const index = mlangOptions.indexOf(document.activeElement);
+        let next = 0;
+        if (e.key === 'End') next = mlangOptions.length - 1;
+        else if (e.key === 'ArrowDown') next = index < 0 ? 0 : (index + 1) % mlangOptions.length;
+        else if (e.key === 'ArrowUp') next = index <= 0 ? mlangOptions.length - 1 : index - 1;
+        mlangOptions[next].focus({ preventScroll: true });
+      });
+
+      mlangOptions.forEach(function (option) {
+        option.addEventListener('click', function (e) {
+          if (mlangNavigating) { e.preventDefault(); return; }
+          if (option.classList.contains('is-active')) {
+            e.preventDefault();
+            mobileLang.classList.remove('is-open');
+            if (mlangTrigger) {
+              mlangTrigger.setAttribute('aria-expanded', 'false');
+              mlangTrigger.focus({ preventScroll: true });
+            }
+            return;
+          }
+          const href = option.getAttribute('href');
+          if (!href || reduceMotion || e.metaKey || e.ctrlKey || e.shiftKey) return;
+
+          e.preventDefault();
+          mlangNavigating = true;
+
+          const rect = option.getBoundingClientRect();
+          const ripple = document.createElement('span');
+          ripple.className = 'km-mlang__ripple';
+          ripple.style.left = ((e.clientX || rect.left + rect.width / 2) - rect.left) + 'px';
+          ripple.style.top = ((e.clientY || rect.top + rect.height / 2) - rect.top) + 'px';
+          option.appendChild(ripple);
+
+          mlangOptions.forEach(function (other) {
+            const isTarget = other === option;
+            other.classList.toggle('is-active', isTarget);
+            other.setAttribute('aria-checked', isTarget ? 'true' : 'false');
+          });
+
+          const chipFlag = mobileLang.querySelector('.km-mlang__flag img');
+          const chipCode = mobileLang.querySelector('.km-mlang__code');
+          const optFlag = option.querySelector('.km-mlang__opt-flag img');
+          const optCode = option.querySelector('.km-mlang__opt-code');
+          mobileLang.classList.add('is-switching');
+          window.setTimeout(function () {
+            if (chipFlag && optFlag) chipFlag.src = optFlag.src;
+            if (chipCode && optCode) chipCode.textContent = optCode.textContent;
+          }, 220);
+
+          window.setTimeout(function () {
+            window.location.href = href;
+          }, 380);
+        });
+      });
+
+      // Pages restored from the back/forward cache must be interactive again
+      window.addEventListener('pageshow', function (e) {
+        if (!e.persisted || !mlangNavigating) return;
+        // Language switch was interrupted (back button): restore the real state
+        window.location.reload();
+      });
+    });
   }
 
   // Initialize once DOM is loaded

@@ -1,0 +1,18 @@
+{% load i18n %}{% get_current_language as jl %}{% comment %}
+  Specialist sign-up journey: Account → Email → Profile → Review.
+  Usage: {% include "includes/specialist_journey.html" with step=2 %}
+{% endcomment %}
+<nav class="km-journey" data-step="{{ step }}" aria-label="{% if jl == 'az' %}Anket yolu{% elif jl == 'en' %}Profile steps{% else %}Шаги анкеты{% endif %}">
+  <p class="km-journey__now">
+    <span class="km-journey__count">{% if jl == 'az' %}Addım {{ step }}/4{% elif jl == 'en' %}Step {{ step }} of 4{% else %}Шаг {{ step }} из 4{% endif %}</span>
+    <span class="km-journey__next">{% if step == 1 and signin %}{% if jl == 'az' %}Daxil olduqdan sonra anket açılacaq{% elif jl == 'en' %}The form opens right after you sign in{% else %}После входа откроется анкета{% endif %}{% elif step == 1 %}{% if jl == 'az' %}Sonra e-poçtunuza 6 rəqəmli kod gələcək{% elif jl == 'en' %}Next, a 6-digit code arrives by email{% else %}Дальше на почту придёт код из 6 цифр{% endif %}{% elif step == 2 %}{% if jl == 'az' %}Kod e-poçtunuza göndərildi{% elif jl == 'en' %}The code has been sent to your email{% else %}Код отправлен на вашу почту{% endif %}{% elif step == 3 %}{% if jl == 'az' %}Göndərdikdən sonra KidsMap anketi yoxlayacaq{% elif jl == 'en' %}After you send it, KidsMap reviews the profile{% else %}После отправки KidsMap проверит анкету{% endif %}{% else %}{% if jl == 'az' %}Nəticəni kabinetdə görəcəksiniz{% elif jl == 'en' %}You will see the result in your account{% else %}Результат появится в кабинете{% endif %}{% endif %}</span>
+  </p>
+  <ol class="km-journey__track">
+    {% with s=step|add:0 %}
+    <li class="km-journey__step{% if s > 1 %} is-done{% elif s == 1 %} is-current{% endif %}"{% if s == 1 %} aria-current="step"{% endif %}><span class="km-journey__bar"></span><span class="km-journey__label">{% if jl == 'az' %}Hesab{% elif jl == 'en' %}Account{% else %}Аккаунт{% endif %}</span></li>
+    <li class="km-journey__step{% if s > 2 %} is-done{% elif s == 2 %} is-current{% endif %}"{% if s == 2 %} aria-current="step"{% endif %}><span class="km-journey__bar"></span><span class="km-journey__label">{% if jl == 'az' %}E-poçt{% elif jl == 'en' %}Email{% else %}Почта{% endif %}</span></li>
+    <li class="km-journey__step{% if s > 3 %} is-done{% elif s == 3 %} is-current{% endif %}"{% if s == 3 %} aria-current="step"{% endif %}><span class="km-journey__bar"></span><span class="km-journey__label">{% if jl == 'az' %}Anket{% elif jl == 'en' %}Profile{% else %}Анкета{% endif %}</span></li>
+    <li class="km-journey__step{% if s == 4 %} is-current{% endif %}"{% if s == 4 %} aria-current="step"{% endif %}><span class="km-journey__bar"></span><span class="km-journey__label">{% if jl == 'az' %}Yoxlama{% elif jl == 'en' %}Review{% else %}Проверка{% endif %}</span></li>
+    {% endwith %}
+  </ol>
+</nav>

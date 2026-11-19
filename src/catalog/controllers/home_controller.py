@@ -23,6 +23,12 @@ from catalog.services.seo import build_home_seo_payload
 from catalog.services.features import is_events_section_enabled
 
 
+# Below this many published profiles with a photo the home page shows a slim
+# teaser band; from this number on it shows a row of specialist cards.
+HOME_SPECIALISTS_RAIL_MIN = 6
+HOME_SPECIALISTS_RAIL_SIZE = 10
+
+
 @dataclass(slots=True)
 class HomeController:
     place_repository: IPlaceRepository
@@ -94,6 +100,7 @@ class HomeController:
         home_districts = public_filter_options.districts
 
         selected_filters = filters.selected()
+        home_specialists = self._specialists_block(language_code)
         return {
             "home_age_from": selected_filters["age_from"],
             "home_age_to": selected_filters["age_to"],
@@ -126,7 +133,131 @@ class HomeController:
             "hero_cta_text": site_settings.home_cta_text_i18n(language_code) or _("Начать поиск"),
             "hero_show_decor": bool(site_settings.home_hero_show_decor),
             "hero_gallery_slides": hero_gallery_slides,
+            "home_specialists": home_specialists,
+            "hero_topics": self._hero_topics(language_code, home_specialists),
         }
+
+    @staticmethod
+    def _specialists_block(language_code: str) -> dict | None:
+        """Home block for specialists.
+
+        Three states, picked from live data so nobody has to switch them by hand:
+        - "soon":   nothing published yet; invite specialists to fill in a profile;
+        - "teaser": a few profiles; a slim band with faces and the busiest specialties;
+        - "rail":   enough profiles with photos; a row of specialist cards.
+        """
+        from django.db.models import Count
+        from catalog.models import Specialist, SpecialistSpecialization
+        from catalog.services.features import is_specialists_section_enabled
+
+        if not is_specialists_section_enabled():
+            return None
+        published = Specialist.objects.filter(status=Specialist.STATUS_PUBLISHED, is_active=True)
+        total = published.count()
+        if not total:
+            return {"mode": "soon", "total": 0, "people": [], "chips": [], "fillers": ["person", "book", "heart"]}
+        with_photo = list(
+            published.exclude(photo="").exclude(photo__isnull=True)
+            .prefetch_related("specializations")
+            .order_by("-rating_count", "-rating_avg", "-pk")[:HOME_SPECIALISTS_RAIL_SIZE]
+        )
+        specialties = (
+            SpecialistSpecialization.objects
+            .annotate(published_count=Count(
+                "specialists",
+                filter=Q(specialists__status=Specialist.STATUS_PUBLISHED, specialists__is_active=True),
+                distinct=True,
+            ))
+            .filter(published_count__gt=0)
+            .order_by("-published_count", "pk")[:5]
+        )
+        chips = [{"code": item.code, "label": item.name_i18n(language_code)} for item in specialties]
+        mode = "rail" if len(with_photo) >= HOME_SPECIALISTS_RAIL_MIN else "teaser"
+        people = []
+        for person in with_photo if mode == "rail" else with_photo[:4]:
+            specialties_text = sorted(item.name_i18n(language_code) for item in person.specializations.all())
+            name_parts = (person.name or "").split()
+            people.append({
+                "name": person.name,
+                "initials": "".join(part[:1] for part in name_parts[:2]).upper() or "KM",
+                "url": person.get_absolute_url(),
+                "photo": person.photo.url if person.photo else "",
+                "specialty": ", ".join(specialties_text[:2]),
+                "rating": round(person.rating_avg, 1) if person.rating_count else None,
+                "rating_count": person.rating_count,
+                "online": person.consultation_format in (Specialist.FORMAT_ONLINE, Specialist.FORMAT_BOTH),
+                "offline": person.consultation_format in (Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH),
+                "price_from": person.price_from,
+            })
+        # The band keeps at least three round faces; icons stand in for missing photos.
+        fillers = ["person", "book", "heart"][: max(0, 3 - len(people))] if mode == "teaser" else []
+        return {"mode": mode, "total": total, "people": people, "chips": chips, "fillers": fillers}
+
+    # The rotating word under the hero headline. Each word opens the catalog already filtered
+    # the way its landing page is (same category or query, Baku).
+    # (landing slug, labels, category of the matching popular chip under the search)
+    HERO_TOPICS = (
+        ("dzudo-dlya-detey-v-baku", {"ru": "Дзюдо", "az": "Cüdo", "en": "Judo"}, ""),
+        ("programmirovanie-dlya-detey-baku", {"ru": "Программирование", "az": "Proqramlaşdırma", "en": "Coding"}, "TECH"),
+        ("sportivnye-sekcii-v-baku", {"ru": "Спортивные секции", "az": "İdman bölmələri", "en": "Sports clubs"}, "SPRT"),
+        ("tvorcheskie-kruzhki-v-baku", {"ru": "Творческие кружки", "az": "Yaradıcılıq dərnəkləri", "en": "Art clubs"}, "ART"),
+        ("kursy-dlya-detey-v-baku", {"ru": "Курсы", "az": "Kurslar", "en": "Courses"}, "EDU"),
+    )
+    HERO_TOPIC_MAX_CHARS = 22  # longer words would not fit one line on a 360px phone
+
+    @classmethod
+    def _hero_topics(cls, language_code: str, specialists: dict | None) -> list[dict[str, str]]:
+        from urllib.parse import quote
+
+        from django.urls import NoReverseMatch, reverse
+
+        from catalog.content_data import base_seo_landing_pages
+
+        lang = language_code if language_code in ("az", "ru", "en") else "az"
+        landings = base_seo_landing_pages(lang)
+        places = []
+        for slug, labels, chip_category in cls.HERO_TOPICS:
+            page = landings.get(slug)
+            if not page:
+                continue
+            try:
+                # straight into the catalog with the landing page's filters (category / query + Baku)
+                href = reverse("place_list") + (page.get("catalog_query") or "")
+            except NoReverseMatch:
+                continue
+            places.append({
+                "label": labels[lang],
+                "href": href,
+                "title": page.get("title") or page.get("h1") or labels[lang],
+                "kind": "place",
+                "chip": chip_category,
+            })
+        people = []
+        for chip in (specialists or {}).get("chips", [])[:2]:
+            label = (chip.get("label") or "").strip()
+            if not label or len(label) > cls.HERO_TOPIC_MAX_CHARS:
+                continue
+            label = label[:1].upper() + label[1:]
+            title = {"ru": f"{label} для детей", "az": f"Uşaqlar üçün {label[:1].lower() + label[1:]}", "en": f"{label} for kids"}[lang]
+            people.append({
+                "label": label,
+                "href": f"{reverse('specialist_list')}?specialization={quote(str(chip['code']))}",
+                "title": title,
+                "kind": "specialist",
+                "chip": str(chip["code"]),
+            })
+        # interleave: place, specialist, place, place, specialist, ...
+        order = []
+        slots = [0, None, 1, 2, None, 3, 4]
+        people_iter = iter(people)
+        for slot in slots:
+            if slot is None:
+                person = next(people_iter, None)
+                if person:
+                    order.append(person)
+            elif slot < len(places):
+                order.append(places[slot])
+        return order
 
     @staticmethod
     def _selected_age(request) -> str:

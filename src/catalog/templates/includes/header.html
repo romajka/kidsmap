@@ -31,9 +31,10 @@
 
       <a
         href="{% url 'place_list' %}"
-        class="km-nav-item {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}active{% endif %}"
+        class="km-nav-item km-nav-item--catalog {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}active{% endif %}"
         {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
       >
+        <span class="km-nav-compass" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.25"/><path class="km-m-catalog__needle" d="m15.6 8.4-2.2 5-5 2.2 2.2-5z" fill="currentColor" stroke-width="1.6"/></svg></span>
         <span>{% trans "Каталог" %}</span>
       </a>
 
@@ -198,58 +199,88 @@
         {% endif %}
       </div>
 
-      <!-- Language Selector Dropdown -->
-      <div class="km-dropdown-wrapper km-lang-wrapper lang-switch" data-dropdown aria-label="{% trans 'Язык' %}">
+      <!-- Language Selector (desktop) -->
+      <div class="km-mlang km-mlang--desktop km-lang-wrapper lang-switch" data-dropdown data-mlang>
         <button
           type="button"
-          class="km-lang-btn menu-trigger lang-current"
+          class="km-mlang__chip km-lang-btn"
           aria-haspopup="true"
           aria-expanded="false"
-          aria-label="{% trans 'Выбор языка' %}"
+          aria-controls="km-dlang-menu"
+          aria-label="{% trans 'Выбор языка' %}: {% if CURRENT_LANGUAGE == 'ru' %}Русский{% elif CURRENT_LANGUAGE == 'en' %}English{% else %}Azərbaycanca{% endif %}"
           data-dropdown-trigger
         >
-          <span class="km-lang-flag">
-            <img
-              class="lang-flag-icon"
-              src="{% if CURRENT_LANGUAGE == 'ru' %}{% static 'img/flags/ru.png' %}{% elif CURRENT_LANGUAGE == 'az' %}{% static 'img/flags/az.png' %}{% else %}{% static 'img/flags/en.png' %}{% endif %}"
-              alt=""
-              width="20"
-              height="20"
-            />
+          <span class="km-mlang__flag">
+            <img src="{% if CURRENT_LANGUAGE == 'ru' %}{% static 'img/flags/ru.svg' %}{% elif CURRENT_LANGUAGE == 'en' %}{% static 'img/flags/en.svg' %}{% else %}{% static 'img/flags/az.svg' %}{% endif %}" alt="" width="28" height="28" />
           </span>
-          <span class="km-lang-code">{% if CURRENT_LANGUAGE == 'ru' %}RU{% elif CURRENT_LANGUAGE == 'az' %}AZ{% else %}EN{% endif %}</span>
-          <svg class="km-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          <span class="km-mlang__code">{% if CURRENT_LANGUAGE == 'ru' %}RU{% elif CURRENT_LANGUAGE == 'en' %}EN{% else %}AZ{% endif %}</span>
+          <svg class="km-mlang__chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
-        <div class="km-dropdown-menu km-dropdown-menu--right km-dropdown-lang" role="menu" data-dropdown-menu>
-          <a
-            class="km-dropdown-item km-lang-option {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}"
-            href="{{ language_urls.az }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
-            hreflang="az"
-            role="menuitem"
-          >
-            <img class="lang-flag-icon" src="{% static 'img/flags/az.png' %}" alt="" width="20" height="20" />
-            <span class="km-lang-opt-code">AZ</span>
-            {% if CURRENT_LANGUAGE == 'az' %}<svg class="km-lang-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#136f38" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>{% endif %}
+        <div class="km-mlang__menu" id="km-dlang-menu" role="menu" aria-label="{% trans 'Язык сайта' %}" data-dropdown-menu>
+          <span class="km-mlang__title" aria-hidden="true">{% trans "Язык сайта" %}</span>
+          <a class="km-mlang__option {% if CURRENT_LANGUAGE == 'az' %}is-active{% endif %}" style="--i:0" href="{{ language_urls.az }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}" hreflang="az" lang="az" role="menuitemradio" aria-checked="{% if CURRENT_LANGUAGE == 'az' %}true{% else %}false{% endif %}">
+            <span class="km-mlang__opt-flag"><img src="{% static 'img/flags/az.svg' %}" alt="" width="28" height="28" loading="lazy" /></span>
+            <span class="km-mlang__opt-text"><span class="km-mlang__opt-name">Azərbaycanca</span><span class="km-mlang__opt-code">AZ</span></span>
+            <span class="km-mlang__check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
           </a>
-          <a
-            class="km-dropdown-item km-lang-option {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}"
-            href="{{ language_urls.ru }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
-            hreflang="ru"
-            role="menuitem"
-          >
-            <img class="lang-flag-icon" src="{% static 'img/flags/ru.png' %}" alt="" width="20" height="20" />
-            <span class="km-lang-opt-code">RU</span>
-            {% if CURRENT_LANGUAGE == 'ru' %}<svg class="km-lang-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#136f38" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>{% endif %}
+          <a class="km-mlang__option {% if CURRENT_LANGUAGE == 'ru' %}is-active{% endif %}" style="--i:1" href="{{ language_urls.ru }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}" hreflang="ru" lang="ru" role="menuitemradio" aria-checked="{% if CURRENT_LANGUAGE == 'ru' %}true{% else %}false{% endif %}">
+            <span class="km-mlang__opt-flag"><img src="{% static 'img/flags/ru.svg' %}" alt="" width="28" height="28" loading="lazy" /></span>
+            <span class="km-mlang__opt-text"><span class="km-mlang__opt-name">Русский</span><span class="km-mlang__opt-code">RU</span></span>
+            <span class="km-mlang__check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
           </a>
-          <a
-            class="km-dropdown-item km-lang-option {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}"
-            href="{{ language_urls.en }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
-            hreflang="en"
-            role="menuitem"
-          >
-            <img class="lang-flag-icon" src="{% static 'img/flags/en.png' %}" alt="" width="20" height="20" />
-            <span class="km-lang-opt-code">EN</span>
-            {% if CURRENT_LANGUAGE == 'en' %}<svg class="km-lang-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#136f38" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>{% endif %}
+          <a class="km-mlang__option {% if CURRENT_LANGUAGE == 'en' %}is-active{% endif %}" style="--i:2" href="{{ language_urls.en }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}" hreflang="en" lang="en" role="menuitemradio" aria-checked="{% if CURRENT_LANGUAGE == 'en' %}true{% else %}false{% endif %}">
+            <span class="km-mlang__opt-flag"><img src="{% static 'img/flags/en.svg' %}" alt="" width="28" height="28" loading="lazy" /></span>
+            <span class="km-mlang__opt-text"><span class="km-mlang__opt-name">English</span><span class="km-mlang__opt-code">EN</span></span>
+            <span class="km-mlang__check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Mobile: Catalog shortcut -->
+      <a
+        href="{% url 'place_list' %}"
+        class="km-m-catalog {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}is-current{% endif %}"
+        {% if request.resolver_match.url_name == 'place_list' %}aria-current="page"{% endif %}
+      >
+        <span class="km-m-catalog__icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.25"/><path class="km-m-catalog__needle" d="m15.6 8.4-2.2 5-5 2.2 2.2-5z" fill="currentColor" stroke-width="1.6"/></svg>
+        </span>
+        <span class="km-m-catalog__label">{% trans "Каталог" %}</span>
+      </a>
+
+      <!-- Mobile: Language picker -->
+      <div class="km-mlang" data-dropdown data-mlang>
+        <button
+          type="button"
+          class="km-mlang__chip"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="km-mlang-menu"
+          aria-label="{% trans 'Выбор языка' %}: {% if CURRENT_LANGUAGE == 'ru' %}Русский{% elif CURRENT_LANGUAGE == 'en' %}English{% else %}Azərbaycanca{% endif %}"
+          data-dropdown-trigger
+        >
+          <span class="km-mlang__flag">
+            <img src="{% if CURRENT_LANGUAGE == 'ru' %}{% static 'img/flags/ru.svg' %}{% elif CURRENT_LANGUAGE == 'en' %}{% static 'img/flags/en.svg' %}{% else %}{% static 'img/flags/az.svg' %}{% endif %}" alt="" width="22" height="22" />
+          </span>
+          <span class="km-mlang__code">{% if CURRENT_LANGUAGE == 'ru' %}RU{% elif CURRENT_LANGUAGE == 'en' %}EN{% else %}AZ{% endif %}</span>
+          <svg class="km-mlang__chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="km-mlang__menu" id="km-mlang-menu" role="menu" aria-label="{% trans 'Язык сайта' %}" data-dropdown-menu>
+          <span class="km-mlang__title" aria-hidden="true">{% trans "Язык сайта" %}</span>
+          <a class="km-mlang__option {% if CURRENT_LANGUAGE == 'az' %}is-active{% endif %}" style="--i:0" href="{{ language_urls.az }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}" hreflang="az" lang="az" role="menuitemradio" aria-checked="{% if CURRENT_LANGUAGE == 'az' %}true{% else %}false{% endif %}">
+            <span class="km-mlang__opt-flag"><img src="{% static 'img/flags/az.svg' %}" alt="" width="28" height="28" loading="lazy" /></span>
+            <span class="km-mlang__opt-text"><span class="km-mlang__opt-name">Azərbaycanca</span><span class="km-mlang__opt-code">AZ</span></span>
+            <span class="km-mlang__check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </a>
+          <a class="km-mlang__option {% if CURRENT_LANGUAGE == 'ru' %}is-active{% endif %}" style="--i:1" href="{{ language_urls.ru }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}" hreflang="ru" lang="ru" role="menuitemradio" aria-checked="{% if CURRENT_LANGUAGE == 'ru' %}true{% else %}false{% endif %}">
+            <span class="km-mlang__opt-flag"><img src="{% static 'img/flags/ru.svg' %}" alt="" width="28" height="28" loading="lazy" /></span>
+            <span class="km-mlang__opt-text"><span class="km-mlang__opt-name">Русский</span><span class="km-mlang__opt-code">RU</span></span>
+            <span class="km-mlang__check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </a>
+          <a class="km-mlang__option {% if CURRENT_LANGUAGE == 'en' %}is-active{% endif %}" style="--i:2" href="{{ language_urls.en }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}" hreflang="en" lang="en" role="menuitemradio" aria-checked="{% if CURRENT_LANGUAGE == 'en' %}true{% else %}false{% endif %}">
+            <span class="km-mlang__opt-flag"><img src="{% static 'img/flags/en.svg' %}" alt="" width="28" height="28" loading="lazy" /></span>
+            <span class="km-mlang__opt-text"><span class="km-mlang__opt-name">English</span><span class="km-mlang__opt-code">EN</span></span>
+            <span class="km-mlang__check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
           </a>
         </div>
       </div>

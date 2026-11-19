@@ -11,7 +11,7 @@
     const progressLoopThumb = rail.querySelector('[data-rail-progress-thumb-loop]');
     const originals = Array.from(track.children);
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let paused = false;
+    let paused = true; // no auto-scroll: arrows, swipe and drag only
     let hovered = false;
     let visible = false;
     let automatic = false;
@@ -162,7 +162,7 @@
       track.querySelectorAll('[data-rail-copy]').forEach((copy) => copy.remove());
       automatic = !reduced.matches && originals.length > 1;
       rail.classList.toggle('is-automatic', automatic);
-      if (toggle) toggle.hidden = !automatic;
+      if (toggle) toggle.hidden = true;
       const navGroup = rail.querySelector('.home-rail-nav-group');
       if (navGroup) navGroup.hidden = !automatic;
       const prog = rail.querySelector('[data-rail-progress]');

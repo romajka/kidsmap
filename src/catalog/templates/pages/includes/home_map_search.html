@@ -123,29 +123,35 @@
           <span>{% trans "Популярные запросы" %}:</span>
         </span>
         <div class="home-search-popular-chips" role="list">
-          <a class="home-search-popular-chip" href="{% url 'place_list' %}" data-popular-action="reset" role="listitem">
-            <span>{% trans "Кружки в Азербайджане для детей" %}</span>
+          <a class="home-search-popular-chip" href="{% url 'place_list' %}" data-popular-action="reset" title="{% trans "Кружки в Азербайджане для детей" %}" role="listitem">
+            <span>{% if request.LANGUAGE_CODE == 'az' %}Bütün dərnəklər{% elif request.LANGUAGE_CODE == 'en' %}All kids clubs{% else %}Все кружки{% endif %}</span>
           </a>
-          {% if 'EDU' in active_category_codes %}
-          <a class="home-search-popular-chip" href="{% url 'place_list' %}?category=EDU" data-popular-category="EDU" role="listitem">
-            <span>{% trans "Курсы для детей в Азербайджане" %}</span>
+          {% with first=home_specialists.chips.0 %}{% if first %}
+          <a class="home-search-popular-chip home-search-popular-chip--specialist" href="{% url 'specialist_list' %}?specialization={{ first.code|urlencode }}" data-popular-link role="listitem"><span>{{ first.label }}</span></a>
+          {% endif %}{% endwith %}
+          {% if 'SPRT' in active_category_codes %}
+          <a class="home-search-popular-chip" href="{% url 'place_list' %}?category=SPRT" data-popular-category="SPRT" title="{% trans "Спортивные секции в Азербайджане" %}" role="listitem">
+            <span>{% if request.LANGUAGE_CODE == 'az' %}İdman bölmələri{% elif request.LANGUAGE_CODE == 'en' %}Sports sections{% else %}Спортивные секции{% endif %}</span>
           </a>
           {% endif %}
-          {% if 'SPRT' in active_category_codes %}
-          <a class="home-search-popular-chip" href="{% url 'place_list' %}?category=SPRT" data-popular-category="SPRT" role="listitem">
-            <span>{% trans "Спортивные секции в Азербайджане" %}</span>
+          {% if 'EDU' in active_category_codes %}
+          <a class="home-search-popular-chip" href="{% url 'place_list' %}?category=EDU" data-popular-category="EDU" title="{% trans "Курсы для детей в Азербайджане" %}" role="listitem">
+            <span>{% if request.LANGUAGE_CODE == 'az' %}Uşaq kursları{% elif request.LANGUAGE_CODE == 'en' %}Kids courses{% else %}Курсы для детей{% endif %}</span>
           </a>
           {% endif %}
           {% if 'ART' in active_category_codes %}
-          <a class="home-search-popular-chip" href="{% url 'place_list' %}?category=ART" data-popular-category="ART" role="listitem">
-            <span>{% trans "Творческие кружки в Азербайджане" %}</span>
+          <a class="home-search-popular-chip" href="{% url 'place_list' %}?category=ART" data-popular-category="ART" title="{% trans "Творческие кружки в Азербайджане" %}" role="listitem">
+            <span>{% if request.LANGUAGE_CODE == 'az' %}Yaradıcılıq dərnəkləri{% elif request.LANGUAGE_CODE == 'en' %}Art clubs{% else %}Творческие кружки{% endif %}</span>
           </a>
           {% endif %}
           {% if 'TECH' in active_category_codes %}
-          <a class="home-search-popular-chip" href="{% url 'place_list' %}?category=TECH&amp;q=program" data-popular-category="TECH" data-popular-query="program" role="listitem">
-            <span>{% trans "Программирование для детей в Азербайджане" %}</span>
+          <a class="home-search-popular-chip" href="{% url 'place_list' %}?category=TECH&amp;q=program" data-popular-category="TECH" data-popular-query="program" title="{% trans "Программирование для детей в Азербайджане" %}" role="listitem">
+            <span>{% if request.LANGUAGE_CODE == 'az' %}Proqramlaşdırma{% elif request.LANGUAGE_CODE == 'en' %}Coding{% else %}Программирование{% endif %}</span>
           </a>
           {% endif %}
+          {% for chip in home_specialists.chips|slice:"1:3" %}
+          <a class="home-search-popular-chip home-search-popular-chip--specialist" href="{% url 'specialist_list' %}?specialization={{ chip.code|urlencode }}" data-popular-link role="listitem"><span>{{ chip.label }}</span></a>
+          {% endfor %}
         </div>
       </div>
 

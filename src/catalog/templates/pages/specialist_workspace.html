@@ -29,7 +29,7 @@
       {% if error %}<div class="sw-notice sw-error" role="alert">{{ error }}</div>{% endif %}
       {% if workspace_mode == 'index' %}
         {% if my_specialist %}
-          <section class="sw-card"><h2>{% trans 'Личный профиль' %}</h2>
+          <section class="sw-card">{% if my_specialist.status == 'pending' %}{% include "includes/specialist_journey.html" with step=4 %}{% endif %}<h2>{% trans 'Личный профиль' %}</h2>
             <h3>{{ my_specialist.name }}</h3>{% include 'pages/includes/specialist_application_status.html' with person=my_specialist %}
             <div class="sw-actions">
             <a class="sw-button sw-primary" href="{% url 'specialist_workspace_profile' my_specialist.pk %}">{% trans 'Редактировать профиль' %}</a>
@@ -50,6 +50,7 @@
         {% if claims %}
           <section class="sw-card"><h2>{% trans 'Мои заявки' %}</h2>
             <ul class="sw-rows">{% for claim in claims %}<li>
+              {% if forloop.first and claim.specialist.status == 'pending' and not my_specialist %}{% include "includes/specialist_journey.html" with step=4 %}{% endif %}
               <h3>{{ claim.specialist.name }}</h3>
               {% include 'pages/includes/specialist_application_status.html' with person=claim.specialist %}
               <p>{% trans 'Подтверждение личности' %}: {{ claim.status_label }}</p>
