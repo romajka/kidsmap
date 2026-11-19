@@ -1,0 +1,42 @@
+"""A specialist whose specialty is not in the list can name it instead of picking one."""
+from django.http import QueryDict
+from django.test import TestCase
+
+from catalog.forms import OwnerSpecialistForm
+from catalog.models import SpecialistSpecialization
+from catalog.services.specialist_proposal_drafts import _payload
+
+
+class RequestedSpecializationTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.psy, _ = SpecialistSpecialization.objects.get_or_create(
+            code='psychologist', defaults={'name': 'psy', 'name_ru': 'psy', 'name_az': 'psy', 'name_en': 'psy'})
+
+    def form(self, **extra):
+        data = dict(name='Karate coach', bio_ru='Coaching kids', consultation_format='online',
+                    phone='+994501234567', language_ru='on')
+        data.update(extra)
+        return OwnerSpecialistForm(data)
+
+    def test_neither_a_specialty_nor_an_own_one_is_rejected(self):
+        form = self.form()
+        self.assertFalse(form.is_valid())
+        self.assertIn('specializations', form.errors)
+
+    def test_own_specialty_alone_is_enough_and_is_tidied(self):
+        form = self.form(requested_specialization='  Karate   for   kids ')
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['requested_specialization'], 'Karate for kids')
+        person = form.save()
+        person.refresh_from_db()
+        self.assertEqual(person.requested_specialization, 'Karate for kids')
+
+    def test_own_specialty_can_sit_next_to_a_listed_one(self):
+        form = self.form(specializations=[self.psy.pk], requested_specialization='Sand therapy')
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_draft_payload_keeps_the_own_specialty(self):
+        data = QueryDict(mutable=True)
+        data.update({'name': 'X', 'requested_specialization': 'Karate'})
+        self.assertEqual(_payload(data).get('requested_specialization'), ['Karate'])

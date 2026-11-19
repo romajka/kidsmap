@@ -44,9 +44,9 @@
   </ul>
 </section>
 {% else %}
-<section class="home-specialists home-specialists--band{% if sp.mode == 'soon' %} is-soon{% endif %}" aria-labelledby="home-sp-title">
+<section class="home-specialists home-specialists--band{% if sp.mode == 'soon' %} is-soon{% endif %}" aria-labelledby="home-sp-title" data-km-reveal-once>
   <div class="home-sp-glow" aria-hidden="true"></div>
-  <div class="home-sp-visual" data-km-reveal-once aria-hidden="true">
+  <div class="home-sp-visual" aria-hidden="true">
     <span class="home-sp-rings"><i></i><i></i><i></i></span>
     <span class="home-sp-faces">
       {% for person in sp.people %}<span class="home-sp-face" style="--i:{{ forloop.counter0 }}" data-initials="{{ person.initials }}"><img src="{{ person.photo }}" alt="" loading="lazy" decoding="async" onerror="this.remove()"></span>{% endfor %}

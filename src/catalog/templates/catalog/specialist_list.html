@@ -199,25 +199,6 @@
           </div>
         </div>
 
-        {% if filter_options.districts %}
-          <div class="km-filter-group km-subject-filter" data-specialist-district{% if selected.format == 'online' %} hidden{% endif %}>
-            <label for="filter-district">{% if language == 'az' %}Rayon{% elif language == 'en' %}District{% else %}Район{% endif %}</label>
-            <select name="district" id="filter-district" class="km-filter-select">
-              <option value="">{% if language == 'az' %}Bütün rayonlar{% elif language == 'en' %}All districts{% else %}Все районы{% endif %}</option>
-              {% for item in filter_options.districts %}<option value="{{ item.value }}" data-region="{{ item.region }}"{% if selected.district == item.value %} selected{% endif %}>{{ item.label }}</option>{% endfor %}
-            </select>
-          </div>
-        {% endif %}
-        {% if filter_options.metro_stations %}
-          <div class="km-filter-group km-subject-filter" data-specialist-metro{% if selected.format == 'online' %} hidden{% endif %}>
-            <label for="filter-metro">{% if language == 'az' %}Bakı metrosu{% elif language == 'en' %}Baku metro{% else %}Метро Баку{% endif %}</label>
-            <select name="metro" id="filter-metro" class="km-filter-select">
-              <option value="">{% if language == 'az' %}Bütün stansiyalar{% elif language == 'en' %}All stations{% else %}Все станции{% endif %}</option>
-              {% for item in filter_options.metro_stations %}<option value="{{ item.value }}"{% if selected.metro == item.value %} selected{% endif %}>{{ item.label }}</option>{% endfor %}
-            </select>
-          </div>
-        {% endif %}
-
         <!-- Age of Child (Range Slider matching catalog places) -->
         <div class="km-filter-group range-filter filter-age-range" data-range data-min="0" data-max="18">
           <div class="range-filter-head">

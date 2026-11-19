@@ -133,8 +133,8 @@
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=20261026_contacts_polish1">
     <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261106_tap_targets">
     <link rel="stylesheet" href="{% static 'css/components/foundation.css' %}?v=20261117_page_gutters">
-    <link rel="stylesheet" href="{% static 'css/components/km_controls.css' %}?v=20261119_reg_r2">
-    <script src="{% static 'js/km_controls.js' %}?v=20261119_home_sp3" defer></script>
+    <link rel="stylesheet" href="{% static 'css/components/km_controls.css' %}?v=20261119_marks">
+    <script src="{% static 'js/km_controls.js' %}?v=20261119_home_sp4" defer></script>
     <link rel="stylesheet" href="{% static 'css/components/km_search.css' %}?v=20261118_search_r1">
     <link rel="stylesheet" href="{% static 'css/components/km_card.css' %}?v=20261118_card_r3">
     <script src="{% static 'js/header.js' %}?v=20261018_site18_r2" defer></script>
@@ -186,6 +186,7 @@
 
       {% if request.resolver_match.url_name != 'owner_place_create' and request.resolver_match.url_name != 'owner_place_edit' and request.resolver_match.url_name != 'owner_event_create' and request.resolver_match.url_name != 'owner_event_edit' %}
         <footer class="site-footer panel">
+          {% if request.resolver_match.url_name != "home" %}{# the home page already shows these guides above #}
           <!-- Dedicated Parent Guides Shelf -->
           <section class="footer-guides-shelf" aria-labelledby="footer-guides-title">
             <div class="footer-guides-header">
@@ -275,6 +276,7 @@
               </a>
             </div>
           </section>
+          {% endif %}
 
           <div class="footer-grid">
             <!-- 1. Brand Column -->

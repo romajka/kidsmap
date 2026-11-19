@@ -13,10 +13,6 @@
   <div class="home-map-head">
     <div class="home-map-copy">
       <div class="home-map-eyebrow-row">
-        <div class="home-redesign-eyebrow home-map-eyebrow">
-          <span aria-hidden="true"></span>
-          {% if request.LANGUAGE_CODE == 'az' %}İnteraktiv xəritə{% elif request.LANGUAGE_CODE == 'en' %}Interactive map{% else %}Интерактивная карта{% endif %}
-        </div>
         <div class="home-map-live-pill" role="status" aria-live="polite" aria-atomic="true">
           <span class="home-map-pulse-dot" aria-hidden="true"></span>
           <span data-home-map-live-count>{{ map_business_count }}</span>

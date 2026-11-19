@@ -1213,6 +1213,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             {
                 "fields": (
                     "specializations",
+                    "requested_specialization",
                 )
             },
         ),

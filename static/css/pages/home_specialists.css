@@ -7,7 +7,7 @@ body.page-home .home-specialists { order: 3; min-width: 0; }
 body.page-home .home-specialists--band {
   --sp-deep: #0d5229;
   --sp-green: #136f38;
-  --sp-leaf: #1f8f4e;
+  --sp-ink: #143c2d;
   position: relative;
   isolation: isolate;
   display: grid;
@@ -17,41 +17,52 @@ body.page-home .home-specialists--band {
   margin: 44px 0 0;
   padding: 30px 36px 30px 24px;
   overflow: hidden;
+  border: 1px solid #cfe9d8;
   border-radius: 28px;
-  background: linear-gradient(120deg, var(--sp-deep) 0%, var(--sp-green) 52%, var(--sp-leaf) 100%);
-  color: #fff;
-  box-shadow: 0 28px 60px -34px rgba(13, 82, 41, .75);
+  background: linear-gradient(115deg, #f6fcf8 0%, #e6f6ec 55%, #d5f0df 100%);
+  color: var(--sp-ink);
+  box-shadow: 0 24px 50px -36px rgba(19, 111, 56, .55);
+  transition: transform .7s cubic-bezier(.22, 1, .36, 1), opacity .5s ease;
 }
 .home-sp-glow {
   position: absolute;
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(420px 260px at 92% -10%, rgba(255, 255, 255, .16), transparent 70%),
-    radial-gradient(360px 300px at 4% 120%, rgba(140, 230, 170, .28), transparent 70%),
-    radial-gradient(1px 1px at 1px 1px, rgba(255, 255, 255, .12) 1px, transparent 0) 0 0 / 18px 18px;
+    radial-gradient(420px 260px at 94% -20%, rgba(255, 255, 255, .95), transparent 70%),
+    radial-gradient(380px 300px at 2% 125%, rgba(255, 214, 107, .28), transparent 70%),
+    radial-gradient(1.2px 1.2px at 1px 1px, rgba(19, 111, 56, .12) 1px, transparent 0) 0 0 / 18px 18px;
   pointer-events: none;
 }
+/* A soft light that sweeps across the band once it has arrived */
+.home-sp-glow::after {
+  content: "";
+  position: absolute;
+  inset: -20% auto -20% -40%;
+  width: 35%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .75), transparent);
+  transform: skewX(-18deg) translateX(-120%);
+  opacity: 0;
+}
+.home-specialists--band.is-arrived .home-sp-glow::after { animation: km-sp-sweep 1.4s .9s cubic-bezier(.4, 0, .2, 1) 1; }
+@keyframes km-sp-sweep { 0% { opacity: 1; transform: skewX(-18deg) translateX(-120%); } 100% { opacity: 1; transform: skewX(-18deg) translateX(520%); } }
 
 /* Visual: concentric rings with overlapping faces in the middle */
-.home-sp-visual {
-  position: relative;
-  display: grid;
-  place-items: center;
-  height: 150px;
-}
+.home-sp-visual { position: relative; display: grid; place-items: center; height: 150px; }
 .home-sp-rings { position: absolute; inset: 0; display: grid; place-items: center; }
 .home-sp-rings i {
   position: absolute;
   width: calc(110px + var(--r, 0) * 52px);
   aspect-ratio: 1;
-  border: 1.5px solid rgba(255, 255, 255, calc(.22 - var(--r, 0) * .06));
+  border: 1.5px solid rgba(19, 111, 56, calc(.24 - var(--r, 0) * .07));
   border-radius: 50%;
   transition: transform .9s cubic-bezier(.22, 1, .36, 1), opacity .7s ease;
-  transition-delay: calc(var(--r, 0) * 120ms);
+  transition-delay: calc(250ms + var(--r, 0) * 130ms);
 }
 .home-sp-rings i:nth-child(2) { --r: 1; }
-.home-sp-rings i:nth-child(3) { --r: 2; }
+.home-sp-rings i:nth-child(3) { --r: 2; border-style: dashed; }
+.home-specialists--band.is-arrived .home-sp-rings i:nth-child(3) { animation: km-sp-spin 40s linear infinite; }
+@keyframes km-sp-spin { to { transform: rotate(360deg); } }
 
 .home-sp-faces { position: relative; display: flex; align-items: center; padding-left: 16px; }
 .home-sp-face {
@@ -65,112 +76,92 @@ body.page-home .home-specialists--band {
   border: 3px solid #fff;
   border-radius: 50%;
   background: #e3f3e8;
-  box-shadow: 0 10px 22px -10px rgba(0, 0, 0, .45);
+  box-shadow: 0 10px 22px -10px rgba(19, 60, 45, .45);
   transition: transform .62s cubic-bezier(.34, 1.56, .64, 1), opacity .4s ease;
-  transition-delay: calc(220ms + var(--i, 0) * 90ms);
+  transition-delay: calc(420ms + var(--i, 0) * 110ms);
 }
-.home-sp-face::before {
-  content: attr(data-initials);
-  color: var(--sp-green, #136f38);
-  font-size: 20px;
-  font-weight: 800;
-}
+.home-specialists--band.is-arrived .home-sp-face { animation: km-sp-bob 4.8s ease-in-out calc(1.6s + var(--i, 0) * .6s) infinite; }
+@keyframes km-sp-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.home-sp-face::before { content: attr(data-initials); color: var(--sp-green, #136f38); font-size: 20px; font-weight: 800; }
 .home-sp-face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.home-sp-face--icon {
-  border-color: rgba(255, 255, 255, .55);
-  background: rgba(255, 255, 255, .14);
-  color: #fff;
-  backdrop-filter: blur(4px);
-}
+.home-sp-face--icon { background: #fff; color: var(--sp-green, #136f38); }
 .home-sp-face--icon::before { content: none; }
 
-/* The one reveal: hidden until the band is on screen (JS adds/removes .is-waiting) */
-.home-sp-visual.is-waiting .home-sp-rings i { transform: scale(.45); opacity: 0; }
-.home-sp-visual.is-waiting .home-sp-face { transform: translateY(12px) scale(.4); opacity: 0; }
+/* The entrance: the band rises in, then the rings spread and the faces pop in */
+.home-specialists--band.is-waiting { opacity: 0; transform: translateY(28px) scale(.985); }
+.home-specialists--band.is-waiting .home-sp-rings i { transform: scale(.45); opacity: 0; }
+.home-specialists--band.is-waiting .home-sp-face { transform: translateY(14px) scale(.35); opacity: 0; }
+.home-specialists--band.is-waiting .home-sp-cta { transform: translateY(10px); opacity: 0; }
 
 /* Copy */
 .home-sp-copy { min-width: 0; }
 .home-sp-copy h2 {
   margin: 0;
-  color: #fff;
+  color: var(--sp-ink, #143c2d);
   font-size: clamp(22px, 2.2vw, 30px);
   line-height: 1.15;
   letter-spacing: -.02em;
   text-wrap: balance;
 }
-.home-sp-copy p {
-  margin: 8px 0 0;
-  max-width: 58ch;
-  color: rgba(255, 255, 255, .84);
-  font-size: 15.5px;
-  line-height: 1.5;
-}
+.home-sp-copy p { margin: 8px 0 0; max-width: 58ch; color: #4b5a52; font-size: 15.5px; line-height: 1.5; }
 .home-sp-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
   padding: 5px 12px 5px 10px;
+  border: 1px solid #f0d48a;
   border-radius: 999px;
-  background: rgba(255, 255, 255, .14);
-  color: #fff;
+  background: #fff8e3;
+  color: #7a4d00;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
 }
-.home-sp-badge i {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #ffd66b;
-  box-shadow: 0 0 0 0 rgba(255, 214, 107, .7);
-  animation: km-sp-pulse 2.2s ease-out 3;
-}
-@keyframes km-sp-pulse { 70% { box-shadow: 0 0 0 9px rgba(255, 214, 107, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 214, 107, 0); } }
+.home-sp-badge i { width: 8px; height: 8px; border-radius: 50%; background: #f2a900; box-shadow: 0 0 0 0 rgba(242, 169, 0, .6); animation: km-sp-pulse 2.2s ease-out 1.2s 4; }
+@keyframes km-sp-pulse { 70% { box-shadow: 0 0 0 9px rgba(242, 169, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(242, 169, 0, 0); } }
 
-/* Chips on green */
+/* Chips */
 .home-specialists--band .home-sp-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-.home-specialists--band .home-sp-chips a {
+body.page-home .home-specialists--band .home-sp-chips a:not(#kmc-a) {
   display: inline-flex;
   align-items: center;
   min-height: 34px;
   padding: 6px 14px;
-  border: 1px solid rgba(255, 255, 255, .28);
+  border: 1px solid #c7e1d1;
   border-radius: 999px;
-  background: rgba(255, 255, 255, .1);
-  color: #fff;
+  background: #fff;
+  color: var(--sp-ink, #143c2d);
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
-  transition: background-color .16s ease, color .16s ease, border-color .16s ease;
+  transition: background-color .16s ease, color .16s ease, border-color .16s ease, transform .16s ease;
 }
-.home-specialists--band .home-sp-chips a:hover,
-.home-specialists--band .home-sp-chips a:focus-visible { border-color: #fff; background: #fff; color: var(--sp-green, #136f38); }
-/* Site-wide link colours are stronger than the rule above; pin the colours on green. */
-body.page-home .home-specialists--band .home-sp-chips a:not(#kmc-a) { color: #fff; }
-body.page-home .home-specialists--band .home-sp-chips a:not(#kmc-a):is(:hover, :focus-visible) { color: var(--sp-green, #136f38); }
+body.page-home .home-specialists--band .home-sp-chips a:not(#kmc-a):is(:hover, :focus-visible) { border-color: var(--sp-green, #136f38); background: var(--sp-green, #136f38); color: #fff; transform: translateY(-1px); }
 
 /* CTA */
 .home-sp-cta {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   min-height: 54px;
   padding: 14px 24px;
+  overflow: hidden;
   border-radius: 999px;
-  background: #fff;
-  color: var(--sp-deep, #0d5229) !important;
+  background: var(--sp-green, #136f38);
+  color: #fff !important;
   font-size: 16px;
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
-  box-shadow: 0 14px 30px -14px rgba(0, 0, 0, .45);
-  transition: transform .18s ease, box-shadow .18s ease;
+  box-shadow: 0 14px 28px -14px rgba(19, 111, 56, .75);
+  transition: transform .5s cubic-bezier(.22, 1, .36, 1) .55s, opacity .4s ease .55s, box-shadow .18s ease, background-color .18s ease;
 }
 .home-sp-cta svg { transition: transform .2s cubic-bezier(.22, 1, .36, 1); }
-.home-sp-cta:hover { transform: translateY(-2px); box-shadow: 0 18px 34px -14px rgba(0, 0, 0, .5); }
+.home-sp-cta:hover { background: var(--sp-deep, #0d5229); box-shadow: 0 18px 32px -14px rgba(19, 111, 56, .8); }
 .home-sp-cta:hover svg { transform: translateX(4px); }
-.home-sp-cta:focus-visible { outline: 3px solid #ffd66b; outline-offset: 3px; }
+.home-sp-cta:focus-visible { outline: 3px solid rgba(19, 111, 56, .35); outline-offset: 3px; }
 
 /* ======================= Rail (cards) ======================= */
 body.page-home .home-specialists--rail { margin: 52px 0 0; }
@@ -284,40 +275,6 @@ body.page-home .home-specialists--rail .home-rail-heading { margin-bottom: 14px;
 .home-sp-card__rating small { color: #8a958f; font-size: 12.5px; font-weight: 600; }
 .home-sp-card__new { justify-self: start; margin-top: 2px; padding: 2px 9px; border-radius: 999px; background: #fff6dc; color: #8a5a00; font-size: 12.5px; font-weight: 800; }
 
-/* ======================= Owners block: specialist line ======================= */
-body.page-home .home-owner-specialist {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px 14px;
-  margin-top: 20px;
-  padding: 14px 16px;
-  border: 1.5px solid #cfe6d7;
-  border-radius: 18px;
-  background: linear-gradient(100deg, #f1faf4, #fbfdfb);
-  color: inherit;
-  text-decoration: none;
-  transition: border-color .16s ease, box-shadow .2s ease, transform .2s ease;
-}
-body.page-home .home-owner-specialist:hover { border-color: var(--brand-turf, #136f38); box-shadow: 0 14px 28px -22px rgba(19, 111, 56, .6); transform: translateY(-1px); }
-body.page-home .home-owner-specialist:focus-visible { outline: 3px solid rgba(19, 111, 56, .35); outline-offset: 2px; }
-.home-owner-specialist__icon {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(140deg, #136f38, #1f8f4e);
-  color: #fff;
-  box-shadow: 0 8px 16px -8px rgba(19, 111, 56, .7);
-}
-.home-owner-specialist__text { display: grid; gap: 2px; min-width: 0; }
-.home-owner-specialist__text strong { color: var(--home-ink, #143c2d); font-size: 15px; font-weight: 800; line-height: 1.3; }
-.home-owner-specialist__text small { color: #5b6b63; font-size: 13px; line-height: 1.4; }
-.home-owner-specialist__go { display: inline-flex; align-items: center; gap: 6px; color: var(--brand-turf, #136f38); font-size: 14px; font-weight: 800; white-space: nowrap; }
-.home-owner-specialist__go::after { content: "→"; transition: transform .2s cubic-bezier(.22, 1, .36, 1); }
-body.page-home .home-owner-specialist:hover .home-owner-specialist__go::after { transform: translateX(4px); }
-
 /* Search chips that lead to specialists get a small person mark */
 body.page-home .home-search-popular-chip--specialist::before {
   content: "";
@@ -340,6 +297,7 @@ body.page-home .home-search-popular-chip--specialist::before {
     border-radius: 24px;
   }
   .home-sp-visual { justify-items: start; height: 104px; margin-left: 4px; }
+  body.page-home .home-specialists--band { padding-right: 18px; }
   .home-sp-rings { justify-items: start; }
   .home-sp-rings i { width: calc(84px + var(--r, 0) * 40px); left: calc(-6px - var(--r, 0) * 20px); }
   .home-sp-face { width: 56px; height: 56px; margin-left: -14px; }
@@ -357,15 +315,14 @@ body.page-home .home-search-popular-chip--specialist::before {
   body.page-home .home-specialists--rail { margin-top: 36px; }
   .home-sp-row { grid-auto-columns: 172px; gap: 12px; }
   .home-sp-card__name { font-size: 15px; }
-  body.page-home .home-owner-specialist { grid-template-columns: auto minmax(0, 1fr); }
-  .home-owner-specialist__go { grid-column: 2; }
 }
 @media (max-width: 860px), (hover: none) { .home-sp-nav { display: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   .home-sp-rings i, .home-sp-face, .home-sp-card, .home-sp-card__link, .home-sp-card__photo img,
-  .home-sp-cta, .home-sp-cta svg, .home-owner-specialist { transition: none !important; }
-  .home-sp-badge i { animation: none; }
+  .home-sp-cta, .home-sp-cta svg { transition: none !important; }
+  .home-sp-badge i, .home-sp-glow::after, .home-specialists--band .home-sp-face, .home-sp-rings i { animation: none !important; }
+  .home-specialists--band.is-waiting, .home-specialists--band.is-waiting .home-sp-cta { transform: none; opacity: 1; }
   .home-sp-visual.is-waiting .home-sp-rings i, .home-sp-visual.is-waiting .home-sp-face,
   .home-sp-row.is-waiting .home-sp-card { transform: none; opacity: 1; }
 }

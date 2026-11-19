@@ -1,0 +1,14 @@
+{% load i18n %}{% get_current_language as rl %}{% comment %}
+  Live line under the hero headline: one topic word at a time (judo, coding, a specialist...),
+  each a real link into the catalog with that filter on. All words stay in the HTML, so crawlers and screen
+  readers get the full list; home_hero_rotator.js only takes turns showing them.
+  Phone: "<word>" + a line about the map. Desktop: "<word> for kids in Baku" in one line.
+{% endcomment %}<div class="km-rot" data-km-rot data-rot-lang="{{ rl }}"{% if rl == 'az' %} data-rot-lower-desktop{% endif %}>
+  <div class="km-rot__line">
+    <span class="km-rot__pin" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.5c-4 0-7 3-7 6.9 0 4.9 6 11.1 6.3 11.4.4.4 1 .4 1.4 0 .3-.3 6.3-6.5 6.3-11.4 0-3.9-3-6.9-7-6.9Z" fill="currentColor"/><circle cx="12" cy="9.4" r="2.6" fill="#fff"/></svg></span>
+    {% if rl == 'az' %}<span class="km-rot__around km-rot__around--before">Bakıda uşaqlar üçün</span>{% endif %}
+    <span class="km-rot__words">{% for topic in hero_topics %}<a class="km-rot__word{% if forloop.first %} is-on{% endif %}{% if topic.kind == 'specialist' %} km-rot__word--person{% endif %}" href="{{ topic.href }}" title="{{ topic.title }}"{% if topic.chip %} data-rot-chip="{{ topic.chip }}"{% endif %}{% if not forloop.first %} tabindex="-1"{% endif %}>{{ topic.label }}</a>{% endfor %}<svg class="km-rot__ink" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8.5C40 3.5 92 3 198 6.5" pathLength="1"/></svg></span>
+    {% if rl == 'en' %}<span class="km-rot__around km-rot__around--after">for kids in Baku</span>{% elif rl != 'az' %}<span class="km-rot__around km-rot__around--after">для детей в Баку</span>{% endif %}
+  </div>
+  <p class="km-rot__tail">{% if rl == 'az' %}evinizə yaxın: qiymət, yaş və valideyn rəyləri bir xəritədə.{% elif rl == 'en' %}near your home: prices, ages and parent reviews on one map.{% else %}рядом с домом: цены, возраст и отзывы родителей на одной карте.{% endif %}</p>
+</div>

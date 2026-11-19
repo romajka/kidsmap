@@ -11,13 +11,15 @@
 {% endif %}
 {% endblock %}
 {% block extra_head %}
-<script defer src="{% static 'js/home_guide_slider.js' %}?v=20261104_auto_v1"></script>
+<script defer src="{% static 'js/home_guide_slider.js' %}?v=20261119_manual"></script>
 <link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20261105_route_r4" />
 <link rel="stylesheet" href="{% static 'css/pages/home_search.css' %}?v=20261103_mobile_compact" />
 <link rel="stylesheet" href="{% static 'css/pages/home_layout.css' %}?v=20261117_desktop_search_cards" />
 <link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261103_mobile_compact" />
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_mobile_intro" />
-<link rel="stylesheet" href="{% static 'css/pages/home_specialists.css' %}?v=20261119_r5" />
+<link rel="stylesheet" href="{% static 'css/pages/home_specialists.css' %}?v=20261119_r7" />
+<link rel="stylesheet" href="{% static 'css/pages/home_refresh.css' %}?v=20261119_stage1" />
+<link rel="stylesheet" href="{% static 'css/pages/home_hero_stage.css' %}?v=20261119_stage6" />
 <script defer src="{% static 'js/mappy.js' %}?v=20261119_specialists"></script>
 {% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
@@ -30,7 +32,7 @@
     <source media="(max-width: 760px)" srcset="{{ site_settings.home_hero_mobile_image.url }}" />
     {% endif %}
     <img src="{% if site_settings.home_hero_image %}{{ site_settings.home_hero_image.url }}{% else %}{{ site_settings.home_hero_mobile_image.url }}{% endif %}"
-      alt="" decoding="async" loading="eager" fetchpriority="high" />
+      alt="" decoding="async" loading="eager" fetchpriority="high" onerror="this.closest('picture').remove()" />
   </picture>
   {% endif %}
   <div class="home-hero-bg-glows" aria-hidden="true">
@@ -52,8 +54,9 @@
   <div class="home-hero-grid">
     <div class="home-hero-copy">
       <div class="home-redesign-eyebrow"><span aria-hidden="true"></span>{% if request.LANGUAGE_CODE == 'az' %}Azərbaycanın uşaq məkanları xəritəsi{% elif request.LANGUAGE_CODE == 'en' %}Azerbaijan’s map of places for kids{% else %}Карта детских мест Азербайджана{% endif %}</div>
-      <h1><span class="home-hero-desktop-copy">{{ hero_title }}</span><span class="home-hero-mobile-copy">{% if request.LANGUAGE_CODE == 'az' %}Uşağınız üçün məşğələlər{% elif request.LANGUAGE_CODE == 'en' %}Activities for your child{% else %}Занятия для вашего ребёнка{% endif %}</span></h1>
-      <p><span class="home-hero-desktop-copy">{{ hero_subtitle }}</span><span class="home-hero-mobile-copy">{% if request.LANGUAGE_CODE == 'az' %}Yaxınlıqdakı dərnəklər və məkanlar.{% elif request.LANGUAGE_CODE == 'en' %}Discover clubs and places nearby.{% else %}Кружки и места рядом с вами.{% endif %}</span></p>
+      <h1><span class="home-hero-desktop-copy">{{ hero_title }}</span><span class="home-hero-mobile-copy">{% if home_specialists %}{% if request.LANGUAGE_CODE == 'az' %}Uşaqlar üçün dərnəklər, bölmələr və mütəxəssislər{% elif request.LANGUAGE_CODE == 'en' %}Clubs, classes and specialists for kids{% else %}Кружки, секции и специалисты для детей{% endif %}{% else %}{% if request.LANGUAGE_CODE == 'az' %}Uşaqlar üçün dərnəklər və bölmələr{% elif request.LANGUAGE_CODE == 'en' %}Clubs and classes for kids{% else %}Кружки и секции для детей{% endif %}{% endif %}</span></h1>
+      {% if hero_topics %}{% include "pages/includes/home_hero_rotator.html" %}{% endif %}
+      <p{% if hero_topics %} class="home-hero-sub--rot"{% endif %}><span class="home-hero-desktop-copy">{{ hero_subtitle }}</span><span class="home-hero-mobile-copy">{% if request.LANGUAGE_CODE == 'az' %}Qiymətlər, yaş və valideyn rəyləri bir xəritədə.{% elif request.LANGUAGE_CODE == 'en' %}Prices, ages and parent reviews on one map.{% else %}Цены, возраст и отзывы родителей на одной карте.{% endif %}</span></p>
       {% include "pages/includes/home_map_search.html" %}
       {% include "includes/mappy_helper.html" %}
     </div>
@@ -86,11 +89,11 @@
 
         <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-prev" data-home-hero-slider-prev
           aria-label="{% trans 'Предыдущие фото' %}">
-          ‹
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
         </button>
         <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-next" data-home-hero-slider-next
           aria-label="{% trans 'Следующие фото' %}">
-          ›
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
         </button>
 
         <div class="home-hero-slider-dots" role="group" aria-label="{% trans 'Переключение фото' %}">
@@ -180,7 +183,7 @@
 
 
 
-<section class="home-steps panel home-steps-lite animate-on-scroll" id="how-it-works"
+<section class="home-steps panel home-steps-lite" id="how-it-works"
   aria-label="{% trans 'Как это работает' %}">
   <div class="home-steps-lite-head">
     <div>
@@ -190,7 +193,7 @@
     <a class="home-steps-catalog-link" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
   </div>
 
-  <div class="home-steps-lite-grid">
+  <div class="home-steps-lite-grid" data-km-reveal-once>
     <article class="home-step-lite-card">
       <div class="home-step-lite-visual" aria-hidden="true">
         {% include "pages/includes/editorial_art.html" with art="img/editorial/discover.webp" art_class="" only %}
@@ -218,287 +221,61 @@
       </div>
       <div class="home-step-lite-content">
         <h3>{% trans "Свяжитесь с местом" %}</h3>
-        <p>{% trans "Откройте карточку и сразу перейдите к звонку, сайту или Instagram." %}</p>
+        <p>{% if home_specialists %}{% if request.LANGUAGE_CODE == 'az' %}Məkanın və ya mütəxəssisin kartını açın və dərhal zəng edin, WhatsApp-a və ya Instagram-a yazın.{% elif request.LANGUAGE_CODE == 'en' %}Open the card of a place or specialist and call, message on WhatsApp or open Instagram right away.{% else %}Откройте карточку места или специалиста и сразу позвоните, напишите в WhatsApp или Instagram.{% endif %}{% else %}{% trans "Откройте карточку и сразу перейдите к звонку, сайту или Instagram." %}{% endif %}</p>
       </div>
     </article>
   </div>
 </section>
 
 {% url 'owner_places_dashboard' as owner_dashboard_url %}
-<section class="panel home-owner-banner animate-on-scroll" id="add-place">
-  <div class="home-owner-banner-grid">
-    <!-- Left Column: Value Proposition & Action -->
-    <div class="home-owner-copy">
-      <div class="home-redesign-eyebrow home-owner-eyebrow">
-        <span aria-hidden="true"></span>
-        {% if request.LANGUAGE_CODE == 'az' %}Məkan sahibləri və mütəxəssislər üçün
-        {% elif request.LANGUAGE_CODE == 'en' %}For venue owners and specialists
-        {% else %}Владельцам мест и специалистам{% endif %}
-      </div>
-
-      <h2>{% trans "Помогите родителям найти вас рядом" %}</h2>
-      <p class="home-owner-text">
-        {% if request.LANGUAGE_CODE == 'az' %}KidsMap uşaq dərnəkləri, kurslar, idman bölmələri və əyləncə mərkəzlərini bir xəritədə birləşdirir. Valideynlər sizi asanlıqla tapsın.
-        {% elif request.LANGUAGE_CODE == 'en' %}KidsMap brings together children's clubs, courses, sports sections and play centers on a single map. Help parents discover you nearby.
-        {% else %}KidsMap объединяет детские кружки, курсы, секции и центры развития на одной интерактивной карте. Помогите родителям найти вас рядом с домом.{% endif %}
-      </p>
-
-      <div class="home-owner-adult-note">
-        <span class="note-dot" aria-hidden="true"></span>
-        <span>
-          {% if request.LANGUAGE_CODE == 'az' %}Böyüklər üçün də dərslər varsa, uşaq bölmələri ayrıca vurğulanır
-          {% elif request.LANGUAGE_CODE == 'en' %}If you also offer adult classes, kids programs are featured separately
-          {% else %}Если у вас есть курсы для взрослых, детские направления выделяются отдельно{% endif %}
-        </span>
-      </div>
-
-      <!-- Desktop-only bullet list (clean & compact) -->
-      <ul class="home-owner-checklist desktop-only">
-        <li>
-          <span class="check-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </span>
-          <span>
-            {% if request.LANGUAGE_CODE == 'az' %}Kataloq və xəritədə prioritet görünürlük
-            {% elif request.LANGUAGE_CODE == 'en' %}Priority visibility in catalog and map
-            {% else %}Видимость в каталоге и на интерактивной карте{% endif %}
-          </span>
-        </li>
-        <li>
-          <span class="check-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </span>
-          <span>
-            {% if request.LANGUAGE_CODE == 'az' %}Foto, cədvəl, qiymət və birbaşa əlaqə
-            {% elif request.LANGUAGE_CODE == 'en' %}Photos, schedule, pricing & direct contacts
-            {% else %}Фото, расписание, цены и прямые контакты{% endif %}
-          </span>
-        </li>
-        <li>
-          <span class="check-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </span>
-          <span>
-            {% if request.LANGUAGE_CODE == 'az' %}Valideyn rəyləri ilə reytinq və etibar
-            {% elif request.LANGUAGE_CODE == 'en' %}Trust and ratings from parent reviews
-            {% else %}Доверие родителей и подтверждённые отзывы{% endif %}
-          </span>
-        </li>
+<section class="panel home-owner-banner home-join" id="add-place" aria-labelledby="home-join-title">
+  <header class="home-join__head">
+    <h2 id="home-join-title">{% trans "Помогите родителям найти вас рядом" %}</h2>
+    <p>{% if request.LANGUAGE_CODE == 'az' %}KidsMap uşaq dərnəklərini, kursları, idman bölmələrini, inkişaf mərkəzlərini və uşaqlarla işləyən mütəxəssisləri bir xəritədə toplayır. Yerləşdirmə pulsuzdur.{% elif request.LANGUAGE_CODE == 'en' %}KidsMap brings children’s clubs, courses, sports sections, development centers and specialists who work with children together on one map. Listing is free.{% else %}KidsMap собирает детские кружки, курсы, спортивные секции, центры развития и специалистов, которые работают с детьми, на одной карте. Размещение бесплатное.{% endif %}</p>
+  </header>
+  <div class="home-join__cards" data-km-reveal-once>
+    <article class="home-join-card home-join-card--place" style="--i:0">
+      <div class="home-join-card__art">{% include "pages/includes/editorial_art.html" with art="img/editorial/network.webp" art_class="" only %}</div>
+      <h3>{% if request.LANGUAGE_CODE == 'az' %}Dərnək, bölmə və ya mərkəziniz var{% elif request.LANGUAGE_CODE == 'en' %}You run a club, section or center{% else %}У вас кружок, секция или центр{% endif %}</h3>
+      <ul class="home-join-card__list">
+        <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Kataloqda və interaktiv xəritədə görünmək{% elif request.LANGUAGE_CODE == 'en' %}Be seen in the catalog and on the interactive map{% else %}Место в каталоге и на интерактивной карте{% endif %}</li>
+        <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Foto, cədvəl, qiymət və birbaşa əlaqə{% elif request.LANGUAGE_CODE == 'en' %}Photos, schedule, prices and direct contacts{% else %}Фото, расписание, цены и прямые контакты{% endif %}</li>
+        <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Valideyn rəyləri ilə etibar{% elif request.LANGUAGE_CODE == 'en' %}Trust from parent reviews{% else %}Доверие родителей через отзывы{% endif %}</li>
       </ul>
-
-      <!-- CTA Actions -->
-      <div class="home-owner-actions-row">
-        {% if request.user.is_authenticated %}
-        <a class="home-owner-cta-new" href="{% url 'owner_places_dashboard' %}">
-          <span>
-            {% if request.LANGUAGE_CODE == 'az' %}Şəxsi kabinetə keçin
-            {% elif request.LANGUAGE_CODE == 'en' %}Go to Dashboard
-            {% else %}Перейти в кабинет{% endif %}
-          </span>
-          <span class="cta-plus" aria-hidden="true">+</span>
-        </a>
-        {% else %}
-        <form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation>
-          {% include "includes/auth_navigation_fields.html" with auth_next=owner_dashboard_url auth_intent_value="add_place" %}
-          <button type="submit" class="auth-navigation-button home-owner-cta-new">
-          <span>
-            {% if request.LANGUAGE_CODE == 'az' %}Məkanınızı əlavə edin
-            {% elif request.LANGUAGE_CODE == 'en' %}Add your place
-            {% else %}{% trans "Добавить свое место" %}{% endif %}
-          </span>
-          <span class="cta-plus" aria-hidden="true">+</span>
-        </button>
-        </form>
-        {% endif %}
-        <a class="home-owner-link" href="#how-it-works">
-          <span>
-            {% if request.LANGUAGE_CODE == 'az' %}Necə işləyir?
-            {% elif request.LANGUAGE_CODE == 'en' %}How it works
-            {% else %}{% trans "Как это работает?" %}{% endif %}
-          </span>
-          <span class="arrow" aria-hidden="true">→</span>
-        </a>
-      </div>
-      {% if home_specialists %}
-      <a class="home-owner-specialist" href="{% url 'owner_specialist_create' %}">
-        <span class="home-owner-specialist__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
-        <span class="home-owner-specialist__text">
-          <strong>{% if request.LANGUAGE_CODE == 'az' %}Loqoped, repetitor və ya psixoloqsunuz?{% elif request.LANGUAGE_CODE == 'en' %}A speech therapist, tutor or psychologist?{% else %}Вы логопед, репетитор или психолог?{% endif %}</strong>
-          <small>{% if request.LANGUAGE_CODE == 'az' %}Mütəxəssis anketi pulsuzdur. KidsMap yoxladıqdan sonra kataloqda görünəcək.{% elif request.LANGUAGE_CODE == 'en' %}A specialist profile is free. It appears in the catalog after KidsMap reviews it.{% else %}Анкета специалиста бесплатна. Она появится в каталоге после проверки KidsMap.{% endif %}</small>
-        </span>
-        <span class="home-owner-specialist__go">{% if request.LANGUAGE_CODE == 'az' %}Anket yaradın{% elif request.LANGUAGE_CODE == 'en' %}Create a profile{% else %}Создать анкету{% endif %}</span>
-      </a>
+      {% if request.user.is_authenticated %}
+      <a class="home-join-card__cta" href="{% url 'owner_places_dashboard' %}"><span>{% if request.LANGUAGE_CODE == 'az' %}Şəxsi kabinetə keçin{% elif request.LANGUAGE_CODE == 'en' %}Go to your dashboard{% else %}Перейти в кабинет{% endif %}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      {% else %}
+      <form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation>
+        {% include "includes/auth_navigation_fields.html" with auth_next=owner_dashboard_url auth_intent_value="add_place" %}
+        <button type="submit" class="auth-navigation-button home-join-card__cta"><span>{% if request.LANGUAGE_CODE == 'az' %}Məkanınızı əlavə edin{% elif request.LANGUAGE_CODE == 'en' %}Add your place{% else %}{% trans "Добавить свое место" %}{% endif %}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
       {% endif %}
-    </div>
-
-    <!-- Right Column: KidsMap Business Hub Showcase Card -->
-    <div class="home-owner-right-panel">
-      <div class="km-partner-card">
-        <!-- Top bar with live status -->
-        <div class="km-partner-head">
-          <div class="km-partner-brand">
-            <div class="km-partner-logo-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
-            </div>
-            <div>
-              <span class="km-partner-title">KidsMap Business</span>
-              <span class="km-partner-sub">
-                {% if request.LANGUAGE_CODE == 'az' %}Tərəfdaş paneli
-                {% elif request.LANGUAGE_CODE == 'en' %}Partner showcase
-                {% else %}Панель партнёра{% endif %}
-              </span>
-            </div>
-          </div>
-          <div class="km-live-status-pill">
-            <span class="km-live-dot" aria-hidden="true"></span>
-            <span>
-              {% if request.LANGUAGE_CODE == 'az' %}canlı platforma
-              {% elif request.LANGUAGE_CODE == 'en' %}live platform
-              {% else %}живая платформа{% endif %}
-            </span>
-          </div>
-        </div>
-
-        <!-- Metrics Row -->
-        <div class="km-metrics-row">
-          <div class="km-metric-cell">
-            <strong class="km-metric-val">{{ map_business_count }}</strong>
-            <span class="km-metric-lbl">
-              {% if request.LANGUAGE_CODE == 'az' %}aktiv məkan
-              {% elif request.LANGUAGE_CODE == 'en' %}active places
-              {% else %}активных мест{% endif %}
-            </span>
-          </div>
-          <div class="km-metric-cell km-metric-cell--accent">
-            <strong class="km-metric-val">{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}—{% endif %}</strong>
-            <span class="km-metric-lbl">
-              {{ total_place_reviews_count|parent_review_label }}
-            </span>
-          </div>
-          <div class="km-metric-cell">
-            <strong class="km-metric-val">{{ home_categories|length }}</strong>
-            <span class="km-metric-lbl">
-              {% if request.LANGUAGE_CODE == 'az' %}istiqamət
-              {% elif request.LANGUAGE_CODE == 'en' %}activity categories
-              {% else %}направлений{% endif %}
-            </span>
-          </div>
-        </div>
-
-        <!-- 4 Key Advantages in 2x2 grid -->
-        <div class="km-benefits-2x2">
-          <div class="km-benefit-tile">
-            <div class="km-benefit-icon km-b-emerald" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
-                <line x1="9" y1="3" x2="9" y2="18"></line>
-                <line x1="15" y1="6" x2="15" y2="21"></line>
-              </svg>
-            </div>
-            <div class="km-benefit-text">
-              <h3>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə görünüş{% elif request.LANGUAGE_CODE == 'en' %}Map visibility{% else %}На карте{% endif %}</h3>
-              <p>{% if request.LANGUAGE_CODE == 'az' %}Axtarışda ilk sıralarda{% elif request.LANGUAGE_CODE == 'en' %}Top in search{% else %}Первые в поиске{% endif %}</p>
-            </div>
-          </div>
-
-          <div class="km-benefit-tile">
-            <div class="km-benefit-icon km-b-purple" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                <circle cx="12" cy="13" r="4"></circle>
-              </svg>
-            </div>
-            <div class="km-benefit-text">
-              <h3>{% if request.LANGUAGE_CODE == 'az' %}Foto və cədvəl{% elif request.LANGUAGE_CODE == 'en' %}Photos & info{% else %}Фото и цены{% endif %}</h3>
-              <p>{% if request.LANGUAGE_CODE == 'az' %}Məkanınızı cəlbedici edin{% elif request.LANGUAGE_CODE == 'en' %}Highlight features{% else %}Полное описание{% endif %}</p>
-            </div>
-          </div>
-
-          <div class="km-benefit-tile">
-            <div class="km-benefit-icon km-b-amber" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9" />
-              </svg>
-            </div>
-            <div class="km-benefit-text">
-              <h3>{% if request.LANGUAGE_CODE == 'az' %}Etibar və rəylər{% elif request.LANGUAGE_CODE == 'en' %}Reviews & trust{% else %}Отзывы{% endif %}</h3>
-              <p>{% if request.LANGUAGE_CODE == 'az' %}Valideyn tövsiyələri{% elif request.LANGUAGE_CODE == 'en' %}Parents trust{% else %}Доверие родителей{% endif %}</p>
-            </div>
-          </div>
-
-          <div class="km-benefit-tile">
-            <div class="km-benefit-icon km-b-blue" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
-            </div>
-            <div class="km-benefit-text">
-              <h3>{% if request.LANGUAGE_CODE == 'az' %}Şəxsi kabinet{% elif request.LANGUAGE_CODE == 'en' %}Dashboard{% else %}Кабинет{% endif %}</h3>
-              <p>{% if request.LANGUAGE_CODE == 'az' %}Sadə və rahat idarəetmə{% elif request.LANGUAGE_CODE == 'en' %}Easy management{% else %}Простое управление{% endif %}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Partner footer note -->
-        <div class="km-partner-footer">
-          <div class="km-partner-note-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-          <span>
-            {% if request.LANGUAGE_CODE == 'az' %}Məkan əlavə etmək pulsuzdur və cəmi 2 dəqiqə çəkir
-            {% elif request.LANGUAGE_CODE == 'en' %}Adding a place is free and takes just 2 minutes
-            {% else %}Добавление места бесплатно и занимает всего 2 минуты{% endif %}
-          </span>
-        </div>
-      </div>
-    </div>
+    </article>
+    {% if home_specialists %}
+    <article class="home-join-card home-join-card--specialist" style="--i:1">
+      <div class="home-join-card__art">{% include "pages/includes/editorial_art.html" with art="img/editorial/answers.webp" art_class="" only %}</div>
+      <h3>{% if request.LANGUAGE_CODE == 'az' %}Loqoped, repetitor və ya psixoloqsunuz{% elif request.LANGUAGE_CODE == 'en' %}You are a speech therapist, tutor or psychologist{% else %}Вы логопед, репетитор или психолог{% endif %}</h3>
+      <ul class="home-join-card__list">
+        <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Mütəxəssis anketi pulsuzdur{% elif request.LANGUAGE_CODE == 'en' %}A specialist profile is free{% else %}Анкета специалиста бесплатна{% endif %}</li>
+        <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Valideynlər qiyməti, formatı və rəyləri görür{% elif request.LANGUAGE_CODE == 'en' %}Parents see your price, format and reviews{% else %}Родители видят цену, формат и отзывы{% endif %}</li>
+        <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}KidsMap yoxladıqdan sonra kataloqda görünür{% elif request.LANGUAGE_CODE == 'en' %}Appears in the catalog after KidsMap reviews it{% else %}Появится в каталоге после проверки KidsMap{% endif %}</li>
+      </ul>
+      <a class="home-join-card__cta" href="{% url 'owner_specialist_create' %}"><span>{% if request.LANGUAGE_CODE == 'az' %}Mütəxəssis anketi yaradın{% elif request.LANGUAGE_CODE == 'en' %}Create a specialist profile{% else %}Создать анкету специалиста{% endif %}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </article>
+    {% endif %}
   </div>
 </section>
 
 <link rel="stylesheet" href="{% static 'css/pages/home_sections.css' %}?v=20261106_split3">
 
 <section class="panel home-faq-panel" id="faq">
-  <!-- Top Hero Header -->
-  <div class="home-faq-header-card">
-    <div class="home-faq-orb1" aria-hidden="true"></div>
-    <div class="home-faq-orb2" aria-hidden="true"></div>
-
-    <div class="home-faq-copy">
-      <span class="home-faq-badge">
-        <span class="home-faq-ping-dot"><span></span></span>
-        {% trans "FAQ" %}
-      </span>
+  <header class="home-faq-head">
+    <div>
       <h2>{% trans "Частые вопросы о KidsMap" %}</h2>
-      <p class="home-faq-lead">
-        {% if request.LANGUAGE_CODE == 'az' %}Ən çox verilən 4 sual. Qalanları tam FAQ səhifəsindədir.
-        {% elif request.LANGUAGE_CODE == 'en' %}Top 4 frequently asked questions. See all answers on the full FAQ page.
-        {% else %}4 самых частых вопроса. Полный список с поиском доступен на странице FAQ.{% endif %}
-      </p>
+      <p>{% if request.LANGUAGE_CODE == 'az' %}Valideynlərin və məkan sahiblərinin ən çox verdiyi suallar.{% elif request.LANGUAGE_CODE == 'en' %}The questions parents and owners ask most.{% else %}Вопросы, которые родители и владельцы мест задают чаще всего.{% endif %}</p>
     </div>
-
-    <div class="home-faq-header-actions">
-      <a class="home-faq-btn home-faq-btn--primary" href="{% url 'place_list' %}">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
-        <span>{% trans "Открыть каталог" %}</span>
-      </a>
-      <a class="home-faq-btn home-faq-btn--outline" href="{% url 'add_place' %}">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-        <span>{% trans "Добавить место" %}</span>
-      </a>
-    </div>
-  </div>
+    <a class="home-faq-all" href="{% url 'faq_page' %}">{% if request.LANGUAGE_CODE == 'az' %}Bütün suallar{% elif request.LANGUAGE_CODE == 'en' %}All questions{% else %}Все вопросы{% endif %}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </header>
 
   <!-- 4 Main Accordion Questions -->
   <div class="home-faq-list">
@@ -659,37 +436,32 @@
         </div>
       </div>
     </details>
+    {% if home_specialists %}
+    <details class="home-faq-item">
+      <summary class="home-faq-question">
+        <span class="home-faq-badge-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+        <span class="home-faq-title">{% if request.LANGUAGE_CODE == 'az' %}Mütəxəssis anketi necə yerləşdirilir?{% elif request.LANGUAGE_CODE == 'en' %}How do specialists add a profile?{% else %}Как специалисту разместить анкету?{% endif %}</span>
+        <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span></span>
+      </summary>
+      <div class="home-faq-answer-wrapper">
+        <div class="home-faq-answer-inner">
+          <p>{% if request.LANGUAGE_CODE == 'az' %}«Mütəxəssis anketi yaradın» düyməsini basın, anketi doldurun və yoxlamaya göndərin. Anket pulsuzdur və KidsMap yoxladıqdan sonra kataloqda görünür.{% elif request.LANGUAGE_CODE == 'en' %}Press “Create a specialist profile”, fill in the form and send it for review. The profile is free and appears in the catalog after KidsMap reviews it.{% else %}Нажмите «Создать анкету специалиста», заполните анкету и отправьте её на проверку. Анкета бесплатна и появится в каталоге после проверки KidsMap.{% endif %}</p>
+          <div class="home-faq-card-footer">
+            <a class="home-faq-cta-link" href="{% url 'owner_specialist_create' %}"><span>{% if request.LANGUAGE_CODE == 'az' %}Anket yaradın{% elif request.LANGUAGE_CODE == 'en' %}Create a profile{% else %}Создать анкету{% endif %}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a>
+          </div>
+        </div>
+      </div>
+    </details>
+    {% endif %}
   </div>
 
-  <!-- Bottom CTA Bar (Link to full FAQ Page) -->
-  <div class="home-faq-bottom-bar">
-    <div class="home-faq-bottom-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-      </svg>
-    </div>
-    <div class="home-faq-bottom-text">
-      {% if request.LANGUAGE_CODE == 'az' %}Daha 5 sual — axtarış, rəylər və yerləşdirmə üzrə
-      <span>Tam FAQ səhifəsində cavabları axtarışla tapın.</span>
-      {% elif request.LANGUAGE_CODE == 'en' %}5 more questions — search, reviews, and listings
-      <span>Find all detailed answers on our full FAQ page.</span>
-      {% else %}Ещё 5 вопросов — поиск, отзывы и размещение секций
-      <span>Найдите все ответы и задайте свой вопрос на полной странице FAQ.</span>{% endif %}
-    </div>
-    <div class="home-faq-bottom-actions">
-      <a class="home-faq-btn home-faq-btn--primary" href="{% url 'faq_page' %}">
-        <span>{% if request.LANGUAGE_CODE == 'az' %}Bütün suallar{% elif request.LANGUAGE_CODE == 'en' %}All questions{% else %}Все вопросы{% endif %}</span>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-      </a>
-      <a class="home-faq-btn home-faq-btn--outline" href="{% url 'faq_page' %}#faq-form">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-        <span>{% if request.LANGUAGE_CODE == 'az' %}Sual yaz{% elif request.LANGUAGE_CODE == 'en' %}Ask question{% else %}Задать вопрос{% endif %}</span>
-      </a>
-    </div>
-  </div>
+  <p class="home-faq-foot">
+    <span>{% if request.LANGUAGE_CODE == 'az' %}Cavab tapmadınız?{% elif request.LANGUAGE_CODE == 'en' %}Didn’t find the answer?{% else %}Не нашли ответ?{% endif %}</span>
+    <a href="{% url 'faq_page' %}">{% if request.LANGUAGE_CODE == 'az' %}Bütün suallar{% elif request.LANGUAGE_CODE == 'en' %}All questions{% else %}Все вопросы{% endif %}</a>
+    <a href="{% url 'faq_page' %}#faq-form">{% if request.LANGUAGE_CODE == 'az' %}Sual verin{% elif request.LANGUAGE_CODE == 'en' %}Ask a question{% else %}Задать вопрос{% endif %}</a>
+  </p>
 </section>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"{% filter escapejs %}{% trans "Как быстро найти кружок для ребёнка?" %}{% endfilter %}","acceptedAnswer":{"@type":"Answer","text":"{% filter escapejs %}{% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}{% endfilter %}"}},{"@type":"Question","name":"{% filter escapejs %}{% trans "Есть ли фильтры по возрасту, району и цене?" %}{% endfilter %}","acceptedAnswer":{"@type":"Answer","text":"{% filter escapejs %}{% if request.LANGUAGE_CODE == 'az' %}Bəli. Uşağın yaşı, region, metro, kateqoriya və qiymət filtrləri birlikdə işləyir. Seçilmiş yaş məkanın yaş aralığında olmalıdır. Yaş məlumatı olmayan məkanlar yaş filtri seçildikdə göstərilmir. Axtarış linkini paylaşa bilərsiniz.{% elif request.LANGUAGE_CODE == 'en' %}Yes. Child age, region, metro, category and price filters work together. The selected age must fall within the place’s age range. Places without age information are hidden when an age filter is selected. You can share the search link.{% else %}Да. Фильтры по возрасту ребёнка, региону, метро, категории и цене работают одновременно. Выбранный возраст должен входить в возрастной диапазон места. При выборе возраста места без возрастных данных не показываются. Ссылкой на поиск можно делиться.{% endif %}{% endfilter %}"}},{"@type":"Question","name":"{% filter escapejs %}{% trans "Нужно ли регистрироваться, чтобы смотреть каталог?" %}{% endfilter %}","acceptedAnswer":{"@type":"Answer","text":"{% filter escapejs %}{% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками." %}{% endfilter %}"}},{"@type":"Question","name":"{% filter escapejs %}{% trans "Как оставить отзыв или поставить лайк?" %}{% endfilter %}","acceptedAnswer":{"@type":"Answer","text":"{% filter escapejs %}{% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать." %}{% endfilter %}"}}{% if home_specialists %},{"@type":"Question","name":"{% filter escapejs %}{% if request.LANGUAGE_CODE == 'az' %}Mütəxəssis anketi necə yerləşdirilir?{% elif request.LANGUAGE_CODE == 'en' %}How do specialists add a profile?{% else %}Как специалисту разместить анкету?{% endif %}{% endfilter %}","acceptedAnswer":{"@type":"Answer","text":"{% filter escapejs %}{% if request.LANGUAGE_CODE == 'az' %}«Mütəxəssis anketi yaradın» düyməsini basın, anketi doldurun və yoxlamaya göndərin. Anket pulsuzdur və KidsMap yoxladıqdan sonra kataloqda görünür.{% elif request.LANGUAGE_CODE == 'en' %}Press “Create a specialist profile”, fill in the form and send it for review. The profile is free and appears in the catalog after KidsMap reviews it.{% else %}Нажмите «Создать анкету специалиста», заполните анкету и отправьте её на проверку. Анкета бесплатна и появится в каталоге после проверки KidsMap.{% endif %}{% endfilter %}"}}{% endif %}]}</script>
 
 <script>
   (function initHomeFaqAccordion() {
@@ -783,9 +555,10 @@
 {% endblock %}
 
 {% block extra_body %}
-{% if home_rail_places %}<script src="{% static 'js/home_places_rail.js' %}?v=20261019_r13_r14" defer></script>{% endif %}
+{% if hero_topics %}<script src="{% static 'js/home_hero_rotator.js' %}?v=20261119_stage2" defer></script>{% endif %}
+{% if home_rail_places %}<script src="{% static 'js/home_places_rail.js' %}?v=20261119_manual" defer></script>{% endif %}
 {% if hero_gallery_slides|length > 1 %}
-<script src="{% static 'js/home_hero_slider.js' %}?v=20260909_playful1"></script>
+<script src="{% static 'js/home_hero_slider.js' %}?v=20261119_stage1"></script>
 {% endif %}
 <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20261105_all_r1" />
 <script src="{% static 'js/kidsmap_map_pins.js' %}?v=20261105_pins_r2"></script>

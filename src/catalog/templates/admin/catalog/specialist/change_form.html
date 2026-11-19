@@ -392,6 +392,14 @@
                   {# Selected Tag Chips Bar #}
                   <div class="km-spec-selected-tags" data-spec-selected-tags></div>
                   {{ adminform.form.specializations.errors }}
+                  {% if adminform.form.requested_specialization %}
+                  <div class="km-spec-requested" style="margin:12px 0 4px;padding:10px 12px;border:1px dashed #e0b84a;border-radius:10px;background:#fffaf0">
+                    <label for="{{ adminform.form.requested_specialization.id_for_label }}" style="display:block;font-weight:700;margin-bottom:6px">{{ adminform.form.requested_specialization.label }}</label>
+                    {{ adminform.form.requested_specialization }}
+                    {{ adminform.form.requested_specialization.errors }}
+                    <p class="help" style="margin:6px 0 0">{{ adminform.form.requested_specialization.help_text }}</p>
+                  </div>
+                  {% endif %}
                   <p class="help">{% if LANGUAGE_CODE == 'az' %}Repetitor üçün konkret fənn seçin: məsələn, riyaziyyat və ya ingilis dili. Bir neçə fənn seçmək olar. İş dili ayrıca göstərilir.{% elif LANGUAGE_CODE == 'en' %}For a tutor, select specific subjects such as mathematics or English. Multiple subjects are allowed. Working language is a separate field.{% else %}Для репетитора выберите конкретные предметы: например, математику или английский. Можно несколько. Язык работы указывается отдельно.{% endif %}</p>
                 </div>
 

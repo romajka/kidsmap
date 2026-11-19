@@ -403,13 +403,14 @@
     if (reducedMotionOn()) return;
     document.querySelectorAll("[data-km-reveal-once]:not([data-km-revealed])").forEach(function (el) {
       el.setAttribute("data-km-revealed", "");
-      if (el.getBoundingClientRect().top < window.innerHeight * 0.9) return;
+      if (el.getBoundingClientRect().top < window.innerHeight * 0.9) { el.classList.add("is-arrived"); return; }
       el.classList.add("is-waiting");
       var io = new IntersectionObserver(function (entries) {
         if (!entries[0].isIntersecting) return;
         el.classList.remove("is-waiting");
+        el.classList.add("is-arrived");
         io.disconnect();
-      }, { threshold: 0.35 });
+      }, { threshold: 0.3 });
       io.observe(el);
     });
   }

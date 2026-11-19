@@ -100,6 +100,7 @@ class HomeController:
         home_districts = public_filter_options.districts
 
         selected_filters = filters.selected()
+        home_specialists = self._specialists_block(language_code)
         return {
             "home_age_from": selected_filters["age_from"],
             "home_age_to": selected_filters["age_to"],
@@ -132,7 +133,8 @@ class HomeController:
             "hero_cta_text": site_settings.home_cta_text_i18n(language_code) or _("Начать поиск"),
             "hero_show_decor": bool(site_settings.home_hero_show_decor),
             "hero_gallery_slides": hero_gallery_slides,
-            "home_specialists": self._specialists_block(language_code),
+            "home_specialists": home_specialists,
+            "hero_topics": self._hero_topics(language_code, home_specialists),
         }
 
     @staticmethod
@@ -190,6 +192,72 @@ class HomeController:
         # The band keeps at least three round faces; icons stand in for missing photos.
         fillers = ["person", "book", "heart"][: max(0, 3 - len(people))] if mode == "teaser" else []
         return {"mode": mode, "total": total, "people": people, "chips": chips, "fillers": fillers}
+
+    # The rotating word under the hero headline. Each word opens the catalog already filtered
+    # the way its landing page is (same category or query, Baku).
+    # (landing slug, labels, category of the matching popular chip under the search)
+    HERO_TOPICS = (
+        ("dzudo-dlya-detey-v-baku", {"ru": "Дзюдо", "az": "Cüdo", "en": "Judo"}, ""),
+        ("programmirovanie-dlya-detey-baku", {"ru": "Программирование", "az": "Proqramlaşdırma", "en": "Coding"}, "TECH"),
+        ("sportivnye-sekcii-v-baku", {"ru": "Спортивные секции", "az": "İdman bölmələri", "en": "Sports clubs"}, "SPRT"),
+        ("tvorcheskie-kruzhki-v-baku", {"ru": "Творческие кружки", "az": "Yaradıcılıq dərnəkləri", "en": "Art clubs"}, "ART"),
+        ("kursy-dlya-detey-v-baku", {"ru": "Курсы", "az": "Kurslar", "en": "Courses"}, "EDU"),
+    )
+    HERO_TOPIC_MAX_CHARS = 22  # longer words would not fit one line on a 360px phone
+
+    @classmethod
+    def _hero_topics(cls, language_code: str, specialists: dict | None) -> list[dict[str, str]]:
+        from urllib.parse import quote
+
+        from django.urls import NoReverseMatch, reverse
+
+        from catalog.content_data import base_seo_landing_pages
+
+        lang = language_code if language_code in ("az", "ru", "en") else "az"
+        landings = base_seo_landing_pages(lang)
+        places = []
+        for slug, labels, chip_category in cls.HERO_TOPICS:
+            page = landings.get(slug)
+            if not page:
+                continue
+            try:
+                # straight into the catalog with the landing page's filters (category / query + Baku)
+                href = reverse("place_list") + (page.get("catalog_query") or "")
+            except NoReverseMatch:
+                continue
+            places.append({
+                "label": labels[lang],
+                "href": href,
+                "title": page.get("title") or page.get("h1") or labels[lang],
+                "kind": "place",
+                "chip": chip_category,
+            })
+        people = []
+        for chip in (specialists or {}).get("chips", [])[:2]:
+            label = (chip.get("label") or "").strip()
+            if not label or len(label) > cls.HERO_TOPIC_MAX_CHARS:
+                continue
+            label = label[:1].upper() + label[1:]
+            title = {"ru": f"{label} для детей", "az": f"Uşaqlar üçün {label[:1].lower() + label[1:]}", "en": f"{label} for kids"}[lang]
+            people.append({
+                "label": label,
+                "href": f"{reverse('specialist_list')}?specialization={quote(str(chip['code']))}",
+                "title": title,
+                "kind": "specialist",
+                "chip": str(chip["code"]),
+            })
+        # interleave: place, specialist, place, place, specialist, ...
+        order = []
+        slots = [0, None, 1, 2, None, 3, 4]
+        people_iter = iter(people)
+        for slot in slots:
+            if slot is None:
+                person = next(people_iter, None)
+                if person:
+                    order.append(person)
+            elif slot < len(places):
+                order.append(places[slot])
+        return order
 
     @staticmethod
     def _selected_age(request) -> str:

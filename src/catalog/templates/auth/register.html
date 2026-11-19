@@ -195,11 +195,9 @@
                 <strong>{% if CURRENT_LANGUAGE == "az" %}Şifrə tələbləri:{% elif CURRENT_LANGUAGE == "en" %}Password requirements:{% else %}Требования к паролю:{% endif %}</strong>
                 <ul>
                   <li data-rule="len">{% if CURRENT_LANGUAGE == "az" %}ən az 8 simvol{% elif CURRENT_LANGUAGE == "en" %}at least 8 characters{% else %}не менее 8 символов{% endif %}</li>
-                  <li data-rule="upper">{% if CURRENT_LANGUAGE == "az" %}1 böyük hərf{% elif CURRENT_LANGUAGE == "en" %}1 uppercase letter{% else %}1 заглавная буква{% endif %}</li>
-                  <li data-rule="lower">{% if CURRENT_LANGUAGE == "az" %}1 kiçik hərf{% elif CURRENT_LANGUAGE == "en" %}1 lowercase letter{% else %}1 строчная буква{% endif %}</li>
-                  <li data-rule="digit">{% if CURRENT_LANGUAGE == "az" %}1 rəqəm{% elif CURRENT_LANGUAGE == "en" %}1 number{% else %}1 цифра{% endif %}</li>
-                  <li data-rule="unlike">{% if CURRENT_LANGUAGE == "az" %}ad və e-poçta bənzəməsin{% elif CURRENT_LANGUAGE == "en" %}not like your name or email{% else %}не похож на имя и email{% endif %}</li>
+                  <li data-rule="nonNumeric">{% if CURRENT_LANGUAGE == "az" %}yalnız rəqəmlərdən ibarət olmamalıdır{% elif CURRENT_LANGUAGE == "en" %}include a character other than a digit{% else %}хотя бы один символ, кроме цифр{% endif %}</li>
                 </ul>
+                <small>{% if CURRENT_LANGUAGE == "az" %}Geniş yayılmış və ya şəxsi məlumatlarınıza çox bənzəyən şifrə seçməyin.{% elif CURRENT_LANGUAGE == "en" %}Avoid common passwords and passwords too similar to your personal details.{% else %}Избегайте распространённых паролей и паролей, похожих на ваши личные данные.{% endif %}</small>
               </div>
               {% if form.password1.errors %}<span class="auth-field-error">{{ form.password1.errors|join:", " }}</span>{% endif %}
             </label>
@@ -264,24 +262,19 @@
   <script type="application/json" id="register-copy">{% if CURRENT_LANGUAGE == "az" %}{"left":"Doldurmaq qalır:","done":"Hər şey hazırdır. Hesab yarada bilərsiniz.","empty":"Bu xananı doldurun","email":"E-poçtu yoxlayın, məs. ad@mail.az","phone":"Nömrədə 7–15 rəqəm olmalıdır","password1":"Şifrə aşağıdakı tələblərə uyğun deyil","password2":"Şifrələr üst-üstə düşmür","agreement":"Razılığı qeyd edin","agreementName":"razılıq"}{% elif CURRENT_LANGUAGE == "en" %}{"left":"Still to fill in:","done":"All set. You can create the account.","empty":"Fill in this field","email":"Check the email, e.g. name@mail.com","phone":"The number needs 7–15 digits","password1":"The password doesn't meet the rules below","password2":"Passwords don't match","agreement":"Tick the agreement","agreementName":"agreement"}{% else %}{"left":"Осталось заполнить:","done":"Всё заполнено. Можно создавать аккаунт.","empty":"Заполните это поле","email":"Проверьте email, например name@mail.ru","phone":"В номере должно быть 7–15 цифр","password1":"Пароль не выполняет требования ниже","password2":"Пароли не совпадают","agreement":"Отметьте согласие","agreementName":"согласие"}{% endif %}</script>
   <script>
     (function () {
-      // Password rules light up as they are met (the server still has the final say).
+      // Django checks common passwords and similarity to user details on submission.
+      var hasMinimumLength = function (value) { return Array.from(value).length >= 8; };
+      var hasNonDigit = function (value) { return /[^\p{Decimal_Number}]/u.test(value); };
       var pw = document.querySelector('input[name="password1"]');
       var rules = document.querySelector(".register-password-rules");
       if (pw && rules) {
-        var field = function (n) { var e = document.querySelector('input[name="' + n + '"]'); return e ? e.value.trim().toLowerCase() : ""; };
-        var tooClose = function (value) {
-          var v = value.toLowerCase();
-          var parts = [field("first_name"), field("last_name")].concat(field("email").split(/[@._+-]/));
-          return parts.some(function (part) { return part.length >= 3 && (v.indexOf(part) !== -1 || part.indexOf(v) !== -1); });
-        };
         var update = function () {
           var v = pw.value;
-          var state = { len: v.length >= 8, upper: /[A-ZƏĞİÖŞÜÇА-ЯЁ]/.test(v), lower: /[a-zəğıöşüçа-яё]/.test(v), digit: /\d/.test(v), unlike: v.length > 0 && !tooClose(v) };
+          var state = { len: hasMinimumLength(v), nonNumeric: hasNonDigit(v) };
           rules.classList.toggle("is-typing", v.length > 0);
           rules.querySelectorAll("[data-rule]").forEach(function (li) { li.classList.toggle("is-ok", !!state[li.getAttribute("data-rule")]); });
         };
         ["input", "change"].forEach(function (t) { pw.addEventListener(t, update); });
-        ["first_name", "last_name", "email"].forEach(function (n) { var e = document.querySelector('input[name="' + n + '"]'); if (e) e.addEventListener("input", update); });
         update();
       }
       // After a failed submit, take the person straight to the first problem.
@@ -304,7 +297,7 @@
         var copy = {};
         try { copy = JSON.parse(copyEl.textContent); } catch (e) { copy = {}; }
         var get = function (n) { return form.querySelector('[name="' + n + '"]'); };
-        var pwOk = function (v) { return v.length >= 8 && /[A-ZƏĞİÖŞÜÇА-ЯЁ]/.test(v) && /[a-zəğıöşüçа-яё]/.test(v) && /\d/.test(v); };
+        var pwOk = function (v) { return hasMinimumLength(v) && hasNonDigit(v); };
         var specs = [
           { name: "first_name", test: function (v) { return v.trim().length > 0; } },
           { name: "last_name", test: function (v) { return v.trim().length > 0; } },

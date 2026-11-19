@@ -2304,6 +2304,7 @@ class OwnerSpecialistForm(forms.ModelForm):
             "bio_ru",
             "bio_en",
             "specializations",
+            "requested_specialization",
             "consultation_format",
             "experience_years",
             "age_from",
@@ -2332,6 +2333,7 @@ class OwnerSpecialistForm(forms.ModelForm):
             "price_from": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "30"}),
             "price_to": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "80"}),
             "duration_minutes": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "50"}),
+            "requested_specialization": forms.TextInput(attrs={"class": "field", "maxlength": 120, "autocomplete": "off"}),
             "phone": forms.TextInput(attrs={"class": "field", "placeholder": "50 123 45 67", "inputmode": "tel"}),
             "whatsapp": forms.TextInput(attrs={"class": "field", "placeholder": "50 123 45 67", "inputmode": "tel"}),
             "instagram": forms.TextInput(attrs={"class": "field", "placeholder": "username"}),
@@ -2405,8 +2407,10 @@ class OwnerSpecialistForm(forms.ModelForm):
                     self.add_error("photo", exc)
             return cleaned
 
+        cleaned["requested_specialization"] = " ".join((cleaned.get("requested_specialization") or "").split())[:120]
         if not cleaned.get("specializations"):
-            self.add_error("specializations", _("Выберите хотя бы одно направление деятельности."))
+            if not cleaned.get("requested_specialization"):
+                self.add_error("specializations", _("Выберите хотя бы одно направление деятельности."))
         else:
             from catalog.services.specialist_subjects import subject_required, subject_error
             if subject_required(cleaned['specializations']):

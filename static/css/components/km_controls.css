@@ -1172,23 +1172,7 @@ html body .km-subject-option .chip-title:not(#kmc-a) {
     font-size: 19px !important;
   }
 
-  /* Category picker: its own scroll, "Hazırdır" always reachable, the page's submit bar steps aside */
-  html body .km-owner-spec-dropdown.is-open .km-owner-spec-dropdown-panel:not(#kmc-a) {
-    max-height: min(64dvh, 540px) !important;
-    overflow-y: auto !important;
-    overscroll-behavior: contain !important;
-    padding-bottom: 0 !important;
-  }
-
-  html body .km-owner-spec-dropdown-panel .km-dropdown-bottom-bar:not(#kmc-a) {
-    position: sticky !important;
-    z-index: 3 !important;
-    bottom: 0 !important;
-    margin: 8px -12px 0 !important;
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
-    background: rgba(255, 255, 255, 0.97) !important;
-  }
-
+  /* Category picker opens as a bottom sheet (spec_picker.css); the page's submit bar steps aside */
   html body:has(.km-owner-spec-dropdown.is-open) .km-mobile-submit-bar:not(#kmc-a) {
     transform: translateY(calc(100% + 16px)) !important;
     opacity: 0 !important;
@@ -1323,13 +1307,48 @@ body:has(.km-journey) .footer-guides-shelf { display: none !important; }
 /* Specialist form: calmer chrome, tighter rhythm */
 .km-specialist-workspace-header:not(#kmc-a) { margin-bottom: 16px; padding-bottom: 14px; }
 .km-specialist-workspace-header .km-journey:not(#kmc-a) { margin: 12px 0 10px; }
-.km-req-badge:not(#kmc-a) {
-  color: #5b6b63;
-  background: #f1f5f3;
-  border-color: #e1e9e4;
-  font-weight: 700;
+/* Two kinds of field marks: "Required" (green, can't send without it)
+   and "Recommended" (warm, parents choose such profiles more often). */
+:is(.km-req-badge, .km-rec-badge):not(#kmc-a) {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  padding: 2px 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  vertical-align: middle;
+  white-space: nowrap;
 }
-.km-req-badge .km-required:not(#kmc-a) { color: inherit; }
+.km-req-badge:not(#kmc-a) { color: #0d5229; background: #e3f4e9; border-color: #a9d8bb; }
+.km-req-badge .km-required:not(#kmc-a) { color: #d9480f; font-size: 13px; }
+.km-rec-badge:not(#kmc-a) { color: #7a4d00; background: #fff4d6; border-color: #f0d48a; }
+.km-rec-badge:not(#kmc-a)::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: #e0a106;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m12 2.8 2.8 5.7 6.3.9-4.55 4.43 1.07 6.27L12 17.13 6.38 20.1l1.07-6.27L2.9 9.4l6.3-.9z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m12 2.8 2.8 5.7 6.3.9-4.55 4.43 1.07 6.27L12 17.13 6.38 20.1l1.07-6.27L2.9 9.4l6.3-.9z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.km-field-legend:not(#kmc-a) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 4px;
+  margin: 10px 0 0;
+  color: #5b6b63;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.km-field-legend :is(.km-req-badge, .km-rec-badge):not(#kmc-a) { margin-left: 0; }
+.km-field-legend > span:not([class]) { margin-right: 10px; }
+details > summary .km-rec-badge:not(#kmc-a) { margin-left: 8px; }
 .km-step-section .km-pricing-contacts-panel:not(#kmc-a) {
   padding: 0;
   border: 0;

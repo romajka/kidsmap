@@ -36,4 +36,6 @@ class HomePublicMetricsTests(SimpleTestCase):
         })
         metrics = MetricValues()
         metrics.feed(html)
-        self.assertEqual(metrics.values, ['0', '—', '0'])
+        # The partner-panel card with its own copy of the counters was removed from the
+        # home page (the same numbers already sit in the hero), so nothing may be shown here.
+        self.assertEqual(metrics.values, [])

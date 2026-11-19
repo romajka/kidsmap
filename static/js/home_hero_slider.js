@@ -1,172 +1,126 @@
+/* Home hero photo stage.
+   Slides sit on top of each other; the active one reveals its three photos in turn and
+   slowly settles its zoom. The active dot fills like a timeline and its animation drives
+   autoplay, so the bar and the change always agree. Hover, focus or a hidden tab pause it.
+   Arrows, dots, swipe and the keyboard (← →) change slides by hand. */
 (function () {
-  const DRAG_THRESHOLD_MIN = 18;
-  const DRAG_THRESHOLD_RATIO = 0.06;
-  const SWIPE_VELOCITY_THRESHOLD = 0.35;
-  const TRACK_TRANSITION = "transform 420ms cubic-bezier(0.25, 1, 0.35, 1)";
+  "use strict";
+  var SLIDE_MS = 6500;
+  var SWIPE_MIN = 40;
 
   function mountHeroSlider(slider) {
-    const viewport = slider.querySelector("[data-home-hero-slider-viewport]");
-    const track = slider.querySelector("[data-home-hero-slider-track]");
-    const slides = Array.from(slider.querySelectorAll("[data-home-hero-slide]"));
-    const dots = Array.from(slider.querySelectorAll("[data-home-hero-slider-dot]"));
-    const prevButton = slider.querySelector("[data-home-hero-slider-prev]");
-    const nextButton = slider.querySelector("[data-home-hero-slider-next]");
-
+    var viewport = slider.querySelector("[data-home-hero-slider-viewport]");
+    var track = slider.querySelector("[data-home-hero-slider-track]");
+    var slides = Array.prototype.slice.call(slider.querySelectorAll("[data-home-hero-slide]"));
+    var dots = Array.prototype.slice.call(slider.querySelectorAll("[data-home-hero-slider-dot]"));
+    var prev = slider.querySelector("[data-home-hero-slider-prev]");
+    var next = slider.querySelector("[data-home-hero-slider-next]");
     if (!viewport || !track || slides.length < 2) return;
 
-    let currentIndex = 0;
-    let slideWidth = viewport.getBoundingClientRect().width || viewport.clientWidth || 1;
-    let dragStartX = 0;
-    let dragDeltaX = 0;
-    let dragLastX = 0;
-    let dragLastTime = 0;
-    let dragVelocityX = 0;
-    let isDragging = false;
-    let activePointerId = null;
-    let autoPlayTimer = null;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var current = 0;
+    var paused = false;
 
-    function clampIndex(index) {
-      if (index < 0) return slides.length - 1;
-      if (index >= slides.length) return 0;
-      return index;
+    slider.classList.add("is-stage");
+    slider.style.setProperty("--stage-ms", SLIDE_MS + "ms");
+    slider.setAttribute("aria-roledescription", "carousel");
+    viewport.setAttribute("tabindex", "0");
+    viewport.setAttribute("aria-live", "off");
+
+    function setPaused(value) {
+      paused = value;
+      slider.classList.toggle("is-paused", value);
     }
 
-    function setTrackPosition(offsetPx, withTransition) {
-      const appliedOffset = Math.round(offsetPx * 100) / 100;
-      track.style.transition = withTransition ? TRACK_TRANSITION : "none";
-      track.style.transform = "translate3d(" + appliedOffset + "px, 0, 0)";
-    }
-
-    function syncDots() {
-      dots.forEach(function (dot, index) {
-        const isActive = index === currentIndex;
-        dot.classList.toggle("is-active", isActive);
-        dot.setAttribute("aria-current", isActive ? "true" : "false");
+    function show(index, direction) {
+      var target = (index + slides.length) % slides.length;
+      if (target === current && slides[target].classList.contains("is-active")) return;
+      var leaving = slides[current];
+      slides.forEach(function (slide, i) {
+        var on = i === target;
+        slide.classList.toggle("is-active", on);
+        slide.classList.remove("is-leaving");
+        slide.setAttribute("aria-hidden", on ? "false" : "true");
+        Array.prototype.forEach.call(slide.querySelectorAll("img"), function (img) {
+          if (on) img.removeAttribute("loading");
+        });
       });
-    }
-
-    function goToSlide(nextIndex, withTransition) {
-      currentIndex = clampIndex(nextIndex);
-      setTrackPosition(-currentIndex * slideWidth, withTransition !== false);
-      syncDots();
-    }
-
-    function recalculateWidth() {
-      slideWidth = viewport.getBoundingClientRect().width || viewport.clientWidth || 1;
-      goToSlide(currentIndex, false);
-    }
-
-    function startAutoPlay() {
-      if (reducedMotion.matches || slides.length < 2) return;
-      stopAutoPlay();
-      autoPlayTimer = setInterval(function () {
-        if (!isDragging && !slider.matches(":hover")) {
-          goToSlide(currentIndex + 1, true);
+      if (leaving && leaving !== slides[target]) leaving.classList.add("is-leaving");
+      slider.setAttribute("data-dir", direction < 0 ? "back" : "forward");
+      dots.forEach(function (dot, i) {
+        var on = i === target;
+        dot.classList.toggle("is-active", on);
+        dot.setAttribute("aria-current", on ? "true" : "false");
+        if (on) {
+          // restart the timeline fill
+          dot.classList.remove("is-running");
+          void dot.offsetWidth;
+          dot.classList.add("is-running");
+        } else {
+          dot.classList.remove("is-running");
         }
-      }, 5000);
-    }
-
-    function stopAutoPlay() {
-      if (autoPlayTimer) {
-        clearInterval(autoPlayTimer);
-        autoPlayTimer = null;
-      }
-    }
-
-    function finishDrag() {
-      if (!isDragging) return;
-
-      const threshold = Math.max(DRAG_THRESHOLD_MIN, slideWidth * DRAG_THRESHOLD_RATIO);
-      const nextIndex =
-        Math.abs(dragDeltaX) >= threshold ||
-        (Math.abs(dragVelocityX) >= SWIPE_VELOCITY_THRESHOLD && Math.abs(dragDeltaX) >= 8)
-          ? currentIndex + (dragDeltaX < 0 ? 1 : -1)
-          : currentIndex;
-
-      isDragging = false;
-      dragDeltaX = 0;
-      dragLastX = 0;
-      dragLastTime = 0;
-      dragVelocityX = 0;
-      activePointerId = null;
-      viewport.classList.remove("is-dragging");
-      goToSlide(nextIndex, true);
-      startAutoPlay();
-    }
-
-    if (prevButton) {
-      prevButton.addEventListener("click", function () {
-        goToSlide(currentIndex - 1, true);
-        startAutoPlay();
       });
+      current = target;
     }
 
-    if (nextButton) {
-      nextButton.addEventListener("click", function () {
-        goToSlide(currentIndex + 1, true);
-        startAutoPlay();
-      });
-    }
-
+    // the active dot's fill animation is the autoplay clock
     dots.forEach(function (dot) {
+      dot.addEventListener("animationend", function (event) {
+        if (event.animationName === "km-stage-fill" && dot.classList.contains("is-active") && !paused) show(current + 1, 1);
+      });
       dot.addEventListener("click", function () {
-        const nextIndex = Number(dot.dataset.slideIndex || 0);
-        goToSlide(nextIndex, true);
-        startAutoPlay();
+        var i = Number(dot.getAttribute("data-slide-index") || 0);
+        show(i, i < current ? -1 : 1);
       });
     });
+    if (prev) prev.addEventListener("click", function () { show(current - 1, -1); });
+    if (next) next.addEventListener("click", function () { show(current + 1, 1); });
 
-    slider.addEventListener("mouseenter", stopAutoPlay);
-    slider.addEventListener("mouseleave", startAutoPlay);
-    document.addEventListener("visibilitychange", function () {
-      if (document.hidden) stopAutoPlay();
-      else startAutoPlay();
+    // pause while the visitor looks at or works with the photos
+    slider.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") setPaused(true); });
+    slider.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") setPaused(slider.contains(document.activeElement)); });
+    slider.addEventListener("focusin", function () { setPaused(true); });
+    slider.addEventListener("focusout", function () {
+      setTimeout(function () { if (!slider.contains(document.activeElement) && !slider.matches(":hover")) setPaused(false); }, 0);
+    });
+    document.addEventListener("visibilitychange", function () { slider.classList.toggle("is-hidden-tab", document.hidden); });
+
+    viewport.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowLeft") { e.preventDefault(); show(current - 1, -1); }
+      if (e.key === "ArrowRight") { e.preventDefault(); show(current + 1, 1); }
     });
 
-    viewport.addEventListener("pointerdown", function (event) {
-      if (event.button !== undefined && event.button !== 0) return;
-
-      isDragging = true;
-      stopAutoPlay();
-      dragStartX = event.clientX;
-      dragLastX = event.clientX;
-      dragLastTime = event.timeStamp || Date.now();
-      dragDeltaX = 0;
-      dragVelocityX = 0;
-      activePointerId = event.pointerId;
-      viewport.classList.add("is-dragging");
-      track.style.transition = "none";
-
-      if (viewport.setPointerCapture && activePointerId !== null) {
-        viewport.setPointerCapture(activePointerId);
-      }
+    // swipe / drag
+    var startX = null, startY = 0, pointerId = null;
+    viewport.addEventListener("pointerdown", function (e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      startX = e.clientX; startY = e.clientY; pointerId = e.pointerId;
     });
+    function endSwipe(e) {
+      if (startX === null || (pointerId !== null && e.pointerId !== pointerId)) return;
+      var dx = e.clientX - startX, dy = e.clientY - startY;
+      startX = null; pointerId = null;
+      if (Math.abs(dx) >= SWIPE_MIN && Math.abs(dx) > Math.abs(dy)) show(current + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+    }
+    viewport.addEventListener("pointerup", endSwipe);
+    viewport.addEventListener("pointercancel", function () { startX = null; pointerId = null; });
+    viewport.addEventListener("dragstart", function (e) { e.preventDefault(); });
 
-    viewport.addEventListener("pointermove", function (event) {
-      if (!isDragging || (activePointerId !== null && event.pointerId !== activePointerId)) return;
-
-      const now = event.timeStamp || Date.now();
-      const elapsed = Math.max(1, now - dragLastTime);
-      dragVelocityX = (event.clientX - dragLastX) / elapsed;
-      dragDeltaX = event.clientX - dragStartX;
-      dragLastX = event.clientX;
-      dragLastTime = now;
-      setTrackPosition(-currentIndex * slideWidth + dragDeltaX, false);
-    });
-
-    viewport.addEventListener("pointerup", function (event) {
-      if (!isDragging || (activePointerId !== null && event.pointerId !== activePointerId)) return;
-      finishDrag();
-    });
-
-    viewport.addEventListener("pointercancel", finishDrag);
-    viewport.addEventListener("lostpointercapture", finishDrag);
-    window.addEventListener("resize", recalculateWidth, { passive: true });
-
-    recalculateWidth();
-    startAutoPlay();
+    if (reduce) slider.classList.add("is-still");
+    // first slide: reveal once the photos can be seen
+    show(0, 1);
   }
 
-  document.querySelectorAll("[data-home-hero-slider]").forEach(mountHeroSlider);
+  function mountSingle(slider) {
+    slider.classList.add("is-stage");
+    var slide = slider.querySelector(".home-hero-slide");
+    if (slide) slide.classList.add("is-active");
+  }
+
+  function boot() {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-home-hero-slider]"), mountHeroSlider);
+    Array.prototype.forEach.call(document.querySelectorAll("[data-home-hero-slider-single]"), mountSingle);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
 })();

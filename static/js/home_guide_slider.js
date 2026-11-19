@@ -10,7 +10,7 @@
     if (!track || !controls || !prev || !next) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const max = () => Math.max(0, track.scrollWidth - track.clientWidth);
-    let paused = false;
+    let paused = true; // no auto-advance: people scroll it themselves
     let visible = !('IntersectionObserver' in window);
     let touching = false;
     let scrolling = false;
@@ -33,7 +33,7 @@
         }, hasAdvanced ? 3600 : 1800);
       }
       if (!motion) return;
-      motion.hidden = !enabled;
+      motion.hidden = true;
       motion.setAttribute('aria-pressed', String(paused));
       const label = paused ? motion.dataset.playLabel : motion.dataset.pauseLabel;
       motion.setAttribute('aria-label', label);

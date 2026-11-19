@@ -146,6 +146,13 @@ class Specialist(models.Model):
         related_name="specialists", 
         verbose_name=_("Специализации")
     )
+    requested_specialization = models.CharField(
+        _("Предложенное направление"),
+        max_length=120,
+        blank=True,
+        default="",
+        help_text=_("Направление, которого нет в списке. Модератор может добавить его в справочник и отметить в анкете."),
+    )
     
     consultation_format = models.CharField(
         _("Формат работы"), 
