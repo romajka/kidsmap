@@ -20,8 +20,25 @@ test('track inset does not make next scroll to the current first card',()=>{cons
 
 test('tabbing to a partially visible guide brings the whole card into view',()=>{const x=setup();x.track.children[1].focus();assert.equal(x.track.scrollLeft,200);x.dom.window.close();});
 
-test('floating motion has a persistent pause toggle',()=>{const x=setup();const root=x.w.document.querySelector('[data-guide-slider]'),button=x.w.document.querySelector('[data-guide-motion]');button.click();assert.equal(root.dataset.guideMotionState,'paused');assert.equal(button.getAttribute('aria-pressed'),'true');assert.equal(button.getAttribute('aria-label'),'Resume animation');button.click();assert.equal(button.getAttribute('aria-pressed'),'false');x.dom.window.close();});
+test('manual mode hides the motion toggle and leaves the navigation controls available', (t) => {
+ const x = setup();
+ t.after(() => x.dom.window.close());
+ const root = x.w.document.querySelector('[data-guide-slider]');
+ assert.equal(root.dataset.guideMotionState, 'paused');
+ assert.equal(root.querySelector('[data-guide-motion]').hidden, true);
+ assert.equal(root.querySelector('[data-guide-controls]').hidden, false);
+ assert.equal(x.next.disabled, false);
+});
 test('reduced motion hides animation control and keeps floating stopped',()=>{const x=setup(4,true);assert.equal(x.w.document.querySelector('[data-guide-motion]').hidden,true);assert.equal(x.w.document.querySelector('[data-guide-slider]').dataset.guideMotionState,'paused');x.dom.window.close();});
 
-test('carousel advances by default, pause cancels autoplay',()=>{const x=setup();x.advanceAuto();assert.equal(x.track.scrollLeft,200);x.w.document.querySelector('[data-guide-motion]').click();x.advanceAuto();assert.equal(x.track.scrollLeft,200);x.dom.window.close();});
+test('guides stay at the selected card until the reader navigates again', (t) => {
+ const x = setup();
+ t.after(() => x.dom.window.close());
+ x.advanceAuto();
+ assert.equal(x.track.scrollLeft, 0);
+ x.next.click();
+ assert.equal(x.track.scrollLeft, 200);
+ x.advanceAuto();
+ assert.equal(x.track.scrollLeft, 200);
+});
 test('reduced motion never schedules autoplay',()=>{const x=setup(4,true);x.advanceAuto();assert.equal(x.track.scrollLeft,0);assert.equal([...x.timers.values()].some(t=>t.delay>=1000),false);x.dom.window.close();});

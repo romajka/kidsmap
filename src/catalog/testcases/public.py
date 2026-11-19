@@ -613,11 +613,23 @@ class TestPublicPagesSmoke(TestCase):
                 self.assertEqual(response.status_code, 200)
                 self.assertContains(response, expected_text)
 
+    @staticmethod
+    def _language_menu_options(html, language):
+        return re.findall(
+            rf'<a\b(?=[^>]*\bhreflang="{language}")(?=[^>]*\brole="menuitemradio")[^>]*>.*?</a>',
+            html, flags=re.DOTALL,
+        )
+
     def test_faq_page_has_no_russian_copy_in_azerbaijani_or_english(self):
         for path in ("/faq/", "/en/faq/"):
             with self.subTest(path=path):
                 response = self.client.get(path, follow=True)
-                visible_text = re.findall(r">([^<>]*[А-Яа-яЁё][^<>]*)<", response.content.decode("utf-8"))
+                html = response.content.decode("utf-8")
+                # Both language menus display each language in its own language.
+                name = '<span class="km-mlang__opt-name">Русский</span>'
+                for option in self._language_menu_options(html, "ru"):
+                    html = html.replace(option, option.replace(name, ""))
+                visible_text = re.findall(r">([^<>]*[А-Яа-яЁё][^<>]*)<", html)
                 self.assertEqual(visible_text, [])
 
     def test_faq_page_has_no_russian_accessibility_copy_in_azerbaijani_or_english(self):
@@ -665,8 +677,20 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/en/auth/login/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'hreflang="az"', html=False)
-        self.assertContains(response, '<span class="km-lang-opt-code">AZ</span>', html=False)
+        html = response.content.decode()
+        for code, name in (("az", "Azərbaycanca"), ("ru", "Русский"), ("en", "English")):
+            with self.subTest(language=code):
+                options = self._language_menu_options(html, code)
+                self.assertEqual(len(options), 2)  # Desktop and mobile.
+                for option in options:
+                    target = re.search(r'\bhref="([^"]+)"', option)
+                    self.assertIsNotNone(target)
+                    prefix = "" if code == "az" else f"/{code}"
+                    self.assertEqual(urlparse(target.group(1)).path, f"{prefix}/auth/login/")
+                    self.assertIn(f'aria-checked="{str(code == "en").lower()}"', option)
+                    self.assertIn(f'img/flags/{code}.svg"', option)
+                    self.assertIn(f'<span class="km-mlang__opt-name">{name}</span>', option)
+                    self.assertIn(f'<span class="km-mlang__opt-code">{code.upper()}</span>', option)
         self.assertNotContains(response, "Азербайджанский")
 
     @override_settings(ADMIN_HOST="admin.kidsmap.az")
