@@ -146,6 +146,11 @@
             <span>{% trans "Программирование для детей в Азербайджане" %}</span>
           </a>
           {% endif %}
+          {% for chip in home_specialists.chips|slice:":2" %}
+          <a class="home-search-popular-chip home-search-popular-chip--specialist" href="{% url 'specialist_list' %}?specialization={{ chip.code|urlencode }}" data-popular-link role="listitem">
+            <span>{{ chip.label }}</span>
+          </a>
+          {% endfor %}
         </div>
       </div>
 

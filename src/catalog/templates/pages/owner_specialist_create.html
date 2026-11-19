@@ -46,6 +46,7 @@
       <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
       <span>{% if CURRENT_LANGUAGE == "az" %}Kabinetə qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to dashboard{% else %}В кабинет{% endif %}</span>
     </a>
+    {% if is_proposal and not specialist %}{% include "includes/specialist_journey.html" with step=3 %}{% endif %}
     <h1>{% if specialist %}{% trans 'Редактировать профиль' %}{% else %}{% trans 'Анкета специалиста' %}{% endif %}</h1>
     <p class="km-workspace-subtitle">{% if CURRENT_LANGUAGE == 'az' %}Qaralamanı saxlayıb sonra davam edə bilərsiniz. Profil KidsMap təsdiqindən sonra kataloqda görünəcək.{% elif CURRENT_LANGUAGE == 'en' %}Save a draft and come back later. Your profile appears in the catalog after KidsMap approves it.{% else %}Можно сохранить черновик и вернуться позже. Анкета появится в каталоге после одобрения KidsMap.{% endif %}</p>
   </header>
@@ -732,11 +733,11 @@
           </div>
         </section>
 
-        {% else %}<p class="sw-help">{% trans 'Дипломы и сертификаты можно добавить после подтверждения профиля.' %}</p>{% endif %}
+        {% endif %}
 
         <!-- ─── Unified Form Actions Card ─── -->
         <div class="km-unified-actions-card">
-          <p class="km-review-note">{% if CURRENT_LANGUAGE == 'az' %}Nəticəni şəxsi kabinetdə görəcəksiniz.{% elif CURRENT_LANGUAGE == 'en' %}You can find the review result in your dashboard.{% else %}Результат проверки появится в личном кабинете.{% endif %}</p>
+          <p class="km-review-note">{% if CURRENT_LANGUAGE == 'az' %}Nəticəni şəxsi kabinetdə görəcəksiniz.{% elif CURRENT_LANGUAGE == 'en' %}You can find the review result in your dashboard.{% else %}Результат проверки появится в личном кабинете.{% endif %}{% if is_proposal %} {% trans 'Дипломы и сертификаты можно добавить после подтверждения профиля.' %}{% endif %}</p>
           <div class="km-actions-buttons-row">
             <button type="submit" name="form_action" value="save_draft" class="btn-save-draft" formnovalidate title="{% trans 'Сохранить черновик' %}">
               <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>

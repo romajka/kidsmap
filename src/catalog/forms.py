@@ -420,33 +420,33 @@ class RegistrationForm(UserCreationForm):
         language = (get_language() or "az").split("-")[0]
         placeholders = {
             "first_name": {
-                "az": "Adınızı daxil edin",
-                "en": "Enter your first name",
-                "ru": "Введите имя",
+                "az": "məs. Aynur",
+                "en": "e.g. Aynur",
+                "ru": "напр. Айнур",
             },
             "last_name": {
-                "az": "Soyadınızı daxil edin",
-                "en": "Enter your last name",
-                "ru": "Введите фамилию",
+                "az": "məs. Məmmədova",
+                "en": "e.g. Mammadova",
+                "ru": "напр. Мамедова",
             },
             "email": {
-                "az": "E-poçt ünvanınızı daxil edin",
-                "en": "Enter your email address",
-                "ru": "Введите email",
+                "az": "ad@mail.az",
+                "en": "name@mail.com",
+                "ru": "name@mail.ru",
             },
             "phone": {
-                "az": "Mobil nömrənizi daxil edin",
-                "en": "Enter your mobile number",
-                "ru": "Введите номер телефона",
+                "az": "50 123 45 67",
+                "en": "50 123 45 67",
+                "ru": "50 123 45 67",
             },
             "password1": {
-                "az": "Şifrənizi daxil edin",
-                "en": "Enter your password",
-                "ru": "Введите пароль",
+                "az": "Ən az 8 simvol",
+                "en": "At least 8 characters",
+                "ru": "Минимум 8 символов",
             },
             "password2": {
-                "az": "Şifrənizi yenidən daxil edin",
-                "en": "Re-enter your password",
+                "az": "Şifrəni təkrar yazın",
+                "en": "Repeat the password",
                 "ru": "Повторите пароль",
             },
         }
@@ -565,7 +565,7 @@ class LoginForm(AuthenticationForm):
         language = (get_language() or "ru").split("-")[0]
         if language == "az":
             self.fields["username"].label = "E-poçt"
-            self.fields["username"].widget.attrs["placeholder"] = "E-poçt ünvanınızı daxil edin"
+            self.fields["username"].widget.attrs["placeholder"] = "ad@mail.az"
             self.fields["username"].error_messages.update(
                 {
                     "required": "E-poçt ünvanı tələb olunur.",
@@ -2343,6 +2343,13 @@ class OwnerSpecialistForm(forms.ModelForm):
         self.actor = kwargs.pop("actor",None)
         self.locations = kwargs.pop("locations",None)
         super().__init__(*args, **kwargs)
+        # Numeric hints read as examples, not as values already filled in.
+        example_prefix = {'az': 'məs. ', 'en': 'e.g. ', 'ru': 'напр. '}.get((get_language() or 'az').split('-')[0], 'məs. ')
+        for name in ('experience_years', 'age_from', 'age_to', 'price_from', 'price_to', 'duration_minutes'):
+            field = self.fields.get(name)
+            hint = field.widget.attrs.get('placeholder', '') if field else ''
+            if hint[:1].isdigit():
+                field.widget.attrs['placeholder'] = example_prefix + hint
         for name in ('name_alt','education_az','education_ru','education_en','experience_info_az','experience_info_ru','experience_info_en'):
             self.fields[name].widget.attrs.update({'class':'field'})
         self.fields['experience_years'].widget.attrs['min']=0

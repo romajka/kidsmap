@@ -371,7 +371,69 @@
     }, { threshold: 0.2 }).observe(card);
   }
 
+  // Server lists form errors in field-declaration order; show them in the
+  // order the fields appear on the page, so the list reads top to bottom.
+  function orderErrorSummaries() {
+    document.querySelectorAll("[data-error-summary] ul:not([data-km-ordered])").forEach(function (list) {
+      list.setAttribute("data-km-ordered", "");
+      var items = Array.prototype.slice.call(list.children);
+      var target = function (li) {
+        var a = li.querySelector("a[href^='#']");
+        if (!a) return null;
+        var el = null;
+        try { el = document.querySelector(a.getAttribute("href")); } catch (e) { el = null; }
+        var ref = a.getAttribute("data-error-field-ref");
+        if (!el && ref) el = document.querySelector("[name='" + ref.replace(/'/g, "") + "']");
+        return el;
+      };
+      var keyed = items.map(function (li, i) { return { li: li, el: target(li), i: i }; });
+      keyed.sort(function (a, b) {
+        if (!a.el || !b.el) return (a.el ? 1 : 0) - (b.el ? 1 : 0) || a.i - b.i;
+        if (a.el === b.el) return a.i - b.i;
+        return a.el.compareDocumentPosition(b.el) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+      });
+      keyed.forEach(function (k) { list.appendChild(k.li); });
+    });
+  }
+
+  // Home: the specialists' band and card row play their entrance once, when they
+  // first scroll into view. Already visible on load: no animation.
+  function initRevealFaces() {
+    if (!("IntersectionObserver" in window)) return;
+    if (reducedMotionOn()) return;
+    document.querySelectorAll("[data-km-reveal-once]:not([data-km-revealed])").forEach(function (el) {
+      el.setAttribute("data-km-revealed", "");
+      if (el.getBoundingClientRect().top < window.innerHeight * 0.9) return;
+      el.classList.add("is-waiting");
+      var io = new IntersectionObserver(function (entries) {
+        if (!entries[0].isIntersecting) return;
+        el.classList.remove("is-waiting");
+        io.disconnect();
+      }, { threshold: 0.35 });
+      io.observe(el);
+    });
+  }
+
+  // Home: arrows next to the specialists row scroll it by about one screen of cards.
+  function initSpecialistRail() {
+    document.querySelectorAll(".home-specialists--rail:not([data-km-rail])").forEach(function (section) {
+      section.setAttribute("data-km-rail", "");
+      var row = section.querySelector(".home-sp-row");
+      if (!row) return;
+      section.querySelectorAll("[data-sp-scroll]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var dir = parseInt(btn.getAttribute("data-sp-scroll"), 10) || 1;
+          row.scrollBy({ left: dir * Math.max(240, row.clientWidth * 0.8), behavior: reducedMotionOn() ? "auto" : "smooth" });
+        });
+      });
+    });
+  }
+  function reducedMotionOn() { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
+
   function init(scope) {
+    orderErrorSummaries();
+    initRevealFaces();
+    initSpecialistRail();
     enhanceAll(scope);
     watchMenus(scope);
     (scope || document).querySelectorAll(SEG_SEL).forEach(enhanceSegment);

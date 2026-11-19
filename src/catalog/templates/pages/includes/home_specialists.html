@@ -1,0 +1,74 @@
+{% load i18n %}{% get_current_language as hl %}
+{% comment %}
+  Home: specialists. State comes from HomeController._specialists_block:
+  soon (nothing published) → teaser (a few profiles) → rail (enough profiles with photos).
+{% endcomment %}
+{% with sp=home_specialists %}
+{% if sp %}
+{% if sp.mode == "rail" %}
+<section class="home-specialists home-specialists--rail" aria-labelledby="home-sp-title">
+  <div class="home-rail-heading">
+    <div>
+      <h2 id="home-sp-title">{% if hl == 'az' %}Uşaqlar üçün mütəxəssislər{% elif hl == 'en' %}Specialists for children{% else %}Специалисты для детей{% endif %}</h2>
+      <p class="home-sp-lead">{% if hl == 'az' %}Loqopedlər, repetitorlar və psixoloqlar: qiymət, format və valideyn rəyləri ilə.{% elif hl == 'en' %}Speech therapists, tutors and psychologists, with prices, formats and parent reviews.{% else %}Логопеды, репетиторы и психологи: с ценами, форматом занятий и отзывами родителей.{% endif %}</p>
+    </div>
+    <div class="home-rail-controls">
+      <div class="home-sp-nav" aria-hidden="true">
+        <button type="button" class="home-rail-nav-btn" data-sp-scroll="-1" tabindex="-1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+        <button type="button" class="home-rail-nav-btn" data-sp-scroll="1" tabindex="-1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+      </div>
+      <a class="home-rail-catalog-link" href="{% url 'specialist_list' %}">
+        <span>{% if hl == 'az' %}Bütün mütəxəssislər{% elif hl == 'en' %}All specialists{% else %}Все специалисты{% endif %}</span>
+        <span class="home-btn-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg></span>
+      </a>
+    </div>
+  </div>
+  {% if sp.chips %}<nav class="home-sp-chips" aria-label="{% if hl == 'az' %}İxtisaslar{% elif hl == 'en' %}Specialties{% else %}Специализации{% endif %}">{% for chip in sp.chips %}<a href="{% url 'specialist_list' %}?specialization={{ chip.code|urlencode }}">{{ chip.label }}</a>{% endfor %}</nav>{% endif %}
+  <ul class="home-sp-row" role="list" data-km-reveal-once>
+    {% for person in sp.people %}
+    <li class="home-sp-card" style="--i:{{ forloop.counter0 }}">
+      <a href="{{ person.url }}" class="home-sp-card__link">
+        <span class="home-sp-card__photo" data-initials="{{ person.initials }}">
+          <img src="{{ person.photo }}" alt="" loading="lazy" decoding="async" onerror="this.remove()">
+          {% if person.online or person.offline %}<span class="home-sp-card__format">{% if person.online and person.offline %}{% if hl == 'az' %}Onlayn və əyani{% elif hl == 'en' %}Online and in person{% else %}Онлайн и очно{% endif %}{% elif person.online %}{% if hl == 'az' %}Onlayn{% elif hl == 'en' %}Online{% else %}Онлайн{% endif %}{% else %}{% if hl == 'az' %}Əyani{% elif hl == 'en' %}In person{% else %}Очно{% endif %}{% endif %}</span>{% endif %}
+          {% if person.price_from %}<span class="home-sp-card__price">{% if hl == 'az' %}{{ person.price_from }} ₼-dan{% elif hl == 'en' %}From {{ person.price_from }} ₼{% else %}От {{ person.price_from }} ₼{% endif %}</span>{% endif %}
+        </span>
+        <span class="home-sp-card__body">
+          <strong class="home-sp-card__name">{{ person.name }}</strong>
+          {% if person.specialty %}<span class="home-sp-card__role">{{ person.specialty }}</span>{% endif %}
+          {% if person.rating %}<span class="home-sp-card__rating"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m12 2.8 2.8 5.7 6.3.9-4.55 4.43 1.07 6.27L12 17.13 6.38 20.1l1.07-6.27L2.9 9.4l6.3-.9z"/></svg>{{ person.rating }} <small>{% if hl == 'az' %}({{ person.rating_count }} rəy){% elif hl == 'en' %}({{ person.rating_count }} reviews){% else %}({{ person.rating_count }} отз.){% endif %}</small></span>{% else %}<span class="home-sp-card__new">{% if hl == 'az' %}Yeni profil{% elif hl == 'en' %}New profile{% else %}Новая анкета{% endif %}</span>{% endif %}
+        </span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% else %}
+<section class="home-specialists home-specialists--band{% if sp.mode == 'soon' %} is-soon{% endif %}" aria-labelledby="home-sp-title">
+  <div class="home-sp-glow" aria-hidden="true"></div>
+  <div class="home-sp-visual" data-km-reveal-once aria-hidden="true">
+    <span class="home-sp-rings"><i></i><i></i><i></i></span>
+    <span class="home-sp-faces">
+      {% for person in sp.people %}<span class="home-sp-face" style="--i:{{ forloop.counter0 }}" data-initials="{{ person.initials }}"><img src="{{ person.photo }}" alt="" loading="lazy" decoding="async" onerror="this.remove()"></span>{% endfor %}
+      {% with shown=sp.people|length %}{% for icon in sp.fillers %}<span class="home-sp-face home-sp-face--icon" style="--i:{{ forloop.counter0|add:shown }}">{% if icon == 'person' %}<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>{% elif icon == 'book' %}<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-1.5Z"/><path d="M8 7h6"/></svg>{% else %}<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg>{% endif %}</span>{% endfor %}{% endwith %}
+    </span>
+  </div>
+  <div class="home-sp-copy">
+    {% if sp.mode == "soon" %}
+    <span class="home-sp-badge"><i aria-hidden="true"></i>{% if hl == 'az' %}Tezliklə KidsMap-də{% elif hl == 'en' %}Coming to KidsMap{% else %}Скоро на KidsMap{% endif %}</span>
+    <h2 id="home-sp-title">{% if hl == 'az' %}Loqopedlər, repetitorlar və psixoloqlar{% elif hl == 'en' %}Speech therapists, tutors and psychologists{% else %}Логопеды, репетиторы и психологи{% endif %}</h2>
+    <p>{% if hl == 'az' %}Uşaqlarla işləyən mütəxəssislər burada görünəcək. Siz mütəxəssissinizsə, anketinizi indi yaradın. Bu pulsuzdur.{% elif hl == 'en' %}People who work with children will be listed here. If you are one, create your profile now. It's free.{% else %}Здесь появятся специалисты, которые работают с детьми. Если вы специалист, создайте анкету уже сейчас. Это бесплатно.{% endif %}</p>
+    {% else %}
+    <h2 id="home-sp-title">{% if hl == 'az' %}Məkan yox, mütəxəssis axtarırsınız?{% elif hl == 'en' %}Looking for a person, not a place?{% else %}Ищете не место, а специалиста?{% endif %}</h2>
+    <p>{% if hl == 'az' %}Loqopedlər, repetitorlar və psixoloqlar: qiymət, format və valideyn rəyləri ilə.{% elif hl == 'en' %}Speech therapists, tutors and psychologists, with prices, formats and parent reviews.{% else %}Логопеды, репетиторы и психологи: с ценами, форматом занятий и отзывами родителей.{% endif %}</p>
+    {% if sp.chips %}<nav class="home-sp-chips" aria-label="{% if hl == 'az' %}İxtisaslar{% elif hl == 'en' %}Specialties{% else %}Специализации{% endif %}">{% for chip in sp.chips|slice:":4" %}<a href="{% url 'specialist_list' %}?specialization={{ chip.code|urlencode }}">{{ chip.label }}</a>{% endfor %}</nav>{% endif %}
+    {% endif %}
+  </div>
+  <a class="home-sp-cta" href="{% if sp.mode == 'soon' %}{% url 'owner_specialist_create' %}{% else %}{% url 'specialist_list' %}{% endif %}">
+    <span>{% if sp.mode == 'soon' %}{% if hl == 'az' %}Anket yaradın{% elif hl == 'en' %}Create a profile{% else %}Создать анкету{% endif %}{% else %}{% if hl == 'az' %}Mütəxəssislərə baxın{% elif hl == 'en' %}See specialists{% else %}Смотреть специалистов{% endif %}{% endif %}</span>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </a>
+</section>
+{% endif %}
+{% endif %}
+{% endwith %}

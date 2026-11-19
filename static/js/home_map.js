@@ -1131,6 +1131,7 @@
     const popularChips = Array.from(form.querySelectorAll ? form.querySelectorAll(".home-search-popular-chip") : []);
     popularChips.forEach(chip => {
       chip.addEventListener("click", function (e) {
+        if (chip.hasAttribute("data-popular-link")) return; // plain link to another catalog
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
         e.preventDefault();
 

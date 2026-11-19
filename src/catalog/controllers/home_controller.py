@@ -23,6 +23,12 @@ from catalog.services.seo import build_home_seo_payload
 from catalog.services.features import is_events_section_enabled
 
 
+# Below this many published profiles with a photo the home page shows a slim
+# teaser band; from this number on it shows a row of specialist cards.
+HOME_SPECIALISTS_RAIL_MIN = 6
+HOME_SPECIALISTS_RAIL_SIZE = 10
+
+
 @dataclass(slots=True)
 class HomeController:
     place_repository: IPlaceRepository
@@ -126,7 +132,64 @@ class HomeController:
             "hero_cta_text": site_settings.home_cta_text_i18n(language_code) or _("Начать поиск"),
             "hero_show_decor": bool(site_settings.home_hero_show_decor),
             "hero_gallery_slides": hero_gallery_slides,
+            "home_specialists": self._specialists_block(language_code),
         }
+
+    @staticmethod
+    def _specialists_block(language_code: str) -> dict | None:
+        """Home block for specialists.
+
+        Three states, picked from live data so nobody has to switch them by hand:
+        - "soon":   nothing published yet; invite specialists to fill in a profile;
+        - "teaser": a few profiles; a slim band with faces and the busiest specialties;
+        - "rail":   enough profiles with photos; a row of specialist cards.
+        """
+        from django.db.models import Count
+        from catalog.models import Specialist, SpecialistSpecialization
+        from catalog.services.features import is_specialists_section_enabled
+
+        if not is_specialists_section_enabled():
+            return None
+        published = Specialist.objects.filter(status=Specialist.STATUS_PUBLISHED, is_active=True)
+        total = published.count()
+        if not total:
+            return {"mode": "soon", "total": 0, "people": [], "chips": [], "fillers": ["person", "book", "heart"]}
+        with_photo = list(
+            published.exclude(photo="").exclude(photo__isnull=True)
+            .prefetch_related("specializations")
+            .order_by("-rating_count", "-rating_avg", "-pk")[:HOME_SPECIALISTS_RAIL_SIZE]
+        )
+        specialties = (
+            SpecialistSpecialization.objects
+            .annotate(published_count=Count(
+                "specialists",
+                filter=Q(specialists__status=Specialist.STATUS_PUBLISHED, specialists__is_active=True),
+                distinct=True,
+            ))
+            .filter(published_count__gt=0)
+            .order_by("-published_count", "pk")[:5]
+        )
+        chips = [{"code": item.code, "label": item.name_i18n(language_code)} for item in specialties]
+        mode = "rail" if len(with_photo) >= HOME_SPECIALISTS_RAIL_MIN else "teaser"
+        people = []
+        for person in with_photo if mode == "rail" else with_photo[:4]:
+            specialties_text = sorted(item.name_i18n(language_code) for item in person.specializations.all())
+            name_parts = (person.name or "").split()
+            people.append({
+                "name": person.name,
+                "initials": "".join(part[:1] for part in name_parts[:2]).upper() or "KM",
+                "url": person.get_absolute_url(),
+                "photo": person.photo.url if person.photo else "",
+                "specialty": ", ".join(specialties_text[:2]),
+                "rating": round(person.rating_avg, 1) if person.rating_count else None,
+                "rating_count": person.rating_count,
+                "online": person.consultation_format in (Specialist.FORMAT_ONLINE, Specialist.FORMAT_BOTH),
+                "offline": person.consultation_format in (Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH),
+                "price_from": person.price_from,
+            })
+        # The band keeps at least three round faces; icons stand in for missing photos.
+        fillers = ["person", "book", "heart"][: max(0, 3 - len(people))] if mode == "teaser" else []
+        return {"mode": mode, "total": total, "people": people, "chips": chips, "fillers": fillers}
 
     @staticmethod
     def _selected_age(request) -> str:

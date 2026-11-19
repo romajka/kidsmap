@@ -13,7 +13,8 @@
 {% block content %}
 {% get_current_language as lang %}
 <div class="verify-page-shell">
-  <section class="panel verify-panel">
+  <section class="panel verify-panel{% if auth_intent == "specialist_profile" %} verify-panel--journey{% endif %}">
+    {% if auth_intent == "specialist_profile" %}{% include "includes/specialist_journey.html" with step=2 %}{% endif %}
     <div class="verify-icon-badge" aria-hidden="true">
       <span class="material-symbols-rounded">mark_email_read</span>
     </div>
@@ -21,7 +22,7 @@
     <h1 class="verify-title">{% trans "Подтвердите email" %}</h1>
     <p class="verify-subtitle">
       {% if auth_intent == "specialist_profile" %}
-        {% if lang == "az" %}Mütəxəssis anketi e-poçt ünvanınızı təsdiqlədikdən sonra açılacaq. Məktubdakı altırəqəmli kodu daxil edin.{% elif lang == "en" %}Specialist profile setup will open after you confirm your email. Enter the six-digit code from the message.{% else %}Анкета специалиста откроется после подтверждения почты. Введите шестизначный код из письма.{% endif %}
+        {% if lang == "az" %}Mütəxəssis anketi koddan sonra açılacaq. Məktubdakı 6 rəqəmli kodu yazın; məktub görünmürsə, «Spam» qovluğuna baxın.{% elif lang == "en" %}Specialist profile opens after the code. Type the 6 digits from the email; if it is not there, check the Spam folder.{% else %}Анкета специалиста откроется после кода. Введите 6 цифр из письма; если письма нет, загляните в папку «Спам».{% endif %}
       {% else %}
         {% trans "Мы отправили 6-значный код на ваш email. Введите его, чтобы активировать аккаунт и войти." %}
       {% endif %}
@@ -110,6 +111,7 @@
 {% endblock %}
 
 {% block extra_body %}
+{% get_current_language as lang %}
 <script>
   (function () {
     const mainEmail = document.getElementById('{{ verify_form.email.id_for_label }}');
@@ -126,7 +128,13 @@
     }
 
     if (codeInput) {
+      // Plain-language message instead of the browser's "Please match the requested format".
+      const codeMessage = {% if lang == "az" %}'Məktubdakı 6 rəqəmi yazın'{% elif lang == "en" %}'Type the 6 digits from the email'{% else %}'Введите 6 цифр из письма'{% endif %};
+      codeInput.addEventListener('invalid', function () {
+        this.setCustomValidity(codeMessage);
+      });
       codeInput.addEventListener('input', function () {
+        this.setCustomValidity('');
         this.value = this.value.replace(/\D/g, '').slice(0, 6);
       });
 

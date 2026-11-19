@@ -17,7 +17,8 @@
 <link rel="stylesheet" href="{% static 'css/pages/home_layout.css' %}?v=20261117_desktop_search_cards" />
 <link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261103_mobile_compact" />
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_mobile_intro" />
-<script defer src="{% static 'js/mappy.js' %}?v=20261117_search_first"></script>
+<link rel="stylesheet" href="{% static 'css/pages/home_specialists.css' %}?v=20261119_r5" />
+<script defer src="{% static 'js/mappy.js' %}?v=20261119_specialists"></script>
 {% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
@@ -168,6 +169,7 @@
 </section>
 
 {% include "catalog/includes/home_places_rail.html" %}
+{% include "pages/includes/home_specialists.html" %}
 
 
 {% include "pages/includes/home_parent_guide.html" %}
@@ -229,9 +231,9 @@
     <div class="home-owner-copy">
       <div class="home-redesign-eyebrow home-owner-eyebrow">
         <span aria-hidden="true"></span>
-        {% if request.LANGUAGE_CODE == 'az' %}Məkan sahibləri üçün
-        {% elif request.LANGUAGE_CODE == 'en' %}For kids venue owners
-        {% else %}Владельцам детских мест{% endif %}
+        {% if request.LANGUAGE_CODE == 'az' %}Məkan sahibləri və mütəxəssislər üçün
+        {% elif request.LANGUAGE_CODE == 'en' %}For venue owners and specialists
+        {% else %}Владельцам мест и специалистам{% endif %}
       </div>
 
       <h2>{% trans "Помогите родителям найти вас рядом" %}</h2>
@@ -323,6 +325,16 @@
           <span class="arrow" aria-hidden="true">→</span>
         </a>
       </div>
+      {% if home_specialists %}
+      <a class="home-owner-specialist" href="{% url 'owner_specialist_create' %}">
+        <span class="home-owner-specialist__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+        <span class="home-owner-specialist__text">
+          <strong>{% if request.LANGUAGE_CODE == 'az' %}Loqoped, repetitor və ya psixoloqsunuz?{% elif request.LANGUAGE_CODE == 'en' %}A speech therapist, tutor or psychologist?{% else %}Вы логопед, репетитор или психолог?{% endif %}</strong>
+          <small>{% if request.LANGUAGE_CODE == 'az' %}Mütəxəssis anketi pulsuzdur. KidsMap yoxladıqdan sonra kataloqda görünəcək.{% elif request.LANGUAGE_CODE == 'en' %}A specialist profile is free. It appears in the catalog after KidsMap reviews it.{% else %}Анкета специалиста бесплатна. Она появится в каталоге после проверки KidsMap.{% endif %}</small>
+        </span>
+        <span class="home-owner-specialist__go">{% if request.LANGUAGE_CODE == 'az' %}Anket yaradın{% elif request.LANGUAGE_CODE == 'en' %}Create a profile{% else %}Создать анкету{% endif %}</span>
+      </a>
+      {% endif %}
     </div>
 
     <!-- Right Column: KidsMap Business Hub Showcase Card -->
@@ -780,7 +792,7 @@
 <script src="{% static 'js/google_maps_motion.js' %}?v=20261105_pins_r2"></script>
 <script src="{% static 'js/google_maps_markers.js' %}?v=20261105_pins_r2"></script>
 <script src="{% static 'js/map_paging.js' %}?v=20261030_published_r1"></script>
-<script src="{% static 'js/home_map.js' %}?v=20261117_search_tiles_refined" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+<script src="{% static 'js/home_map.js' %}?v=20261119_specialists" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
   data-home-map-route-label="{% trans 'Маршрут' %}"
   data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"

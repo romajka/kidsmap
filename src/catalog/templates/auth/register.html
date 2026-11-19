@@ -132,9 +132,10 @@
             </div>
           {% endif %}
 
+          <p class="register-req-note" data-register-note><span class="register-req" aria-hidden="true">*</span>{% if CURRENT_LANGUAGE == "az" %}Bütün xanalar məcburidir. Doldurulan xana yaşıl işarə ilə qeyd olunur.{% elif CURRENT_LANGUAGE == "en" %}All fields are required. A filled-in field gets a green check.{% else %}Все поля обязательные. Заполненное поле отмечается зелёной галочкой.{% endif %}</p>
           <div class="register-grid">
             <label class="register-field {% if form.first_name.errors %}has-error{% endif %}">
-              <span class="register-label">{{ form.first_name.label }}</span>
+              <span class="register-label">{{ form.first_name.label }}<span class="register-req" aria-hidden="true">*</span></span>
               <span class="register-input-wrap">
                 <span class="register-input-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" focusable="false"><path d="M12 4.75a4.25 4.25 0 1 1 0 8.5 4.25 4.25 0 0 1 0-8.5Zm0 1.5a2.75 2.75 0 1 0 0 5.5 2.75 2.75 0 0 0 0-5.5Zm0 8.75c4.278 0 7.75 2.334 7.75 5.25a.75.75 0 0 1-1.5 0c0-1.763-2.54-3.75-6.25-3.75S5.75 18.487 5.75 20.25a.75.75 0 0 1-1.5 0c0-2.916 3.472-5.25 7.75-5.25Z"/></svg>
@@ -145,7 +146,7 @@
             </label>
 
             <label class="register-field {% if form.last_name.errors %}has-error{% endif %}">
-              <span class="register-label">{{ form.last_name.label }}</span>
+              <span class="register-label">{{ form.last_name.label }}<span class="register-req" aria-hidden="true">*</span></span>
               <span class="register-input-wrap">
                 <span class="register-input-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" focusable="false"><path d="M12 4.75a4.25 4.25 0 1 1 0 8.5 4.25 4.25 0 0 1 0-8.5Zm0 1.5a2.75 2.75 0 1 0 0 5.5 2.75 2.75 0 0 0 0-5.5Zm0 8.75c4.278 0 7.75 2.334 7.75 5.25a.75.75 0 0 1-1.5 0c0-1.763-2.54-3.75-6.25-3.75S5.75 18.487 5.75 20.25a.75.75 0 0 1-1.5 0c0-2.916 3.472-5.25 7.75-5.25Z"/></svg>
@@ -156,7 +157,7 @@
             </label>
 
             <label class="register-field {% if form.email.errors %}has-error{% endif %}">
-              <span class="register-label">{{ form.email.label }}</span>
+              <span class="register-label">{{ form.email.label }}<span class="register-req" aria-hidden="true">*</span></span>
               <span class="register-input-wrap">
                 <span class="register-input-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" focusable="false"><path d="M4.75 6.5A2.75 2.75 0 0 1 7.5 3.75h9A2.75 2.75 0 0 1 19.25 6.5v11A2.75 2.75 0 0 1 16.5 20.25h-9A2.75 2.75 0 0 1 4.75 17.5v-11Zm2.75-1.25c-.69 0-1.25.56-1.25 1.25v.461l5.55 4.131a.35.35 0 0 0 .42 0l5.53-4.13V6.5c0-.69-.56-1.25-1.25-1.25h-9Zm10.25 3.579-4.634 3.46a1.85 1.85 0 0 1-2.222-.002L6.25 8.827V17.5c0 .69.56 1.25 1.25 1.25h9c.69 0 1.25-.56 1.25-1.25V8.829Z"/></svg>
@@ -167,7 +168,7 @@
             </label>
 
             <div class="register-field {% if form.phone.errors %}has-error{% endif %}">
-              <label for="{{ form.phone.id_for_label }}" class="register-label">{{ form.phone.label }}</label>
+              <label for="{{ form.phone.id_for_label }}" class="register-label">{{ form.phone.label }}<span class="register-req" aria-hidden="true">*</span></label>
               <span class="register-input-wrap">
                 <span class="register-input-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" focusable="false"><path d="m6.843 4.75 1.34-.001c.495 0 .925.343 1.035.826l.577 2.535c.085.372-.035.76-.314 1.018l-1.147 1.058a12.203 12.203 0 0 0 5.48 5.48l1.058-1.147c.257-.279.646-.399 1.018-.314l2.535.577c.483.11.826.54.826 1.035v1.34A2.093 2.093 0 0 1 19.158 19.25 14.408 14.408 0 0 1 4.75 4.842 2.093 2.093 0 0 1 6.843 4.75Zm1.34 1.499H6.844a.593.593 0 0 0-.594.594c0 6.045 4.905 10.907 10.908 10.907a.593.593 0 0 0 .592-.593v-1.34l-2.476-.563-1.227 1.33a.75.75 0 0 1-.81.192 13.705 13.705 0 0 1-6.014-6.013.75.75 0 0 1 .193-.811l1.329-1.227-.562-2.476Z"/></svg>
@@ -179,7 +180,7 @@
             </div>
 
             <label class="register-field register-field-full {% if form.password1.errors %}has-error{% endif %}">
-              <span class="register-label">{{ form.password1.label }}</span>
+              <span class="register-label">{{ form.password1.label }}<span class="register-req" aria-hidden="true">*</span></span>
               <span class="register-input-wrap register-input-wrap-password">
                 <span class="register-input-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2.75A4.25 4.25 0 0 0 7.75 7v2H7.5A2.75 2.75 0 0 0 4.75 11.75v6.5A2.75 2.75 0 0 0 7.5 21h9a2.75 2.75 0 0 0 2.75-2.75v-6.5A2.75 2.75 0 0 0 16.5 9h-.25V7A4.25 4.25 0 0 0 12 2.75Zm-2.75 6.5V7a2.75 2.75 0 0 1 5.5 0v2.25h-5.5Zm-1.75 1.25h9c.69 0 1.25.56 1.25 1.25v6.5c0 .69-.56 1.25-1.25 1.25h-9c-.69 0-1.25-.56-1.25-1.25v-6.5c0-.69.56-1.25 1.25-1.25Zm4.5 2.25a1.75 1.75 0 0 0-.75 3.332V17.5a.75.75 0 0 0 1.5 0v-1.418A1.75 1.75 0 0 0 12 12.75Zm0 1.5a.25.25 0 1 1 0 .5.25.25 0 0 1 0-.5Z"/></svg>
@@ -193,17 +194,18 @@
               <div class="register-password-rules" aria-label="{% if CURRENT_LANGUAGE == "az" %}Şifrə tələbləri{% elif CURRENT_LANGUAGE == "en" %}Password requirements{% else %}Требования к паролю{% endif %}">
                 <strong>{% if CURRENT_LANGUAGE == "az" %}Şifrə tələbləri:{% elif CURRENT_LANGUAGE == "en" %}Password requirements:{% else %}Требования к паролю:{% endif %}</strong>
                 <ul>
-                  <li>{% if CURRENT_LANGUAGE == "az" %}ən az 8 simvol{% elif CURRENT_LANGUAGE == "en" %}at least 8 characters{% else %}не менее 8 символов{% endif %}</li>
-                  <li>{% if CURRENT_LANGUAGE == "az" %}1 böyük hərf{% elif CURRENT_LANGUAGE == "en" %}1 uppercase letter{% else %}1 заглавная буква{% endif %}</li>
-                  <li>{% if CURRENT_LANGUAGE == "az" %}1 kiçik hərf{% elif CURRENT_LANGUAGE == "en" %}1 lowercase letter{% else %}1 строчная буква{% endif %}</li>
-                  <li>{% if CURRENT_LANGUAGE == "az" %}1 rəqəm{% elif CURRENT_LANGUAGE == "en" %}1 number{% else %}1 цифра{% endif %}</li>
+                  <li data-rule="len">{% if CURRENT_LANGUAGE == "az" %}ən az 8 simvol{% elif CURRENT_LANGUAGE == "en" %}at least 8 characters{% else %}не менее 8 символов{% endif %}</li>
+                  <li data-rule="upper">{% if CURRENT_LANGUAGE == "az" %}1 böyük hərf{% elif CURRENT_LANGUAGE == "en" %}1 uppercase letter{% else %}1 заглавная буква{% endif %}</li>
+                  <li data-rule="lower">{% if CURRENT_LANGUAGE == "az" %}1 kiçik hərf{% elif CURRENT_LANGUAGE == "en" %}1 lowercase letter{% else %}1 строчная буква{% endif %}</li>
+                  <li data-rule="digit">{% if CURRENT_LANGUAGE == "az" %}1 rəqəm{% elif CURRENT_LANGUAGE == "en" %}1 number{% else %}1 цифра{% endif %}</li>
+                  <li data-rule="unlike">{% if CURRENT_LANGUAGE == "az" %}ad və e-poçta bənzəməsin{% elif CURRENT_LANGUAGE == "en" %}not like your name or email{% else %}не похож на имя и email{% endif %}</li>
                 </ul>
               </div>
               {% if form.password1.errors %}<span class="auth-field-error">{{ form.password1.errors|join:", " }}</span>{% endif %}
             </label>
 
             <label class="register-field register-field-full {% if form.password2.errors %}has-error{% endif %}">
-              <span class="register-label">{{ form.password2.label }}</span>
+              <span class="register-label">{{ form.password2.label }}<span class="register-req" aria-hidden="true">*</span></span>
               <span class="register-input-wrap register-input-wrap-password">
                 <span class="register-input-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2.75A4.25 4.25 0 0 0 7.75 7v2H7.5A2.75 2.75 0 0 0 4.75 11.75v6.5A2.75 2.75 0 0 0 7.5 21h9a2.75 2.75 0 0 0 2.75-2.75v-6.5A2.75 2.75 0 0 0 16.5 9h-.25V7A4.25 4.25 0 0 0 12 2.75Zm-2.75 6.5V7a2.75 2.75 0 0 1 5.5 0v2.25h-5.5Zm-1.75 1.25h9c.69 0 1.25.56 1.25 1.25v6.5c0 .69-.56 1.25-1.25 1.25h-9c-.69 0-1.25-.56-1.25-1.25v-6.5c0-.69.56-1.25 1.25-1.25Zm4.5 2.25a1.75 1.75 0 0 0-.75 3.332V17.5a.75.75 0 0 0 1.5 0v-1.418A1.75 1.75 0 0 0 12 12.75Zm0 1.5a.25.25 0 1 1 0 .5.25.25 0 0 1 0-.5Z"/></svg>
@@ -234,6 +236,7 @@
             </div>
           </div>
 
+          <div class="register-progress" data-register-progress aria-live="polite" hidden></div>
           <button type="submit" class="btn register-submit-btn" data-loading-button>
             {% if CURRENT_LANGUAGE == "az" %}Hesab yarat{% elif CURRENT_LANGUAGE == "en" %}Create account{% else %}Создать аккаунт{% endif %}
           </button>
@@ -258,8 +261,139 @@
     </div>
   </section>
 
+  <script type="application/json" id="register-copy">{% if CURRENT_LANGUAGE == "az" %}{"left":"Doldurmaq qalır:","done":"Hər şey hazırdır. Hesab yarada bilərsiniz.","empty":"Bu xananı doldurun","email":"E-poçtu yoxlayın, məs. ad@mail.az","phone":"Nömrədə 7–15 rəqəm olmalıdır","password1":"Şifrə aşağıdakı tələblərə uyğun deyil","password2":"Şifrələr üst-üstə düşmür","agreement":"Razılığı qeyd edin","agreementName":"razılıq"}{% elif CURRENT_LANGUAGE == "en" %}{"left":"Still to fill in:","done":"All set. You can create the account.","empty":"Fill in this field","email":"Check the email, e.g. name@mail.com","phone":"The number needs 7–15 digits","password1":"The password doesn't meet the rules below","password2":"Passwords don't match","agreement":"Tick the agreement","agreementName":"agreement"}{% else %}{"left":"Осталось заполнить:","done":"Всё заполнено. Можно создавать аккаунт.","empty":"Заполните это поле","email":"Проверьте email, например name@mail.ru","phone":"В номере должно быть 7–15 цифр","password1":"Пароль не выполняет требования ниже","password2":"Пароли не совпадают","agreement":"Отметьте согласие","agreementName":"согласие"}{% endif %}</script>
   <script>
     (function () {
+      // Password rules light up as they are met (the server still has the final say).
+      var pw = document.querySelector('input[name="password1"]');
+      var rules = document.querySelector(".register-password-rules");
+      if (pw && rules) {
+        var field = function (n) { var e = document.querySelector('input[name="' + n + '"]'); return e ? e.value.trim().toLowerCase() : ""; };
+        var tooClose = function (value) {
+          var v = value.toLowerCase();
+          var parts = [field("first_name"), field("last_name")].concat(field("email").split(/[@._+-]/));
+          return parts.some(function (part) { return part.length >= 3 && (v.indexOf(part) !== -1 || part.indexOf(v) !== -1); });
+        };
+        var update = function () {
+          var v = pw.value;
+          var state = { len: v.length >= 8, upper: /[A-ZƏĞİÖŞÜÇА-ЯЁ]/.test(v), lower: /[a-zəğıöşüçа-яё]/.test(v), digit: /\d/.test(v), unlike: v.length > 0 && !tooClose(v) };
+          rules.classList.toggle("is-typing", v.length > 0);
+          rules.querySelectorAll("[data-rule]").forEach(function (li) { li.classList.toggle("is-ok", !!state[li.getAttribute("data-rule")]); });
+        };
+        ["input", "change"].forEach(function (t) { pw.addEventListener(t, update); });
+        ["first_name", "last_name", "email"].forEach(function (n) { var e = document.querySelector('input[name="' + n + '"]'); if (e) e.addEventListener("input", update); });
+        update();
+      }
+      // After a failed submit, take the person straight to the first problem.
+      var firstError = document.querySelector(".register-form .auth-field-error");
+      if (firstError) {
+        var box = firstError.closest("label, .register-field") || firstError.parentElement;
+        var input = box && box.querySelector("input:not([type=hidden]), select, textarea");
+        window.requestAnimationFrame(function () {
+          firstError.scrollIntoView({ block: "center" });
+          if (input) { try { input.focus({ preventScroll: true }); } catch (e) { input.focus(); } }
+        });
+      }
+      // Required-field guide: each field turns green when it is filled in correctly,
+      // problems show after leaving the field, and the line above the button lists
+      // what is still missing (tap a name to jump to that field).
+      var form = document.querySelector(".register-form");
+      var copyEl = document.getElementById("register-copy");
+      var progress = form && form.querySelector("[data-register-progress]");
+      if (form && copyEl && progress) {
+        var copy = {};
+        try { copy = JSON.parse(copyEl.textContent); } catch (e) { copy = {}; }
+        var get = function (n) { return form.querySelector('[name="' + n + '"]'); };
+        var pwOk = function (v) { return v.length >= 8 && /[A-ZƏĞİÖŞÜÇА-ЯЁ]/.test(v) && /[a-zəğıöşüçа-яё]/.test(v) && /\d/.test(v); };
+        var specs = [
+          { name: "first_name", test: function (v) { return v.trim().length > 0; } },
+          { name: "last_name", test: function (v) { return v.trim().length > 0; } },
+          { name: "email", test: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()); }, bad: "email" },
+          { name: "phone", test: function (v) { var d = v.replace(/\D/g, ""); return /^[+\d\s().-]+$/.test(v.trim()) && d.length >= 7 && d.length <= 15; }, bad: "phone" },
+          { name: "password1", test: pwOk, bad: "password1" },
+          { name: "password2", test: function (v) { var p = get("password1"); return v.length > 0 && !!p && v === p.value; }, bad: "password2" },
+          { name: "agreement", test: function () { var a = get("agreement"); return !!a && a.checked; }, bad: "agreement" }
+        ];
+        specs.forEach(function (spec) {
+          spec.input = get(spec.name);
+          if (!spec.input) return;
+          spec.box = spec.name === "agreement" ? spec.input.closest(".register-consent") : spec.input.closest(".register-field");
+          var label = spec.box && spec.box.querySelector(".register-label");
+          spec.title = spec.name === "agreement" ? (copy.agreementName || "") : (label ? label.childNodes[0].textContent.trim() : spec.name);
+          spec.hint = document.createElement("span");
+          spec.hint.className = "register-hint";
+          spec.hint.id = "register-hint-" + spec.name;
+          var wrap = spec.box.querySelector(".register-input-wrap");
+          if (wrap) wrap.insertAdjacentElement("afterend", spec.hint); else spec.box.appendChild(spec.hint);
+          spec.touched = false;
+        });
+        specs = specs.filter(function (s) { return s.input && s.box; });
+        var showAll = false;
+        var render = function () {
+          var missing = [];
+          specs.forEach(function (spec) {
+            var v = spec.input.type === "checkbox" ? "" : spec.input.value;
+            var ok = spec.test(v);
+            var serverError = spec.box.classList.contains("has-error");
+            var show = !ok && !serverError && (showAll || (spec.touched && (v.length > 0 || spec.name === "agreement")));
+            spec.box.classList.toggle("reg-ok", ok);
+            spec.box.classList.toggle("reg-bad", show);
+            spec.hint.textContent = show ? ((v.length === 0 && spec.input.type !== "checkbox") ? copy.empty : (copy[spec.bad] || copy.empty)) : "";
+            if (show) spec.input.setAttribute("aria-describedby", spec.hint.id); else if (spec.input.getAttribute("aria-describedby") === spec.hint.id) spec.input.removeAttribute("aria-describedby");
+            spec.input.setAttribute("aria-invalid", show || serverError ? "true" : "false");
+            if (!ok) missing.push(spec);
+          });
+          var share = (specs.length - missing.length) / specs.length;
+          form.style.setProperty("--register-fill", share.toFixed(3));
+          form.classList.toggle("is-complete", missing.length === 0);
+          progress.hidden = false;
+          progress.classList.toggle("is-complete", missing.length === 0);
+          var key = missing.map(function (s) { return s.name; }).join(",");
+          if (progress.getAttribute("data-key") === key) return;
+          progress.setAttribute("data-key", key);
+          progress.textContent = "";
+          var lead = document.createElement("span");
+          lead.className = "register-progress__lead";
+          lead.textContent = missing.length ? copy.left : copy.done;
+          progress.appendChild(lead);
+          missing.forEach(function (spec) {
+            var chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = "register-progress__chip";
+            chip.textContent = spec.title;
+            chip.addEventListener("click", function () {
+              spec.input.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+              try { spec.input.focus({ preventScroll: true }); } catch (e) { spec.input.focus(); }
+            });
+            progress.appendChild(chip);
+          });
+        };
+        specs.forEach(function (spec) {
+          var onEdit = function () {
+            if (spec.box.classList.contains("has-error")) {
+              spec.box.classList.remove("has-error");
+              var old = spec.box.querySelector(".auth-field-error");
+              if (old) old.remove();
+            }
+            if (spec.name === "agreement") spec.touched = true;
+            render();
+          };
+          spec.input.addEventListener("input", onEdit);
+          spec.input.addEventListener("change", onEdit);
+          spec.input.addEventListener("blur", function () { spec.touched = true; render(); });
+        });
+        form.addEventListener("submit", function (event) {
+          render();
+          var first = specs.filter(function (s) { return !s.box.classList.contains("reg-ok"); })[0];
+          if (!first) return;
+          event.preventDefault();
+          showAll = true;
+          render();
+          first.box.scrollIntoView({ block: "center" });
+          try { first.input.focus({ preventScroll: true }); } catch (e) { first.input.focus(); }
+        });
+        render();
+      }
       document.querySelectorAll("[data-password-toggle]").forEach(function (button) {
         button.addEventListener("click", function () {
           var targetId = button.getAttribute("data-target-input-id");
