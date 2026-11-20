@@ -20,7 +20,7 @@ from catalog.models import (
 )
 from ..queue_sorting import QueueSortingAdminMixin, QueueSortParameter
 from ..ui_utils import render_primary_action, render_action_menu
-from .filters import EventDeletedFilter
+from .filters import EventDeletedFilter, EventLanguageFilter
 from .forms import EventAdminForm
 from .inlines import EventPhotoInline
 
@@ -40,7 +40,7 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         "updated_at",
         "row_actions",
     )
-    list_filter = (QueueSortParameter, EventDeletedFilter, "status", "category", "start_datetime", "owner")
+    list_filter = (QueueSortParameter, EventDeletedFilter, EventLanguageFilter, "status", "category", "start_datetime", "owner")
     search_fields = ("name", "name_az", "name_ru", "name_en", "address", "phone", "owner__username", "owner__email")
     readonly_fields = ("slug", "created_at", "updated_at")
     list_select_related = ("owner", "related_place")

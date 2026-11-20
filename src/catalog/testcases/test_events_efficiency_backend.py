@@ -38,7 +38,7 @@ class EventEfficiencyBackendTests(TestCase):
             start_datetime=timezone.now()+timedelta(days=3),
             end_datetime=timezone.now()+timedelta(days=3, hours=1),
             description_az='Synthetic description', phone='+994501234567',
-            price_text='Ödənişsiz / Бесплатно', photo='events/synthetic-shared.jpg')
+            price_text='Ödənişsiz / Бесплатно', photo='events/synthetic-shared.jpg', languages='az')
         values.update(extra)
         return event_domain.create_event(actor=self.owner, values=values)
 

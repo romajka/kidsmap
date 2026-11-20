@@ -193,3 +193,19 @@ class EventDeletedFilter(admin.SimpleListFilter):
             return queryset.filter(deleted_at__isnull=True)
         # Default behavior: hide deleted events!
         return queryset.filter(deleted_at__isnull=True)
+
+
+class EventLanguageFilter(admin.SimpleListFilter):
+    """Find published events that still need their language set."""
+    title = _("Язык проведения")
+    parameter_name = "event_language"
+
+    def lookups(self, request, model_admin):
+        return (("missing", _("Не указан")), ("set", _("Указан")))
+
+    def queryset(self, request, queryset):
+        if self.value() == "missing":
+            return queryset.filter(languages="")
+        if self.value() == "set":
+            return queryset.exclude(languages="")
+        return queryset

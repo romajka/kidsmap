@@ -38,10 +38,33 @@
     return Math.max(0, Math.min(1, 1 - left / DAY));
   }
 
-  function pinElement(p, L) {
+  var UI = {
+    ru: { here: 'Афиша здесь', places: 'Места здесь', back: 'Все события здесь', open: 'Открыть', noLang: '',
+      ev: function (n) { var a = n % 10, b = n % 100; return n + ' ' + (b > 10 && b < 15 ? 'событий' : a === 1 ? 'событие' : a > 1 && a < 5 ? 'события' : 'событий'); },
+      pl: function (n) { var a = n % 10, b = n % 100; return n + ' ' + (b > 10 && b < 15 ? 'мест' : a === 1 ? 'место' : a > 1 && a < 5 ? 'места' : 'мест'); } },
+    az: { here: 'Burada afişa', places: 'Burada məkanlar', back: 'Buradakı bütün tədbirlər', open: 'Aç', noLang: '',
+      ev: function (n) { return n + ' tədbir'; }, pl: function (n) { return n + ' məkan'; } },
+    en: { here: 'Events here', places: 'Places here', back: 'All events here', open: 'Open', noLang: '',
+      ev: function (n) { return n + (n === 1 ? ' event' : ' events'); }, pl: function (n) { return n + (n === 1 ? ' place' : ' places'); } },
+  };
+  function ui() { return UI[(document.documentElement.lang || 'az').slice(0, 2)] || UI.az; }
+
+  function langChips(p, cls) {
+    var codes = p.languages || [];
+    if (!codes.length) return '';
+    return '<span class="' + cls + '" title="' + esc((p.language_names || []).join(', ')) + '">' +
+      '<span class="material-symbols-rounded" aria-hidden="true">translate</span>' +
+      codes.map(function (code) { return '<b>' + esc(code) + '</b>'; }).join('') +
+      '<span class="visually-hidden">' + esc((p.language_names || []).join(', ')) + '</span></span>';
+  }
+
+  // One pin per venue: several events at the same point become a ticket stack.
+  function pinElement(group, L) {
+    var p = group.points[0];
+    var many = group.points.length > 1;
     var el = document.createElement('span');
     var now = Date.now();
-    el.className = 'km-evpin';
+    el.className = 'km-evpin' + (many ? ' km-evpin--stack' : '');
     el.dataset.phase = phaseOf(p, now);
     el.style.setProperty('--km-delay', (Math.random() * 1.2).toFixed(2) + 's');
     el.style.setProperty('--p', progressOf(p, now).toFixed(3));
@@ -50,6 +73,7 @@
       '<span class="km-evpin__body">' +
         '<span class="km-evpin__progress" aria-hidden="true"></span>' +
         '<span class="km-evpin__ring" aria-hidden="true"></span>' +
+        (many ? '<span class="km-evpin__stack" aria-hidden="true"><i></i><i></i></span>' : '') +
         '<span class="km-evpin__ticket">' +
           '<span class="km-evpin__top">' + esc(p.long ? L.until : p.weekday) + '</span>' +
           '<b>' + esc(p.long ? p.end_day : p.day) + '</b>' +
@@ -58,8 +82,8 @@
         '</span>' +
         '<span class="km-evpin__tail" aria-hidden="true"></span>' +
         '<span class="km-evpin__sparks" aria-hidden="true"><i></i><i></i><i></i><i></i></span>' +
-        '<span class="km-evpin__badge" data-km-evpin-left>' + esc(shortLeft(p, now, L)) + '</span>' +
-        ((p.languages || []).length ? '<span class="km-evpin__langs" aria-hidden="true">' + esc(p.languages.join('·')) + '</span>' : '') +
+        (many ? '<span class="km-evpin__count">' + group.points.length + '</span>'
+              : '<span class="km-evpin__badge" data-km-evpin-left>' + esc(shortLeft(p, now, L)) + '</span>') +
       '</span>';
     if (!reduce && window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
       // Tilt the ticket toward the cursor.
@@ -70,18 +94,6 @@
       });
       el.addEventListener('pointerleave', function () { el.style.removeProperty('--rx'); el.style.removeProperty('--ry'); });
     }
-    return el;
-  }
-
-  function clusterElement(count, live, points) {
-    var el = document.createElement('span');
-    el.className = 'km-evcluster' + (live ? ' is-live' : '');
-    var fan = (points || []).slice().sort(function (a, b) { return a._start - b._start; }).slice(0, 3).map(function (p, i) {
-      return '<span class="km-evcluster__card" style="--n:' + i + '"><b>' + esc(p.long ? p.end_day : p.day) + '</b><small>' + esc(p.long ? p.end_month : p.month) + '</small></span>';
-    }).join('');
-    el.innerHTML = '<span class="km-evcluster__fan" aria-hidden="true">' + fan + '</span>' +
-      '<span class="km-evcluster__orbit" aria-hidden="true"></span>' +
-      '<span class="km-evcluster__core"><span class="material-symbols-rounded" aria-hidden="true">confirmation_number</span><b>' + count + '</b></span>';
     return el;
   }
 
@@ -136,23 +148,51 @@
     setInterval(function () { self.refreshBadges(); }, 20000);
   };
 
+  // "Всё / Места / Афиша": one segmented switch drives both layers.
   Layer.prototype.bindToggles = function () {
     var self = this;
-    var places = this.section.querySelector('[data-km-layer="places"]');
-    var events = this.section.querySelector('[data-km-layer="events"]');
-    if (places) places.addEventListener('change', function () {
-      self.mapEl.dataset.kmPlaces = places.checked ? 'on' : 'off';
-      self.mapEl.dispatchEvent(new CustomEvent('kidsmap:layers-change'));
-      if (!places.checked && events && !events.checked) { events.checked = true; self.setVisible(true); }
+    var radios = this.section.querySelectorAll('[data-km-mode]');
+    Array.prototype.forEach.call(radios, function (radio) {
+      radio.addEventListener('change', function () { if (radio.checked) self.setMode(radio.value); });
     });
-    if (events) events.addEventListener('change', function () {
-      self.setVisible(events.checked);
-      if (!events.checked && places && !places.checked) {
-        places.checked = true;
-        self.mapEl.dataset.kmPlaces = 'on';
-        self.mapEl.dispatchEvent(new CustomEvent('kidsmap:layers-change'));
-      }
+    var checked = this.section.querySelector('[data-km-mode]:checked');
+    if (checked && checked.value !== 'all') this.setMode(checked.value);
+    else this.placeThumb();
+    window.addEventListener('resize', function () { self.placeThumb(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { self.placeThumb(); });
+  };
+
+  // The white thumb slides under the chosen segment.
+  Layer.prototype.placeThumb = function () {
+    var switcher = this.section.querySelector('[data-km-modes]');
+    var checked = switcher && switcher.querySelector('[data-km-mode]:checked');
+    if (!checked) return;
+    var label = checked.closest('label');
+    switcher.style.setProperty('--x', (label.offsetLeft - 4) + 'px');
+    switcher.style.setProperty('--w', label.offsetWidth + 'px');
+  };
+
+  Layer.prototype.setMode = function (mode) {
+    var switcher = this.section.querySelector('[data-km-modes]');
+    if (switcher) switcher.dataset.mode = mode;
+    this.section.classList.toggle('is-events-mode', mode === 'events');
+    if (mode === 'events') this.renderList();
+    this.placeThumb();
+    this.mapEl.dataset.kmPlaces = mode === 'events' ? 'off' : 'on';
+    this.visible = mode !== 'places';
+    if (!this.visible || mode === 'events') this.close();
+    this.mapEl.dispatchEvent(new CustomEvent('kidsmap:layers-change'));
+  };
+
+  // Events at the same venue (±10 m) share one marker.
+  Layer.prototype.groups = function () {
+    var byKey = new Map();
+    this.points.slice().sort(function (a, b) { return a._start - b._start; }).forEach(function (p) {
+      var key = (+p.lat).toFixed(4) + ',' + (+p.lng).toFixed(4);
+      if (!byKey.has(key)) byKey.set(key, { key: key, lat: p.lat, lng: p.lng, points: [] });
+      byKey.get(key).points.push(p);
     });
+    return Array.from(byKey.values());
   };
 
   Layer.prototype.mount = function (detail) {
@@ -160,70 +200,77 @@
     this.engine = detail.engine;
     this.map = detail.map;
     var self = this, markers = [];
-    var title = this.section.dataset.evCluster || '';
-    this.points.forEach(function (p, index) {
-      var el = pinElement(p, self.L);
+    this.groups().forEach(function (group, index) {
+      var el = pinElement(group, self.L);
       el.style.setProperty('--km-i', Math.min(index, 12));
+      var label = group.points.length > 1 ? (group.points[0].venue || group.points[0].name) + ' · ' + ui().ev(group.points.length) : group.points[0].name;
       var marker;
       if (self.engine === 'google' && window.kidsMapCreateGoogleMarker) {
         marker = window.kidsMapCreateGoogleMarker({
-          position: { lat: p.lat, lng: p.lng }, title: p.name, visual: el,
+          position: { lat: group.lat, lng: group.lng }, title: label, visual: el,
           icon: { scaledSize: new google.maps.Size(52, 64), anchor: new google.maps.Point(26, 62) },
           publicVisual: true, ownerMap: self.map, mapId: detail.mapId, zIndex: 2000,
         });
-        marker.addListener('click', function () { self.open(p, el); });
+        marker.addListener('click', function () { self.openMarker(marker); });
       } else if (self.engine === 'leaflet' && window.L) {
-        marker = window.L.marker([p.lat, p.lng], {
+        marker = window.L.marker([group.lat, group.lng], {
           icon: window.L.divIcon({ className: 'km-evpin-host', html: el, iconSize: [52, 64], iconAnchor: [26, 62] }),
-          title: p.name, keyboard: true, zIndexOffset: 1000, riseOnHover: true, kmPhase: p.phase,
+          title: label, keyboard: true, zIndexOffset: 1000, riseOnHover: true,
         });
-        marker.on('click', function () { self.open(p, el); });
+        marker.on('click', function () { self.openMarker(marker); });
       } else {
         return;
       }
-      marker.__kmPoint = p;
+      // Read by home_map.js (shared clusterer) and kidsmap_map_pins.js (cluster ring).
+      marker.__kmEvents = group.points;
+      marker.__kmGroup = group;
+      marker.__kmPin = el;
       markers.push(marker);
-      self.items.push({ point: p, marker: marker, el: el });
+      group.points.forEach(function (p) { self.items.push({ point: p, marker: marker, el: el }); });
     });
+    this.items.sort(function (a, b) { return a.point._start - b.point._start; });
     this.markers = markers;
-
-    // Afisha pins cluster on their own (coral ticket bubbles), apart from place clusters.
-    if (this.engine === 'leaflet' && window.L.markerClusterGroup) {
-      this.group = window.L.markerClusterGroup({
-        showCoverageOnHover: false, maxClusterRadius: 58, spiderfyOnMaxZoom: true, zoomToBoundsOnClick: true,
-        iconCreateFunction: function (cluster) {
-          var children = cluster.getAllChildMarkers();
-          var live = children.some(function (m) { return m.__kmPoint && phaseOf(m.__kmPoint, Date.now()) === 'running'; });
-          return window.L.divIcon({ className: 'km-evpin-host', html: clusterElement(children.length, live, children.map(function (m) { return m.__kmPoint; })), iconSize: [58, 58], iconAnchor: [29, 29] });
-        },
-      });
-      this.group.addLayers(markers);
-      this.map.addLayer(this.group);
-    } else if (this.engine === 'leaflet') {
-      markers.forEach(function (m) { m.addTo(self.map); });
-    } else if (window.markerClusterer && window.markerClusterer.MarkerClusterer && !window.markerClusterer.dummy) {
-      var mc = window.markerClusterer;
-      this.clusterer = new mc.MarkerClusterer({
-        map: this.map, markers: markers,
-        algorithm: mc.SuperClusterAlgorithm ? new mc.SuperClusterAlgorithm({ maxZoom: 16, radius: 64 }) : undefined,
-        renderer: {
-          render: function (cluster) {
-            var live = cluster.markers.some(function (m) { return m.__kmPoint && phaseOf(m.__kmPoint, Date.now()) === 'running'; });
-            return window.kidsMapCreateGoogleMarker({
-              position: cluster.position, title: title.replace('{count}', cluster.count),
-              icon: { scaledSize: new google.maps.Size(58, 58), anchor: new google.maps.Point(29, 29) },
-              publicVisual: true, ownerMap: self.map, visual: clusterElement(cluster.count, live, cluster.markers.map(function (m) { return m.__kmPoint; })), visualKind: 'cluster',
-              zIndex: 3000000 + cluster.count, mapId: detail.mapId,
-            });
-          },
-        },
-      });
-    } else {
-      markers.forEach(function (m) { m.setMap(self.map); });
-    }
+    this.mapEl.__kmEventLayer = this;
+    this.mapEl.dispatchEvent(new CustomEvent('kidsmap:events-ready'));
     if (this.engine === 'google' && this.map.addListener) this.map.addListener('click', function () { self.close(); });
     if (this.engine === 'leaflet') this.map.on('click', function () { self.close(); });
     this.mirrorPlacePopups();
+  };
+
+  // "Афиша" mode: the side list shows upcoming events instead of places.
+  Layer.prototype.renderList = function () {
+    var self = this, L = this.L, now = Date.now();
+    var panel = this.section.querySelector('[data-home-explorer-list]');
+    if (!panel) return;
+    if (!this.list) {
+      this.list = document.createElement('ol');
+      this.list.className = 'km-evlist';
+      this.list.setAttribute('aria-label', ui().here);
+      panel.appendChild(this.list);
+      this.list.addEventListener('click', function (event) {
+        var row = event.target.closest('[data-km-evlist]');
+        if (!row) return;
+        var item = self.items[+row.dataset.kmEvlist];
+        if (!item) return;
+        self.select(item.marker.__kmPin);
+        self.open(item.point);
+      });
+    }
+    this.list.innerHTML = this.items.map(function (item, index) {
+      var p = item.point, phase = phaseOf(p, now);
+      return '<li style="--n:' + Math.min(index, 10) + '"><button type="button" class="km-venue__row km-evlist__row" data-km-evlist="' + index + '" data-phase="' + esc(phase) + '">' +
+        '<span class="km-venue__stamp"><small>' + esc(p.long ? L.until : p.weekday) + '</small><b>' + esc(p.long ? p.end_day : p.day) + '</b><small>' + esc(p.long ? p.end_month : p.month) + '</small></span>' +
+        '<span class="km-venue__info"><span class="km-venue__name">' + esc(p.name) + '</span>' +
+          '<span class="km-venue__meta"><span>' + esc(p.long ? (p.day + ' ' + p.month + ' – ' + p.end_day + ' ' + p.end_month) : p.time) + '</span>' +
+          ((p.venue || p.address) ? '<span>' + esc(p.venue || p.address) + '</span>' : '') + '</span>' +
+          langChips(p, 'km-venue__langs') + '</span>' +
+        '<span class="km-venue__left">' + esc(shortLeft(p, now, L)) + '</span>' +
+      '</button></li>';
+    }).join('');
+  };
+
+  Layer.prototype.visibleMarkers = function () {
+    return this.visible ? (this.markers || []) : [];
   };
 
   // Places: the map engine still opens its own popup (selection, list sync, phone
@@ -266,13 +313,15 @@
     setTimeout(function () { self.switching = false; }, 0);
   };
 
-  Layer.prototype.show = function (kind, html) {
+  Layer.prototype.show = function (kind, html, prepare) {
     var self = this;
     this.kind = kind;
     this.card.classList.toggle('km-evcard--place', kind === 'place');
+    this.card.classList.toggle('km-evcard--venue', kind === 'venue');
     this.card.innerHTML = '<button type="button" class="km-evcard__close" data-km-evcard-close aria-label="' + esc(this.L.close || 'Закрыть') +
       '"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>' + html;
     this.card.querySelector('[data-km-evcard-close]').addEventListener('click', function () { self.close(); });
+    if (prepare) prepare(this.card);
     this.card.hidden = false;
     this.card.classList.remove('is-open');
     void this.card.offsetWidth;
@@ -288,25 +337,11 @@
     this.show('place', '<div class="km-evcard__placebody">' + html + '</div>');
   };
 
-  Layer.prototype.setVisible = function (visible) {
-    var self = this;
-    this.visible = visible;
-    if (!visible) this.close();
-    if (this.group) {
-      if (visible) this.map.addLayer(this.group); else this.map.removeLayer(this.group);
-    } else if (this.clusterer) {
-      if (visible) this.clusterer.addMarkers(this.markers); else this.clusterer.clearMarkers();
-    } else {
-      this.markers.forEach(function (m) {
-        if (self.engine === 'google') m.setMap(visible ? self.map : null);
-        else if (visible) m.addTo(self.map); else self.map.removeLayer(m);
-      });
-    }
-  };
-
   Layer.prototype.refreshBadges = function () {
-    var now = Date.now(), L = this.L;
+    var now = Date.now(), L = this.L, seen = new Set();
     this.items.forEach(function (item) {
+      if (seen.has(item.el)) return;
+      seen.add(item.el);
       item.el.dataset.phase = phaseOf(item.point, now);
       item.el.style.setProperty('--p', progressOf(item.point, now).toFixed(3));
       var badge = item.el.querySelector('[data-km-evpin-left]');
@@ -320,20 +355,102 @@
     });
   };
 
-  Layer.prototype.open = function (p, el) {
-    var L = this.L;
+  function markerPosition(marker) {
+    if (marker.getLatLng) { var ll = marker.getLatLng(); return { lat: ll.lat, lng: ll.lng }; }
+    var pos = marker.getPosition && marker.getPosition();
+    if (!pos) return null;
+    return typeof pos.lat === 'function' ? { lat: pos.lat(), lng: pos.lng() } : { lat: pos.lat, lng: pos.lng };
+  }
+
+  // Places within ~25 m of a venue are shown in the same sheet.
+  Layer.prototype.placesNear = function (lat, lng) {
+    var list = this.mapEl.__kmPlaceMarkerList || [];
+    return list.filter(function (marker) {
+      var pos = markerPosition(marker);
+      return pos && Math.abs(pos.lat - lat) < 0.00025 && Math.abs(pos.lng - lng) < 0.0003;
+    });
+  };
+
+  Layer.prototype.select = function (el) {
     if (this.selected) this.selected.classList.remove('is-selected', 'is-hop');
-    this.selected = el;
+    this.selected = el || null;
+    if (!el) return;
     el.classList.add('is-selected');
-    if (!reduce) {
-      void el.offsetWidth;
-      el.classList.add('is-hop');
-      var ripple = document.createElement('span');
-      ripple.className = 'km-evpin__ripple';
-      ripple.setAttribute('aria-hidden', 'true');
-      el.appendChild(ripple);
-      setTimeout(function () { ripple.remove(); }, 900);
+    if (reduce) return;
+    void el.offsetWidth;
+    el.classList.add('is-hop');
+    var ripple = document.createElement('span');
+    ripple.className = 'km-evpin__ripple';
+    ripple.setAttribute('aria-hidden', 'true');
+    el.appendChild(ripple);
+    setTimeout(function () { ripple.remove(); }, 900);
+  };
+
+  Layer.prototype.openMarker = function (marker) {
+    var group = marker.__kmGroup;
+    var places = this.mapEl.dataset.kmPlaces === 'off' ? [] : this.placesNear(group.lat, group.lng);
+    if (group.points.length === 1 && !places.length) {
+      this.select(marker.__kmPin);
+      this.open(group.points[0]);
+      return;
     }
+    this.openVenue([marker], places);
+  };
+
+  // Venue sheet: every event at this point (and places there), newest first.
+  Layer.prototype.openVenue = function (eventMarkers, placeMarkers) {
+    var self = this, L = this.L, t = ui(), now = Date.now();
+    var points = [];
+    eventMarkers.forEach(function (m) { points = points.concat(m.__kmEvents || []); });
+    points.sort(function (a, b) { return a._start - b._start; });
+    var places = [];
+    (placeMarkers || []).forEach(function (m) {
+      var place = m.__kidsMapPlace;
+      if (!place) return;
+      (Array.isArray(place.members) && place.members.length ? place.members : [place]).forEach(function (member) { places.push(member); });
+    });
+    if (!points.length) return;
+    if (points.length === 1 && !places.length) { this.select(eventMarkers[0].__kmPin); this.open(points[0]); return; }
+    this.select(eventMarkers[0].__kmPin);
+    var first = points[0];
+    var title = first.venue || first.address || first.name;
+    var subtitle = [t.ev(points.length)].concat(places.length ? [t.pl(places.length)] : []).join(' · ');
+    var rows = points.map(function (p, index) {
+      var phase = phaseOf(p, now);
+      return '<li style="--n:' + index + '"><button type="button" class="km-venue__row" data-km-venue-event="' + index + '" data-phase="' + esc(phase) + '">' +
+        '<span class="km-venue__stamp"><small>' + esc(p.long ? L.until : p.weekday) + '</small><b>' + esc(p.long ? p.end_day : p.day) + '</b><small>' + esc(p.long ? p.end_month : p.month) + '</small></span>' +
+        '<span class="km-venue__info"><span class="km-venue__name">' + esc(p.name) + '</span>' +
+          '<span class="km-venue__meta"><span>' + esc(p.long ? (p.day + ' ' + p.month + ' – ' + p.end_day + ' ' + p.end_month) : p.time) + '</span>' +
+          (p.age ? '<span>' + esc(p.age) + '</span>' : '') + '</span>' +
+          langChips(p, 'km-venue__langs') + '</span>' +
+        '<span class="km-venue__left">' + esc(shortLeft(p, now, L)) + '</span>' +
+      '</button></li>';
+    }).join('');
+    var placeRows = places.map(function (place, index) {
+      return '<li style="--n:' + (points.length + index) + '"><a class="km-venue__row km-venue__row--place" href="' + esc(place.url || '#') + '">' +
+        (place.image_url ? '<img class="km-venue__thumb" src="' + esc(place.image_url) + '" alt="" loading="lazy">' : '<span class="km-venue__thumb material-symbols-rounded" aria-hidden="true">storefront</span>') +
+        '<span class="km-venue__info"><span class="km-venue__name">' + esc(place.name) + '</span>' +
+          '<span class="km-venue__meta">' + (place.category ? '<span>' + esc(place.category) + '</span>' : '') + (place.age ? '<span>' + esc(place.age) + '</span>' : '') + '</span></span>' +
+        '<span class="km-venue__go material-symbols-rounded" aria-hidden="true">arrow_forward</span></a></li>';
+    }).join('');
+    if (this.kind === 'place') this.closeEnginePopup();
+    this.show('venue',
+      '<header class="km-venue__head">' +
+        '<span class="km-venue__icon material-symbols-rounded" aria-hidden="true">confirmation_number</span>' +
+        '<span><span class="km-venue__tag">' + esc(t.here) + '</span><h3 class="km-venue__title">' + esc(title) + '</h3><span class="km-venue__sub">' + esc(subtitle) + '</span></span>' +
+      '</header>' +
+      '<ul class="km-venue__list">' + rows + '</ul>' +
+      (places.length ? '<p class="km-venue__section">' + esc(t.places) + '</p><ul class="km-venue__list">' + placeRows + '</ul>' : ''));
+    Array.prototype.forEach.call(this.card.querySelectorAll('[data-km-venue-event]'), function (button) {
+      button.addEventListener('click', function () {
+        self.open(points[+button.dataset.kmVenueEvent], function () { self.openVenue(eventMarkers, placeMarkers); });
+      });
+    });
+    this.pan(first);
+  };
+
+  Layer.prototype.open = function (p, back) {
+    var L = this.L, self = this;
     var whenChip = phaseOf(p, Date.now()) === 'running' ? '<span class="km-ev-chip km-ev-chip--live"><i aria-hidden="true"></i>' + esc(L.now) + '</span>'
       : p.when === 'today' ? '<span class="km-ev-chip km-ev-chip--hot">' + esc(L.today) + '</span>'
       : p.when === 'tomorrow' ? '<span class="km-ev-chip km-ev-chip--warm">' + esc(L.tomorrow) + '</span>'
@@ -342,34 +459,58 @@
       : (p.weekday + ', ' + p.day + ' ' + p.month + ' · ' + p.time);
     var price = p.free ? L.free : p.price;
     if (this.kind === 'place') this.closeEnginePopup();
-    this.show('event',
+    var html =
+      (back ? '<button type="button" class="km-evcard__back" data-km-evcard-back><span class="material-symbols-rounded" aria-hidden="true">arrow_back</span><span>' + esc(ui().back) + '</span></button>' : '') +
       '<a class="km-evcard__media" href="' + esc(p.url) + '" tabindex="-1" aria-hidden="true">' +
         (p.image ? '<img src="' + esc(p.image) + '" alt="" decoding="async">' : '<span class="km-evcard__ph material-symbols-rounded">celebration</span>') +
         '<span class="km-evcard__chips">' + whenChip + '</span>' +
+        langChips(p, 'km-evcard__langs km-evcard__langs--photo') +
         (price ? '<span class="km-evcard__price' + (p.free ? ' is-free' : '') + '">' + esc(price) + '</span>' : '') +
       '</a>' +
       '<div class="km-evcard__body">' +
         '<p class="km-evcard__when"><span class="material-symbols-rounded" aria-hidden="true">' + (p.long ? 'date_range' : 'schedule') + '</span>' + esc(date) + '</p>' +
         '<h3 class="km-evcard__title"><a href="' + esc(p.url) + '">' + esc(p.name) + '</a></h3>' +
         '<p class="km-evcard__meta">' + (p.category ? '<span class="km-ev-card__cat">' + esc(p.category) + '</span>' : '') +
-          (p.age ? '<span>' + esc(p.age) + '</span>' : '') +
-          ((p.languages || []).length ? '<span class="km-evcard__langs" title="' + esc((p.language_names || []).join(', ')) + '"><span class="material-symbols-rounded" aria-hidden="true">translate</span>' +
-            p.languages.map(function (code) { return '<b>' + esc(code) + '</b>'; }).join('') + '</span>' : '') + '</p>' +
+          (p.age ? '<span>' + esc(p.age) + '</span>' : '') + '</p>' +
         ((p.venue || p.address) ? '<p class="km-evcard__place"><span class="material-symbols-rounded" aria-hidden="true">location_on</span>' + esc(p.venue || p.address) + '</p>' : '') +
         timerMarkup(p, L) +
         '<div class="km-evcard__actions">' +
           '<a class="km-ev-btn km-ev-btn--primary" href="' + esc(p.url) + '"><span>' + esc(L.details) + '</span><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>' +
           '<a class="km-ev-btn km-ev-btn--ghost" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(p.lat + ',' + p.lng) + '"><span class="material-symbols-rounded" aria-hidden="true">near_me</span><span>' + esc(L.route) + '</span></a>' +
         '</div>' +
-      '</div>');
-    if (window.KidsMapTimers) window.KidsMapTimers.scan(this.card);
-    this.pan(p);
+      '</div>';
+    var reveal = function () {
+      self.show('event', html, function (card) {
+        // Fill the countdown before the card becomes visible: no "00:00" flash.
+        if (window.KidsMapTimers) window.KidsMapTimers.scan(card);
+        var backButton = card.querySelector('[data-km-evcard-back]');
+        if (backButton && back) backButton.addEventListener('click', back);
+      });
+      self.pan(p);
+    };
+    // Wait briefly for the photo so the card never opens with an empty frame.
+    if (!p.image) { reveal(); return; }
+    var image = new Image(), done = false;
+    var go = function () { if (done) return; done = true; reveal(); };
+    image.onload = image.onerror = go;
+    image.src = p.image;
+    if (image.complete) go(); else setTimeout(go, 350);
   };
 
+  // Keep the pin visible beside the card (desktop) or above the sheet (phone).
   Layer.prototype.pan = function (p) {
     if (!this.map) return;
-    if (this.engine === 'google' && this.map.panTo) this.map.panTo({ lat: p.lat, lng: p.lng });
-    else if (this.engine === 'leaflet') this.map.panTo([p.lat, p.lng], { animate: !reduce });
+    var phone = this.container.clientWidth <= 640;
+    var dx = phone ? 0 : Math.min(190, (this.card.offsetWidth || 340) / 2 + 10);
+    var dy = phone ? -Math.round(this.container.clientHeight * 0.24) : 0;
+    if (this.engine === 'google' && this.map.panTo) {
+      this.map.panTo({ lat: p.lat, lng: p.lng });
+      if ((dx || dy) && this.map.panBy) this.map.panBy(-dx, -dy);
+    } else if (this.engine === 'leaflet') {
+      var zoom = this.map.getZoom();
+      var point = this.map.project([p.lat, p.lng], zoom).subtract([dx, dy]);
+      this.map.panTo(this.map.unproject(point, zoom), { animate: !reduce });
+    }
   };
 
   Layer.prototype.close = function (fromEngine) {

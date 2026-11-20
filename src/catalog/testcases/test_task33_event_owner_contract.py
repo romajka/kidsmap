@@ -106,7 +106,7 @@ class EventOwnerContractTests(TestCase):
     def test_admin_dates_are_baku_and_online_has_no_address_requirement(self):
         from catalog.domain_admin.place import EventAdminForm
         event=Event.objects.create(name='Online',name_az='Online',description_az='Online description',category=self.category,
-            organizer_organization=self.org,event_format='online',phone='+994501234567',photo='synthetic.png')
+            organizer_organization=self.org,event_format='online',phone='+994501234567',photo='synthetic.png',languages='az')
         data={'name':'Online','name_az':'Online','description_az':'Online description','category':self.category.code,
             'organizer_organization':self.org.pk,'event_format':'online','status':'published',
             'expected_updated_at':event.updated_at.isoformat(),
