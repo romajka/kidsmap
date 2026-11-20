@@ -1,29 +1,81 @@
 {% load i18n tz %}
-<section class="events-calendar panel" id="events-calendar" aria-labelledby="events-month-heading">
+<section class="events-calendar km-cal" id="events-calendar" data-km-calendar data-month="{{ event_calendar.month }}" aria-labelledby="events-month-heading">
   {% if event_calendar.valid %}
-  <div class="events-calendar-header">
-    {% if event_calendar.prev_url %}<a class="events-card-btn" data-events-month="previous" href="{{ event_calendar.prev_url }}" aria-label="{% if language == 'az' %}Əvvəlki ay{% elif language == 'en' %}Previous month{% else %}Предыдущий месяц{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span><span class="events-month-label">{% if language == 'az' %}Əvvəlki ay{% elif language == 'en' %}Previous month{% else %}Предыдущий месяц{% endif %}</span></a>{% endif %}
-    <h2 id="events-month-heading">{{ event_calendar.month_label|date:'F Y' }}</h2>
-    {% if event_calendar.next_url %}<a class="events-card-btn" data-events-month="next" href="{{ event_calendar.next_url }}" aria-label="{% if language == 'az' %}Növbəti ay{% elif language == 'en' %}Next month{% else %}Следующий месяц{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span><span class="events-month-label">{% if language == 'az' %}Növbəti ay{% elif language == 'en' %}Next month{% else %}Следующий месяц{% endif %}</span></a>{% endif %}
-  </div>
-  <p class="events-calendar-note">{% if language == 'az' %}Bakı vaxtı · Asia/Baku. Günü seçin; həmin günün tədbirləri aşağıdadır.{% elif language == 'en' %}Baku time · Asia/Baku. Select a day to see its events below.{% else %}Время Баку · Asia/Baku. Выберите день — его события показаны ниже.{% endif %}</p>
-  <a class="events-calendar-today" href="{{ event_calendar.today_url }}">{% if language == 'az' %}Bu aya keç{% elif language == 'en' %}Go to this month{% else %}Перейти к текущему месяцу{% endif %}</a>
-  <div class="events-calendar-weekdays" aria-hidden="true">{% for day in event_calendar.weeks.0 %}<span>{{ day.date|date:'D' }}</span>{% endfor %}</div>
-  <div class="events-calendar-grid">
-    {% for week in event_calendar.weeks %}{% for day in week %}
-      <div class="events-calendar-cell{% if not day.in_month %} events-calendar-cell--outside{% endif %}{% if day.selected %} events-calendar-cell--selected{% endif %}{% if day.today %} events-calendar-cell--today{% endif %}">
-        {% if day.in_month %}
-        <a class="events-calendar-day" data-date="{{ day.iso }}" href="{{ day.url }}" {% if day.selected %}aria-current="date"{% endif %} aria-label="{{ day.date|date:'d F Y' }} · {{ day.count }} {% if language == 'az' %}tədbir{% elif language == 'en' %}events{% else %}событий{% endif %}"><time datetime="{{ day.iso }}">{{ day.date|date:'j' }}</time>{% if day.count %}<span class="events-calendar-count">{{ day.count }}</span>{% endif %}</a>
-        <ul class="events-calendar-entries">{% for event in day.events %}<li><a data-calendar-event-id="{{ event.pk }}" href="{{ event.get_absolute_url }}">{% timezone 'Asia/Baku' %}<time>{{ event.start_datetime|date:'H:i' }}</time>{% endtimezone %} {{ event.name_i18n }}</a>{% include 'catalog/includes/event_title_fallback.html' %}<span class="events-calendar-state">{% include 'catalog/includes/event_occurrence_state.html' %}</span></li>{% endfor %}</ul>
-        {% else %}<span class="events-calendar-outside-number" aria-hidden="true">{{ day.date|date:'j' }}</span>{% endif %}
+  <div class="km-cal__layout">
+    <div class="km-cal__board panel">
+      <header class="km-cal__head">
+        {% if event_calendar.prev_url %}<a class="km-cal__nav" data-events-month="previous" href="{{ event_calendar.prev_url }}" aria-label="{% if language == 'az' %}Əvvəlki ay{% elif language == 'en' %}Previous month{% else %}Предыдущий месяц{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></a>{% endif %}
+        <h2 id="events-month-heading"><span class="km-cal__month">{{ event_calendar.month_label|date:'F' }}</span> <span class="km-cal__year">{{ event_calendar.month_label|date:'Y' }}</span></h2>
+        {% if event_calendar.next_url %}<a class="km-cal__nav" data-events-month="next" href="{{ event_calendar.next_url }}" aria-label="{% if language == 'az' %}Növbəti ay{% elif language == 'en' %}Next month{% else %}Следующий месяц{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></a>{% endif %}
+      </header>
+      <div class="km-cal__toolbar">
+        <a class="km-cal__today events-calendar-today" href="{{ event_calendar.today_url }}"><span class="material-symbols-rounded" aria-hidden="true">today</span>{% if language == 'az' %}Bu gün{% elif language == 'en' %}Today{% else %}Сегодня{% endif %}</a>
+        <span class="km-cal__legend"><i class="km-cal__legend-dot" aria-hidden="true"></i>{% if language == 'az' %}tədbir{% elif language == 'en' %}event{% else %}событие{% endif %}{% if event_calendar.long_events %}<i class="km-cal__legend-bar" aria-hidden="true"></i>{% if language == 'az' %}uzunmüddətli{% elif language == 'en' %}long-running{% else %}идёт долго{% endif %}{% endif %}</span>
+        <span class="km-cal__tz">{% if language == 'az' %}Bakı vaxtı{% elif language == 'en' %}Baku time{% else %}Время Баку{% endif %}</span>
       </div>
-    {% endfor %}{% endfor %}
+      <div class="km-cal__weekdays" aria-hidden="true">{% for day in event_calendar.weeks.0 %}<span{% if day.weekend %} class="is-weekend"{% endif %}>{{ day.date|date:'D' }}</span>{% endfor %}</div>
+      <div class="km-cal__grid" data-km-cal-grid>
+        {% for week in event_calendar.weeks %}{% for day in week %}
+          <div class="km-cal__cell events-calendar-cell{% if not day.in_month %} is-outside{% endif %}{% if day.selected %} is-selected{% endif %}{% if day.today %} is-today{% endif %}{% if day.past %} is-past{% endif %}{% if day.weekend %} is-weekend{% endif %}" data-level="{% if day.short_count >= 3 %}3{% else %}{{ day.short_count }}{% endif %}">
+            {% if day.in_month %}
+            <a class="km-cal__day events-calendar-day" data-date="{{ day.iso }}" href="{{ day.url }}"{% if day.selected %} aria-current="date"{% endif %} aria-label="{{ day.date|date:'j F, l' }} · {{ day.count }} {% if language == 'az' %}tədbir{% elif language == 'en' %}events{% else %}событий{% endif %}">
+              <time datetime="{{ day.iso }}">{{ day.date|date:'j' }}</time>
+              <span class="km-cal__marks" aria-hidden="true">{% for event in day.dots %}<i class="km-cal__dot{% if event.occurrence_state == 'cancelled' %} is-off{% endif %}"></i>{% endfor %}{% if day.more %}<em>+{{ day.more }}</em>{% endif %}</span>
+              {% if day.long_count %}<span class="km-cal__bar" aria-hidden="true"></span>{% endif %}
+            </a>
+            {% if day.short_events %}
+            <div class="km-cal__pop" role="tooltip">
+              <ul>{% timezone 'Asia/Baku' %}{% for event in day.short_events %}<li{% if event.occurrence_state == 'cancelled' %} class="is-off"{% endif %}><a data-calendar-event-id="{{ event.pk }}" href="{{ event.get_absolute_url }}">{% if event.start_datetime|date:'Y-m-d' != day.iso %}<time>…{{ event.end_datetime|date:'H:i' }}</time>{% else %}<time>{{ event.start_datetime|date:'H:i' }}</time>{% endif %}<span>{{ event.name_i18n }}</span></a>{% include 'catalog/includes/event_title_fallback.html' %}</li>{% endfor %}{% endtimezone %}</ul>
+              {% if day.long_count %}<p>+ {{ day.long_count }} {% if language == 'az' %}uzunmüddətli{% elif language == 'en' %}long-running{% else %}идут весь период{% endif %}</p>{% endif %}
+            </div>
+            {% endif %}
+            {% else %}<span class="km-cal__day km-cal__day--outside" aria-hidden="true"><time>{{ day.date|date:'j' }}</time></span>{% endif %}
+          </div>
+        {% endfor %}{% endfor %}
+      </div>
+
+      {% if event_calendar.long_events %}
+      <section class="km-cal__long" aria-labelledby="events-long-heading">
+        <h3 id="events-long-heading"><span class="material-symbols-rounded" aria-hidden="true">date_range</span>{% if language == 'az' %}Bütün dövr ərzində{% elif language == 'en' %}Running all period{% else %}Идут весь период{% endif %}<span class="km-cal__count">{{ event_calendar.long_events|length }}</span></h3>
+        <ul class="km-cal__long-list">
+          {% for event in event_calendar.long_events %}{% timezone 'Asia/Baku' %}
+          <li class="km-cal__long-item">
+            <a href="{{ event.get_absolute_url }}" data-calendar-event-id="{{ event.pk }}">
+              {% if event.photo %}<img src="{{ event.photo.url }}" alt="" loading="lazy" decoding="async">{% else %}<span class="km-cal__long-ph material-symbols-rounded" aria-hidden="true">museum</span>{% endif %}
+              <span class="km-cal__long-copy"><strong>{{ event.name_i18n }}</strong><small>{{ event.start_datetime|date:'j b'|cut:'.' }} – {{ event.end_datetime|date:'j b'|cut:'.' }}</small></span>
+            </a>{% include 'catalog/includes/event_title_fallback.html' %}
+            {% include 'catalog/includes/event_timer.html' with variant='mini' facts=None %}
+          </li>
+          {% endtimezone %}{% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+    </div>
+
+    <section id="events-day-list" class="km-cal__agenda events-day-list" aria-labelledby="events-day-heading" aria-live="polite">
+      <header class="km-cal__agenda-head">
+        <h2 id="events-day-heading"><time datetime="{{ event_calendar.selected_date }}"><span class="km-cal__agenda-dow">{{ event_calendar.selected_day|date:'l' }}</span> <span class="km-cal__agenda-date">{{ event_calendar.selected_day|date:'j E' }}</span></time></h2>
+        <span class="km-cal__count">{{ event_calendar.selected_short_events|length }}</span>
+      </header>
+      <div class="events-list-v2 km-cal__agenda-list" data-km-stagger>
+        {% for event in event_calendar.selected_short_events %}
+          {% include 'catalog/includes/event_listing_card.html' with compact=True %}
+        {% empty %}
+          <div class="km-cal__empty" role="status">
+            <span class="material-symbols-rounded" aria-hidden="true">event_busy</span>
+            <p>{% if language == 'az' %}Bu gün üçün ayrıca tədbir yoxdur. Başqa gün seçin{% elif language == 'en' %}No separate events on this day. Pick another day{% else %}В этот день отдельных событий нет. Выберите другой день{% endif %}{% if event_calendar.selected_long_events %}{% if language == 'az' %} və ya uzunmüddətli tədbirlərə baxın{% elif language == 'en' %} or see the long-running ones{% else %} или посмотрите то, что идёт весь период{% endif %}{% endif %}.</p>
+          </div>
+        {% endfor %}
+      </div>
+      {% include 'catalog/includes/event_suggest_cta.html' with variant='compact' %}
+      {% if event_calendar.selected_long_events %}
+        <p class="km-cal__agenda-also"><span class="material-symbols-rounded" aria-hidden="true">date_range</span>{% if language == 'az' %}Həmçinin bu gün gedir{% elif language == 'en' %}Also on this day{% else %}Также в этот день идут{% endif %}: {% for event in event_calendar.selected_long_events %}<a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+      {% endif %}
+    </section>
   </div>
-  <section id="events-day-list" class="events-day-list" aria-labelledby="events-day-heading">
-    <h2 id="events-day-heading">{% if language == 'az' %}Seçilmiş gün{% elif language == 'en' %}Selected day{% else %}Выбранный день{% endif %}: <time datetime="{{ event_calendar.selected_date }}">{{ event_calendar.selected_date }}</time></h2>
-    <div class="events-list-v2">{% for event in event_calendar.selected_events %}{% include 'catalog/includes/event_listing_card.html' %}{% empty %}<p class="events-empty" role="status">{% if language == 'az' %}Seçilən gün və filtrlər üzrə tədbir yoxdur. Başqa gün seçin və ya filtri sıfırlayın.{% elif language == 'en' %}No events on this day with these filters. Choose another day or reset filters.{% else %}На выбранный день с этими фильтрами событий нет. Выберите другой день или сбросьте фильтры.{% endif %}</p>{% endfor %}</div>
-  </section>
   {% else %}
-    <h2 id="events-month-heading">{% if language == 'az' %}Tarixi yoxlayın{% elif language == 'en' %}Check the date{% else %}Проверьте дату{% endif %}</h2><p role="status">{% if language == 'az' %}Düzgün ay və həmin aya aid gün seçin.{% elif language == 'en' %}Choose a valid month and a day within that month.{% else %}Выберите корректный месяц и день этого месяца.{% endif %}</p><a href="{{ event_calendar.today_url }}">{% if language == 'az' %}Bu aya keç{% elif language == 'en' %}Go to this month{% else %}Перейти к текущему месяцу{% endif %}</a>
+    <div class="km-cal__invalid panel">
+      <h2 id="events-month-heading">{% if language == 'az' %}Tarixi yoxlayın{% elif language == 'en' %}Check the date{% else %}Проверьте дату{% endif %}</h2><p role="status">{% if language == 'az' %}Düzgün ay və həmin aya aid gün seçin.{% elif language == 'en' %}Choose a valid month and a day within that month.{% else %}Выберите корректный месяц и день этого месяца.{% endif %}</p><a href="{{ event_calendar.today_url }}">{% if language == 'az' %}Bu aya keç{% elif language == 'en' %}Go to this month{% else %}Перейти к текущему месяцу{% endif %}</a>
+    </div>
   {% endif %}
 </section>

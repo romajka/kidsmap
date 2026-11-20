@@ -22,6 +22,7 @@ from django.urls import include, path, re_path, reverse_lazy
 
 from .forms import UserPasswordResetForm, UserSetPasswordForm
 from .phone_views import reveal_place_phones
+from .controllers.event_suggest import event_suggest
 from .photo_views import prepare_owner_photo, save_owner_photos, owner_photo_thumbnail
 from .views import (
     home,
@@ -156,6 +157,7 @@ urlpatterns = [
     path("api/catalog/suggestions/", catalog_search_suggestions, name="catalog_search_suggestions"),
     path("", home, name="home"),
     path("events/", events_landing, name="events_landing"),
+    path("events/suggest/", event_suggest, name="event_suggest"),
     path("catalog/", place_list, name="place_list"),
     path("catalog/new/", place_new, name="place_new"),
     path("catalog/<slug:seo_slug>/", seo_landing, name="seo_landing"),

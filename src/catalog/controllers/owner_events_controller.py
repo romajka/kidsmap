@@ -19,7 +19,13 @@ class EventActionResponse:
 
 def _event_required_missing(event: Event) -> list[str]:
     from catalog.services.event_readiness import required_missing
-    return required_missing(event)
+    missing = required_missing(event)
+    # Organisers must say which language the event is held in; staff may still
+    # publish older or imported events without it.
+    if not str(getattr(event, 'languages', '') or '').strip():
+        from catalog.services.phone_numbers import contact_copy
+        missing.append(contact_copy('Укажите язык проведения.', 'Tədbirin dilini seçin.', 'Choose the event language.'))
+    return missing
 
 
 def _managed_event(request, pk):

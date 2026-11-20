@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from catalog.services.event_queries import BAKU, EventPeriod, _day, _midnight, parse_event_period, query_public_events
 
-FILTER_KEYS = ('q', 'category', 'age', 'age_from', 'age_to', 'format', 'district', 'free', 'sort')
+FILTER_KEYS = ('q', 'category', 'age', 'age_from', 'age_to', 'format', 'lang', 'district', 'free', 'sort')
 PERIOD_KEYS = ('month', 'date', 'date_from', 'date_to', 'date_filter')
 
 
@@ -81,6 +81,7 @@ def build_event_calendar(params, events, *, now=None, path=''):
     quick_urls = {key: url(dict(filters, view='list', date_filter=key))
                   for key in ('today', 'tomorrow', 'this_week', 'weekend')}
     quick_urls['all'] = url(filters_all)
+    quick_urls['past'] = url(dict(filters, view='list', when='past'))
     free_params = {key: value for key, value in clean.items() if value}
     free_params['view'] = 'calendar' if clean['view'] == 'calendar' else 'list'
     if clean['free'] == '1':
@@ -98,7 +99,8 @@ def build_event_calendar(params, events, *, now=None, path=''):
 
     result = {
         'valid': valid, 'month': month, 'month_label': first,
-        'selected_date': selected.isoformat(), 'weeks': [], 'days': [], 'selected_events': [],
+        'selected_date': selected.isoformat(), 'selected_day': selected, 'weeks': [], 'days': [], 'selected_events': [],
+        'long_events': [], 'busiest': 0, 'selected_short_events': [], 'selected_long_events': [],
         'prev_url': adjacent_url(-1) if valid else '',
         'next_url': adjacent_url(1) if valid else '',
         'list_url': url(list_params), 'calendar_url': url(calendar_params),
@@ -108,6 +110,11 @@ def build_event_calendar(params, events, *, now=None, path=''):
     if not valid:
         return result
     actual_events = list(events)
+    from catalog.services.event_afisha import is_long_event
+    long_ids = {event.pk for event in actual_events if is_long_event(event)}
+    result['long_events'] = sorted((event for event in actual_events if event.pk in long_ids),
+                                   key=lambda event: (event.end_datetime, event.pk))
+    result['busiest'] = 0
     for dates in weeks_dates:
         row = []
         for day in dates:
@@ -116,14 +123,22 @@ def build_event_calendar(params, events, *, now=None, path=''):
             matches = [event for event in actual_events if in_month
                        and event.start_datetime is not None and event.end_datetime is not None
                        and event.start_datetime < end and event.end_datetime > start]
+            short = [event for event in matches if event.pk not in long_ids]
             item = {'iso': day.isoformat(), 'date': day, 'in_month': in_month,
-                    'selected': day == selected, 'today': day == today,
+                    'selected': day == selected, 'today': day == today, 'past': day < today,
+                    'weekend': day.weekday() >= 5,
                     'events': matches, 'count': len(matches),
+                    'short_events': short, 'short_count': len(short),
+                    'dots': short[:3], 'more': max(len(short) - 3, 0),
+                    'long_count': len(matches) - len(short),
                     'url': url(dict(filters, view='calendar', month=day.strftime('%Y-%m'), date=day.isoformat()))}
             row.append(item)
+            result['busiest'] = max(result['busiest'], len(short))
             if in_month:
                 result['days'].append(item)
             if day == selected:
                 result['selected_events'] = matches
+                result['selected_short_events'] = short
+                result['selected_long_events'] = [event for event in matches if event.pk in long_ids]
         result['weeks'].append(row)
     return result

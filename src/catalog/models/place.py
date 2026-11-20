@@ -887,6 +887,8 @@ class Event(models.Model):
         choices=((ORGANIZER_RESOLVED, 'Resolved'), (ORGANIZER_LEGACY_UNRESOLVED, 'Legacy unresolved')), editable=False)
     event_format = models.CharField(max_length=16, default=FORMAT_PHYSICAL,
         choices=((FORMAT_PHYSICAL, _('Очно')), (FORMAT_ONLINE, _('Онлайн'))))
+    # Languages the event is held in, e.g. "az,ru" (see services/event_languages.py).
+    languages = models.CharField(_('Языки проведения'), max_length=32, blank=True, default='', db_default='')
     occurrence_state = models.CharField(max_length=16, default=OCCURRENCE_SCHEDULED,
         choices=((OCCURRENCE_SCHEDULED, _('Запланировано')), (OCCURRENCE_CANCELLED, _('Отменено')),
                  (OCCURRENCE_RESCHEDULED, _('Перенесено'))), editable=False)
@@ -994,6 +996,11 @@ class Event(models.Model):
     @property
     def has_coordinates(self):
         return self.lat is not None and self.lng is not None
+
+    @property
+    def language_list(self):
+        from catalog.services.event_languages import present
+        return present(self.languages)
 
     @property
     def age_display(self) -> str:

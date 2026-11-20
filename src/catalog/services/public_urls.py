@@ -22,7 +22,7 @@ PUBLIC_QUERY_PARAMS = {
     "place_new": {"q", "category", "subcategory", "district", "metro", "age", "age_from", "age_to", "min_rating", "days", "with_photo", "page"},
     "events_landing": {
         "q", "category", "district", "date_filter", "age", "age_from", "age_to", "free", "sort", "page",
-        "view", "month", "date", "date_from", "date_to", "format",
+        "view", "month", "date", "date_from", "date_to", "format", "when", "lang",
     },
     "specialist_list": {
         "q", "specialization", "subject", "format", "region", "district", "metro", "age", "age_from", "age_to",

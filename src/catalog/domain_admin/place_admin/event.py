@@ -64,7 +64,7 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     fieldsets = (
         (_("Событие"), {"fields": ("name_az", "category", ("organizer_organization", "organizer_specialist"), "description_az")}),
         (_("Когда и где"), {"fields": (("start_datetime", "end_datetime"), ("age_from", "age_to"),
-            "price_mode", ("price_amount", "price_amount_max", "price_currency"), "price_text", "event_format",
+            "price_mode", ("price_amount", "price_amount_max", "price_currency"), "price_text", "event_format", "languages",
             "related_place", ("region", "district", "metro"), "address", ("lat", "lng"))}),
         (_("Фото и запись"), {"fields": ("photo", "registration_method", "phone", "whatsapp", "registration_url",
             "instagram", "website", "moderation_note")}),

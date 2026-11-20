@@ -24,6 +24,7 @@ from legalconsent.forms import AgreementCheckbox, LegalAgreementMixin
 
 from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.models import CatalogContentSettings, Event, Place, UserProfile, Category, Subcategory, Specialist, SpecialistSpecialization, Region, District, MetroStation
+from catalog.services.event_languages import EventLanguagesField
 from catalog.services.place_schedule import (
     build_default_schedule_payload,
     dump_schedule_payload,
@@ -1807,8 +1808,12 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
 
 class OwnerEventForm(forms.ModelForm):
     expected_updated_at = forms.CharField(required=False, widget=forms.HiddenInput())
+    languages = EventLanguagesField(
+        label=_("Язык проведения"), required=False,
+        error_messages={"required": _("Укажите, на каком языке пройдёт мероприятие.")},
+    )
     SUBMIT_REQUIRED_FIELDS = ("name_az", "category", "event_date", "start_time_input", "end_time_input",
-                              "description_az", "photo")
+                              "description_az", "photo", "languages")
     draft_save_only = False
     require_location_region = False
 
@@ -1894,6 +1899,7 @@ class OwnerEventForm(forms.ModelForm):
             "organizer_organization",
             "organizer_specialist",
             "event_format",
+            "languages",
             "category",
             "start_datetime",
             "end_datetime",

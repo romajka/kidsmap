@@ -1198,6 +1198,12 @@
     initHomeSearchAutocomplete(refreshMap);
   }
 
+  // Optional layers (static/js/map_event_layer.js) attach to whichever engine mounted.
+  function announceHomeMap(mapEl, detail) {
+    mapEl.__kidsMapMounted = detail;
+    mapEl.dispatchEvent(new CustomEvent("kidsmap:map-mounted", {detail: detail}));
+  }
+
   function mountGoogleMap(sharedState) {
     if (!window.google || !window.google.maps || !sharedState) return false;
 
@@ -1222,6 +1228,7 @@
     if (window.KidsMapPins) window.KidsMapPins.applyMapDefaults(mapOptions, SCRIPT_CONFIG.googleMapsMapId);
     const map = new google.maps.Map(mapEl, mapOptions);
     mapEl.__kidsMapGoogle = map; // home_map_fx.js: one-finger panning in full screen
+    announceHomeMap(mapEl, {engine: "google", map: map, mapId: SCRIPT_CONFIG.googleMapsMapId});
     const infoWindow = new google.maps.InfoWindow();
     // Only the visitor's own pan/zoom re-orders the list; camera moves made by
     // the page (fit, card reveal, popup auto-pan) do not.
@@ -1390,6 +1397,7 @@
     }
     rebuildMarkers(places);
     sharedState.applyPage = points => { closePlace(); motion.cancel(); choice.close(false); rebuildMarkers(points); _doSync(); };
+    mapEl.addEventListener("kidsmap:layers-change", () => { if (mapEl.dataset.kmPlaces === "off") closePlace(); syncVisibleMarkers(); });
 
     // ── Core sync ───────────────────────────────────────────────────────────
     function syncVisibleMarkers() {
@@ -1405,7 +1413,8 @@
     let visibleMarkers = new Set();
     function _doSync() {
       const filters = getFilterState();
-      const activeMarkers = markerItems.map(item => item.marker);
+      const placesHidden = mapEl.dataset.kmPlaces === "off";
+      const activeMarkers = placesHidden ? [] : markerItems.map(item => item.marker);
       const next = new Set(activeMarkers);
       if (selectedMarker && !next.has(selectedMarker)) closePlace();
       if (updateMembership) updateMembership(activeMarkers);
@@ -1414,7 +1423,7 @@
         next.forEach(marker => { if (!visibleMarkers.has(marker)) marker.setMap(map); });
       }
       visibleMarkers = next;
-      setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || '', activeMarkers.length > 0);
+      setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || '', placesHidden || activeMarkers.length > 0);
       updateLiveCount(businessCount(markerItems.map(item => item.place)));
     }
     function syncVisibleMarkersFromFilter() {
@@ -1634,7 +1643,12 @@
         });
       }
     });
-    map.addLayer(markerClusterGroup);
+    if (mapEl.dataset.kmPlaces !== "off") map.addLayer(markerClusterGroup);
+    mapEl.addEventListener("kidsmap:layers-change", () => {
+      if (mapEl.dataset.kmPlaces === "off") { map.closePopup(); map.removeLayer(markerClusterGroup); }
+      else if (!map.hasLayer(markerClusterGroup)) map.addLayer(markerClusterGroup);
+    });
+    announceHomeMap(mapEl, {engine: "leaflet", map: map});
 
     function handleHomeClusterClick(event) {
       userInteracted = true;
