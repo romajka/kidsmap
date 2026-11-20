@@ -961,8 +961,12 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         from catalog.services import specialist_moderation
         reason = (request.POST.get("moderation_comment") or "").strip()[:specialist_moderation.REASON_LIMIT]
         reason = reason or str(specialist_moderation.default_reason(specialist_moderation.REJECTED))
-        newly_rejected = list(queryset.exclude(status=Specialist.STATUS_REJECTED)
-                              .select_for_update(of=("self",)).order_by("pk").values_list("pk", flat=True))
+        selected = queryset.order_by().values("pk")
+        newly_rejected = list(
+            Specialist.objects.filter(pk__in=selected)
+            .exclude(status=Specialist.STATUS_REJECTED)
+            .order_by("pk").select_for_update().values_list("pk", flat=True)
+        )
         updated_count = Specialist.objects.filter(pk__in=newly_rejected).update(
             status=Specialist.STATUS_REJECTED,
             is_active=False,

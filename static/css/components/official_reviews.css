@@ -31,11 +31,13 @@
   overflow-wrap: anywhere;
 }
 
-.km-review-byline__identity strong,
+.km-review-byline__identity h3,
 .km-official-reply__name {
   color: var(--ink);
   font: 700 1rem/1.3 var(--font-body);
 }
+
+.km-review-byline__identity h3 { margin: 0; }
 
 .km-review-byline__stars {
   display: inline-flex;
