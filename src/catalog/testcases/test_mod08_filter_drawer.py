@@ -9,7 +9,7 @@ from django.http import QueryDict
 from django.test import TestCase
 from django.utils import timezone
 
-from catalog.models import Category, Event, Place, Specialist, SpecialistSpecialization
+from catalog.models import Category, Event, Place, Region, Specialist, SpecialistPracticeLocation, SpecialistSpecialization
 from catalog.templatetags.admin_dashboard_tags import get_active_filter_chips
 
 
@@ -57,6 +57,7 @@ class FilterDrawerTests(TestCase):
             name_ru='Категория ' + str(i), name_az='Kateqoriya ' + str(i), name_en='Category ' + str(i)) for i in range(2)]
         cls.directions = [SpecialistSpecialization.objects.create(code='drawer-' + str(i), name='Drawer ' + str(i),
             name_ru='Направление ' + str(i), name_az='İstiqamət ' + str(i), name_en='Direction ' + str(i)) for i in range(2)]
+        office_region = Region.objects.create(key='drawer-test-city', name_ru='QA City')
         cls.events, cls.specialists = [], []
         for i, status in enumerate(('published', 'pending', 'draft')):
             name = 'DRAWERQA ' + str(i)
@@ -65,6 +66,8 @@ class FilterDrawerTests(TestCase):
                 start_datetime=timezone.now() + timedelta(days=(0, 3, 35)[i]))
             specialist = Specialist.objects.create(name=name, status=status, is_active=i != 1,
                 consultation_format=('online', 'offline', 'both')[i])
+            if specialist.consultation_format in ('offline', 'both'):
+                SpecialistPracticeLocation.objects.create(specialist=specialist, region=office_region, address='QA Office')
             specialist.specializations.add(cls.directions[i % 2])
             cls.events.append(event.pk)
             cls.specialists.append(specialist.pk)
@@ -99,7 +102,7 @@ class FilterDrawerTests(TestCase):
                     response = self.page(model, lang=lang)
                     parsed = DrawerControls(response.content.decode())
                     expected = (['category', 'status', 'start_datetime', 'owner'] if model is Event
-                        else ['status', 'is_active', 'consultation_format', 'specializations'])
+                        else ['status', 'is_active', 'format', 'specializations'])
                     self.assertEqual(list(parsed.selects), expected)
                     self.assertEqual(len(set(c['id'] for c in parsed.selects.values())), 4)
                     for spec in response.context['cl'].filter_specs:
@@ -133,7 +136,9 @@ class FilterDrawerTests(TestCase):
         self.assert_ids(response, [])
 
     def test_specialist_choices_selected_state_and_zero_results(self):
-        response = self.choose(self.page(Specialist), 'consultation_format', 'consultation_format__exact', 'online')
+        unfiltered = self.page(Specialist)
+        self.assert_ids(self.choose(unfiltered, 'format', 'format', 'office'), self.specialists[1:])
+        response = self.choose(unfiltered, 'format', 'format', 'online')
         response = self.choose(response, 'status', 'status__exact', 'published')
         response = self.choose(response, 'specializations', 'specializations__id__exact', self.directions[0].pk)
         response = self.choose(response, 'is_active', 'is_active__exact', '1')
@@ -142,7 +147,7 @@ class FilterDrawerTests(TestCase):
             self.assertEqual(sum(o['selected'] for o in control['options']), 1)
             selected = next(o for o in control['options'] if o['selected'])
             self.assert_ids(self.page(Specialist, urlsplit(selected['url']).query), self.specialists[:1])
-        response = self.choose(response, 'consultation_format', 'consultation_format__exact', 'offline')
+        response = self.choose(response, 'format', 'format', 'office')
         self.assert_ids(response, [])
 
     def test_status_chip_removes_only_status_and_reset_clears_query(self):
