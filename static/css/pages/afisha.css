@@ -514,11 +514,12 @@
   transition: background 0.2s, transform 0.25s var(--ev-spring), box-shadow 0.25s;
 }
 .km-cal__day time { font-size: 0.92rem; font-weight: 800; line-height: 1; }
+a.km-cal__day { background: #f7f9f8; }
 .km-cal__cell[data-level="1"] .km-cal__day { background: #f1f9f3; }
 .km-cal__cell[data-level="2"] .km-cal__day { background: #e3f3e7; }
 .km-cal__cell[data-level="3"] .km-cal__day { background: #d2ebd8; }
 .km-cal__cell.is-weekend .km-cal__day time { color: #c2410c; }
-.km-cal__cell.is-past .km-cal__day { opacity: 0.45; }
+.km-cal__cell.is-past .km-cal__day { color: var(--ev-muted); }
 .km-cal__cell.is-outside .km-cal__day { color: #c3cbc6; }
 a.km-cal__day:hover { transform: translateY(-2px); box-shadow: 0 8px 16px -10px rgba(13, 73, 36, 0.6); background: #fff; outline: 1.5px solid rgba(19, 111, 56, 0.3); }
 a.km-cal__day:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset: 1px; }
@@ -534,7 +535,7 @@ a.km-cal__day:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset:
 }
 @keyframes km-today { 0% { opacity: 0.7; transform: scale(0.96); } 100% { opacity: 0; transform: scale(1.12); } }
 .km-cal__cell.is-selected .km-cal__day {
-  background: linear-gradient(145deg, #1f9450, var(--ev-green));
+  background: var(--ev-green);
   color: #fff;
   opacity: 1;
   box-shadow: 0 10px 20px -10px rgba(19, 111, 56, 0.9);
@@ -610,9 +611,6 @@ a.km-cal__day:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset:
 .km-cal__empty { display: flex; gap: 12px; align-items: center; padding: 18px; border-radius: 18px; background: #f6faf7; border: 1px dashed rgba(19, 111, 56, 0.25); color: var(--ev-muted); font-weight: 600; }
 .km-cal__empty .material-symbols-rounded { font-size: 1.8rem; color: var(--ev-green); }
 .km-cal__empty p { margin: 0; }
-.km-cal__agenda-also { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 14px 2px 0; font-size: 0.82rem; color: var(--ev-muted); font-weight: 600; }
-.km-cal__agenda-also .material-symbols-rounded { font-size: 1rem; color: var(--ev-sky); }
-.km-cal__agenda-also a { color: var(--ev-deep); font-weight: 800; }
 .km-cal__invalid { padding: 22px; border-radius: 20px; }
 
 /* compact card variant (calendar agenda + home rail) */
@@ -807,7 +805,6 @@ a.km-cal__day:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset:
 .km-cal .events-day-list { margin-top: 0; }
 .km-cal .events-day-list h2 { margin-bottom: 0; }
 .km-cal__cell.is-outside .km-cal__day { opacity: 0.35; }
-.km-cal__cell:not(.is-outside):not([data-level="1"]):not([data-level="2"]):not([data-level="3"]) .km-cal__day { background: #f7f9f8; }
 @media (max-width: 640px) {
   .km-cal .events-calendar-day { min-height: 0; padding: 5px 1px 3px; }
 }
