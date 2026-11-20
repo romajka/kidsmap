@@ -55,22 +55,19 @@
     <section id="events-day-list" class="km-cal__agenda events-day-list" aria-labelledby="events-day-heading" aria-live="polite">
       <header class="km-cal__agenda-head">
         <h2 id="events-day-heading"><time datetime="{{ event_calendar.selected_date }}"><span class="km-cal__agenda-dow">{{ event_calendar.selected_day|date:'l' }}</span> <span class="km-cal__agenda-date">{{ event_calendar.selected_day|date:'j E' }}</span></time></h2>
-        <span class="km-cal__count">{{ event_calendar.selected_short_events|length }}</span>
+        <span class="km-cal__count">{{ event_calendar.selected_events|length }}</span>
       </header>
       <div class="events-list-v2 km-cal__agenda-list" data-km-stagger>
-        {% for event in event_calendar.selected_short_events %}
+        {% for event in event_calendar.selected_events %}
           {% include 'catalog/includes/event_listing_card.html' with compact=True %}
         {% empty %}
           <div class="km-cal__empty" role="status">
             <span class="material-symbols-rounded" aria-hidden="true">event_busy</span>
-            <p>{% if language == 'az' %}Bu gün üçün ayrıca tədbir yoxdur. Başqa gün seçin{% elif language == 'en' %}No separate events on this day. Pick another day{% else %}В этот день отдельных событий нет. Выберите другой день{% endif %}{% if event_calendar.selected_long_events %}{% if language == 'az' %} və ya uzunmüddətli tədbirlərə baxın{% elif language == 'en' %} or see the long-running ones{% else %} или посмотрите то, что идёт весь период{% endif %}{% endif %}.</p>
+            <p>{% if language == 'az' %}Bu gün tədbir yoxdur. Başqa tarix seçin.{% elif language == 'en' %}No events on this day. Choose another date.{% else %}В этот день мероприятий нет. Выберите другую дату.{% endif %}</p>
           </div>
         {% endfor %}
       </div>
       {% include 'catalog/includes/event_suggest_cta.html' with variant='compact' %}
-      {% if event_calendar.selected_long_events %}
-        <p class="km-cal__agenda-also"><span class="material-symbols-rounded" aria-hidden="true">date_range</span>{% if language == 'az' %}Həmçinin bu gün gedir{% elif language == 'en' %}Also on this day{% else %}Также в этот день идут{% endif %}: {% for event in event_calendar.selected_long_events %}<a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-      {% endif %}
     </section>
   </div>
   {% else %}

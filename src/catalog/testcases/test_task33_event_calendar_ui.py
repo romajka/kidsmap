@@ -27,10 +27,10 @@ class EventCalendarUITests(TestCase):
         self.category = Category.objects.create(code='ui27', name_az='UI27')
         self.start = datetime(2032, 2, 2, 12, tzinfo=BAKU)
 
-    def event(self, offset=0, **values):
+    def event(self, offset=0, hours=1, **values):
         return Event.objects.create(name='QA calendar', name_az='QA calendar',
             category=self.category, start_datetime=self.start+timedelta(days=offset),
-            end_datetime=self.start+timedelta(days=offset, hours=1),
+            end_datetime=self.start+timedelta(days=offset, hours=hours),
             status=Event.STATUS_PUBLISHED, **values)
 
     def get(self, **params):
@@ -62,6 +62,23 @@ class EventCalendarUITests(TestCase):
         self.assertTrue(selected_links)
         self.assertEqual(selected_links[0].get('aria-current'), 'date')
         self.assertNotIn(str(other.pk), cards)
+
+    def test_agenda_counts_and_lists_every_event_on_the_selected_date(self):
+        exhibition = self.event(offset=-1, hours=8 * 24)
+        workshop = self.event(offset=1)
+        for day, expected in [
+            ('2032-02-02', [exhibition]),
+            ('2032-02-03', [exhibition, workshop]),
+            ('2032-02-15', []),
+        ]:
+            with self.subTest(day=day):
+                _, html, _ = self.get(view='calendar', month='2032-02', date=day)
+                agenda = html.split('id="events-day-list"', 1)[1].split('</section>', 1)[0]
+                cards = [attrs['data-event-id'] for tag, attrs in Elements(agenda).items
+                         if tag == 'article' and 'data-event-id' in attrs]
+                self.assertCountEqual(cards, [str(event.pk) for event in expected])
+                self.assertInHTML(f'<span class="km-cal__count">{len(expected)}</span>', agenda)
+                self.assertEqual('class="km-cal__empty"' in agenda, not expected)
 
     def test_mode_chips_and_filter_form_retain_search_and_period_state(self):
         params = dict(view='calendar', month='2032-02', date='2032-02-02',
