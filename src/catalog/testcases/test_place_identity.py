@@ -170,6 +170,18 @@ class PlaceIdentityTests(TestCase):
         Place.objects.filter(pk=self.place.pk).update(name='Yeni Club',name_az='',name_ru='',address='')
         guard_new_place(self.editor,{'name_az':'Yeni Club','address':'Another Avenue 60'},distinct_branch=True)
 
+    def test_only_current_edit_grant_reveals_the_private_candidate(self):
+        from catalog.models import OwnerTeamMembership
+        member = get_user_model().objects.create_user('identity-editor-grantee')
+        grant = OwnerTeamMembership.objects.create(
+            place=self.place, owner=self.editor, member=member, role='EDITOR',
+            base_ownership_version=self.place.ownership_version, actions=['place.edit'],
+        )
+        self.assertEqual(self.registry(member)['coverage']['candidate_versions'], 1)
+        # Still an active relationship, but the existing action resolver rejects it.
+        OwnerTeamMembership.objects.filter(pk=grant.pk).update(base_ownership_version=self.place.ownership_version + 1)
+        self.assertEqual(self.registry(member)['records'], [])
+
     def test_two_private_sessions_with_same_version_keep_exact_match_source(self):
         from uuid import UUID
         drafts=[]
@@ -180,3 +192,42 @@ class PlaceIdentityTests(TestCase):
         row=self.check({'name_az':'Private Club','address':'Private Second 50'})['results'][0]
         self.assertEqual(row['match_fields']['address'],'Private Second 50')
         self.assertEqual(row['evidence'][0]['draft_id'],str(drafts[1].pk))
+
+
+class PlaceIdentityScaleTests(TestCase):
+    def test_scanning_unrelated_places_does_not_query_permissions_per_row(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        from catalog.services.place_identity import identity_registry
+        from catalog.testcases.utils import create_quality_place
+        from copy import copy
+
+        visitor = get_user_model().objects.create_user("identity-scale-visitor")
+        category = Category.objects.create(code="QA_SCALE_62", name_az="Scale identity category")
+        source = create_quality_place(name="Scale studio", slug="identity-scale-seed", category=category)
+        private = Place.objects.create(created_by=visitor, category_id=source.category_id,
+                                       name='My unpublished studio', status='draft', is_active=False)
+        VolunteerPlaceRevision.objects.create(place=private, author=visitor, status='pending',
+                                             payload={'name_az': 'My candidate'})
+        with CaptureQueriesContext(connection) as small:
+            identity_registry(visitor)
+
+        clones = []
+        for index in range(30):
+            clone = copy(source)
+            clone.pk = None
+            clone.slug = f"identity-scale-{index}"
+            clone.public_slug_az = clone.public_slug_ru = clone.public_slug_en = None
+            clones.append(clone)
+        Place.objects.bulk_create(clones)
+        # All copies have private candidate data. None of it belongs to this
+        # visitor. Only the stored public records are visible to them.
+        VolunteerPlaceRevision.objects.bulk_create([
+            VolunteerPlaceRevision(place=place, author=visitor, status='pending',
+                                   payload={'name_az': 'Not accessible'}) for place in clones
+        ])
+        with CaptureQueriesContext(connection) as larger:
+            registry = identity_registry(visitor)
+        self.assertEqual(registry["coverage"]["candidate_versions"], 1)
+        self.assertEqual(registry["coverage"]["stored_versions"], 32)
+        self.assertLessEqual(len(larger), len(small) + 2)

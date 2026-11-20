@@ -23,6 +23,7 @@
       <a href="{% url 'specialist_workspace_index' %}" {% if workspace_mode == 'index' %}aria-current="page"{% endif %}>{% trans 'Мои анкеты и заявки' %}</a>
       {% if specialist and can_manage_specialist %}
       <a href="{% url 'specialist_workspace_profile' specialist.pk %}">{% trans 'Личные сведения' %}</a>
+      {% include "pages/includes/specialist_inbox_link.html" with person=specialist only %}
       <a href="{% url 'specialist_workspace_invitations' specialist.pk %}" {% if workspace_mode == 'invitations' %}aria-current="page"{% endif %}>{% trans 'Сотрудничество' %}</a>
       <a href="{% url 'specialist_workspace_certificates' specialist.pk %}" {% if workspace_mode == 'certificates' %}aria-current="page"{% endif %}>{% trans 'Дипломы и сертификаты' %}</a>
       {% endif %}
@@ -40,7 +41,7 @@
             {% include 'pages/includes/specialist_application_documents.html' with names=my_specialist.pending_qualifications only %}
             <div class="sw-actions">
             <a class="sw-button sw-primary" href="{% url 'specialist_workspace_profile' my_specialist.pk %}">{% trans 'Редактировать профиль' %}</a>
-            {% if my_specialist.status == 'published' and my_specialist.is_active %}<a class="sw-button" href="{{ my_specialist.get_absolute_url }}">{% trans 'Открыть профиль на сайте' %}</a>{% endif %}
+            {% if my_specialist.status == 'published' and my_specialist.is_active %}{% include "pages/includes/specialist_inbox_link.html" with person=my_specialist css_class="sw-button" only %}<a class="sw-button" href="{{ my_specialist.get_absolute_url }}">{% trans 'Открыть профиль на сайте' %}</a>{% endif %}
             </div>
           </section>
         {% endif %}

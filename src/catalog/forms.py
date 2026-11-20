@@ -20,9 +20,11 @@ from django.db.models import Q
 from django.utils.text import slugify
 from django.utils import timezone
 from django.utils.translation import get_language, gettext as translate, gettext_lazy as _
+from legalconsent.forms import AgreementCheckbox, LegalAgreementMixin
 
 from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.models import CatalogContentSettings, Event, Place, UserProfile, Category, Subcategory, Specialist, SpecialistSpecialization, Region, District, MetroStation
+from catalog.services.event_languages import EventLanguagesField
 from catalog.services.place_schedule import (
     build_default_schedule_payload,
     dump_schedule_payload,
@@ -342,7 +344,7 @@ class MultipleFileField(forms.FileField):
         return cleaned_items
 
 
-class RegistrationForm(UserCreationForm):
+class RegistrationForm(LegalAgreementMixin, UserCreationForm):
     error_messages = {
         "password_mismatch": _("Пароли не совпадают. Введите одинаковый пароль в обоих полях."),
     }
@@ -379,6 +381,7 @@ class RegistrationForm(UserCreationForm):
     agreement = forms.BooleanField(
         label=_("Я согласен с правилами и политикой конфиденциальности."),
         required=True,
+        widget=AgreementCheckbox,
         error_messages={
             "required": _("Подтвердите согласие с правилами и политикой конфиденциальности."),
         },
@@ -1805,8 +1808,12 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
 
 class OwnerEventForm(forms.ModelForm):
     expected_updated_at = forms.CharField(required=False, widget=forms.HiddenInput())
+    languages = EventLanguagesField(
+        label=_("Язык проведения"), required=False,
+        error_messages={"required": _("Укажите, на каком языке пройдёт мероприятие.")},
+    )
     SUBMIT_REQUIRED_FIELDS = ("name_az", "category", "event_date", "start_time_input", "end_time_input",
-                              "description_az", "photo")
+                              "description_az", "photo", "languages")
     draft_save_only = False
     require_location_region = False
 
@@ -1892,6 +1899,7 @@ class OwnerEventForm(forms.ModelForm):
             "organizer_organization",
             "organizer_specialist",
             "event_format",
+            "languages",
             "category",
             "start_datetime",
             "end_datetime",

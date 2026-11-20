@@ -887,6 +887,8 @@ class Event(models.Model):
         choices=((ORGANIZER_RESOLVED, 'Resolved'), (ORGANIZER_LEGACY_UNRESOLVED, 'Legacy unresolved')), editable=False)
     event_format = models.CharField(max_length=16, default=FORMAT_PHYSICAL,
         choices=((FORMAT_PHYSICAL, _('Очно')), (FORMAT_ONLINE, _('Онлайн'))))
+    # Languages the event is held in, e.g. "az,ru" (see services/event_languages.py).
+    languages = models.CharField(_('Языки проведения'), max_length=32, blank=True, default='', db_default='')
     occurrence_state = models.CharField(max_length=16, default=OCCURRENCE_SCHEDULED,
         choices=((OCCURRENCE_SCHEDULED, _('Запланировано')), (OCCURRENCE_CANCELLED, _('Отменено')),
                  (OCCURRENCE_RESCHEDULED, _('Перенесено'))), editable=False)
@@ -912,7 +914,7 @@ class Event(models.Model):
         blank=True,
     )
     name = models.CharField(_("Название"), max_length=255)
-    slug = models.SlugField(_("Slug"), max_length=255, blank=True, default="")
+    slug = models.SlugField(_("Slug"), max_length=255, blank=True, default="", unique=True)
     name_az = models.CharField(_("Название (AZ)"), max_length=255, blank=True, default="")
     name_ru = models.CharField(_("Название (RU)"), max_length=255, blank=True, default="")
     name_en = models.CharField(_("Название (EN)"), max_length=255, blank=True, default="")
@@ -996,6 +998,11 @@ class Event(models.Model):
         return self.lat is not None and self.lng is not None
 
     @property
+    def language_list(self):
+        from catalog.services.event_languages import present
+        return present(self.languages)
+
+    @property
     def age_display(self) -> str:
         if self.age_from is not None and self.age_to is not None:
             return f"{self.age_from}-{self.age_to}"
@@ -1069,28 +1076,29 @@ class Event(models.Model):
         return f"https://instagram.com/{value.lstrip('@')}"
 
     def get_absolute_url(self):
-        return reverse("event_detail", kwargs={"pk": self.pk, "slug": self.slug})
+        return reverse("event_detail", kwargs={"slug": self.slug})
 
-    def _build_unique_slug(self):
-        from catalog.services.slugs import build_unique_ascii_slug
+    def _build_unique_slug(self, using):
+        from django.db import connections
+        from catalog.services.event_slugs import available_event_slug, event_slug_base
 
-        source = self.name_az or self.name_ru or self.name_en or self.name or "event"
-        return build_unique_ascii_slug(
-            Event,
-            source,
-            fallback="event",
-            instance_pk=self.pk,
-        )
+        connection = connections[using]
+        if connection.vendor == 'postgresql':
+            # Concurrent creations with the same title must get distinct URLs.
+            with connection.cursor() as cursor:
+                cursor.execute('SELECT pg_advisory_xact_lock(%s)', [1263359315])
+        source = self.slug or self.name_az or self.name_ru or self.name_en or self.name
+        events = Event.objects.using(using)
+        return available_event_slug(event_slug_base(source), lambda slug: events.filter(slug=slug).exists())
 
     def save(self, *args, **kwargs):
         if not self.name:
             self.name = self.name_az or self.name_ru or self.name_en or _("Мероприятие")
-        if not self.slug:
-            self.slug = self._build_unique_slug()
         from .event_domain import validate_event_domain, validate_event_format_history
         using = kwargs.get('using') or router.db_for_write(type(self), instance=self)
         with transaction.atomic(using=using):
             original = type(self).objects.using(using).select_for_update().filter(pk=self.pk).first() if self.pk else None
+            self.slug = original.slug if original else self._build_unique_slug(using)
             validate_event_format_history(self, original)
             implicit = set()
             if self.organizer_organization_id or self.organizer_specialist_id:

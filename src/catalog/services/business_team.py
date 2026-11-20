@@ -106,17 +106,20 @@ def has_action(*, user, target, action):
     return False
 
 
-def accessible_place_ids(*, user, action='place.view'):
-    user = _fresh(user)
-    if user is None:
-        return []
-    # Candidate IDs are not authorization: every result passes the same resolver.
-    candidates = Place.objects.filter(
+def place_access_candidates(user):
+    """Possible direct or team access. The action resolver decides each candidate."""
+    return Place.objects.filter(
         Q(owner=user) | Q(owner__isnull=True, created_by=user) |
         Q(team_memberships__member=user, team_memberships__is_active=True) |
         Q(organization__owner=user) | Q(organization__team_grants__member=user, organization__team_grants__is_active=True),
         deleted_at__isnull=True).distinct()
-    return [p.pk for p in candidates if has_action(user=user, target=p, action=action)]
+
+
+def accessible_place_ids(*, user, action='place.view'):
+    user = _fresh(user)
+    if user is None:
+        return []
+    return [p.pk for p in place_access_candidates(user) if has_action(user=user, target=p, action=action)]
 
 
 def _owner(actor, parent):

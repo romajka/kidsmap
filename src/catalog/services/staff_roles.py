@@ -110,3 +110,13 @@ def current_staff_role(user):
         if direct_permissions == ADMIN_ROLE_PERMISSION_PRESETS[role]:
             return role
     return ADMIN_ROLE_STAFF
+
+
+def can_moderate_review_reply(user, response_model):
+    """Existing moderators may change a review and inspect its official responses."""
+    model_name = response_model._meta.model_name
+    if model_name not in {'placereviewresponse', 'specialistreviewresponse'}:
+        return False
+    return (user.is_authenticated and user.is_active and user.is_staff
+            and user.has_perm(f'catalog.view_{model_name}')
+            and user.has_perm(f'catalog.change_{model_name.removesuffix("response")}'))

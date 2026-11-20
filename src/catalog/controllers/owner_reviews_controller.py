@@ -1,21 +1,13 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
 
 from django.utils.translation import gettext as _
-from catalog.services.moderation_sla import submission_message
 
-from catalog.interfaces.repositories import IPlaceReviewRepository, IOwnerTeamRepository
-from catalog.repositories.django_repositories import (
-    DjangoOwnerTeamRepository,
-    DjangoPlaceReviewRepository,
-)
-from catalog.services.owner_place_use_cases import (
-    OwnerPermissionScope,
-    place_ids_for_permission,
-    resolve_owner_permission_scopes,
-)
-from catalog.services.place_access import PLACE_PERMISSION_MANAGE_TEAM, PLACE_PERMISSION_MODERATE_REVIEWS
+from catalog.models import PlaceReview, Specialist, SpecialistReview
+from catalog.services.account_review_feeds import review_page, written_queries
+from catalog.services.business_team import accessible_place_ids
+from catalog.services.features import is_specialists_section_enabled
+from catalog.services.moderation_sla import submission_message
+from catalog.services.public_review_replies import published_target_reviews, with_answer_status
 
 
 @dataclass(slots=True)
@@ -24,57 +16,65 @@ class OwnerReviewsActionResult:
     message: str
 
 
-@dataclass(slots=True)
 class OwnerReviewsController:
-    review_repository: IPlaceReviewRepository
-    team_repository: IOwnerTeamRepository
-
     @classmethod
-    def build_default(cls) -> "OwnerReviewsController":
-        return cls(
-            review_repository=DjangoPlaceReviewRepository(),
-            team_repository=DjangoOwnerTeamRepository(),
-        )
+    def build_default(cls):
+        return cls()
 
-    def _moderation_scopes(self, *, user) -> list[OwnerPermissionScope]:
-        return [
-            scope
-            for scope in resolve_owner_permission_scopes(user=user, team_repository=self.team_repository)
-            if {'place.reviews.reply', 'place.reviews.report'} & scope.permissions
-        ]
+    def build_context(self, *, request):
+        user = request.user
+        if not user.is_authenticated or not user.is_active:
+            return {}, OwnerReviewsActionResult(False, _("Для доступа войдите в аккаунт и повторите действие."))
 
-    def build_context(self, *, request) -> tuple[dict, OwnerReviewsActionResult]:
-        if not request.user.is_authenticated:
-            return {}, OwnerReviewsActionResult(ok=False, message=_("Для доступа войдите в аккаунт и повторите действие."))
-        scopes = self._moderation_scopes(user=request.user)
-        place_ids = sorted(set(place_ids_for_permission(scopes, 'place.reviews.reply') + place_ids_for_permission(scopes, 'place.reviews.report')))
-        from catalog.services.content_quality import approved_review_queryset
-        from catalog.models import PlaceReview
-        reviews = list(approved_review_queryset(PlaceReview.objects.filter(place_id__in=place_ids)).select_related('place')) if place_ids else []
-        pending_count = PlaceReview.objects.filter(place_id__in=place_ids, is_current=True,
-            candidate_revision__status='pending').count() if place_ids else 0
+        reply_ids = set(accessible_place_ids(user=user, action="place.reviews.reply"))
+        report_ids = set(accessible_place_ids(user=user, action="place.reviews.report"))
+        place_ids = reply_ids | report_ids
+        specialists_enabled = is_specialists_section_enabled()
+        specialist_ids = set()
+        if specialists_enabled:
+            specialist_ids = set(Specialist.objects.filter(
+                verified_person_user=user, person_verified_at__isnull=False,
+                is_active=True, status="published",
+            ).values_list("pk", flat=True))
+        has_inbox = bool(place_ids or specialist_ids)
+        specialist_filter = request.GET.get("specialist")
+        if specialist_filter:
+            place_ids = set()
+            specialist_ids = {pk for pk in specialist_ids if str(pk) == specialist_filter}
+        incoming = {
+            "place": with_answer_status(published_target_reviews("place").filter(place_id__in=place_ids), "place"),
+            "specialist": with_answer_status(published_target_reviews("specialist").filter(specialist_id__in=specialist_ids), "specialist"),
+        }
+        pending = {"is_current": True, "candidate_revision__status": "pending"}
+        pending_count = PlaceReview.objects.filter(
+            **pending, place_id__in=place_ids, place__status="published", place__is_active=True,
+            place__deleted_at__isnull=True,
+        ).count() + SpecialistReview.objects.filter(**pending, specialist_id__in=specialist_ids).count()
+        unanswered = request.GET.get("filter") == "unanswered"
+        approved_count = sum(rows.count() for rows in incoming.values()) if unanswered else None
+        if unanswered:
+            incoming = {kind: rows.filter(has_answer=False) for kind, rows in incoming.items()}
+        page = review_page(incoming, request.GET.get("page"), by_publication=True)
+        for review in page:
+            review.can_reply = review.review_kind == "specialist" or review.place_id in reply_ids
+            review.can_report = review.review_kind == "specialist" or review.place_id in report_ids
 
-        from catalog.models import PlaceReview
-        user_written_reviews = list(
-            PlaceReview.objects.filter(user=request.user, is_current=True)
-            .select_related("place", "place__category")
-            .order_by("-created_at")
-        )
-        total_user_reviews_count = len(user_written_reviews)
-
+        written = review_page(written_queries(user), request.GET.get("written_page"))
+        for review in written:
+            target = review.target
+            available = target.is_active and target.status == "published"
+            review.target_available = available and (
+                target.deleted_at is None if review.review_kind == "place" else specialists_enabled
+            )
         return {
-            "owner_review_scopes": scopes,
-            "scope_place_ids": sorted(set(place_ids)),
-            "owner_reviews": reviews,
+            "can_moderate_reviews": has_inbox,
             "owner_reviews_pending_count": pending_count,
-            "owner_reviews_approved_count": len(reviews),
-            "can_moderate_reviews": bool(place_ids),
-            "can_reply_reviews": bool(place_ids),
-            "can_manage_team": any(PLACE_PERMISSION_MANAGE_TEAM in scope.permissions for scope in scopes),
-            "user_written_reviews": user_written_reviews,
-            'review_moderation_sla_message': submission_message('review'),
-            "user_reviews_count": total_user_reviews_count,
-        }, OwnerReviewsActionResult(ok=True, message="")
+            "owner_reviews_approved_count": page.paginator.count if approved_count is None else approved_count,
+            "specialist_filter": specialist_filter,
+            "owner_reviews": page, "unanswered": unanswered,
+            "user_written_reviews": written, "user_reviews_count": written.paginator.count,
+            "review_moderation_sla_message": submission_message("review"),
+        }, OwnerReviewsActionResult(True, "")
 
-    def set_review_approval(self, *, request, review_id: int, is_approved: bool) -> OwnerReviewsActionResult:
-        return OwnerReviewsActionResult(ok=False, message=_("Отзывы проверяет KidsMap. Бизнес может ответить или пожаловаться."))
+    def set_review_approval(self, *, request, review_id: int, is_approved: bool):
+        return OwnerReviewsActionResult(False, _("Отзывы проверяет KidsMap. Бизнес может ответить или пожаловаться."))

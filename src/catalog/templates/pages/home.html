@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="{% static 'css/pages/home_refresh.css' %}?v=20261119_stage1" />
 <link rel="stylesheet" href="{% static 'css/pages/home_hero_stage.css' %}?v=20261119_stage6" />
 <script defer src="{% static 'js/mappy.js' %}?v=20261119_specialists"></script>
+{% if upcoming_events or home_map_events or map_places %}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261120_afisha_r4" />{% endif %}
 {% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
@@ -176,6 +177,7 @@
 {% include "pages/includes/home_specialists.html" %}
 
 
+{% include "pages/includes/home_events.html" %}
 {% include "pages/includes/home_parent_guide.html" %}
 
 {% if map_places %}
@@ -558,15 +560,18 @@
 {% block extra_body %}
 {% if hero_topics %}<script src="{% static 'js/home_hero_rotator.js' %}?v=20261119_stage2" defer></script>{% endif %}
 {% if home_rail_places %}<script src="{% static 'js/home_places_rail.js' %}?v=20261119_manual" defer></script>{% endif %}
+{% if upcoming_events or home_map_events %}<script src="{% static 'js/event_timer.js' %}?v=20261120_r2" defer></script>{% endif %}
+{% if upcoming_events %}<script src="{% static 'js/home_afisha.js' %}?v=20261120_r3" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endif %}
+{% if map_places %}<script src="{% static 'js/map_event_layer.js' %}?v=20261120_r2" defer></script>{% endif %}
 {% if hero_gallery_slides|length > 1 %}
 <script src="{% static 'js/home_hero_slider.js' %}?v=20261119_stage1"></script>
 {% endif %}
-<link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20261105_all_r1" />
+<link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20261120_popup_anchor" />
 <script src="{% static 'js/kidsmap_map_pins.js' %}?v=20261105_pins_r2"></script>
 <script src="{% static 'js/google_maps_motion.js' %}?v=20261105_pins_r2"></script>
 <script src="{% static 'js/google_maps_markers.js' %}?v=20261105_pins_r2"></script>
 <script src="{% static 'js/map_paging.js' %}?v=20261030_published_r1"></script>
-<script src="{% static 'js/home_map.js' %}?v=20261120_fx1" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+<script src="{% static 'js/home_map.js' %}?v=20261120_popup_anchor" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
   data-home-map-route-label="{% trans 'Маршрут' %}"
   data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"

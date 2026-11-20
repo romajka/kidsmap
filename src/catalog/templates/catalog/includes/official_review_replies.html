@@ -1,0 +1,22 @@
+{% load i18n %}
+{% get_current_language as reply_language %}
+{% for response in review.public_replies %}
+  <aside class="km-official-reply km-official-reply--{{ review_kind }}" id="reply-{{ response.pk }}" aria-labelledby="reply-author-{{ response.pk }}">
+    <div class="km-official-reply__identity" id="reply-author-{{ response.pk }}">
+      <span class="km-official-reply__avatar" aria-hidden="true"></span>
+      <div>
+        <span class="km-official-reply__role">{% if review_kind == 'specialist' %}{% if reply_language == 'ru' %}Ответ специалиста{% elif reply_language == 'en' %}Specialist’s reply{% else %}Mütəxəssisin cavabı{% endif %}{% else %}{% if reply_language == 'ru' %}Ответ представителя места{% elif reply_language == 'en' %}Venue representative’s reply{% else %}Məkan nümayəndəsinin cavabı{% endif %}{% endif %}</span>
+        <strong class="km-official-reply__name">{{ reply_target_name }}</strong>
+      </div>
+    </div>
+    <p class="km-official-reply__text">{{ response.text|linebreaksbr }}</p>
+    <div class="km-official-reply__footer">
+      <time datetime="{{ response.created_at|date:'c' }}">{{ response.created_at|date:"d.m.Y" }}</time>
+      <a class="km-official-reply__report" aria-describedby="reply-author-{{ response.pk }}" href="{% url 'contacts' %}?review_kind={{ review_kind }}&amp;target={% if review_kind == 'place' %}{{ review.place_id }}{% else %}{{ review.specialist_id }}{% endif %}&amp;reply={{ response.pk }}">{% if reply_language == 'ru' %}Пожаловаться{% elif reply_language == 'en' %}Report reply{% else %}Şikayət et{% endif %}</a>
+    </div>
+  </aside>
+{% endfor %}
+{% if show_reply_action and review.can_reply %}
+  {% if review_kind == 'place' %}{% url 'typed_reviews' review_kind review.place_id as reviews_url %}{% else %}{% url 'typed_reviews' review_kind review.specialist_id as reviews_url %}{% endif %}
+  <a class="km-review-reply-link" href="{{ reviews_url }}#reply-text-{{ review.pk }}">{% if reply_language == 'ru' %}Ответить на отзыв{% elif reply_language == 'en' %}Reply to review{% else %}Rəyə cavab ver{% endif %}</a>
+{% endif %}

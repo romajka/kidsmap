@@ -2,6 +2,7 @@
 {% load i18n admin_modify static %}
 {% block extrahead %}
   {{ block.super }}
+  <script src="{% static 'admin/js/kidsmap_event_prompt.js' %}" defer></script>
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_admin_form_shell.css' %}?v=8">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_location.css' %}?v=1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -23,6 +24,7 @@
     <div><h1>{{ km_event_form_summary.title }}</h1><span class="km-event-status">{{ km_event_form_summary.visibility.label }}</span></div>
     {% if original.is_public %}<a class="km-event-button" href="{{ original.get_absolute_url }}" target="_blank" rel="noopener">{% translate 'Посмотреть на сайте' %}</a>{% endif %}
   </header>
+  {% include "admin/catalog/event/prompt_panel.html" %}
   {% if km_event_review_mode %}
   <section class="km-event-review" aria-labelledby="km-event-review-title">
     <h2 id="km-event-review-title">{% translate 'Проверка мероприятия' %}</h2>

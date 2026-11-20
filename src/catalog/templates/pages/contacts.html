@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/pages/contacts.css' %}?v=20261117_support_contacts" />
+{% if reported_reply_url %}<link rel="stylesheet" href="{% static 'css/pages/official_reply_report.css' %}">{% endif %}
 {% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
@@ -19,6 +20,19 @@
 <div class="contacts-page-wrapper">
   {% section_breadcrumbs _("Контакты") %}
 
+  {% if reported_reply_url %}
+    <section class="km-reply-report" aria-labelledby="reply-report-title" data-nosnippet>
+      <span class="material-symbols-rounded km-reply-report__icon" aria-hidden="true">flag</span>
+      <div class="km-reply-report__body">
+        <h1 id="reply-report-title">{% if CURRENT_LANGUAGE == 'az' %}Cavab haqqında şikayət et{% elif CURRENT_LANGUAGE == 'en' %}Report a reply{% else %}Сообщить об ответе{% endif %}</h1>
+        <p>{% if CURRENT_LANGUAGE == 'az' %}Cavabın keçidi məktuba əlavə edilib. Nəyi yoxlamalı olduğumuzu qısaca yazıb məktubu göndərin.{% elif CURRENT_LANGUAGE == 'en' %}The email includes a link to the reply. Briefly describe what we should check, then send the email.{% else %}Ссылка на ответ уже добавлена в письмо. Кратко опишите, что нам проверить, и отправьте письмо.{% endif %}</p>
+        <div class="km-reply-report__actions">
+          <a class="km-reply-report__email" href="mailto:{{ footer_email|default:'info@kidsmap.az' }}?body={{ reported_reply_url|urlencode:'' }}"><span class="material-symbols-rounded" aria-hidden="true">mail</span>{% if CURRENT_LANGUAGE == 'az' %}KidsMap-a yaz{% elif CURRENT_LANGUAGE == 'en' %}Email KidsMap{% else %}Написать в KidsMap{% endif %}</a>
+          <button class="copy-btn km-reply-report__copy" type="button" data-copy="{{ reported_reply_url }}" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Cavabın keçidini köçür{% elif CURRENT_LANGUAGE == 'en' %}Copy reply link{% else %}Копировать ссылку на ответ{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span>{% if CURRENT_LANGUAGE == 'az' %}Keçidi köçür{% elif CURRENT_LANGUAGE == 'en' %}Copy link{% else %}Копировать ссылку{% endif %}</button>
+        </div>
+      </div>
+    </section>
+  {% endif %}
   <!-- 1. Hero Section -->
   <section class="contacts-hero-card km-editorial-hero">
     {% include "pages/includes/editorial_art.html" with art="img/editorial/contact.webp" art_class="km-editorial-hero__art" art_loading="eager" only %}
@@ -40,7 +54,7 @@
         </span>
       </div>
 
-      <h1 class="contacts-hero-title">
+      {% if reported_reply_url %}<h2 class="contacts-hero-title">{% else %}<h1 class="contacts-hero-title">{% endif %}
         {% if CURRENT_LANGUAGE == "az" %}
           KidsMap dəstəyi
         {% elif CURRENT_LANGUAGE == "en" %}
@@ -48,7 +62,7 @@
         {% else %}
           Поддержка KidsMap
         {% endif %}
-      </h1>
+      {% if reported_reply_url %}</h2>{% else %}</h1>{% endif %}
 
       <div data-nosnippet>
       <p class="contacts-hero-lead">

@@ -1,4 +1,6 @@
 """Public, author, business and KidsMap reviewer flows share typed services."""
+from uuid import uuid4
+
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.http import Http404, HttpResponse, HttpResponseForbidden, JsonResponse
@@ -6,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import get_language, gettext
 from django.views.decorators.http import require_http_methods, require_POST
-from catalog.services.review_versions import (review_types, submit_review, moderate_candidate, business_can_respond, respond_to_review, rating_summary, ReviewConflict, ReviewCooldown)
+from catalog.services.review_versions import (review_types, submit_review, moderate_candidate, business_can_respond, respond_to_review, rating_summary, ReviewConflict, ReviewSubmissionConflict, ReviewCooldown)
 from catalog.services.content_quality import approved_review_queryset
 from catalog.services.public_presentation import present, public_url
 
@@ -39,7 +41,6 @@ def _target(kind, pk, request):
 @require_http_methods(['GET', 'POST'])
 def target_reviews(request, kind, pk):
     target = _target(kind, pk, request)
-    _, heads, _, _ = _types(kind)
     url = reverse('typed_reviews', args=[kind, pk])
     review_conflict = False
     submitted_review = None
@@ -80,14 +81,34 @@ def target_reviews(request, kind, pk):
             from catalog.services.moderation_sla import submission_message
             messages.success(request, submission_message('review'))
             return redirect(url)
+    return _render_reviews(request, kind, target, review_conflict=review_conflict, submitted_review=submitted_review)
+
+
+def _render_reviews(request, kind, target, *, review_conflict=False, submitted_review=None, reply_error=None, status=200):
+    _, heads, _, reaction_model = _types(kind)
     reviews = list(approved_review_queryset(heads.objects.filter(**{kind: target})).select_related('current_revision').order_by('-moderated_at', '-pk'))
     from catalog.services.reactions import _mark_review_reactions
-    reviews = _mark_review_reactions(reviews, request, reaction_model=_types(kind)[3])
+    reviews = _mark_review_reactions(reviews, request, reaction_model=reaction_model)
+    official = kind in {'place', 'specialist'}
+    if official:
+        from catalog.services.public_review_replies import attach_public_review_replies
+        attach_public_review_replies(reviews, kind=kind)
+    # The feed is scoped to one target, so every published review has the same business ACL.
+    can_reply = bool(reviews and request.user.is_authenticated and business_can_respond(user=request.user, head=reviews[0]))
+    can_report = bool(reviews and request.user.is_authenticated and business_can_respond(user=request.user, head=reviews[0], action='report'))
+    show_unavailable = bool(reply_error)
     for head in reviews:
         head.public_author_name = gettext("Аноним") if head.is_anonymous else (getattr(head, "author_name_i18n", None) or head.author_name or gettext("Гость"))
-        head.can_reply = request.user.is_authenticated and business_can_respond(user=request.user, head=head)
-        head.can_report = request.user.is_authenticated and business_can_respond(user=request.user, head=head, action='report')
-        head.public_replies = head.current_revision.responses.filter(kind='reply') if head.current_revision_id else []
+        head.can_reply = can_reply
+        head.can_report = can_report
+        if not official:
+            head.public_replies = head.current_revision.responses.filter(kind='reply') if head.current_revision_id else []
+        elif can_reply:
+            head.reply_request_id = uuid4()
+            if reply_error and reply_error['head_id'] == head.pk:
+                head.reply_error = reply_error['message']
+                head.reply_draft = reply_error['text']
+                show_unavailable = False
     own = heads.objects.filter(**{kind: target, 'user': request.user, 'is_current': True}).select_related('candidate_revision', 'current_revision').first() if request.user.is_authenticated else None
     own_decision = None
     if own is not None and own.candidate_revision_id is None:
@@ -96,7 +117,20 @@ def target_reviews(request, kind, pk):
             own_decision = latest
     can_review = request.user.is_active and request.user.is_staff and request.user.has_perm('catalog.change_' + heads._meta.model_name)
     candidates = list(heads.objects.filter(**{kind: target, 'is_current': True, 'candidate_revision__status': 'pending'}).select_related('candidate_revision')) if can_review else []
-    return render(request, 'catalog/typed_reviews.html', {'kind': kind, 'target': target, 'target_url': public_url(target, request.LANGUAGE_CODE) if kind == 'activity' else target.get_absolute_url(), 'target_name': present(target, getattr(request, 'LANGUAGE_CODE', get_language()))['name'] if kind == 'activity' else (getattr(target, 'name_i18n', None) or str(target)), 'language': getattr(request, 'LANGUAGE_CODE', get_language()), 'reviews': reviews, 'own_review': own, 'own_review_decision': own_decision, 'candidates': candidates, 'review_rating': rating_summary(target), 'review_conflict': review_conflict, 'submitted_review': submitted_review}, status=409 if review_conflict else 200)
+    language = getattr(request, 'LANGUAGE_CODE', get_language())
+    if kind == 'activity':
+        target_url = public_url(target, language)
+        target_name = present(target, language)['name']
+    else:
+        target_url = target.get_absolute_url()
+        target_name = getattr(target, 'name_i18n', None) or str(target)
+    return render(request, 'catalog/typed_reviews.html', {
+        'kind': kind, 'target': target, 'target_url': target_url, 'target_name': target_name,
+        'language': language, 'reviews': reviews, 'own_review': own,
+        'own_review_decision': own_decision, 'candidates': candidates,
+        'review_rating': rating_summary(target), 'review_conflict': review_conflict,
+        'submitted_review': submitted_review, 'unavailable_reply': reply_error if show_unavailable else None,
+    }, status=409 if review_conflict else status)
 
 
 @require_POST
@@ -106,14 +140,38 @@ def review_action(request, kind, pk, action):
     target = _target(kind, getattr(head, kind + '_id'), request)
     if not request.user.is_authenticated or not request.user.is_active:
         return HttpResponseForbidden()
+    official_reply = action == 'reply' and kind in {'place', 'specialist'}
+
+    def reply_problem(message, status):
+        current_target = _target(kind, target.pk, request)
+        current_head = get_object_or_404(heads, pk=head.pk)
+        if not business_can_respond(user=request.user, head=current_head):
+            return HttpResponseForbidden()
+        return _render_reviews(request, kind, current_target, reply_error={
+            'head_id': head.pk, 'message': message, 'text': request.POST.get('text', ''),
+        }, status=status)
+
     revision_id = request.POST.get('revision_id')
     if not revision_id or len(revision_id) > 32 or not revision_id.isascii() or not revision_id.isdecimal() or int(revision_id) <= 0:
+        if official_reply:
+            return reply_problem('conflict', 409)
         return HttpResponse(status=400)
     try:
         if action in {'approve', 'reject'}:
             moderate_candidate(head=head, revision_id=int(revision_id), actor=request.user, approve=action == 'approve', reason=request.POST.get('reason', '')[:5000])
         elif action in {'reply', 'report'}:
-            respond_to_review(head=head, actor=request.user, revision_id=revision_id, kind=action, text=request.POST.get('text', ''))
+            reply = respond_to_review(head=head, actor=request.user, revision_id=revision_id, kind=action,
+                                      text=request.POST.get('text', ''), request_id=request.POST.get('request_id'))
+            if official_reply:
+                if reply.hidden_at:
+                    anchor = f'review-{head.pk}'
+                else:
+                    msg = {'ru': 'Ответ опубликован.', 'en': 'Your reply is published.', 'az': 'Cavabınız dərc edildi.'}
+                    messages.success(request, msg.get(request.LANGUAGE_CODE, msg['az']))
+                    anchor = f'reply-{reply.pk}'
+                return redirect(reverse('typed_reviews', args=[kind, target.pk]) + '#' + anchor)
+            if action == 'report' and kind in {'place', 'specialist'}:
+                return redirect(reverse('typed_reviews', args=[kind, target.pk]) + f'#review-{head.pk}')
         elif action == 'react':
             if head.user_id == request.user.pk:
                 return HttpResponseForbidden()
@@ -125,13 +183,21 @@ def review_action(request, kind, pk, action):
             raise Http404
     except PermissionError:
         return HttpResponseForbidden()
+    except ReviewSubmissionConflict:
+        if official_reply:
+            return reply_problem('used', 409)
+        return HttpResponse(status=409)
     except ReviewConflict:
+        if official_reply:
+            return reply_problem('conflict', 409)
         if action == 'react':
             return render(request, 'catalog/review_reaction_conflict.html', {
                 'review_reload_url': reverse('typed_reviews', args=[kind, target.pk]),
                 'language': getattr(request, 'LANGUAGE_CODE', get_language()),
             }, status=409)
         return HttpResponse(status=409)
-    except ValidationError:
+    except ValidationError as exc:
+        if official_reply:
+            return reply_problem('identifier' if getattr(exc, 'code', None) == 'invalid_request_id' else 'invalid', 400)
         return HttpResponse(status=400)
     return redirect('typed_reviews', kind=kind, pk=target.pk)

@@ -1,0 +1,5 @@
+{% load i18n %}
+{% if person.status == 'published' and person.is_active %}
+  {% get_current_language as inbox_language %}
+  <a{% if css_class %} class="{{ css_class }}"{% endif %} href="{% url 'owner_reviews_dashboard' %}?specialist={{ person.pk }}#incoming-reviews">{% if inbox_language == 'ru' %}Входящие отзывы{% elif inbox_language == 'en' %}Incoming reviews{% else %}Gələn rəylər{% endif %}</a>
+{% endif %}

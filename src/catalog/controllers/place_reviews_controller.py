@@ -8,8 +8,7 @@ from django.db.models.functions import Trim
 from django.http import HttpRequest
 from django.utils.translation import gettext as _
 
-from catalog.models import PlaceReview
-from catalog.services.content_quality import approved_review_queryset
+from catalog.services.public_review_replies import attach_public_review_replies, published_target_reviews
 from catalog.services.reactions import mark_place_review_reactions
 from catalog.services.review_sorting import (
     REVIEW_SORT_CHOICES,
@@ -25,7 +24,7 @@ class PlaceReviewsController:
     def build_context(self, request: HttpRequest) -> dict:
         review_sort = normalize_review_sort(request.GET.get("sort"))
         visible_reviews = (
-            approved_review_queryset(PlaceReview.objects.select_related("place", "place__category"))
+            published_target_reviews("place").select_related("place", "place__category")
             .annotate(text_trimmed=Trim("text"))
             .exclude(text_trimmed="")
             .exclude(text_trimmed__isnull=True)
@@ -34,6 +33,8 @@ class PlaceReviewsController:
         paginator = Paginator(reviews_qs, 12)
         page_obj = paginator.get_page(request.GET.get("page"))
         reviews = mark_place_review_reactions(page_obj.object_list, request)
+
+        attach_public_review_replies(reviews, kind="place", user=request.user)
 
         params = request.GET.copy()
         params.pop("page", None)

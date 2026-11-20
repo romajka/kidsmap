@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Sənədlərin təsdiqi{% elif CURRENT_LANGUAGE == "en" %}Confirm account documents{% else %}Подтверждение документов{% endif %} | KidsMap{% endblock %}
+{% block robots_meta %}noindex, nofollow{% endblock %}
+{% block googlebot_meta %}noindex, nofollow{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/components/legal_consent.css' %}">{% endblock %}
+
+{% block content %}
+  <section class="consent-step" aria-labelledby="consent-title">
+    <div class="consent-step__card">
+      <h1 id="consent-title">
+        {% if consent_purpose == "google" %}
+          {% if CURRENT_LANGUAGE == "az" %}Qeydiyyatı tamamlayın{% elif CURRENT_LANGUAGE == "en" %}Finish creating your account{% else %}Завершите регистрацию{% endif %}
+        {% else %}
+          {% if CURRENT_LANGUAGE == "az" %}Hesab şərtləri yenilənib{% elif CURRENT_LANGUAGE == "en" %}Your account terms have changed{% else %}Условия для аккаунта обновились{% endif %}
+        {% endif %}
+      </h1>
+      <p class="consent-step__lead">
+        {% if consent_purpose == "google" %}
+          {% if CURRENT_LANGUAGE == "az" %}KidsMap hesabı yaratmaq üçün sənədlərlə tanış olun.{% elif CURRENT_LANGUAGE == "en" %}Review these documents to create your KidsMap account.{% else %}Ознакомьтесь с документами, чтобы создать аккаунт KidsMap.{% endif %}
+          {% if request.session.google_pending_signup.email %}<strong class="consent-step__email" dir="auto">{{ request.session.google_pending_signup.email }}</strong>{% endif %}
+        {% else %}
+          {% if CURRENT_LANGUAGE == "az" %}Hesabınızdan istifadə etməyə davam etmək üçün sənədlərin yeni versiyalarını nəzərdən keçirin və razılığınızı təsdiqləyin.{% elif CURRENT_LANGUAGE == "en" %}Review the current documents and confirm your agreement to continue using your account.{% else %}Ознакомьтесь с действующими документами и подтвердите согласие, чтобы продолжить работу с аккаунтом.{% endif %}
+        {% endif %}
+      </p>
+      <form class="consent-step__form" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        {% if consent_purpose == "google" %}<input type="hidden" name="google_flow" value="{{ request.session.google_pending_signup.flow }}">{% endif %}
+        {% if form.non_field_errors %}<div class="auth-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        {% include "auth/includes/legal_agreement.html" %}
+        <button class="btn consent-step__submit" type="submit">
+          {% if consent_purpose == "google" %}
+            {% if CURRENT_LANGUAGE == "az" %}Hesab yarat{% elif CURRENT_LANGUAGE == "en" %}Create account{% else %}Создать аккаунт{% endif %}
+          {% else %}
+            {% if CURRENT_LANGUAGE == "az" %}Təsdiqlə və davam et{% elif CURRENT_LANGUAGE == "en" %}Confirm and continue{% else %}Подтвердить и продолжить{% endif %}
+          {% endif %}
+        </button>
+        {% if consent_purpose == "google" %}
+          <button class="consent-step__link" type="submit" name="action" value="cancel" formnovalidate>
+            {% if CURRENT_LANGUAGE == "az" %}Girişə qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to sign in{% else %}Вернуться ко входу{% endif %}
+          </button>
+        {% endif %}
+      </form>
+      {% if consent_purpose == "renew" %}
+        <div class="consent-step__alternatives">
+          <form method="post" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            <button class="consent-step__link" type="submit">{% if CURRENT_LANGUAGE == "az" %}Hesabdan çıx{% elif CURRENT_LANGUAGE == "en" %}Sign out{% else %}Выйти из аккаунта{% endif %}</button>
+          </form>
+          <a class="consent-step__link" href="{% url 'account_deletion_request' %}">{% if CURRENT_LANGUAGE == "az" %}Hesabı sil{% elif CURRENT_LANGUAGE == "en" %}Delete account{% else %}Удалить аккаунт{% endif %}</a>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

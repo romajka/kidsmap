@@ -1,18 +1,17 @@
 {% load i18n %}
 
 <article class="review-item{% if show_place_link and review.place %} place-review-card{% endif %}">
-  <div class="review-head">
-    <div class="review-head-main">
-      {% if show_place_link and review.place %}
-        <span class="review-author-avatar" aria-hidden="true">{{ review.author_name_i18n|slice:":1"|upper }}</span>
-      {% endif %}
-      <strong class="review-author">
-        {{ review.author_name_i18n }}
-      </strong>
-      <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
+  {% if vote_url_name == "vote_place_review" %}
+    {% include "catalog/includes/review_byline.html" with author=review.author_name_i18n %}
+  {% else %}
+    <div class="review-head">
+      <div class="review-head-main">
+        <strong class="review-author">{{ review.author_name_i18n }}</strong>
+        <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
+      </div>
+      <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
     </div>
-    <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
-  </div>
+  {% endif %}
 
   {% if show_place_link and review.place %}
     <a class="review-place-card" href="{{ review.place.get_absolute_url }}" aria-label="{% blocktrans with name=review.place.name_i18n %}Открыть страницу места: {{ name }}{% endblocktrans %}">
@@ -44,6 +43,9 @@
     <p class="review-text">{{ review.text_i18n|linebreaksbr }}</p>
   {% endif %}
 
+  {% if vote_url_name == "vote_place_review" %}
+    {% include "catalog/includes/official_review_replies.html" with review_kind="place" reply_target_name=review.place.name_i18n show_reply_action=True %}
+  {% endif %}
   <div class="review-footer">
     {% if review.contains_profanity %}
       <span class="review-flag">{% trans "Текст отзыва отфильтрован" %}</span>

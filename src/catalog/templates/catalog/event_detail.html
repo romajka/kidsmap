@@ -6,7 +6,7 @@
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block structured_data %}<script type="application/ld+json">{{ event_schema_json|safe }}</script>{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261120_ticket">{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261120_ticket"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261120_afisha">{% endblock %}
 
 {% block content %}
 <article class="event-detail-page">
@@ -15,6 +15,7 @@
     <div class="event-poster-intro">
       <div class="event-poster-meta">
         {% if event.get_category_display %}<span class="event-category"><span class="material-symbols-rounded" aria-hidden="true">confirmation_number</span>{{ event.get_category_display }}</span>{% endif %}
+        {% if event.language_list %}<span class="event-langs" title="{% for item in event.language_list %}{{ item.name }}{% if not forloop.last %}, {% endif %}{% endfor %}"><span class="material-symbols-rounded" aria-hidden="true">translate</span>{% for item in event.language_list %}<span>{{ item.flag }} {{ item.name }}</span>{% endfor %}</span>{% endif %}
         {% if event.age_display %}<span class="event-age"><span class="visually-hidden">{% if language == 'az' %}Yaş{% elif language == 'en' %}Age{% else %}Возраст{% endif %} </span>{{ event.age_display }}</span>{% endif %}
       </div>
       <h1>{{ event.name_i18n }}</h1>
@@ -44,6 +45,7 @@
           {% if event.price_mode != 'legacy' and event.price_text %}<dd class="event-price-note">{{ event.price_text }}</dd>{% endif %}
         </div>
       </dl>
+      {% include 'catalog/includes/event_timer.html' with variant='poster' %}
       {% if event.occurrence_state != 'cancelled' and not event.has_ended and event.registration.url %}
         <div class="event-ticket-action" data-event-registration>
           {% include 'catalog/includes/event_registration.html' with registration_class='btn event-registration-btn' event_detail_cta=True %}
@@ -64,6 +66,8 @@
       </div>
     {% endif %}
   </header>
+
+  {% if event.has_ended or event.occurrence_state == 'cancelled' %}{% include 'catalog/includes/event_more.html' %}{% endif %}
 
   {% if event.occurrence_state != 'cancelled' and not event.has_ended and event.registration.url %}
     <div class="event-mobile-registration" data-event-mobile-registration hidden>
@@ -88,12 +92,15 @@
       <ul>{% for period in event_previous_periods %}<li>{% timezone 'Asia/Baku' %}{{ period.start|date:'d.m.Y H:i' }} – {{ period.end|date:'d.m.Y H:i' }}{% endtimezone %} (Asia/Baku)</li>{% endfor %}</ul>
     </section>
   {% endif %}
+  {% include 'catalog/includes/event_suggest_cta.html' with variant='compact' %}
   <section class="event-reviews" id="event-reviews">
     <h2>{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}</h2>
     {% if event_rating.count %}<p>{{ event_rating.average|floatformat:1 }} / 5 · {{ event_rating.count }}</p>{% endif %}
     {% for review in event_reviews %}<article><h3>{{ review.author_name_i18n }}</h3><p>{{ review.current_revision.rating }} / 5</p><p>{{ review.current_revision.text|linebreaksbr }}</p></article>{% empty %}<p>{% if language == 'az' %}Hələ yayımlanmış rəy yoxdur.{% elif language == 'en' %}No published reviews yet.{% else %}Опубликованных отзывов пока нет.{% endif %}</p>{% endfor %}
     {% include 'catalog/includes/typed_review_link.html' with review_kind='event' review_target=event %}
   </section>
+
+  {% if not event.has_ended and event.occurrence_state != 'cancelled' %}{% include 'catalog/includes/event_more.html' %}{% endif %}
 
   {% if event.photo or event.gallery.all %}
     <dialog class="event-photo-dialog" aria-labelledby="event-photo-title" data-event-photo-dialog>
@@ -105,5 +112,6 @@
     </dialog>
   {% endif %}
 </article>
+{% include 'catalog/includes/event_suggest_dialog.html' %}
 {% endblock %}
-{% block extra_body %}<script src="{% static 'js/event_detail_registration.js' %}?v=20261120_ticket" defer></script>{% endblock %}
+{% block extra_body %}<script src="{% static 'js/event_detail_registration.js' %}?v=20261120_ticket" defer></script><script src="{% static 'js/event_timer.js' %}?v=20261120" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endblock %}

@@ -1,0 +1,23 @@
+{% with l=language %}
+<dialog class="km-suggest" id="event-suggest-dialog" aria-labelledby="event-suggest-title" data-event-suggest-dialog>
+  <div class="km-suggest__sheet">
+    <span class="km-suggest__grip" aria-hidden="true"></span>
+    <button type="button" class="km-suggest__close" data-suggest-close aria-label="{% if l == 'az' %}Bağla{% elif l == 'en' %}Close{% else %}Закрыть{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+    <header class="km-suggest__head">
+      <span class="km-suggest__badge" aria-hidden="true"><span class="material-symbols-rounded">confirmation_number</span></span>
+      <div>
+        <h2 id="event-suggest-title">{% if l == 'az' %}Tədbiriniz var? Afişaya əlavə edək{% elif l == 'en' %}Have an event? Let’s add it{% else %}Есть мероприятие? Добавим в афишу{% endif %}</h2>
+        <p>{% if l == 'az' %}Bir neçə sahəni doldurun — komanda yoxlayacaq, sizinlə əlaqə saxlayacaq və pulsuz dərc edəcək.{% elif l == 'en' %}Fill in a few fields — our team will check it, contact you and publish it for free.{% else %}Заполните несколько полей — команда KidsMap проверит, свяжется с вами и бесплатно опубликует.{% endif %}</p>
+      </div>
+    </header>
+    {% include 'catalog/includes/event_suggest_form.html' %}
+    <div class="km-suggest__done" data-suggest-done hidden>
+      <span class="km-suggest__check" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l7 7 15-16"/></svg></span>
+      <h3>{% if l == 'az' %}Göndərildi!{% elif l == 'en' %}Sent!{% else %}Заявка отправлена!{% endif %}</h3>
+      <p data-suggest-done-text></p>
+      <button type="button" class="km-ev-btn km-ev-btn--ghost km-ev-btn--lg" data-suggest-close>{% if l == 'az' %}Bağla{% elif l == 'en' %}Close{% else %}Готово{% endif %}</button>
+      <span class="km-suggest__confetti" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+    </div>
+  </div>
+</dialog>
+{% endwith %}

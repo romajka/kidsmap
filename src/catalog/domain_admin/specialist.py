@@ -955,13 +955,19 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         )
 
     @admin.action(permissions=['change'], description=_("Отклонить выбранных специалистов"))
+    @transaction.atomic
     def mark_rejected(self, request, queryset):
         self._require_moderation_permission(request)
         from catalog.services import specialist_moderation
         reason = (request.POST.get("moderation_comment") or "").strip()[:specialist_moderation.REASON_LIMIT]
         reason = reason or str(specialist_moderation.default_reason(specialist_moderation.REJECTED))
-        newly_rejected = list(queryset.exclude(status=Specialist.STATUS_REJECTED).values_list("pk", flat=True))
-        updated_count = queryset.update(
+        selected = queryset.order_by().values("pk")
+        newly_rejected = list(
+            Specialist.objects.filter(pk__in=selected)
+            .exclude(status=Specialist.STATUS_REJECTED)
+            .order_by("pk").select_for_update().values_list("pk", flat=True)
+        )
+        updated_count = Specialist.objects.filter(pk__in=newly_rejected).update(
             status=Specialist.STATUS_REJECTED,
             is_active=False,
             rejection_reason=reason,
@@ -1004,11 +1010,12 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         if not form.instance.offers_office:
             form.instance.practice_locations.filter(is_active=True).update(is_active=False, is_primary=False)
 
+    @transaction.atomic
     def save_model(self, request, obj, form, change):
-        previous_status = (Specialist.objects.filter(pk=obj.pk).values_list("status", flat=True).first()
+        previous_status = (Specialist.objects.select_for_update().filter(pk=obj.pk).values_list("status", flat=True).first()
                            if change and obj.pk else None)
         super().save_model(request, obj, form, change)
-        if previous_status is not None and previous_status != obj.status:
+        if previous_status != obj.status and (previous_status is not None or obj.status == Specialist.STATUS_REJECTED):
             from catalog.services import specialist_moderation
             specialist_moderation.after_admin_status_change(obj, previous_status, actor=request.user)
 

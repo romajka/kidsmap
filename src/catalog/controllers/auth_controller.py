@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from django.db import transaction
 from django.contrib.auth import get_user_model
+from legalconsent.services import accept
 
 from catalog.forms import (
     AccountDeletionCancelForm,
@@ -85,6 +86,7 @@ class AuthController:
         user = form.save(commit=False)
         user.is_active = False
         user.save()
+        accept(user, form.consent_language, form.data["legal_offer"])
         self.profile_repository.set_phone(user=user, phone=form.cleaned_data.get("phone", ""))
         self.profile_repository.set_gender(user=user, gender=UserProfile.GENDER_UNSPECIFIED)
         return user

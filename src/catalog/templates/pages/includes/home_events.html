@@ -1,0 +1,33 @@
+{% load i18n static %}{% if upcoming_events %}{% with language=request.LANGUAGE_CODE st=events_quick_stats %}{% url 'events_landing' as afisha_url %}
+<section class="km-home-afisha" id="home-afisha" aria-labelledby="home-afisha-title" data-km-home-afisha>
+  <div class="km-home-afisha__deco" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <header class="km-home-afisha__head">
+    <div class="km-home-afisha__copy">
+      <span class="km-afisha-eyebrow km-afisha-eyebrow--live"><i aria-hidden="true"></i>{% if language == 'az' %}Afişa · yaxın tədbirlər{% elif language == 'en' %}Events · coming up{% else %}Афиша · ближайшие события{% endif %}</span>
+      <h2 id="home-afisha-title">{% if language == 'az' %}Uşaqlar üçün <mark>bu həftənin</mark> afişası{% elif language == 'en' %}Kids’ events <mark>this week</mark>{% else %}Детская афиша <mark>на этой неделе</mark>{% endif %}</h2>
+      <p>{% if language == 'az' %}Master-klaslar, sərgilər, festivallar və açıq dərslər — hər kartda tədbirə nə qədər qaldığı görünür.{% elif language == 'en' %}Workshops, exhibitions, festivals and open classes — every card shows how long is left.{% else %}Мастер-классы, выставки, праздники и открытые уроки — на каждой карточке видно, сколько осталось до начала.{% endif %}</p>
+    </div>
+    <nav class="km-home-afisha__chips" aria-label="{% if language == 'az' %}Tarix üzrə{% elif language == 'en' %}By date{% else %}По дате{% endif %}">
+      {% if st.running %}<a class="km-home-afisha__chip km-home-afisha__chip--live" href="{{ afisha_url }}"><i aria-hidden="true"></i><b>{{ st.running }}</b>{% if language == 'az' %}indi gedir{% elif language == 'en' %}on now{% else %}идут сейчас{% endif %}</a>{% endif %}
+      <a class="km-home-afisha__chip" href="{{ afisha_url }}?date_filter=today"><b>{{ st.today }}</b>{% if language == 'az' %}bu gün{% elif language == 'en' %}today{% else %}сегодня{% endif %}</a>
+      <a class="km-home-afisha__chip" href="{{ afisha_url }}?date_filter=tomorrow"><b>{{ st.tomorrow }}</b>{% if language == 'az' %}sabah{% elif language == 'en' %}tomorrow{% else %}завтра{% endif %}</a>
+      <a class="km-home-afisha__chip" href="{{ afisha_url }}?date_filter=weekend"><b>{{ st.weekend }}</b>{% if language == 'az' %}həftəsonu{% elif language == 'en' %}weekend{% else %}в выходные{% endif %}</a>
+    </nav>
+    <div class="km-home-afisha__cta">
+      <a class="km-ev-btn km-ev-btn--primary km-ev-btn--lg" href="{{ afisha_url }}"><span>{% if language == 'az' %}Bütün afişa{% elif language == 'en' %}All events{% else %}Вся афиша{% endif %}</span>{% if st.total %}<span class="km-ev-btn__badge">{{ st.total }}</span>{% endif %}<span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>
+      <a class="km-ev-btn km-ev-btn--ghost km-ev-btn--lg" href="{{ afisha_url }}?view=calendar"><span class="material-symbols-rounded" aria-hidden="true">calendar_month</span><span>{% if language == 'az' %}Təqvim{% elif language == 'en' %}Calendar{% else %}Календарь{% endif %}</span></a>
+      <a class="km-home-afisha__add" href="{% url 'event_suggest' %}" data-event-suggest><span class="material-symbols-rounded" aria-hidden="true">add_circle</span>{% if language == 'az' %}Tədbiriniz var? Əlavə edək{% elif language == 'en' %}Have an event? We’ll add it{% else %}Есть мероприятие? Добавим{% endif %}</a>
+    </div>
+  </header>
+  <div class="km-home-afisha__rail">
+    <button type="button" class="km-home-afisha__arrow km-home-afisha__arrow--prev" data-km-rail-prev aria-label="{% if language == 'az' %}Əvvəlki{% elif language == 'en' %}Previous{% else %}Назад{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button>
+    <ul class="km-home-afisha__track" data-km-rail tabindex="0" aria-label="{% if language == 'az' %}Yaxın tədbirlər{% elif language == 'en' %}Upcoming events{% else %}Ближайшие события{% endif %}">
+      {% for event in upcoming_events %}<li class="km-home-afisha__item">{% include 'catalog/includes/event_listing_card.html' with compact=True %}</li>{% endfor %}
+      <li class="km-home-afisha__item">{% include 'catalog/includes/event_suggest_cta.html' with variant='tile' %}</li>
+      <li class="km-home-afisha__item km-home-afisha__more"><a href="{{ afisha_url }}"><span class="material-symbols-rounded" aria-hidden="true">confirmation_number</span><strong>{% if language == 'az' %}Bütün tədbirlər{% elif language == 'en' %}See all events{% else %}Все мероприятия{% endif %}</strong>{% if st.total %}<small>{{ st.total }} {% if language == 'az' %}tədbir{% elif language == 'en' %}upcoming{% else %}в афише{% endif %}</small>{% endif %}</a></li>
+    </ul>
+    <button type="button" class="km-home-afisha__arrow km-home-afisha__arrow--next" data-km-rail-next aria-label="{% if language == 'az' %}Növbəti{% elif language == 'en' %}Next{% else %}Вперёд{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
+  </div>
+</section>
+{% include 'catalog/includes/event_suggest_dialog.html' %}
+{% endwith %}{% endif %}

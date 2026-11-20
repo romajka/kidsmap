@@ -1196,10 +1196,11 @@ class PlaceAdminOperationsMixin:
             level=messages.SUCCESS if updated_count else messages.WARNING)
 
     @admin.action(description=_("Отклонить карточки"))
+    @transaction.atomic
     def mark_rejected(self, request, queryset):
         default_reason = _("Məkan admin moderasiyasından keçmədi. Zəhmət olmasa məlumatları yeniləyin.")
         updated_count = 0
-        for place in queryset.iterator(chunk_size=100):
+        for place in queryset.select_for_update(of=("self",)).order_by("pk").iterator(chunk_size=100):
             from catalog.models import VolunteerPlaceRevision
             revision=VolunteerPlaceRevision.objects.filter(place=place,status="pending").first()
             if revision:
@@ -1208,12 +1209,17 @@ class PlaceAdminOperationsMixin:
                 updated_count += 1
                 continue
 
+            if place.status == Place.STATUS_REJECTED:
+                continue
             place.status = Place.STATUS_REJECTED
             place.is_active = False
             place.moderated_by = request.user
+            place.moderated_at = timezone.now()
             if not (place.rejection_reason or "").strip():
-                place.rejection_reason = default_reason
-            place.save(update_fields=["status", "is_active", "rejection_reason", "updated_at", "moderated_by"])
+                place.rejection_reason = str(default_reason)
+            place.save(update_fields=["status", "is_active", "rejection_reason", "updated_at", "moderated_by", "moderated_at"])
+            from catalog.services.place_moderation_decision import record_card_decision
+            record_card_decision(place, request.user, "rejected", place.rejection_reason, email=False)
             updated_count += 1
         self.message_user(
             request,

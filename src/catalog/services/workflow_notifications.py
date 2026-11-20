@@ -24,7 +24,9 @@ def emit(*, kind, entity_type, entity_id, version, recipient_user=None,
         raise ValidationError('Invalid notification identity.')
     if event_context is not None and not isinstance(event_context, dict):
         raise ValidationError('Invalid notification context.')
-    address = _email(recipient_email) if recipient_email else current_email_for_privileges(recipient_user)
+    address = _email(recipient_email)
+    if email and not address:
+        address = current_email_for_privileges(recipient_user)
     if recipient_user is None and address:
         matches = list(get_user_model().objects.filter(email__iexact=address, is_active=True).order_by('pk')[:2])
         if len(matches) == 1 and current_email_for_privileges(matches[0]) == address:

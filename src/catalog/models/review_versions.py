@@ -160,11 +160,36 @@ class ReviewResponse(models.Model):
         ordering = ('created_at', 'pk')
 
 
-class PlaceReviewResponse(ReviewResponse):
+class OfficialReviewResponse(ReviewResponse):
+    # Old releases display every "reply". The persisted kind must hide it there too.
+    kind = models.CharField(max_length=8, choices=[
+        ('reply', 'Reply'), ('report', 'Report'), ('hidden', 'Hidden reply'),
+    ])
+    request_id = models.UUIDField(null=True, blank=True, unique=True, editable=False)
+    hidden_at = models.DateTimeField(null=True, blank=True, editable=False)
+    moderated_at = models.DateTimeField(null=True, blank=True, editable=False)
+    moderated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, editable=False,
+        on_delete=models.SET_NULL, related_name='+',
+    )
+    moderation_reason = models.TextField(null=True, blank=True, editable=False, max_length=5000)
+
+    class Meta(ReviewResponse.Meta):
+        abstract = True
+        constraints = [
+            models.CheckConstraint(
+                condition=(Q(kind='hidden', hidden_at__isnull=False)
+                           | Q(kind__in=['reply', 'report'], hidden_at__isnull=True)),
+                name='%(class)s_visibility',
+            )
+        ]
+
+
+class PlaceReviewResponse(OfficialReviewResponse):
     revision = models.ForeignKey(PlaceReviewRevision, on_delete=models.CASCADE, related_name='responses')
 
 
-class SpecialistReviewResponse(ReviewResponse):
+class SpecialistReviewResponse(OfficialReviewResponse):
     revision = models.ForeignKey(SpecialistReviewRevision, on_delete=models.CASCADE, related_name='responses')
 
 

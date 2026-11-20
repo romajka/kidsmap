@@ -2,6 +2,9 @@ from .controllers.organization_directory import organization_list
 from .controllers.organization_workspace import organization_connections, organization_connection_result, organization_detach_preview, organization_connection_target
 from .controllers.specialist_document_preview import specialist_document_page, specialist_document_preview
 from .controllers.public_map_api import public_map
+from moderation_appeals import views as appeal_views
+from legalconsent.views import renew_consent
+from catalog.google_auth import google_signup_consent
 from .controllers.public_details import organization_detail as public_organization_detail, activity_detail
 from .controllers.server_draft_api import draft_collection, draft_detail, draft_photo, draft_materialize, draft_media, draft_media_file
 from .controllers.business_team_api import business_team_action, business_permission_config
@@ -19,6 +22,7 @@ from django.urls import include, path, re_path, reverse_lazy
 
 from .forms import UserPasswordResetForm, UserSetPasswordForm
 from .phone_views import reveal_place_phones
+from .controllers.event_suggest import event_suggest
 from .photo_views import prepare_owner_photo, save_owner_photos, owner_photo_thumbnail
 from .views import (
     home,
@@ -108,6 +112,8 @@ urlpatterns = [
     path("organizations/", organization_list, name="organization_list"),
     path("organizations/<uuid:public_id>/", public_organization_detail, name="organization_detail"),
     path("activities/<int:pk>/", activity_detail, name="activity_detail"),
+    path('account/appeals/', appeal_views.inbox, name='appeal_inbox'),
+    path('account/appeals/<slug:kind>/<int:source_id>/<str:version>/', appeal_views.submit, name='appeal_submit'),
     path('account/notifications/', inbox, name='account_notifications'),
     path('account/notifications/<int:notification_id>/read/', mark_read, name='account_notification_read'),
     path('account/notifications/<int:notification_id>/accept/', accept_invitation, name='account_notification_accept'),
@@ -151,6 +157,7 @@ urlpatterns = [
     path("api/catalog/suggestions/", catalog_search_suggestions, name="catalog_search_suggestions"),
     path("", home, name="home"),
     path("events/", events_landing, name="events_landing"),
+    path("events/suggest/", event_suggest, name="event_suggest"),
     path("catalog/", place_list, name="place_list"),
     path("catalog/new/", place_new, name="place_new"),
     path("catalog/<slug:seo_slug>/", seo_landing, name="seo_landing"),
@@ -187,6 +194,8 @@ urlpatterns = [
         name="account_deletion_status",
     ),
     path("auth/register/", account_register, name="account_register"),
+    path("auth/consent/", renew_consent, name="account_legal_consent"),
+    path("auth/google/consent/", google_signup_consent, name="google_signup_consent"),
     path("auth/verify-email/", account_verify_email, name="account_verify_email"),
     path("auth/login/", account_login, name="account_login"),
     path("auth/logout/", account_logout, name="account_logout"),
@@ -271,6 +280,7 @@ urlpatterns = [
     path("place/<int:pk>/like/", toggle_place_like, name="toggle_place_like"),
     path("place/<int:pk>/review/", add_place_review, name="add_place_review"),
     path("event/<int:pk>-<str:slug>/", event_detail, name="event_detail"),
+    path("event/<slug:slug>/", event_detail, name="event_detail"),
     path("place-review/<int:review_id>/vote/", vote_place_review, name="vote_place_review"),
     path("review/", add_site_review, name="add_site_review"),
     path("site-review/<int:review_id>/vote/", vote_site_review, name="vote_site_review"),

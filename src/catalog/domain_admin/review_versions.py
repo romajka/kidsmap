@@ -8,7 +8,8 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+from django.utils.translation import get_language, gettext_lazy as _
 from catalog.models import ActivityReview, EventReview, PlaceReviewResponse, SpecialistReviewResponse, ActivityReviewResponse, EventReviewResponse
 from catalog.services.review_versions import type_for_head, moderate_candidate, set_review_visibility, ReviewConflict
 
@@ -194,7 +195,7 @@ class TypedReviewAdmin(VersionedReviewAdminMixin, admin.ModelAdmin):
     search_fields = ('text', 'author_name')
 
 
-@admin.register(PlaceReviewResponse, SpecialistReviewResponse, ActivityReviewResponse, EventReviewResponse)
+@admin.register(ActivityReviewResponse, EventReviewResponse)
 class ReviewResponseAdmin(admin.ModelAdmin):
     list_display = ('pk', 'kind', 'revision', 'created_at')
     list_filter = ('kind',)
@@ -202,3 +203,84 @@ class ReviewResponseAdmin(admin.ModelAdmin):
         return False
     def get_readonly_fields(self, request, obj=None):
         return tuple(field.name for field in self.model._meta.fields)
+
+
+@admin.register(PlaceReviewResponse, SpecialistReviewResponse)
+class OfficialReviewResponseAdmin(ReviewResponseAdmin):
+    def get_list_display(self, request):
+        from catalog.services.staff_roles import can_moderate_review_reply
+        fields = super().get_list_display(request)
+        if can_moderate_review_reply(request.user, self.model):
+            return (*fields, 'visibility_link')
+        return fields
+
+    def get_urls(self):
+        prefix = f'{self.opts.app_label}_{self.opts.model_name}'
+        routes = [
+            path(f'<int:object_id>/{action}/', self.admin_site.admin_view(self.visibility_view),
+                 {'action': action}, name=f'{prefix}_{action}')
+            for action in ('hide', 'restore')
+        ]
+        return routes + super().get_urls()
+
+    @admin.display(description=_('Публикация'))
+    def visibility_link(self, obj):
+        if obj.kind not in {'reply', 'hidden'}:
+            return '—'
+        if obj.hidden_at:
+            action = 'restore'
+            labels = {'ru': 'Восстановить ответ', 'az': 'Cavabı bərpa et', 'en': 'Restore reply'}
+        else:
+            action = 'hide'
+            labels = {'ru': 'Скрыть ответ', 'az': 'Cavabı gizlət', 'en': 'Hide reply'}
+        url = reverse(f'admin:catalog_{self.opts.model_name}_{action}', args=[obj.pk])
+        return format_html('<a href="{}">{}</a>', url, labels.get(get_language(), labels['az']))
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        obj = self.get_object(request, object_id)
+        from catalog.services.staff_roles import can_moderate_review_reply
+        if obj and obj.kind in {'reply', 'hidden'} and can_moderate_review_reply(request.user, self.model):
+            extra_context = {**(extra_context or {}), 'response_visibility_link': self.visibility_link(obj)}
+        return super().change_view(request, object_id, form_url, extra_context)
+
+    change_form_template = 'admin/catalog/reviews/official_response_change.html'
+
+    def visibility_view(self, request, object_id, action):
+        from catalog.services.staff_roles import can_moderate_review_reply
+        if not can_moderate_review_reply(request.user, self.model):
+            raise PermissionDenied
+        if request.method not in {'GET', 'POST'}:
+            return HttpResponse(status=405, headers={'Allow': 'GET, POST'})
+        hide = action == 'hide'
+        url = reverse(f'admin:catalog_{self.opts.model_name}_change', args=[object_id])
+        with transaction.atomic():
+            queryset = self.get_queryset(request)
+            if request.method == 'POST':
+                queryset = queryset.select_for_update()
+            obj = queryset.filter(pk=object_id, kind__in=['reply', 'hidden']).first()
+            if obj is None:
+                raise Http404
+            reason = request.POST.get('reason', '').strip()
+            status, error = 200, ''
+            if request.method == 'POST':
+                expected = request.POST.get('decision_at')
+                decision_at = obj.moderated_at.isoformat() if obj.moderated_at else ''
+                if (hide == bool(obj.hidden_at)) or (expected is not None and expected != decision_at):
+                    status, error = 409, 'stale'
+                elif (hide and not reason) or len(reason) > 5000:
+                    status, error = 400, 'reason'
+                else:
+                    now = timezone.now()
+                    obj.kind = 'hidden' if hide else 'reply'
+                    obj.hidden_at = now if hide else None
+                    obj.moderated_at = now
+                    obj.moderated_by = request.user
+                    obj.moderation_reason = reason or None
+                    obj.save(update_fields=('kind', 'hidden_at', 'moderated_at', 'moderated_by', 'moderation_reason'))
+                    self.log_change(request, obj, f'{action}: {reason}' if reason else action)
+                    return redirect(url)
+            return TemplateResponse(request, 'admin/catalog/reviews/official_response_visibility.html', {
+                **self.admin_site.each_context(request), 'opts': self.opts, 'original': obj,
+                'hide': hide, 'error': error, 'reason': reason, 'back_url': url,
+                'decision_at': obj.moderated_at.isoformat() if obj.moderated_at else '',
+            }, status=status)

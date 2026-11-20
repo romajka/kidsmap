@@ -5,36 +5,61 @@
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261104_public_mobile_r2">{% include "pages/includes/editorial_styles.html" %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261104_public_mobile_r2"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261120_afisha_pages2">{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 {% block content %}
 <div class="events-page-wrap">
-  <header class="events-compact-head" id="events-hero">
-    <h1>{{ events_heading }}</h1><p>{{ events_stat_label }}</p>
+  {% with st=events_quick_stats %}
+  <header class="km-afisha-hero" id="events-hero">
+    <div class="km-afisha-hero__copy">
+      <span class="km-afisha-eyebrow"><span class="material-symbols-rounded" aria-hidden="true">celebration</span>{% if language == 'az' %}Uşaqlar üçün afişa{% elif language == 'en' %}Kids’ events{% else %}Афиша для детей{% endif %}</span>
+      <h1>{{ events_heading }}</h1>
+      <p>{{ events_intro }}</p>
+      <a class="km-afisha-hero__add" href="{% url 'event_suggest' %}" data-event-suggest><span class="material-symbols-rounded" aria-hidden="true">add_circle</span><span>{% if language == 'az' %}Tədbir əlavə et{% elif language == 'en' %}Add your event{% else %}Добавить мероприятие{% endif %}</span></a>
+    </div>
+    <ul class="km-afisha-stats" aria-label="{{ events_stat_label }}">
+      {% if st.running %}<li class="km-afisha-stat km-afisha-stat--live"><b>{{ st.running }}</b><span><i aria-hidden="true"></i>{% if language == 'az' %}indi gedir{% elif language == 'en' %}on now{% else %}идут сейчас{% endif %}</span></li>{% endif %}
+      <li class="km-afisha-stat"><b>{{ st.today }}</b><span>{% if language == 'az' %}bu gün{% elif language == 'en' %}today{% else %}сегодня{% endif %}</span></li>
+      <li class="km-afisha-stat"><b>{{ st.weekend }}</b><span>{% if language == 'az' %}həftəsonu{% elif language == 'en' %}this weekend{% else %}в выходные{% endif %}</span></li>
+      <li class="km-afisha-stat km-afisha-stat--total"><b>{{ st.total }}</b><span>{% if language == 'az' %}hamısı{% elif language == 'en' %}upcoming{% else %}всего в афише{% endif %}</span></li>
+    </ul>
   </header>
+  {% endwith %}
   <div class="events-hub">
     <div class="events-hub-top">
       <div class="events-quick-chips" role="navigation" aria-label="{% if language == 'az' %}Tarix üzrə sürətli filtrlər{% elif language == 'en' %}Quick date filters{% else %}Быстрый выбор даты{% endif %}">
-        <a class="events-chip{% if not selected.date_filter and not selected.date and not selected.date_from and not selected.date_to %} events-chip--active{% endif %}" href="{{ events_quick_urls.all }}">
+        <a class="events-chip{% if not selected.date_filter and not selected.date and not selected.date_from and not selected.date_to and not events_when %} events-chip--active{% endif %}" href="{{ events_quick_urls.all }}">
           <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">event_available</span>
           <span>{% if language == 'az' %}Bütün tarixlər{% elif language == 'en' %}All dates{% else %}Все даты{% endif %}</span>
+          {% if events_quick_stats.total %}<span class="events-chip-count">{{ events_quick_stats.total }}</span>{% endif %}
         </a>
         <a class="events-chip{% if selected.date_filter == 'today' %} events-chip--active{% endif %}" href="{{ events_quick_urls.today }}">
           <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">today</span>
           <span>{% if language == 'az' %}Bu gün{% elif language == 'en' %}Today{% else %}Сегодня{% endif %}</span>
+          {% if events_quick_stats.today %}<span class="events-chip-count">{{ events_quick_stats.today }}</span>{% endif %}
         </a>
         <a class="events-chip{% if selected.date_filter == 'tomorrow' %} events-chip--active{% endif %}" href="{{ events_quick_urls.tomorrow }}">
           <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">wb_sunny</span>
           <span>{% if language == 'az' %}Sabah{% elif language == 'en' %}Tomorrow{% else %}Завтра{% endif %}</span>
+          {% if events_quick_stats.tomorrow %}<span class="events-chip-count">{{ events_quick_stats.tomorrow }}</span>{% endif %}
         </a>
         <a class="events-chip{% if selected.date_filter == 'weekend' %} events-chip--active{% endif %}" href="{{ events_quick_urls.weekend }}">
           <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">weekend</span>
           <span>{% if language == 'az' %}Həftəsonu{% elif language == 'en' %}Weekend{% else %}Выходные{% endif %}</span>
+          {% if events_quick_stats.weekend %}<span class="events-chip-count">{{ events_quick_stats.weekend }}</span>{% endif %}
         </a>
         <a class="events-chip{% if selected.date_filter == 'this_week' %} events-chip--active{% endif %}" href="{{ events_quick_urls.this_week }}">
           <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">date_range</span>
           <span>{% if language == 'az' %}Bu həftə{% elif language == 'en' %}This week{% else %}На этой неделе{% endif %}</span>
+          {% if events_quick_stats.this_week %}<span class="events-chip-count">{{ events_quick_stats.this_week }}</span>{% endif %}
         </a>
+        {% if events_quick_stats.past or events_when %}
+        <a class="events-chip events-chip--past{% if events_when == 'past' %} events-chip--active{% endif %}" href="{{ events_quick_urls.past }}">
+          <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">history</span>
+          <span>{% if language == 'az' %}Keçmiş{% elif language == 'en' %}Past{% else %}Прошедшие{% endif %}</span>
+          {% if events_quick_stats.past %}<span class="events-chip-count">{{ events_quick_stats.past }}</span>{% endif %}
+        </a>
+        {% endif %}
       </div>
 
       <nav class="events-mode" id="events-mode" aria-label="{% if language == 'az' %}Görünüş{% elif language == 'en' %}View{% else %}Вид{% endif %}">
@@ -49,15 +74,17 @@
       </nav>
     </div>
 
-    <details class="events-filters" id="events-filters" {% if selected.q or selected.district or selected.category or selected.age or selected.age_from or selected.age_to or selected.free or selected.format or selected.date_from or selected.date_to %}open{% endif %}>
+    <details class="events-filters" id="events-filters">
       <summary class="events-filters__toggle">
         <span class="material-symbols-rounded events-filters__toggle-icon" aria-hidden="true">tune</span>
         <span>{% if language == 'az' %}Axtarış və filtrlər{% elif language == 'en' %}Search and filters{% else %}Поиск и фильтры{% endif %}</span>
-        {% if has_active_filters %}<span class="events-filters__badge" aria-hidden="true"></span>{% endif %}
+        {% if has_active_filters %}<span class="events-filters__active">{% if language == 'az' %}Aktiv{% elif language == 'en' %}Active{% else %}Применены{% endif %}</span>{% endif %}
+        <span class="material-symbols-rounded events-filters__chevron" aria-hidden="true">expand_more</span>
       </summary>
       <form class="events-filters__body" method="get" action="{% url 'events_landing' %}">
         <input type="hidden" name="view" value="{{ events_mode }}">
         {% if selected.month %}<input type="hidden" name="month" value="{{ selected.month }}">{% endif %}
+        {% if events_when %}<input type="hidden" name="when" value="{{ events_when }}" data-events-when>{% endif %}
         {% if selected.date %}<input type="hidden" name="date" value="{{ selected.date }}">{% endif %}
         <label>
           <span>{% if language == 'az' %}Axtarış{% elif language == 'en' %}Search{% else %}Поиск{% endif %}</span>
@@ -80,6 +107,10 @@
             <option value="this_week" {% if selected.date_filter == 'this_week' %}selected{% endif %}>{% if language == 'az' %}Bu həftə{% elif language == 'en' %}This week{% else %}На этой неделе{% endif %}</option>
             <option value="weekend" {% if selected.date_filter == 'weekend' %}selected{% endif %}>{% if language == 'az' %}Həftəsonu{% elif language == 'en' %}Weekend{% else %}Выходные{% endif %}</option>
           </select>
+        </label>
+        <label>
+          <span>{% if language == 'az' %}Tədbirin dili{% elif language == 'en' %}Language{% else %}Язык проведения{% endif %}</span>
+          <select class="events-filter-select" name="lang"><option value="">{% if language == 'az' %}İstənilən{% elif language == 'en' %}Any{% else %}Любой{% endif %}</option>{% for value, label in event_language_choices %}<option value="{{ value }}" {% if selected.lang == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
         </label>
         <details class="events-more-filters" {% if selected.category or selected.format or selected.age_from or selected.age_to or selected.free or selected.date_from or selected.date_to or selected.sort == 'new' %}open{% endif %}>
           <summary>{% if language == 'az' %}Digər filtrlər və tarix aralığı{% elif language == 'en' %}More filters and date range{% else %}Ещё фильтры и свои даты{% endif %}</summary>
@@ -128,17 +159,27 @@
     {% include 'catalog/includes/event_calendar.html' %}
   {% else %}
     <section id="events-feed" class="events-feed">
-      <div class="events-results-header">
+      <div class="events-results-header{% if events_when %} km-history-head{% endif %}">
+        {% if events_when %}
+          <div>
+            <h2 class="km-history-title"><span class="material-symbols-rounded" aria-hidden="true">history</span>{% if language == 'az' %}Afişa tarixçəsi{% elif language == 'en' %}Events history{% else %}История афиши{% endif %}</h2>
+            <p class="events-results-count">{{ results_count_label }} · {% if language == 'az' %}son 12 ay, yenilər əvvəldə{% elif language == 'en' %}last 12 months, newest first{% else %}за последние 12 месяцев, сначала новые{% endif %}</p>
+          </div>
+          <a class="km-ev-btn km-ev-btn--ghost" href="{{ events_quick_urls.all }}"><span class="material-symbols-rounded" aria-hidden="true">event_upcoming</span><span>{% if language == 'az' %}Qarşıdakı tədbirlər{% elif language == 'en' %}Upcoming events{% else %}Предстоящие события{% endif %}</span></a>
+        {% else %}
         <p class="events-results-count">{{ results_count_label }}</p>
+        {% endif %}
       </div>
-      <div class="events-list-v2">
+      <div class="events-list-v2 km-ev-grid{% if events_when %} km-ev-grid--history{% endif %}" data-km-stagger>
         {% for event in events %}
           {% include 'catalog/includes/event_listing_card.html' %}
         {% empty %}
           <div class="km-state-card km-state-card--filter km-editorial-empty" role="status">
             {% include "pages/includes/editorial_art.html" with art="img/editorial/calendar.webp" art_class="km-editorial-empty__art" only %}
             <h2 class="km-state-card__title">
-              {% if request.GET %}
+              {% if events_when %}
+                {% if language == 'az' %}Son 12 ayda keçmiş tədbir tapılmadı{% elif language == 'en' %}No past events in the last 12 months{% else %}За последние 12 месяцев прошедших событий не нашлось{% endif %}
+              {% elif request.GET %}
                 {% if language == 'az' %}Bu filtrlərə uyğun tədbir yoxdur{% elif language == 'en' %}No events match these filters{% else %}По этим фильтрам событий нет{% endif %}
               {% else %}
                 {% if language == 'az' %}Afişada hələ qarşıdakı tədbir yoxdur{% elif language == 'en' %}No upcoming events in the calendar yet{% else %}В афише пока нет предстоящих мероприятий{% endif %}
@@ -164,19 +205,36 @@
                 </a>
               {% endif %}
             </div>
+            {% include 'catalog/includes/event_suggest_cta.html' with variant='compact' %}
           </div>
         {% endfor %}
       </div>
     </section>
 
-    {% if page_obj.paginator.num_pages > 1 %}
-    <nav class="pagination" aria-label="{% trans 'Пагинация' %}">
-      {% if page_obj.has_previous %}<a class="page-nav" href="?{{ query_without_page }}&page={{ page_obj.previous_page_number }}">{% trans 'Назад' %}</a>{% endif %}
-      <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-      {% if page_obj.has_next %}<a class="page-nav" href="?{{ query_without_page }}&page={{ page_obj.next_page_number }}">{% trans 'Вперед' %}</a>{% endif %}
-    </nav>
+    {% include 'catalog/includes/event_suggest_cta.html' with variant='banner' %}
+    {% if page_obj.has_other_pages %}
+      <nav class="km-afisha-pages{% if page_obj.paginator.num_pages > 3 %} km-afisha-pages--wide{% endif %}" aria-label="{% translate 'Пагинация' %}">
+        {% if page_obj.has_previous %}
+          <a class="km-afisha-pages__prev" rel="prev" href="?{% if query_without_page %}{{ query_without_page }}&amp;{% endif %}page={{ page_obj.previous_page_number }}#events-feed" aria-label="{% translate 'Предыдущая страница' %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></a>
+        {% endif %}
+        <div class="km-afisha-pages__numbers">
+          {% for number in event_page_numbers %}
+            {% if number == page_obj.paginator.ELLIPSIS %}
+              <span class="km-afisha-pages__gap" aria-hidden="true">{{ number }}</span>
+            {% elif number == page_obj.number %}
+              <span aria-current="page" aria-label="{% translate 'Страница' %} {{ number }}">{{ number }}</span>
+            {% else %}
+              <a href="?{% if query_without_page %}{{ query_without_page }}&amp;{% endif %}page={{ number }}#events-feed" aria-label="{% translate 'Страница' %} {{ number }}">{{ number }}</a>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% if page_obj.has_next %}
+          <a class="km-afisha-pages__next" rel="next" href="?{% if query_without_page %}{{ query_without_page }}&amp;{% endif %}page={{ page_obj.next_page_number }}#events-feed" aria-label="{% translate 'Следующая страница' %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></a>
+        {% endif %}
+      </nav>
     {% endif %}
   {% endif %}
 </div>
+{% include 'catalog/includes/event_suggest_dialog.html' %}
 {% endblock %}
-{% block extra_body %}<script src="{% static 'js/events_filters.js' %}?v=20261026" defer></script>{% endblock %}
+{% block extra_body %}<script src="{% static 'js/events_filters.js' %}?v=20261026" defer></script><script src="{% static 'js/event_timer.js' %}?v=20261120" defer></script><script src="{% static 'js/events_calendar.js' %}?v=20261120" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endblock %}

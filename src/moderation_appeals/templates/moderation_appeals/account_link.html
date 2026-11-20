@@ -1,0 +1,1 @@
+{% load i18n %}{% get_current_language as lang %}<a href="{% url 'appeal_inbox' %}" class="{{ css_class }}">{% if lang == 'az' %}Apellyasiyalara keç{% elif lang == 'en' %}Go to appeals{% else %}Перейти к апелляциям{% endif %}</a>

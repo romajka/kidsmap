@@ -1,0 +1,55 @@
+{% load i18n %}
+{% url 'typed_reviews' review.review_kind review.target.pk as review_url %}
+<article class="account-review-card" id="{% if not incoming %}written-{% endif %}review-{{ review.review_kind }}-{{ review.pk }}">
+  <div class="account-review-card__top">
+    <h3 class="account-review-target">
+      {% if incoming or review.target_available %}<a href="{{ review.target.get_absolute_url }}">
+        <span class="visually-hidden">{% if review.review_kind == 'place' %}{% if CURRENT_LANGUAGE == 'ru' %}Страница места{% elif CURRENT_LANGUAGE == 'en' %}Venue page{% else %}Məkan səhifəsi{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'ru' %}Профиль специалиста{% elif CURRENT_LANGUAGE == 'en' %}Specialist profile{% else %}Mütəxəssis profili{% endif %}{% endif %} · </span>{{ review.target_name }}</a>
+      {% else %}{{ review.target_name }}{% endif %}
+    </h3>
+    {% if incoming %}
+      {% if review.has_answer %}
+        <a class="account-review-state is-answered" href="{{ review_url }}#review-{{ review.pk }}"><span aria-hidden="true">✓</span>{% if CURRENT_LANGUAGE == 'az' %}Cavab verilib{% elif CURRENT_LANGUAGE == 'en' %}Answered{% else %}Есть ответ{% endif %}</a>
+      {% else %}
+        <span class="account-review-state is-unanswered">{% if CURRENT_LANGUAGE == 'az' %}Cavabsız{% elif CURRENT_LANGUAGE == 'en' %}Unanswered{% else %}Без ответа{% endif %}</span>
+      {% endif %}
+      <span class="visually-hidden">{% if CURRENT_LANGUAGE == 'az' %}Təsdiqlənib{% elif CURRENT_LANGUAGE == 'en' %}Approved review{% else %}Одобренный отзыв{% endif %}</span>
+    {% else %}
+      {% if review.is_approved %}<span class="account-status-pill account-status-pill--approved">{% if CURRENT_LANGUAGE == 'az' %}Təsdiqlənib{% elif CURRENT_LANGUAGE == 'en' %}Approved{% else %}Одобрен{% endif %}</span>
+      {% elif review.status == "pending" %}<span class="account-status-pill account-status-pill--pending">{% if CURRENT_LANGUAGE == 'az' %}Yoxlanışda{% elif CURRENT_LANGUAGE == 'en' %}Pending{% else %}На проверке{% endif %}</span>
+      {% elif review.status == "rejected" %}<span class="account-status-pill account-status-pill--rejected">{% if CURRENT_LANGUAGE == 'az' %}Rədd edilib{% elif CURRENT_LANGUAGE == 'en' %}Rejected{% else %}Отклонён{% endif %}</span>
+      {% else %}<span class="account-status-pill account-status-pill--draft">{% if CURRENT_LANGUAGE == 'az' %}Gizlədilib{% elif CURRENT_LANGUAGE == 'en' %}Hidden{% else %}Скрыт{% endif %}</span>{% endif %}
+
+    {% endif %}
+  </div>
+  <div class="account-review-byline">
+    <span class="account-review-avatar" aria-hidden="true">
+      {% if review.is_anonymous %}<span class="material-symbols-rounded">person_outline</span>
+      {% elif review.user.profile.avatar %}<img src="{{ review.user.profile.avatar.url }}" alt="" class="account-review-avatar__img">
+      {% else %}<span>{{ review.author_name|default:_("Гость")|slice:":1"|upper }}</span>{% endif %}
+    </span>
+    <strong>{% if review.is_anonymous %}{% trans "Аноним" %}{% else %}{{ review.author_name|default:_("Гость") }}{% endif %}</strong>
+    <time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:"d.m.Y" }}</time>
+    <span class="account-review-stars"><span class="visually-hidden">{% trans 'Оценка' %} {{ review.rating }} / 5</span><span aria-hidden="true">{% for star in "12345" %}<span class="{% if forloop.counter <= review.rating %}star-filled{% else %}star-empty{% endif %}">★</span>{% endfor %}</span></span>
+  </div>
+  <div class="account-review-card__content">
+    <div class="account-review-card__quote-box"><p class="account-review-card__text">{{ review.text|linebreaksbr }}</p></div>
+    {% if not incoming and review.current_revision_id and review.candidate_revision_id %}
+      <p class="account-pending-callout">{% if CURRENT_LANGUAGE == 'az' %}Düzəliş yoxlanışdadır{% elif CURRENT_LANGUAGE == 'en' %}Edit under review{% else %}Правка на проверке{% endif %}</p>
+    {% elif not incoming and review.current_revision_id and review.latest_status == 'rejected' %}
+      <p class="account-rejection-callout">{% if CURRENT_LANGUAGE == 'az' %}Düzəliş rədd edilib{% elif CURRENT_LANGUAGE == 'en' %}Edit rejected{% else %}Правка отклонена{% endif %}{% if review.latest_reason %} · {{ review.latest_reason }}{% endif %}</p>
+    {% elif not incoming and review.status == 'pending' %}<p class="account-pending-callout">{{ review_moderation_sla_message }}</p>
+    {% elif not incoming and review.status == 'rejected' and review.rejection_reason %}<p class="account-rejection-callout">{{ review.rejection_reason }}</p>{% endif %}
+  </div>
+  <div class="account-review-card__actions">
+    {% if not incoming %}{% if review.status == 'rejected' or review.latest_status == 'rejected' %}
+      {% include 'moderation_appeals/account_link.html' with css_class='account-review-button is-secondary' only %}
+    {% endif %}{% endif %}
+    {% if incoming %}
+      {% if review.can_reply %}<a class="account-review-button{% if review.has_answer %} is-secondary{% endif %}" href="{{ review_url }}#reply-text-{{ review.pk }}"><span class="material-symbols-rounded" aria-hidden="true">reply</span>{% if review.has_answer %}{% if CURRENT_LANGUAGE == 'az' %}Cavaba əlavə et{% elif CURRENT_LANGUAGE == 'en' %}Add to reply{% else %}Дополнить ответ{% endif %}{% elif CURRENT_LANGUAGE == 'az' %}Rəyə cavab ver{% elif CURRENT_LANGUAGE == 'en' %}Reply to review{% else %}Ответить на отзыв{% endif %}</a>{% endif %}
+      {% if review.can_report %}<a class="account-review-report" href="{{ review_url }}#report-{{ review.pk }}">{% if CURRENT_LANGUAGE == 'az' %}Şikayət et{% elif CURRENT_LANGUAGE == 'en' %}Report review{% else %}Пожаловаться{% endif %}</a>{% endif %}
+    {% elif review.target_available %}
+      <a class="account-review-button is-secondary" href="{{ review_url }}{% if review.is_approved %}#review-{{ review.pk }}{% else %}#own-review{% endif %}">{% if CURRENT_LANGUAGE == 'az' %}Rəyi aç{% elif CURRENT_LANGUAGE == 'en' %}Open review{% else %}Открыть отзыв{% endif %}</a>
+    {% endif %}
+  </div>
+</article>

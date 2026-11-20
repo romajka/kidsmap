@@ -575,7 +575,9 @@ def specialist_detail(request, slug):
 
     from catalog.services.content_quality import public_review_queryset
     reviews = public_review_queryset(specialist.reviews.all()).order_by("-created_at")
-    reviews_count = reviews.count()
+    from catalog.services.public_review_replies import attach_public_review_replies
+    reviews = attach_public_review_replies(reviews, kind="specialist", user=request.user)
+    reviews_count = len(reviews)
     if specialist.rating_count != reviews_count:
         specialist.refresh_rating_stats()
 

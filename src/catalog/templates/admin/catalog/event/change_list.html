@@ -14,6 +14,7 @@
 
 {% block extrahead %}
   {{ block.super }}
+  <script src="{% static 'admin/js/kidsmap_event_prompt.js' %}" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -43,6 +44,7 @@
           </a>
         {% endif %}
       </section>
+      {% include "admin/catalog/event/prompt_panel.html" %}
 
       <section class="place-admin-dashboard__stats" aria-label="{% translate 'Статистика мероприятий' %}">
         {% for item in event_dashboard_stats %}

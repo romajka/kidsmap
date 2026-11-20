@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import path, reverse
@@ -63,7 +64,7 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     fieldsets = (
         (_("Событие"), {"fields": ("name_az", "category", ("organizer_organization", "organizer_specialist"), "description_az")}),
         (_("Когда и где"), {"fields": (("start_datetime", "end_datetime"), ("age_from", "age_to"),
-            "price_mode", ("price_amount", "price_amount_max", "price_currency"), "price_text", "event_format",
+            "price_mode", ("price_amount", "price_amount_max", "price_currency"), "price_text", "event_format", "languages",
             "related_place", ("region", "district", "metro"), "address", ("lat", "lng"))}),
         (_("Фото и запись"), {"fields": ("photo", "registration_method", "phone", "whatsapp", "registration_url",
             "instagram", "website", "moderation_note")}),
@@ -531,17 +532,21 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             menu_html,
         )
 
+    @transaction.atomic
     def save_model(self, request, obj, form, change):
         if "_save_draft" in request.POST:
             obj.status = Event.STATUS_DRAFT
             obj.rejection_reason = ""
         if "_unpublish_event" in request.POST:
             obj.status = Event.STATUS_DRAFT
-        previous = Event.objects.filter(pk=obj.pk).values_list("status", flat=True).first() if change else None
+        previous = Event.objects.select_for_update().filter(pk=obj.pk).values_list("status", flat=True).first() if change else None
         publish = "_publish_event" in request.POST or (obj.status == Event.STATUS_PUBLISHED and previous != Event.STATUS_PUBLISHED)
         if publish:
             obj.status = Event.STATUS_PENDING
         super().save_model(request, obj, form, change)
+        if obj.status == Event.STATUS_REJECTED and previous != Event.STATUS_REJECTED:
+            from moderation_appeals.sources import record_event_decision
+            record_event_decision(obj, request.user, "rejected")
         if publish:
             from catalog.services.event_domain import publish_event
             approved = publish_event(actor=request.user, event_id=obj.pk, expected_updated_at=obj.updated_at)
@@ -771,12 +776,19 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         )
 
     @admin.action(description=_("Отклонить выбранные мероприятия"))
+    @transaction.atomic
     def mark_rejected(self, request, queryset):
-        updated_count = queryset.update(
-            status=Event.STATUS_REJECTED,
-            rejection_reason=_("Мероприятие требует доработки перед публикацией."),
-            updated_at=timezone.now(),
-        )
+        from moderation_appeals.sources import pending_event_rejections, record_event_decision
+        locked = list(queryset.select_related("owner").select_for_update(of=("self",)).order_by("pk"))
+        items = pending_event_rejections(locked)
+        when = timezone.now()
+        reason = str(_("Мероприятие требует доработки перед публикацией."))
+        updated_count = Event.objects.filter(pk__in=[item.pk for item in items]).update(
+            status=Event.STATUS_REJECTED, rejection_reason=reason, updated_at=when)
+        for item in items:
+            item.updated_at = when
+            item.rejection_reason = reason
+            record_event_decision(item, request.user, "rejected")
         self.message_user(
             request,
             ngettext("Отклонено %(count)d мероприятие.", "Отклонено %(count)d мероприятия.", updated_count)

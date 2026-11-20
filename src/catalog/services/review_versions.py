@@ -1,5 +1,6 @@
 """Atomic typed review candidates and visible approved projections (Task33 D07)."""
 from datetime import timedelta
+from uuid import UUID
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -9,6 +10,10 @@ from django.utils import timezone
 
 class ReviewConflict(Exception):
     pass
+
+
+class ReviewSubmissionConflict(ReviewConflict):
+    """A submission token was already used for different content."""
 
 
 class ReviewCooldown(Exception):
@@ -221,6 +226,9 @@ def moderate_candidate(*, head, revision_id, actor, approve, reason=''):
         target = getattr(locked, kind)
         if hasattr(target, 'refresh_rating_stats'):
             target.refresh_rating_stats()
+        if approve and kind in {'place', 'specialist'}:
+            from catalog.services.review_notifications import notify_review_published
+            notify_review_published(locked, candidate)
         return candidate
 
 
@@ -280,7 +288,7 @@ def business_can_respond(*, user, head, action='reply'):
     return False
 
 
-def respond_to_review(*, head, actor, revision_id, kind, text):
+def respond_to_review(*, head, actor, revision_id, kind, text, request_id=None):
     if kind not in {'reply', 'report'} or not text.strip() or len(text) > 5000:
         raise ValidationError('Invalid review response')
     if not actor.is_authenticated or not actor.is_active or not business_can_respond(user=actor, head=head, action=kind):
@@ -299,7 +307,32 @@ def respond_to_review(*, head, actor, revision_id, kind, text):
             raise ReviewConflict('Visible review changed')
         from catalog import models as m
         response_model = getattr(m, heads.__name__ + 'Response')
-        return response_model.objects.create(revision_id=revision_id, actor=actor, kind=kind, text=text.strip())
+        values = {'revision_id': locked.current_revision_id, 'actor_id': actor.pk,
+                  'kind': kind, 'text': text.strip()}
+        if target_kind not in {'place', 'specialist'}:
+            return response_model.objects.create(**values)
+        if kind == 'reply':
+            from catalog.services.public_review_replies import published_target_reviews
+            if not published_target_reviews(target_kind).filter(pk=locked.pk).exists():
+                raise ReviewConflict('Review target is no longer published')
+        if request_id is None:
+            response = response_model.objects.create(**values)
+        else:
+            try:
+                token = UUID(str(request_id))
+            except ValueError as exc:
+                raise ValidationError('Invalid submission identifier', code='invalid_request_id') from exc
+            response, created = response_model.objects.get_or_create(request_id=token, defaults=values)
+            if not created:
+                original_kind = 'reply' if response.kind == 'hidden' else response.kind
+                if ((response.revision_id, response.actor_id, original_kind, response.text)
+                        != (locked.current_revision_id, actor.pk, kind, values['text'])):
+                    raise ReviewSubmissionConflict('Submission identifier already used')
+                return response
+        if kind == 'reply':
+            from catalog.services.review_notifications import notify_review_reply
+            notify_review_reply(locked, response)
+        return response
 
 
 def rating_summary(target):

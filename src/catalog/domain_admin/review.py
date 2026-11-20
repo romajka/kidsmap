@@ -9,6 +9,7 @@ from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.utils import timezone
+from django.db import transaction
 from django.db.models import Q, Count
 
 from catalog.models import PlaceReview, SiteReview
@@ -797,6 +798,17 @@ class SiteReviewAdmin(ModerationActorAdminMixin, admin.ModelAdmin):
         (_("Реакции"), {"fields": ("likes_count", "dislikes_count")}),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("session_key", "created_at", "updated_at")}),
     )
+
+    @transaction.atomic
+    def save_model(self, request, obj, form, change):
+        previous = SiteReview.objects.select_for_update().filter(pk=obj.pk).values_list("status", flat=True).first()
+        rejecting = obj.status == SiteReview.STATUS_REJECTED and previous != SiteReview.STATUS_REJECTED
+        if rejecting:
+            obj.moderated_at = timezone.now()
+        super().save_model(request, obj, form, change)
+        if rejecting:
+            from moderation_appeals.sources import record_site_review_rejection
+            record_site_review_rejection(obj, request.user)
 
     @admin.display(description=_("Автор"))
     def display_author(self, obj):

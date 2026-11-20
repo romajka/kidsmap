@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% load i18n static %}
 {% block robots_meta %}noindex,follow{% endblock %}{% block googlebot_meta %}noindex,follow{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/typed_reviews.css' %}?v=20261104_public_mobile_r2">{% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/typed_reviews.css' %}?v=20261120_review_thread">
+  <link rel="stylesheet" href="{% static 'css/components/official_reviews.css' %}?v=20261120_threads">
+{% endblock %}
 {% block title %}{% if language == 'ru' %}Отзывы{% elif language == 'en' %}Reviews{% else %}Rəylər{% endif %} — {{ target_name }}{% endblock %}
 {% block content %}
 <div class="container typed-reviews km-page-content">
@@ -11,19 +14,14 @@
         <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true">
           <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
         </svg>
-        <span>{% if language == 'ru' %}Назад к карточке{% elif language == 'en' %}Back to page{% else %}Məkana qayıt{% endif %}</span>
+        <span>{% if language == 'ru' %}Назад к карточке{% elif language == 'en' %}Back to page{% else %}Səhifəyə qayıt{% endif %}</span>
       </a>
     </nav>
   {% endif %}
 
   <header class="typed-reviews__hero">
     <div class="typed-reviews__hero-content">
-      <div class="typed-reviews__eyebrow">
-        <span class="typed-reviews__eyebrow-icon">💬</span>
-        <span>{% if language == 'ru' %}Отзывы сообщества KidsMap{% elif language == 'en' %}KidsMap Community Reviews{% else %}KidsMap İcma Rəyləri{% endif %}</span>
-      </div>
       <h1>{% if language == 'ru' %}Отзывы{% elif language == 'en' %}Reviews{% else %}Rəylər{% endif %}: {{ target_name }}</h1>
-      <p class="typed-reviews__hero-sub">{% if language == 'ru' %}Каждый отзыв относится только к этой странице. KidsMap проверяет отзывы; бизнес может ответить или пожаловаться.{% elif language == 'en' %}Each review belongs to this target. KidsMap reviews submissions; businesses can reply or report.{% else %}Hər rəy yalnız bu səhifəyə aiddir. Rəyləri KidsMap yoxlayır; biznes cavab verə və ya şikayət edə bilər.{% endif %}</p>
     </div>
     {% if review_rating.count %}
       <div class="typed-reviews__hero-score">
@@ -33,7 +31,7 @@
         </div>
         {% widthratio review_rating.average 5 100 as rating_percent %}
         <div class="typed-reviews__stars-visual" style="--rating-percent: {{ rating_percent }}%" aria-hidden="true"><span>★★★★★</span><span class="typed-reviews__stars-fill">★★★★★</span></div>
-        <p data-review-rating class="typed-reviews__rating-stat">{{ review_rating.average|floatformat:1 }} / 5 · {{ review_rating.count }}</p>
+        <p data-review-rating class="typed-reviews__rating-stat">{% if language == "ru" %}Оценок{% elif language == "en" %}Ratings{% else %}Qiymət sayı{% endif %}: {{ review_rating.count }}</p>
       </div>
     {% endif %}
   </header>
@@ -48,32 +46,22 @@
       </h2>
     </div>
 
+    {% if unavailable_reply %}
+      <div id="reply-text-{{ unavailable_reply.head_id }}" class="typed-reviews__draft-alert" role="alert" tabindex="-1" autofocus>
+        <p>{% if language == 'ru' %}Отзыв больше недоступен. Вы можете скопировать свой текст.{% elif language == 'en' %}This review is no longer available. You can copy your draft below.{% else %}Bu rəy artıq əlçatan deyil. Aşağıdakı mətninizi köçürə bilərsiniz.{% endif %}</p>
+        <blockquote>{{ unavailable_reply.text|linebreaksbr }}</blockquote>
+      </div>
+    {% endif %}
     <div class="typed-reviews__list">
       {% for review in reviews %}
-        <article class="review-item typed-reviews__card" data-review-id="{{ review.pk }}" data-revision-id="{{ review.current_revision_id }}">
-          <div class="typed-reviews__card-head">
-            <div class="typed-reviews__author">
-              <div class="typed-reviews__avatar" aria-hidden="true">
-                {{ review.public_author_name|first|upper|default:"U" }}
-              </div>
-              <div class="typed-reviews__author-meta">
-                <h3 class="typed-reviews__author-name">{{ review.public_author_name }}</h3>
-                <span class="typed-reviews__badge-verified">
-                  <svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.707 6.707l-4.5 4.5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L7 9.586l3.793-3.793a1 1 0 011.414 1.414z"/></svg>
-                  {% if language == 'ru' %}Проверено KidsMap{% elif language == 'en' %}Verified{% else %}Təsdiqlənib{% endif %}
-                </span>
-              </div>
-            </div>
-            <div class="typed-reviews__card-rating" aria-label="{{ review.rating }} / 5">
-              <span class="typed-reviews__stars-row" aria-hidden="true">
-                {% for i in "12345" %}<span class="typed-reviews__star {% if forloop.counter <= review.rating %}is-filled{% endif %}">★</span>{% endfor %}
-              </span>
-              <p class="typed-reviews__rating-val">{{ review.rating }} / 5</p>
-            </div>
-          </div>
+        <article id="review-{{ review.pk }}" class="review-item typed-reviews__card" data-review-id="{{ review.pk }}" data-revision-id="{{ review.current_revision_id }}">
+          {% include "catalog/includes/review_byline.html" with author=review.public_author_name %}
 
           <blockquote class="typed-reviews__quote">{{ review.text|linebreaks }}</blockquote>
 
+          {% if kind == 'place' or kind == 'specialist' %}
+            {% include "catalog/includes/official_review_replies.html" with review=review review_kind=kind reply_target_name=target_name %}
+          {% else %}
           {% for reply in review.public_replies %}
             <aside class="typed-reviews__reply">
               <div class="typed-reviews__reply-head">
@@ -83,7 +71,9 @@
               <p class="typed-reviews__reply-text">{{ reply.text|linebreaks }}</p>
             </aside>
           {% endfor %}
+          {% endif %}
 
+          {% if review.can_reply or review.can_report or request.user.is_authenticated and review.user_id != request.user.pk %}
           <div class="typed-reviews__card-footer">
             {% if request.user.is_authenticated and review.user_id != request.user.pk %}
               <form method="post" action="{% url 'typed_review_action' kind review.pk 'react' %}" class="typed-reviews__reaction-form">
@@ -98,18 +88,6 @@
                   <span>{% if language == 'ru' %}Не полезно{% elif language == 'en' %}Not helpful{% else %}Faydalı deyil{% endif %} · {{ review.dislikes_count }}</span>
                 </button>
               </form>
-            {% endif %}
-
-            {% if review.can_reply %}
-              <div class="typed-reviews__reply-box">
-                <form method="post" action="{% url 'typed_review_action' kind review.pk 'reply' %}" class="typed-reviews__reply-form">
-                  {% csrf_token %}
-                  <input type="hidden" name="revision_id" value="{{ review.current_revision_id }}">
-                  <label for="reply-{{ review.pk }}" class="typed-reviews__form-label">{% if language == 'ru' %}Ответ бизнеса{% elif language == 'en' %}Business reply{% else %}Biznesin cavabı{% endif %}</label>
-                  <textarea id="reply-{{ review.pk }}" name="text" required maxlength="5000" class="typed-reviews__textarea" placeholder="{% if language == 'ru' %}Напишите официальный ответ...{% elif language == 'en' %}Write an official response...{% else %}Rəsmi cavab yazın...{% endif %}"></textarea>
-                  <button type="submit" class="typed-reviews__btn typed-reviews__btn--primary">{% if language == 'ru' %}Ответить{% elif language == 'en' %}Reply{% else %}Cavab ver{% endif %}</button>
-                </form>
-              </div>
             {% endif %}
 
             {% if review.can_report %}
@@ -127,7 +105,50 @@
                 </form>
               </details>
             {% endif %}
+
+            {% if review.can_reply %}
+              <div class="typed-reviews__reply-box">
+                <form method="post" action="{% url 'typed_review_action' kind review.pk 'reply' %}{% if review.reply_request_id %}#reply-text-{% else %}#review-{% endif %}{{ review.pk }}" class="typed-reviews__reply-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="revision_id" value="{{ review.current_revision_id }}">
+                  {% if review.reply_request_id %}
+                    <input type="hidden" name="request_id" value="{{ review.reply_request_id }}">
+                  {% endif %}
+                  <label for="{% if review.reply_request_id %}reply-text-{% else %}reply-{% endif %}{{ review.pk }}" class="typed-reviews__form-label">
+                    {% if kind == 'specialist' %}
+                      {% if language == 'ru' %}Ответ специалиста{% elif language == 'en' %}Specialist’s reply{% else %}Mütəxəssisin cavabı{% endif %}
+                    {% elif kind == 'place' %}
+                      {% if language == 'ru' %}Ответ представителя места{% elif language == 'en' %}Reply from the place representative{% else %}Məkan nümayəndəsinin cavabı{% endif %}
+                    {% else %}
+                      {% if language == 'ru' %}Ответ бизнеса{% elif language == 'en' %}Business reply{% else %}Biznesin cavabı{% endif %}
+                    {% endif %}
+                  </label>
+                  {% if review.reply_request_id %}
+                    <p id="reply-note-{{ review.pk }}">{% if language == 'ru' %}Ответ появится публично. Пожалуйста, не указывайте личные данные ребёнка.{% elif language == 'en' %}Your reply will be public. Please leave out children’s personal details.{% else %}Cavabınız hamıya görünəcək. Xahiş edirik, uşağın şəxsi məlumatlarını yazmayın.{% endif %}</p>
+                  {% endif %}
+                  {% if review.reply_error %}
+                    <p id="reply-error-{{ review.pk }}" role="alert">
+                      {% if review.reply_error == 'conflict' %}
+                        {% if language == 'ru' %}Отзыв изменился. Перечитайте его и отправьте ответ ещё раз.{% elif language == 'en' %}The review has changed. Read the updated review and submit your reply again.{% else %}Rəy dəyişib. Yenilənmiş rəyi oxuyub cavabınızı yenidən göndərin.{% endif %}
+                      {% elif review.reply_error == 'used' %}
+                        {% if language == 'ru' %}Вы уже отправили эту форму. Проверьте текст и отправьте его как отдельный ответ.{% elif language == 'en' %}You already submitted this form. Check the text and send it as a separate reply.{% else %}Bu formanı artıq göndərmisiniz. Mətni yoxlayıb ayrıca cavab kimi göndərin.{% endif %}
+                      {% elif review.reply_error == 'identifier' %}
+                        {% if language == 'ru' %}Форма обновлена. Проверьте текст и отправьте ответ ещё раз.{% elif language == 'en' %}The form has been refreshed. Check the text and submit again.{% else %}Forma yeniləndi. Mətni yoxlayıb cavabınızı yenidən göndərin.{% endif %}
+                      {% else %}
+                        {% if language == 'ru' %}Введите от 1 до 5000 символов и отправьте форму ещё раз.{% elif language == 'en' %}Enter 1 to 5000 characters and submit the form again.{% else %}1–5000 simvol daxil edib formanı yenidən göndərin.{% endif %}
+                      {% endif %}
+                    </p>
+                    {% if review.reply_error == 'conflict' %}
+                      <details><summary>{% if language == 'ru' %}Актуальный отзыв{% elif language == 'en' %}Updated review{% else %}Yenilənmiş rəy{% endif %}</summary><blockquote>{{ review.text|linebreaksbr }}</blockquote></details>
+                    {% endif %}
+                  {% endif %}
+                  <textarea id="{% if review.reply_request_id %}reply-text-{% else %}reply-{% endif %}{{ review.pk }}" name="text" required maxlength="5000" rows="3" class="typed-reviews__textarea"{% if review.reply_error == 'invalid' %} aria-invalid="true"{% endif %}{% if review.reply_request_id %} aria-describedby="reply-note-{{ review.pk }}{% if review.reply_error %} reply-error-{{ review.pk }}{% endif %}"{% endif %}{% if review.reply_error %} autofocus{% endif %}>{{ review.reply_draft }}</textarea>
+                  <button type="submit" class="typed-reviews__btn typed-reviews__btn--primary typed-reviews__send-reply">{% if language == 'ru' %}Ответить{% elif language == 'en' %}Reply{% else %}Cavab ver{% endif %}</button>
+                </form>
+              </div>
+            {% endif %}
           </div>
+          {% endif %}
         </article>
       {% empty %}
         <div class="typed-reviews__empty">
@@ -176,6 +197,7 @@
           {% endif %}
           <p class="typed-reviews__alert-meta">{% if language == 'ru' %}Отклонённая редакция{% elif language == 'en' %}Rejected version{% else %}Rədd edilmiş versiya{% endif %} · {{ own_review_decision.rating }} / 5</p>
           <blockquote class="typed-reviews__alert-quote">{{ own_review_decision.text|linebreaks }}</blockquote>
+          {% include 'moderation_appeals/account_link.html' with css_class='typed-reviews__link' only %}
         </aside>
       {% endif %}
 

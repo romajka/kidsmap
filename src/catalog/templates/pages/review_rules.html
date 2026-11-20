@@ -480,36 +480,6 @@
     </div>
 
     <div class="rules-dialogue-grid">
-      <!-- User Replies -->
-      <div class="rules-dialogue-box">
-        <div class="rules-dialogue-head">
-          <div class="rules-dialogue-icon blue">
-            <span class="material-symbols-rounded">chat_bubble</span>
-          </div>
-          <div>
-            <h3>
-              {% if CURRENT_LANGUAGE == "az" %}
-                İstifadəçi cavabları
-              {% elif CURRENT_LANGUAGE == "en" %}
-                User Replies
-              {% else %}
-                Ответы пользователей
-              {% endif %}
-            </h3>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Valideynlər arası təcrübə mübadiləsi{% elif CURRENT_LANGUAGE == "en" %}Parent-to-parent exchange{% else %}Обмен опытом между родителями{% endif %}</span>
-          </div>
-        </div>
-        <p>
-          {% if CURRENT_LANGUAGE == "az" %}
-            Valideynlər rəy altında suallar verə, əlavə təəssüratlarını bölüşə və ya müzakirə apara bilərlər. Bütün cavablar da əsas rəy qaydalarına və mədəni ünsiyyət tələblərinə tabedir.
-          {% elif CURRENT_LANGUAGE == "en" %}
-            Parents can ask follow-up questions or share supplementary experiences under reviews. All replies are subject to the same community guidelines and respect rules.
-          {% else %}
-            Родители могут вежливо уточнять детали, задавать вопросы автору отзыва или делиться дополнениями. Все ответы также проходят проверку на соблюдение правил сообщества.
-          {% endif %}
-        </p>
-      </div>
-
       <!-- Official Owner Response with Verified Badge -->
       <div class="rules-dialogue-box verified">
         <div class="rules-dialogue-head">
@@ -523,24 +493,25 @@
             </div>
             <h3 style="margin-top: 4px;">
               {% if CURRENT_LANGUAGE == "az" %}
-                Məkan sahibinin rəsmi cavabı
+                Məkan və mütəxəssis cavabları
               {% elif CURRENT_LANGUAGE == "en" %}
-                Venue Owner Response
+                Replies from venues and specialists
               {% else %}
-                Ответ руководства секции
+                Ответ места или специалиста
               {% endif %}
             </h3>
           </div>
         </div>
         <p>
           {% if CURRENT_LANGUAGE == "az" %}
-            Kartın təsdiqlənmiş sahibləri rəylərə rəsmi nümayəndə kimi cavab yaza bilərlər. Bu cür cavablar xüsusi yaşıl nişanla fərqlənir ki, valideynlər cavabın birbaşa rəhbərlik tərəfindən verildiyini dərhal görsünlər.
+            Dərc edilmiş rəyə məkanın səlahiyyətli nümayəndəsi və ya şəxsiyyəti təsdiqlənmiş mütəxəssis cavab verə bilər. Cavab dərhal rəyin altında görünür və reytinqə təsir etmir. Uşağın şəxsi məlumatlarını paylaşmayın.
           {% elif CURRENT_LANGUAGE == "en" %}
-            Verified venue owners can reply to reviews on behalf of their organization. Such responses carry a dedicated official badge, ensuring clear visibility and accountability.
+            An authorized venue representative or the verified specialist can respond to a published review. Their reply appears immediately below the review and does not affect its rating. Keep children’s personal details private.
           {% else %}
-            Подтверждённые владельцы карточек могут отвечать на отзывы от имени заведения. Такие комментарии маркируются специальным бейджем, гарантируя подлинность ответа руководства.
+            На опубликованный отзыв может ответить представитель места с правом ответа или специалист с подтверждённым профилем. Ответ сразу появляется под отзывом. Оценка остаётся прежней. Пожалуйста, не указывайте личные данные ребёнка.
           {% endif %}
         </p>
+        <p>{% if CURRENT_LANGUAGE == "az" %}Cavabı dəqiqləşdirmək üçün əlavə mesaj yazın. Cavabın gizlədilməsi üçün yanındakı şikayət keçidindən KidsMap-a yazın və səbəbini göstərin.{% elif CURRENT_LANGUAGE == "en" %}To clarify a reply, add a follow-up. To ask KidsMap to hide a reply, use the report link beside it and explain the issue.{% else %}Чтобы уточнить свой ответ, отправьте дополнение. Чтобы попросить KidsMap скрыть ответ, нажмите ссылку для жалобы рядом с ним и укажите причину.{% endif %}</p>
       </div>
     </div>
   </section>

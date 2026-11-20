@@ -502,6 +502,9 @@ def faq_page(request):
     )
 
 def contacts(request):
+    from catalog.services.public_urls import build_public_absolute_uri
+    from catalog.services.review_notifications import reported_reply_path
+    reply_path = reported_reply_path(request.GET)
     lang = (request.LANGUAGE_CODE or "az").split("-")[0]
     titles = {
         "az": "KidsMap dəstəyi | Sayt komandası ilə əlaqə",
@@ -517,6 +520,7 @@ def contacts(request):
         request,
         "pages/contacts.html",
         {
+            "reported_reply_url": build_public_absolute_uri(request, reply_path) if reply_path else "",
             "page_title": titles.get(lang, titles["az"]),
             "meta_description": meta_descriptions.get(lang, meta_descriptions["az"]),
         },
@@ -681,21 +685,22 @@ def legal_page(request, page_slug):
     context = get_legal_page_content(page_slug=page_slug, language=language)
     return render(request, "pages/legal.html", context)
 
-def event_detail(request, pk, slug):
+def event_detail(request, slug, pk=None):
     from ..services.features import is_events_section_enabled
 
     if not is_events_section_enabled():
         return _retired_public_page(request)
+    lookup = {"slug": slug} if pk is None else {"pk": pk}
     event = get_object_or_404(
         Event.objects.select_related("related_place", "organizer_organization", "organizer_specialist").prefetch_related("gallery"),
-        pk=pk,
+        **lookup,
         status=Event.STATUS_PUBLISHED,
         deleted_at__isnull=True,
         start_datetime__isnull=False,
     )
     if not event.is_public:
         raise Http404
-    if slug != event.slug:
+    if pk is not None or (request.method in {'GET', 'HEAD'} and request.META.get('QUERY_STRING')):
         return redirect(event.get_absolute_url(), permanent=True)
     from catalog.models import EventReview
     from catalog.services.content_quality import public_review_queryset

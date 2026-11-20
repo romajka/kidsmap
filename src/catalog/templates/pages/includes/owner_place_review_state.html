@@ -13,7 +13,7 @@
       {% if place.owner_workflow.status == 'needs_changes' and place.owner_can_edit %}
         <span class="account-rejection-callout__next">{% if CURRENT_LANGUAGE == 'az' %}Qeydə uyğun düzəliş edin və yenidən yoxlamaya göndərin.{% elif CURRENT_LANGUAGE == 'en' %}Fix what's noted and submit it for review again.{% else %}Исправьте отмеченное и отправьте на проверку снова.{% endif %}</span>
       {% elif place.owner_workflow.status == 'rejected' %}
-        <span class="account-rejection-callout__next">{% if CURRENT_LANGUAGE == 'az' %}Sualınız varsa, info@kidsmap.az ünvanına yazın.{% elif CURRENT_LANGUAGE == 'en' %}Questions? Write to info@kidsmap.az.{% else %}Если есть вопросы, напишите на info@kidsmap.az.{% endif %}</span>
+        {% include 'moderation_appeals/account_link.html' with css_class='account-rejection-callout__next' only %}
       {% endif %}
     </div>
   </div>

@@ -110,6 +110,13 @@ def query_public_events(params=None, *, period=None, now=None, calendar=False, i
             qs = qs.filter(Q(venue_snapshot__district__iexact='baku') | Q(venue_snapshot__district__startswith='baku_'))
         else:
             qs = qs.filter(venue_snapshot__district=district)
+    lang = get('lang')
+    if lang:
+        from catalog.services.event_languages import regex_for
+        pattern = regex_for(lang)
+        if pattern is None:
+            return Event.objects.none()
+        qs = qs.filter(languages__regex=pattern)
     event_format = get('format')
     if event_format:
         if event_format not in {'physical', 'online'}:

@@ -11,6 +11,7 @@ class R1WriteCohortMiddleware:
         'account_register', 'account_verify_email', 'account_login', 'account_logout',
         'password_reset', 'password_reset_done', 'password_reset_confirm',
         'password_reset_complete', 'google_login', 'google_callback',
+        'google_signup_consent', 'account_legal_consent',
     })
 
     def __init__(self, get_response):

@@ -80,18 +80,10 @@ class AccountController:
         }
 
     def build_user_reviews_context(self, *, user) -> dict:
-        from catalog.models import PlaceReview
+        from catalog.services.account_review_feeds import review_page, written_queries
 
-        user_reviews = list(
-            PlaceReview.objects.filter(user=user)
-            .select_related("place", "place__category")
-            .order_by("-created_at")[:10]
-        )
-        total_user_reviews_count = PlaceReview.objects.filter(user=user).count()
-        return {
-            "user_reviews": user_reviews,
-            "user_reviews_count": total_user_reviews_count,
-        }
+        page = review_page(written_queries(user), page_size=10)
+        return {"user_reviews": page.object_list, "user_reviews_count": page.paginator.count}
 
     def build_dashboard_context(self, *, user) -> dict:
         profile = self.ensure_profile(user=user)

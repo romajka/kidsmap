@@ -324,12 +324,18 @@ class CatalogSchemaForwardMigrationTests(TransactionTestCase):
             event = get('Event').objects.create(id=47001, name='Old event', category=category, related_place=place, address='Historical event address')
             records = [('Place', place.pk), ('Place', inactive.pk), ('PricingPlan', plan.pk), ('PlaceReview', review.pk), ('PlacePhoto', photo.pk), ('PlaceLike', favorite.pk), ('PlaceReviewReaction', reaction.pk), ('Event', event.pk)]
             snapshots = {(name, pk): get(name).objects.filter(pk=pk).values().get() for name, pk in records}
+            # Migration 0161 assigns a readable slug to legacy events with an empty slug.
+            self.assertEqual(snapshots[('Event', event.pk)]['slug'], '')
+            expected = snapshots.copy()
+            expected_event = expected[('Event', event.pk)].copy()
+            expected_event['slug'] = 'old-event'
+            expected[('Event', event.pk)] = expected_event
             original_fields = {name: [f.attname for f in get(name)._meta.concrete_fields] for name, _ in records}
             executor = MigrationExecutor(connection); executor.migrate(leaves)
             current = executor.loader.project_state(leaves).apps
             for name, pk in records:
                 after = current.get_model('catalog', name).objects.filter(pk=pk).values(*original_fields[name]).get()
-                self.assertEqual(after, snapshots[(name, pk)], f'Expansion changed legacy {name} values')
+                self.assertEqual(after, expected[(name, pk)], f'Unexpected change to legacy {name} values')
             from catalog.models import Place as LivePlace
             old = LivePlace.objects.get(pk=41001); closed = LivePlace.objects.get(pk=41002)
             self.assertIsNone(old.organization_id); self.assertIsNone(old.confirmed_location_id)

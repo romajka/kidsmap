@@ -12,7 +12,7 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_sleep" />
-  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261120_audit" />
+  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261120_sort_width" />
   {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=20261106_card_height" />{% endif %}
   {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_layout.css' %}?v=20261120_mobile_cards" />{% endif %}
 {% endblock %}
@@ -1351,7 +1351,7 @@
     <script src="{% static 'js/google_maps_motion.js' %}?v=20261105_pins_r2"></script>
     <script src="{% static 'js/google_maps_markers.js' %}?v=20261105_pins_r2"></script>
     <script src="{% static 'js/map_paging.js' %}?v=20261019_r15"></script>
-    <script src="{% static 'js/catalog_map.js' %}?v=20261105_pins_r2"></script>
+    <script src="{% static 'js/catalog_map.js' %}?v=20261120_catalog_view"></script>
     {% if google_maps_api_key %}
       <script
         data-catalog-google-sdk
@@ -2505,12 +2505,7 @@
 
         if (wasMapOpen) {
           const panel = document.querySelector("[data-catalog-map-panel]");
-          const button = document.querySelector("[data-catalog-map-open]");
-          if (panel && button) {
-            panel.hidden = false;
-            button.setAttribute("aria-expanded", "true");
-            button.classList.add("is-active");
-          }
+          if (panel) panel.hidden = false;
         }
 
         resultsGrid = document.querySelector(".grid");

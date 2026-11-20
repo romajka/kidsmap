@@ -434,3 +434,57 @@
     width: 100%;
   }
 }
+
+/* Only review events have a conversation to open. */
+.account-notifications .account-review-notice {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  gap: 8px 14px;
+  padding: 16px 20px;
+  align-items: start;
+}
+.account-review-notice .account-notifications__icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--tint-turf-100);
+  color: var(--brand-spruce);
+}
+.account-review-notice .account-notifications__meta { gap: 4px; }
+.account-review-notice .account-notifications__meta-header { gap: 3px 8px; }
+.account-review-notice .account-notifications__decision { color: var(--ink); font: 730 1rem/1.35 var(--font-display); }
+.account-review-notice .account-notifications__dot { display: none; }
+.account-review-notice .account-notifications__meta time { flex-basis: 100%; order: 3; }
+.account-review-notice .account-notifications__unread {
+  background: transparent;
+  padding: 0;
+  color: var(--brand-turf);
+  font-size: .72rem;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.account-review-notice__target { font-size: .9rem; color: var(--ink); overflow-wrap: anywhere; }
+.account-review-notice__open {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--tint-line-200);
+  border-radius: 12px;
+  padding: 6px 12px;
+  color: var(--brand-spruce);
+  background: var(--tint-turf-050);
+  font-size: .875rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.account-review-notice__open:hover { background: var(--tint-turf-100); }
+.account-review-notice .account-notifications__actions { justify-content: start; align-items: center; flex-wrap: wrap; margin: 0; gap: 4px 10px; }
+.account-review-notice .account-notifications__actions form { flex: none; }
+.account-notifications .account-review-notice .account-notifications__action--read { background: none; border: 0; box-shadow: none; min-height: 44px; width: auto; min-width: 0; padding-inline: 4px; }
+@media (max-width: 1024px) {
+  .account-notifications .account-review-notice { grid-template-columns: 36px minmax(0, 1fr); gap: 5px 10px; padding: 14px; }
+  .account-review-notice .account-notifications__icon-badge { width: 36px; height: 36px; }
+  .account-review-notice .account-notifications__actions { grid-column: 2; }
+}

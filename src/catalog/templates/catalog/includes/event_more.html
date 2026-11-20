@@ -1,0 +1,18 @@
+{% load event_editorial %}{% event_more event as more %}{% if more.events %}{% event_card_facts event as own %}
+<section class="km-ev-more{% if own.phase == 'ended' or own.phase == 'cancelled' %} km-ev-more--after-end{% endif %}" aria-labelledby="event-more-title">
+  <header class="km-ev-more__head">
+    <div>
+      {% if own.phase == 'ended' or own.phase == 'cancelled' %}
+        <span class="km-ev-more__kicker"><span class="material-symbols-rounded" aria-hidden="true">history</span>{% if own.phase == 'cancelled' %}{% if language == 'az' %}Bu tədbir ləğv edilib{% elif language == 'en' %}This event was cancelled{% else %}Это событие отменено{% endif %}{% else %}{% if language == 'az' %}Bu tədbir artıq keçib{% elif language == 'en' %}This event has already taken place{% else %}Это событие уже прошло{% endif %}{% endif %}</span>
+        <h2 id="event-more-title">{% if more.same_source %}{% if language == 'az' %}Bu təşkilatçıdan növbəti tədbirlər{% elif language == 'en' %}Next from this organizer{% else %}Ближайшее у этого организатора{% endif %}{% else %}{% if language == 'az' %}Bəs bundan sonra nə var{% elif language == 'en' %}What’s coming up next{% else %}А вот что будет дальше{% endif %}{% endif %}</h2>
+      {% else %}
+        <h2 id="event-more-title">{% if more.same_source %}{% if language == 'az' %}Bu təşkilatçıdan daha çox{% elif language == 'en' %}More from this organizer{% else %}Ещё у этого организатора{% endif %}{% else %}{% if language == 'az' %}Afişada daha çox{% elif language == 'en' %}More in the events{% else %}Ещё в афише{% endif %}{% endif %}</h2>
+      {% endif %}
+    </div>
+    <a class="km-ev-btn km-ev-btn--ghost" href="{% url 'events_landing' %}"><span>{% if language == 'az' %}Bütün afişa{% elif language == 'en' %}All events{% else %}Вся афиша{% endif %}</span><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>
+  </header>
+  <div class="km-ev-grid events-list-v2 km-ev-more__grid">
+    {% for event in more.events %}{% include 'catalog/includes/event_listing_card.html' with compact=True %}{% endfor %}
+  </div>
+</section>
+{% endif %}
