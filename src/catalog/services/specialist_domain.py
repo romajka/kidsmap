@@ -135,6 +135,8 @@ def review_claim(*, actor, claim_id, expected_version, approve, reason=''):
         person.owner = applicant
         person.person_verified_at = timezone.now()
         person.save(update_fields=['verified_person_user', 'owner', 'person_verified_at', 'updated_at'])
+        from catalog.services.specialist_proposal_documents import transfer_confirmed_qualifications
+        transfer_confirmed_qualifications(person)
     item.status = SpecialistClaim.APPROVED if approve else SpecialistClaim.REJECTED
     item.reviewed_by = actor
     item.reviewed_at = timezone.now()

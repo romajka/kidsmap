@@ -159,7 +159,18 @@ class Specialist(models.Model):
         _("Формат работы"), 
         max_length=10, 
         choices=FORMAT_CHOICES, 
-        default=FORMAT_BOTH
+        blank=True, default="", db_default="",
+    )
+    offers_online = models.BooleanField(_("Онлайн"), default=False, db_default=False)
+    offers_office = models.BooleanField(_("У специалиста"), default=False, db_default=False)
+    offers_visits = models.BooleanField(_("Выезд к семье"), default=False, db_default=False)
+    visit_region = models.ForeignKey(
+        Region, verbose_name=_("Город выезда"), on_delete=models.PROTECT,
+        null=True, blank=True, related_name="visiting_specialists",
+    )
+    visit_citywide = models.BooleanField(_("Весь город"), default=False, db_default=False)
+    visit_districts = models.ManyToManyField(
+        District, verbose_name=_("Районы выезда"), blank=True, related_name="visiting_specialists",
     )
     
     experience_years = models.PositiveSmallIntegerField(_("Стаж (лет)"), null=True, blank=True)
@@ -319,7 +330,8 @@ class SpecialistPracticeLocation(models.Model):
 
     def clean(self):
         from django.core.exceptions import ValidationError
-        if self.specialist.consultation_format in [Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH]:
+        from catalog.services.specialist_formats import office_requested
+        if self.is_active and office_requested(self.specialist):
             if not self.place and not self.address:
                 raise ValidationError(_("Укажите детский центр KidsMap или адрес собственного кабинета."))
             if not self.region:
@@ -386,16 +398,22 @@ class SpecialistScheduleInterval(models.Model):
 
 
 class SpecialistDocument(models.Model):
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+                                    related_name='+', editable=False)
+    verified_at_upload = models.DateTimeField(null=True, blank=True, editable=False)
     opted_in_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         null=True, blank=True, related_name="specialist_document_consents")
     opted_in_at = models.DateTimeField(null=True, blank=True)
     TYPE_IDENTITY = "identity"
     TYPE_DIPLOMA = "diploma"
     TYPE_CERTIFICATE = "certificate"
-    TYPE_CHOICES = [
-        (TYPE_IDENTITY, _("Удостоверение личности (приватно)")),
+    QUALIFICATION_TYPES = [
         (TYPE_DIPLOMA, _("Диплом")),
         (TYPE_CERTIFICATE, _("Сертификат")),
+    ]
+    TYPE_CHOICES = [
+        (TYPE_IDENTITY, _("Удостоверение личности (приватно)")),
+        *QUALIFICATION_TYPES,
     ]
 
     STATUS_PENDING = "pending"

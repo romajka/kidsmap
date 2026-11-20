@@ -86,7 +86,11 @@ export function mountMappy(el, opts = {}) {
   let renderer;
   try {
     renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'low-power', preserveDrawingBuffer: manual });
-  } catch (e) { return ctl; }                // no WebGL: the fallback image stays
+  } catch (e) {
+    queueMicrotask(() => emit('error', e));
+    return ctl;
+  }
+  const nativeButton = el.tagName === 'BUTTON';
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   renderer.outputColorSpace = SRGBColorSpace; renderer.toneMapping = NeutralToneMapping; renderer.toneMappingExposure = 1.05;
   const canvas = renderer.domElement;
@@ -120,7 +124,7 @@ export function mountMappy(el, opts = {}) {
   let mixer, actions = {}, current = null, bones = {}, morphs = [], root;
   const pointer = new Vector2(0, 0), look = new Vector2(0, 0), restLook = new Vector2(0, -0.3);
   let time = 0, lastInput = 0, blinkAt = 2, blinkT = -1, exprName = 'neutral', exprUntil = 0, sleeping = false;
-  let clicks = [], busyUntil = 0, visible = true, raf = 0;
+  let clicks = [], busyUntil = 0, visible = false, raf = 0;
   const target = {}, cur = {};
 
   function resize() {
@@ -149,14 +153,14 @@ export function mountMappy(el, opts = {}) {
     play('idle', 0);
     if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
     el.appendChild(canvas); resize();
-    if (!el.hasAttribute('tabindex')) { el.tabIndex = 0; el.setAttribute('role', 'button'); el.setAttribute('aria-label', opts.label || 'Mappy'); }
+    if (!nativeButton && !el.hasAttribute('tabindex')) { el.tabIndex = 0; el.setAttribute('role', 'button'); el.setAttribute('aria-label', opts.label || 'Mappy'); }
     intro();
     requestAnimationFrame(() => {
       canvas.style.opacity = '1';
       el.querySelectorAll('[data-mappy-fallback]').forEach((n) => (n.style.visibility = 'hidden'));
     });
     ctl.ready = true; emit('ready');
-    if (!manual) loop();
+    startLoop();
   };
   if (opts.buffer) loader.parse(opts.buffer, '', onModel, () => emit('error'));
   else loader.load(opts.src || '/static/3d/mappy.glb', onModel, undefined, () => emit('error'));
@@ -336,13 +340,11 @@ export function mountMappy(el, opts = {}) {
   const press = { on: false, zone: null, x: 0, v: 0, vel: 0 };
   const inBox = (e) => { const r = canvas.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; };
   let stopPressGesture = () => {};
-  let hoverOn = false;
-  const onHover = (e) => {
-    if (e.pointerType !== 'mouse' || !ctl.ready) return;
-    const on = inBox(e) && !!zoneAt(e);
-    if (on !== hoverOn) { hoverOn = on; document.documentElement.style.cursor = on ? 'pointer' : ''; if (on && !sleeping && exprName === baseExpr) express('curious', 0.8); }
+  const onEnter = (event) => {
+    if (event.pointerType === 'mouse' && ctl.ready && !sleeping && exprName === baseExpr) express('curious', 0.8);
   };
-  const onClick = () => {};
+  // Pointer gestures already react on release. A native keyboard or AT click has no tap position.
+  const onClick = (event) => { if (event.detail === 0) touch('belly'); };
   const onKey = (e) => { if (e.target === el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); touch('belly'); } };
   if (!manual) {
     addEventListener('pointermove', onMove, { passive: true });
@@ -356,16 +358,24 @@ export function mountMappy(el, opts = {}) {
       release: (hit) => { press.on = false; touch(hit.zone); },
       cancel: () => { press.on = false; },
     });
-    addEventListener('pointermove', onHover, { passive: true }); el.addEventListener('keydown', onKey);
+    el.addEventListener('pointerenter', onEnter);
+    el.addEventListener('click', onClick);
+    if (!nativeButton) el.addEventListener('keydown', onKey);
   }
   const ro = new ResizeObserver(resize); ro.observe(el);
-  const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (!visible) hideBubble(); if (visible && !manual && !raf) loop(); }, { threshold: 0.01 });
+  const io = new IntersectionObserver(([e]) => {
+    visible = e.isIntersecting;
+    if (visible) startLoop();
+    else hideBubble();
+  }, { threshold: 0.01 });
   io.observe(el);
-  const onVis = () => { if (!document.hidden && visible && !manual && !raf) loop(); };
-  document.addEventListener('visibilitychange', onVis);
+  document.addEventListener('visibilitychange', startLoop);
 
   // ------------------------------------------------------------ per frame
   const clock = new Clock(); const qTmp = new Quaternion(), eTmp = new Euler(), tmpV = new Vector3(); const ear = { v: 0, vel: 0, px: 0, py: 0 };
+  function startLoop() {
+    if (ctl.ready && visible && !document.hidden && !manual && !raf) raf = requestAnimationFrame(loop);
+  }
   function loop() {
     if (!visible || document.hidden) { raf = 0; return; }
     raf = requestAnimationFrame(loop);
@@ -430,9 +440,9 @@ export function mountMappy(el, opts = {}) {
 
   function destroy() {
     cancelAnimationFrame(raf); raf = 0; ro.disconnect(); io.disconnect();
-    removeEventListener('pointermove', onMove); removeEventListener('pointermove', onHover); document.removeEventListener('visibilitychange', onVis);
+    removeEventListener('pointermove', onMove); document.removeEventListener('visibilitychange', startLoop);
     stopPressGesture(); el.removeEventListener('keydown', onKey);
-    if (hoverOn) document.documentElement.style.cursor = '';
+    el.removeEventListener('pointerenter', onEnter); el.removeEventListener('click', onClick);
     renderer.dispose(); canvas.remove(); cloud?.remove();
   }
   return ctl;

@@ -24447,3 +24447,71 @@ msgstr "Give a reason: the author will see it in their account and in the notifi
 #: catalog/controllers/owner_places_controller.py
 msgid "Сначала одобрите или верните на доработку текущую заявку. Затем снимите карточку с публикации."
 msgstr "First approve the current submission or return it for changes. Then unpublish the listing."
+
+msgid "В профиле видны только одобренные дипломы и сертификаты, которые специалист разрешил показывать. Удостоверения личности всегда приватны."
+msgstr "Only approved diplomas and certificates the specialist chose to share appear on the profile. Identity documents always stay private."
+
+msgid "Пока нет документов для проверки"
+msgstr "No documents to review yet"
+
+msgid "Документы из личной заявки поступают на проверку после подтверждения личности. Специалист также может добавить их позже в кабинете."
+msgstr "Documents attached to a personal application are ready for review once the specialist’s identity is confirmed. The specialist can also add them later from their account."
+
+msgid "Чтобы заменить файл, уберите документ и добавьте новый."
+msgstr "To replace a file, remove the document and add a new one."
+
+msgid "Выберите файл диплома или сертификата."
+msgstr "Choose a diploma or certificate file."
+
+msgid "Выберите JPG, PNG или PDF до 10 МБ."
+msgstr "Choose a JPG, PNG or PDF file up to 10 MB."
+
+msgid "Список документов изменился. Обновите страницу."
+msgstr "The document list has changed. Refresh the page."
+
+msgid "Документы можно приложить только к своей анкете."
+msgstr "You can only attach documents to your own application."
+
+msgid "За одно сохранение можно добавить до 20 МБ. Остальные файлы добавьте следующим сохранением."
+msgstr "You can add up to 20 MB at a time. Save the form before adding the remaining files."
+
+msgid "Проверьте дипломы и сертификаты."
+msgstr "Check your diplomas and certificates."
+
+#: src/catalog/templates/pages/includes/specialist_application_status.html
+msgid "Анкета ожидает проверки"
+msgstr "Application awaiting review"
+
+#: src/catalog/controllers/specialist_workspace.py
+msgid "Ожидает решения модератора"
+msgstr "Awaiting a moderator’s decision"
+
+#: src/catalog/templates/pages/includes/specialist_application_status.html
+msgid "От вас пока ничего не требуется."
+msgstr "No action is needed for now."
+
+#: src/catalog/templates/pages/includes/specialist_application_status.html
+msgid "О решении модератора сообщим в уведомлениях."
+msgstr "You’ll receive a notification with the decision."
+
+#: src/catalog/controllers/specialist_workspace.py
+msgid "Анкета отправлена на проверку."
+msgstr "Your application has been sent for review."
+
+#: src/catalog/templates/pages/includes/specialist_application_documents.html
+msgid "Документы ожидают проверки"
+msgstr "Documents awaiting review"
+
+#: src/catalog/templates/pages/includes/specialist_application_documents.html
+msgid "Проверка начнётся после подтверждения личности."
+msgstr "Review starts after your identity is confirmed."
+
+msgid "Точный адрес не определён. Уточните запрос или укажите точку на карте."
+msgstr "The exact address could not be determined. Refine your search or select a point on the map."
+
+msgid "Сервис поиска адреса недоступен. Попробуйте ещё раз или укажите точку на карте."
+msgstr "Address search is unavailable. Try again or select a point on the map."
+
+#, python-format
+msgid "Повторное геокодирование завершено: обновлено %(updated)s, без изменений %(unchanged)s, без адреса %(missing)s, не найдено %(not_found)s, требуют уточнения %(review)s, ошибки сервиса %(errors)s."
+msgstr "Geocoding complete. Updated %(updated)s, unchanged %(unchanged)s, missing address %(missing)s, no match %(not_found)s, need review %(review)s, service errors %(errors)s."

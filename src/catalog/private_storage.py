@@ -36,3 +36,17 @@ def specialist_document_path(instance, filename):
 
 
 specialist_private_storage = SpecialistPrivateStorage()
+
+
+def is_private_document_file(field):
+    if not field or not isinstance(field.storage, SpecialistPrivateStorage):
+        return False
+    parts = field.name.split('/')
+    if len(parts) != 2 or parts[0] != 'specialist-documents' or parts[1] in {'', '.', '..'}:
+        return False
+    try:
+        path = Path(field.path)
+        expected_folder = Path(field.storage.location).resolve() / 'specialist-documents'
+        return not path.is_symlink() and path.resolve().parent == expected_folder
+    except (OSError, RuntimeError, ValueError):
+        return False

@@ -221,9 +221,14 @@ class PublicSpecialistFilterOptions:
     metro_stations: list[dict[str, object]]
 
 
-def build_public_specialist_filter_options(*, language_code: str, candidate_ids=None) -> PublicSpecialistFilterOptions:
+def build_public_specialist_filter_options(
+    *, language_code: str, candidate_ids=None, geo_candidate_ids=None, formats=(),
+    region="", district="", district_region=None, metro="",
+) -> PublicSpecialistFilterOptions:
     from catalog.models import SpecialistSpecialization, Region, District, MetroStation, Specialist
-    from django.db.models import Count
+    from django.db.models import Count, IntegerField, OuterRef, Subquery, Value
+    from django.db.models.functions import Coalesce
+    from catalog.services.specialist_filtering import specialist_format_match
 
     active_specs = Specialist.objects.filter(status="published", is_active=True)
 
@@ -235,20 +240,17 @@ def build_public_specialist_filter_options(*, language_code: str, candidate_ids=
         .annotate(total=Count("id"))
     )
 
-    region_counts = dict(
-        active_specs.filter(practice_locations__is_active=True).values_list("practice_locations__region_id")
-        .annotate(total=Count("id", distinct=True))
-    )
+    # Compute each option's resulting count in SQL with the same predicate as the
+    # results. A single person may have multiple offices and visit the same area.
+    geographic_candidates = active_specs
+    if geo_candidate_ids is not None:
+        geographic_candidates = geographic_candidates.filter(pk__in=geo_candidate_ids)
 
-    district_counts = dict(
-        active_specs.filter(practice_locations__is_active=True).values_list("practice_locations__district_id")
-        .annotate(total=Count("id", distinct=True))
-    )
-
-    metro_counts = dict(
-        active_specs.filter(practice_locations__is_active=True).values_list("practice_locations__metro_id")
-        .annotate(total=Count("id", distinct=True))
-    )
+    def counted_options(model, **geography):
+        matches = geographic_candidates.filter(specialist_format_match(formats, **geography))
+        counts = (matches.order_by().annotate(group=Value(1)).values("group")
+                  .annotate(total=Count("pk", distinct=True)).values("total"))
+        return model.objects.annotate(match_count=Coalesce(Subquery(counts, output_field=IntegerField()), 0))
 
     from catalog.services.specialist_subjects import TUTOR_CODES
     spec_counts['tutor'] = matching_specs.filter(specializations__code__in=TUTOR_CODES).distinct().count()
@@ -265,8 +267,8 @@ def build_public_specialist_filter_options(*, language_code: str, candidate_ids=
 
     # 2. Regions
     regions = []
-    for reg in Region.objects.all():
-        count = region_counts.get(reg.key, 0)
+    for reg in counted_options(Region, region=OuterRef('pk')):
+        count = reg.match_count
         regions.append({
             "value": reg.key,
             "label": reg.name_i18n(language_code),
@@ -275,8 +277,8 @@ def build_public_specialist_filter_options(*, language_code: str, candidate_ids=
 
     # 3. Districts
     districts = []
-    for dist in District.objects.all():
-        count = district_counts.get(dist.key, 0)
+    for dist in counted_options(District, district=OuterRef('pk'), district_region=OuterRef('region_id'), metro=metro):
+        count = dist.match_count
         districts.append({
             "value": dist.key,
             "region": dist.region_id,
@@ -286,8 +288,9 @@ def build_public_specialist_filter_options(*, language_code: str, candidate_ids=
 
     # 4. Metro Stations
     metro_stations = []
-    for m in MetroStation.objects.all():
-        count = metro_counts.get(m.key, 0)
+    for m in counted_options(MetroStation, metro=OuterRef('pk'), region=region,
+                             district=district, district_region=district_region):
+        count = m.match_count
         metro_stations.append({
             "value": m.key,
             "label": m.name_i18n(language_code),

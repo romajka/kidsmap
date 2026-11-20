@@ -2,7 +2,7 @@
 {% public_presentation place as presentation %}
 {% get_current_language as card_language %}
 
-<article class="card place-card" data-place-id="{{ place.id }}">
+<article class="card place-card" data-place-id="{{ place.id }}"{% if place.category %} style="--cat-bg: {{ place.category.resolved_color_bg|default:'#F3F4F6' }}; --cat-fg: {{ place.category.resolved_color_text|default:'#6B7280' }};"{% endif %}>
   <div class="card-media">
     <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ presentation.name }}">
       {% with public_image=place.public_image_file %}
@@ -10,7 +10,7 @@
       {% responsive_image public_image as card_image %}
       <div class="card-media-blur-bg" style="background-image: url('{{ card_image.preview }}');" aria-hidden="true"></div>
       <img class="card-media-img" src="{{ card_image.src }}"
-        {% if card_image.srcset %}srcset="{{ card_image.srcset }}" sizes="{% if request.resolver_match.url_name == 'home' %}(max-width: 760px) 280px, 320px{% else %}(max-width: 760px) calc(100vw - 28px), (max-width: 1100px) calc((100vw - 64px) / 2), 320px{% endif %}" width="{{ card_image.width }}" height="{{ card_image.height }}"{% endif %}
+        {% if card_image.srcset %}srcset="{{ card_image.srcset }}" sizes="{% if request.resolver_match.url_name == 'home' %}(max-width: 760px) 280px, 320px{% else %}{% if request.resolver_match.url_name == 'place_list' %}(max-width: 820px) clamp(96px, 32vw, 150px){% else %}(max-width: 760px) calc(100vw - 28px){% endif %}, (max-width: 1100px) calc((100vw - 64px) / 2), 320px{% endif %}" width="{{ card_image.width }}" height="{{ card_image.height }}"{% endif %}
         alt="{{ presentation.name }}" {% if card_priority %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async"
         data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
       <template data-card-image-placeholder>
@@ -30,7 +30,7 @@
 
     {% if place.category %}
     <div class="card-category-overlay"
-      style="background-color: {{ place.category.resolved_color_bg|default:'#F3F4F6' }}; color: {{ place.category.resolved_color_text|default:'#6B7280' }};">
+      style="background-color: var(--cat-bg); color: var(--cat-fg);">
       <span class="category-icon" aria-hidden="true">
         {% include "catalog/includes/category_visual_icon.html" with code=place.category_code icon_file_url=place.category.icon_file_url icon_is_svg=place.category.icon_is_svg icon_is_font=place.category.icon_is_font_class icon_name=place.category.icon_name %}
       </span>
@@ -45,7 +45,7 @@
     {% endif %}
 
     {% if presentation.prices.label %}
-    <div class="card-price-pill">
+    <div class="card-price-pill{% if presentation.prices.label|length > 13 %} card-price-pill--long{% endif %}">
       <span class="card-price-pill__amount">{{ presentation.prices.label }}</span>
 
     </div>
@@ -82,6 +82,7 @@
   </div>
 
   <div class="card-body">
+    {% if request.resolver_match.url_name == 'place_list' %}<div class="catalog-card-info">{% endif %}
     <h3 class="card-title" lang="{{ presentation.content_language }}">
       <a href="{{ place.get_absolute_url }}">{{ presentation.name }}</a>
     </h3>
@@ -100,7 +101,7 @@
         </span>
       {% endif %}
 
-      <span class="card-meta-chip card-meta-chip--type">
+      <span class="card-meta-chip card-meta-chip--type{% if not place.is_temporary %} card-meta-chip--permanent{% endif %}">
         {% if place.is_temporary %}
           {% trans "Временное" %}
         {% else %}
@@ -148,6 +149,10 @@
     <p class="meta card-organization"><a href="{{ presentation.organization.url }}">{{ presentation.organization.name }}</a></p>
     {% endif %}
     {% if presentation.matched_offers and presentation.exact_filtered %}
+    {% if request.resolver_match.url_name == 'place_list' %}
+    <details class="card-offer-details" open>
+      <summary hidden>{% if card_language == 'ru' %}Подходящие занятия{% elif card_language == 'en' %}Matching activities{% else %}Uyğun məşğələlər{% endif %} ({{ presentation.matched_offers|length }})</summary>
+    {% endif %}
     <ul class="card-matched-offers" data-matched-offers>
       {% for offer in presentation.matched_offers %}
       <li class="card-matched-offer">
@@ -164,6 +169,7 @@
       </li>
       {% endfor %}
     </ul>
+    {% if request.resolver_match.url_name == 'place_list' %}</details>{% endif %}
     {% endif %}
 
     <div class="card-rating-row">
@@ -188,10 +194,11 @@
       <p class="card-map-missing">{% if card_language == 'en' %}Location not marked on map{% elif card_language == 'ru' %}Место не отмечено на карте{% else %}Məkan xəritədə qeyd olunmayıb{% endif %}</p>
     {% endif %}
 
+    {% if request.resolver_match.url_name == 'place_list' %}</div>{% endif %}
     <div class="card-action-stack">
       <div class="card-bottom-row">
         <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">
-          <span>{% trans "Перейти" %}</span>
+          <span>{% if request.resolver_match.url_name == 'place_list' %}{% trans "Подробнее" %}{% else %}{% trans "Перейти" %}{% endif %}</span>
           <span class="card-go-arrow" aria-hidden="true">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>

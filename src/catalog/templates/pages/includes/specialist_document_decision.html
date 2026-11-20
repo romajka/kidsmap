@@ -1,0 +1,22 @@
+{% load i18n %}{% get_current_language as lang %}
+{% if document.status != 'pending' %}
+  <details class="sw-doc-change"{% if error and request.POST.document_id == doc_id %} open{% endif %}>
+    <summary>{% if lang == 'az' %}Qərarı dəyiş{% elif lang == 'en' %}Change decision{% else %}Изменить решение{% endif %}</summary>
+{% endif %}
+<form method="post" class="sw-doc-actions">
+  {% csrf_token %}
+  <input type="hidden" name="document_id" value="{{ document.pk }}">
+  <input type="hidden" name="document_version" value="{{ document.version_token }}">
+  {% if document.status != 'approved' %}
+    <button type="submit" name="action" value="document_approve" formnovalidate class="sw-button sw-primary">{% trans 'Подтвердить документ' %}</button>
+  {% endif %}
+  <details class="sw-doc-reject"{% if error and request.POST.document_id == doc_id and request.POST.action == 'document_reject' %} open{% endif %}>
+    <summary>{% if document.status == 'rejected' %}{% if lang == 'az' %}İmtina səbəbini dəyiş{% elif lang == 'en' %}Edit rejection reason{% else %}Изменить причину отклонения{% endif %}{% else %}{% trans 'Отклонить' %}{% endif %}</summary>
+    <div class="sw-field">
+      <label for="document-reason-{{ document.pk }}">{% trans 'Причина отклонения' %}</label>
+      <textarea id="document-reason-{{ document.pk }}" name="reason" rows="2" maxlength="2000" required>{% if error and request.POST.document_id == doc_id and request.POST.action == 'document_reject' %}{{ request.POST.reason|slice:":2000" }}{% else %}{{ document.rejection_reason }}{% endif %}</textarea>
+    </div>
+    <button type="submit" name="action" value="document_reject" class="sw-button sw-danger">{% if document.status == 'rejected' %}{% trans 'Сохранить' %}{% else %}{% trans 'Отклонить документ' %}{% endif %}</button>
+  </details>
+</form>
+{% if document.status != 'pending' %}</details>{% endif %}

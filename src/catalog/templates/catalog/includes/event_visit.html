@@ -1,0 +1,32 @@
+<section class="event-venue-panel">
+  <h2><span class="material-symbols-rounded" aria-hidden="true">{% if event_online %}videocam{% else %}location_on{% endif %}</span>{% if event_online %}{% if language == 'az' %}Onlayn format{% elif language == 'en' %}Online event{% else %}Онлайн-формат{% endif %}{% else %}{% if language == 'az' %}Məkan və ünvan{% elif language == 'en' %}Venue and address{% else %}Место и адрес{% endif %}{% endif %}</h2>
+  {% if event_online %}
+    <p>{% if language == 'az' %}Tədbir onlayn keçirilir.{% elif language == 'en' %}This event takes place online.{% else %}Мероприятие проходит дистанционно.{% endif %}</p>
+  {% else %}
+    {% if related_place_presentation %}
+      <h3><a href="{{ related_place_presentation.url }}" lang="{{ related_place_presentation.name_language }}">{{ related_place_presentation.name }}</a></h3>
+    {% elif event_venue.label %}<h3>{{ event_venue.label }}</h3>{% endif %}
+    {% firstof event_venue.address related_place_presentation.address as visit_address %}
+    {% if visit_address %}
+      <p>{{ visit_address }}</p>
+      <div class="event-visit-links">
+        <a href="https://www.google.com/maps/search/?api=1&amp;query={{ visit_address|urlencode }}" target="_blank" rel="noopener noreferrer">Google Maps<span class="material-symbols-rounded" aria-hidden="true">north_east</span></a>
+        <a href="https://2gis.az/baku/search/{{ visit_address|urlencode }}" target="_blank" rel="noopener noreferrer">2GIS<span class="material-symbols-rounded" aria-hidden="true">north_east</span></a>
+      </div>
+    {% else %}
+      <p>{% if language == 'az' %}Dəqiq ünvanı təşkilatçıdan öyrənin.{% elif language == 'en' %}Contact the organizer for the exact address.{% else %}Точный адрес уточните у организатора.{% endif %}</p>
+    {% endif %}
+  {% endif %}
+</section>
+{% if event_organizer or event.phone or event.instagram %}
+  <section class="event-contacts-panel">
+    <h2>{% if event_organizer %}{% if language == 'az' %}Təşkilatçı{% elif language == 'en' %}Organizer{% else %}Организатор{% endif %}{% else %}{% if language == 'az' %}Əlaqə{% elif language == 'en' %}Contact{% else %}Контакты{% endif %}{% endif %}</h2>
+    {% if event_organizer %}
+      <p lang="{{ event_organizer.language }}">{% if event_organizer.url %}<a href="{{ event_organizer.url }}">{{ event_organizer.name }}</a>{% else %}{{ event_organizer.name }}{% endif %}</p>
+    {% endif %}
+    <div class="event-visit-links">
+      {% if event.phone %}<a href="tel:{{ event.phone }}"><span class="material-symbols-rounded" aria-hidden="true">call</span>{{ event.phone }}</a>{% endif %}
+      {% if event.instagram %}<a href="{{ event.instagram_url }}" target="_blank" rel="noopener noreferrer">Instagram<span class="material-symbols-rounded" aria-hidden="true">north_east</span></a>{% endif %}
+    </div>
+  </section>
+{% endif %}

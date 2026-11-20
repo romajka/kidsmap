@@ -6,7 +6,7 @@ const file=require('node:path').join(__dirname,'../../static/js/mappy.js');
 function setup({dismissed=false,reduced=false,storageBlocked=false,withBubble=false}={}) {
   const dom=new JSDOM(`<section data-mappy-helper><div data-mappy-content><img alt=""><p>Choose an area</p><button data-mappy-dismiss>Hide</button></div><button data-mappy-restore hidden>Show helper</button></section>`,{url:'https://kidsmap.example/',runScripts:'outside-only',pretendToBeVisual:withBubble});
   const w=dom.window;w.matchMedia=()=>({matches:reduced,addEventListener(){}});
-  if(withBubble)w.document.querySelector('[data-mappy-content]').insertAdjacentHTML('beforeend','<button class="mappy-bubble" type="button">Next tip</button>');
+  if(withBubble)w.document.querySelector('[data-mappy-content]').insertAdjacentHTML('beforeend','<button type="button" data-mappy3d="welcome"></button><button class="mappy-bubble" type="button">Next tip</button>');
   if(dismissed)w.sessionStorage.setItem('kidsmap:mappy:hidden','1');
   if(storageBlocked)Object.defineProperty(w,'sessionStorage',{get(){throw Error('blocked');}});
   if(fs.existsSync(file))w.eval(fs.readFileSync(file,'utf8'));
@@ -49,6 +49,41 @@ test('a manual tip remains usable with reduced motion',()=>{
   assert.match(d.querySelector('p').textContent,/Ищете спорт/);
   assert.equal(d.querySelector('p').classList.contains('is-switching'),false);
  } finally {dom.window.close();}
+});
+
+test('the portrait advances tips until the 3D bear takes over',()=>{
+  const dom = setup({reduced:true, withBubble:true});
+  try {
+    const d = dom.window.document;
+    const portrait = d.querySelector('[data-mappy3d]');
+    const text = d.querySelector('p');
+    const first = text.textContent;
+    portrait.click();
+    assert.notEqual(text.textContent, first);
+    portrait.mappy = {ready:false};
+    const second = text.textContent;
+    portrait.click();
+    assert.notEqual(text.textContent, second);
+    portrait.mappy.ready = true;
+    const third = text.textContent;
+    portrait.click();
+    assert.equal(text.textContent, third);
+  } finally {dom.window.close();}
+});
+
+test('a press on the picture still completes when the model loads before release',()=>{
+  const dom = setup({reduced:true, withBubble:true});
+  try {
+    const {document, MouseEvent} = dom.window;
+    const portrait = document.querySelector('[data-mappy3d]');
+    const text = document.querySelector('p');
+    const initial = text.textContent;
+    portrait.dispatchEvent(new MouseEvent('pointerdown', {bubbles:true}));
+    portrait.mappy = {ready:true};
+    portrait.dispatchEvent(new MouseEvent('pointerup', {bubbles:true}));
+    portrait.dispatchEvent(new MouseEvent('click', {bubbles:true, detail:1}));
+    assert.notEqual(text.textContent, initial);
+  } finally {dom.window.close();}
 });
 
 test('a 3D response cancels a pending tip so it cannot overwrite the bear',async()=>{

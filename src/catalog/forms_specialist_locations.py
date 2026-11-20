@@ -3,10 +3,11 @@ from django.forms.models import BaseInlineFormSet
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from catalog.models import Specialist
+from catalog.services.specialist_formats import office_requested
 
 class BasePracticeLocationFormSet(BaseInlineFormSet):
     require_active = True
-    location_required_formats = (Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH)
+    location_required_formats = ('office',)
     def _construct_form(self,index,**kwargs):
         form=super()._construct_form(index,**kwargs)
         # BaseInlineFormSet sets only the FK value. Model clean needs the
@@ -17,7 +18,7 @@ class BasePracticeLocationFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
         if any(self.errors):return
-        if self.require_active and self.instance.consultation_format in self.location_required_formats:
+        if self.require_active and office_requested(self.instance):
             if not any(form.cleaned_data.get('is_active') and not form.cleaned_data.get('DELETE') and
                        (form.cleaned_data.get('place') or form.cleaned_data.get('address')) for form in self.forms):
                 raise ValidationError(_('Для очного формата работы (или онлайн и очно) необходимо указать хотя бы одно активное место приема.'))
@@ -92,7 +93,9 @@ class PracticeLocationForm(forms.ModelForm):
         if not self.allow_incomplete:return super()._post_clean()
         from copy import copy
         parent=self.instance.specialist
-        draft_parent=copy(parent);draft_parent.consultation_format=Specialist.FORMAT_ONLINE
+        draft_parent = copy(parent)
+        draft_parent.consultation_format = ''
+        draft_parent.offers_office = False
         self.instance.specialist=draft_parent
         try:super()._post_clean()
         finally:self.instance.specialist=parent
@@ -147,5 +150,5 @@ def save_practice_locations(*,specialist,formset):
         target=previous or SpecialistPracticeLocation(specialist=specialist)
         for name,value in values.items():setattr(target,name,value)
         target.save()
-    if specialist.consultation_format==Specialist.FORMAT_ONLINE:
+    if not office_requested(specialist):
         specialist.practice_locations.filter(is_active=True).update(is_active=False)

@@ -1,0 +1,30 @@
+{% load i18n %}{% get_current_language as lang %}
+<div class="sw-identity-requests" id="identity-requests">
+  {% for claim in claims %}
+    <article class="sw-card sw-identity-card sw-identity-card--{{ claim.status }}">
+      <header class="sw-identity-head">
+        <span class="sw-identity-icon material-symbols-rounded" aria-hidden="true">{% if claim.status == 'pending' %}schedule{% elif claim.status == 'approved' %}check_circle{% elif claim.status == 'rejected' %}error{% else %}undo{% endif %}</span>
+        <div>
+          <span class="sw-identity-reference">{% trans 'Запрос' %} #{{ claim.pk }}</span>
+          <h2>{% if claim.status == 'approved' %}{% if lang == 'az' %}Sorğu təsdiqlənib{% elif lang == 'en' %}Request approved{% else %}Запрос одобрен{% endif %}{% elif claim.status == 'rejected' %}{% if lang == 'az' %}Sorğu rədd edilib{% elif lang == 'en' %}Request declined{% else %}Запрос отклонён{% endif %}{% else %}{{ claim.status_label }}{% endif %}</h2>
+        </div>
+      </header>
+      {% if claim.status == 'pending' %}
+        <p>{% if lang == 'az' %}Hələlik heç nə etməyinizə ehtiyac yoxdur. Qərar burada görünəcək.{% elif lang == 'en' %}You don’t need to do anything right now. The decision will appear here.{% else %}Пока ничего делать не нужно. Решение появится здесь.{% endif %}</p>
+        {% include 'pages/includes/specialist_wait_time.html' with since=claim.created_at only %}
+      {% else %}
+        <p class="sw-identity-date">{% if lang == 'az' %}Göndərilib{% elif lang == 'en' %}Submitted{% else %}Отправлено{% endif %} <time datetime="{{ claim.created_at|date:'c' }}">{{ claim.created_at|date:'d.m.Y H:i' }}</time></p>
+        {% if claim.reason %}<div class="sw-moderator-note"><p class="sw-moderator-note__label">{% trans 'Комментарий модератора' %}</p><p>{{ claim.reason|linebreaksbr }}</p></div>{% endif %}
+      {% endif %}
+      {% if claim.can_withdraw %}
+        <form class="sw-identity-withdraw" method="post">
+          {% csrf_token %}<input type="hidden" name="claim_id" value="{{ claim.pk }}"><input type="hidden" name="expected_version" value="{{ claim.version }}">
+          <button type="submit" name="action" value="withdraw" class="sw-button">{% trans 'Отозвать запрос' %}</button>
+        </form>
+      {% endif %}
+    </article>
+  {% empty %}
+    <section class="sw-card sw-identity-empty"><h2>{% if can_manage_specialist %}{% if lang == 'az' %}Bu profili siz idarə edirsiniz{% elif lang == 'en' %}You manage this profile{% else %}Вы управляете этим профилем{% endif %}{% else %}{% trans 'Запросов пока нет.' %}{% endif %}</h2></section>
+  {% endfor %}
+  {% if can_request_claim %}<form method="post">{% csrf_token %}<button type="submit" name="action" value="request" class="sw-button sw-primary">{% trans 'Запросить управление своим профилем' %}</button></form>{% endif %}
+</div>

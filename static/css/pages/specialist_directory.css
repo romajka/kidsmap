@@ -203,3 +203,50 @@
     grid-column: span 2;
   }
 }
+
+#km-specialists-filters .km-format-checks {
+  border: 0;
+  min-inline-size: 0;
+  padding: 0;
+}
+#km-specialists-filters .km-format-checks legend {
+  padding: 0;
+  font-weight: 700;
+}
+#km-specialists-filters .km-format-checks > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-block-start: 6px;
+}
+#km-specialists-filters .km-format-checks label {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 6px 10px;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md, 12px);
+  background: var(--surface);
+  cursor: pointer;
+}
+#km-specialists-filters .km-format-checks label:has(:checked) {
+  color: var(--brand-spruce);
+  border-color: var(--brand-turf);
+  background: var(--tint-turf-050);
+}
+#km-specialists-filters .km-format-checks label:has(:focus-visible) {
+  outline: 2px solid var(--brand-turf);
+  outline-offset: 2px;
+}
+#km-specialists-filters .km-format-checks input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--brand-turf);
+}
+@media (prefers-reduced-motion: no-preference) {
+  #km-specialists-filters .km-format-checks label { transition: transform var(--dur-fast) var(--ease-out-quint); }
+  #km-specialists-filters .km-format-checks label:active { transform: scale(.98); }
+}

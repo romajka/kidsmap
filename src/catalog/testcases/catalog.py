@@ -575,8 +575,8 @@ class TestPlaceGeocodingService(TestCase):
         self.assertEqual(place.lng, 49.8671)
         self.assertEqual(len(repository.queries), 1)
         self.assertIn("ул. Низами, 15", repository.queries[0])
-        self.assertIn("baku_yasamal", repository.queries[0])
-        self.assertIn("метро Ичеришехер", repository.queries[0])
+        self.assertNotIn("baku_yasamal", repository.queries[0])
+        self.assertNotIn("Ичеришехер", repository.queries[0])
         self.assertIn("Баку", repository.queries[0])
 
 class TestGeocodePlacesCommand(TestCase):

@@ -40,6 +40,8 @@ def unlink_specialist_identity(*, user_id, now):
     consent = SpecialistDocument.objects.filter(Q(opted_in_by_id=user_id)
                   | Q(specialist__verified_person_user_id=user_id))
     revoked_documents = consent.update(is_published=False, opted_in_by=None, opted_in_at=None)
+    from catalog.models import SpecialistProposalDocument
+    SpecialistProposalDocument.objects.filter(draft__actor_id=user_id).delete()
     unlinked = Specialist.objects.filter(verified_person_user_id=user_id).update(
         owner=None, verified_person_user=None, person_verified_at=None)
     return {'specialist_persons_unlinked': unlinked, 'specialist_document_consents_revoked': revoked_documents,

@@ -1221,6 +1221,7 @@
     if (SCRIPT_CONFIG.googleMapsMapId) mapOptions.mapId = SCRIPT_CONFIG.googleMapsMapId;
     if (window.KidsMapPins) window.KidsMapPins.applyMapDefaults(mapOptions, SCRIPT_CONFIG.googleMapsMapId);
     const map = new google.maps.Map(mapEl, mapOptions);
+    mapEl.__kidsMapGoogle = map; // home_map_fx.js: one-finger panning in full screen
     const infoWindow = new google.maps.InfoWindow();
     // Only the visitor's own pan/zoom re-orders the list; camera moves made by
     // the page (fit, card reveal, popup auto-pan) do not.

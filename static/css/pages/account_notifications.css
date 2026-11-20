@@ -289,7 +289,7 @@
 /* Secondary Action Button (Oxundu, Decline) */
 .account-notifications .account-notifications__action--secondary {
   background: #ffffff;
-  color: var(--brand-turf, #136f38) !important;
+  color: var(--notice-action-ink, var(--brand-turf, #136f38)) !important;
   border-color: var(--tint-line-200, #d5ded8);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
@@ -307,7 +307,7 @@
 }
 
 .account-notifications .account-notifications__action--read svg {
-  color: var(--brand-turf, #136f38);
+  color: currentColor;
   transition: transform var(--dur-fast, 160ms) ease;
 }
 
@@ -337,6 +337,61 @@
 .account-notifications :is(a, button):focus-visible {
   outline: 3px solid var(--brand-turf, #136f38);
   outline-offset: 2px;
+}
+
+.account-notifications__item[data-decision="rejected"] {
+  --notice-accent: var(--tone-danger-solid);
+  --notice-ink: #8d2323;
+  --notice-tint: var(--tone-danger-bg);
+  --notice-border: var(--tone-danger-border);
+}
+
+.account-notifications__item[data-decision="needs_changes"] {
+  --notice-accent: #a8660b;
+  --notice-ink: #79500b;
+  --notice-tint: #fff7e7;
+  --notice-border: #e8cd98;
+}
+
+.account-notifications .account-notifications__item:is([data-decision="rejected"], [data-decision="needs_changes"]) {
+  --notice-action-ink: var(--muted);
+  border-color: var(--notice-border);
+  border-inline-start: 4px solid var(--notice-accent);
+}
+
+.account-notifications__item[data-decision] .account-notifications__decision {
+  color: var(--notice-ink, var(--brand-turf));
+}
+
+.account-notifications__item[data-decision] .account-notifications__icon-badge {
+  color: var(--notice-ink, var(--brand-turf));
+  background: var(--notice-tint, var(--tint-turf-050));
+}
+
+.account-notifications__item[data-decision] .account-notifications__reason {
+  background: var(--notice-tint, var(--tint-turf-050));
+  border-inline-start-color: var(--notice-accent, var(--brand-celadon));
+}
+
+.account-notifications__reason-label {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--notice-ink);
+}
+
+.account-notifications__item[data-decision] .account-notifications__unread {
+  color: var(--muted);
+  background: var(--tint-mist-050);
+}
+
+.account-notifications__item[data-decision] .account-notifications__unread::before {
+  background: currentColor;
+}
+
+.account-notifications__item[data-decision] .account-notifications__entity {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* Mobile responsive */

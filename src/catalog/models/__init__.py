@@ -109,5 +109,5 @@ __all__ += ['ActivityReview', 'EventReview', 'PlaceReviewRevision', 'SpecialistR
 from .review_versions import PlaceReviewResponse, SpecialistReviewResponse, ActivityReviewResponse, EventReviewResponse
 __all__ += ['PlaceReviewResponse', 'SpecialistReviewResponse', 'ActivityReviewResponse', 'EventReviewResponse']
 
-from .specialist_proposal_draft import SpecialistProposalDraft
-__all__ += ['SpecialistProposalDraft']
+from .specialist_proposal_draft import SpecialistProposalDraft, SpecialistProposalDocument
+__all__ += ['SpecialistProposalDraft', 'SpecialistProposalDocument']

@@ -51,9 +51,9 @@ class SpecialistPublicPresentationTests(TestCase):
         self.person.language_ru = False
         self.person.consultation_format = 'both'
         for language, price, age, languages, format_label in [
-            ('ru', 'от 40 AZN', '3–7 лет', ['Азербайджанский', 'Английский'], 'Онлайн и очно'),
-            ('az', '40 AZN-dən', '3–7 yaş', ['Azərbaycan dili', 'İngilis dili'], 'Onlayn və əyani'),
-            ('en', 'from 40 AZN', '3–7 years', ['Azerbaijani', 'English'], 'Online and in person'),
+            ('ru', 'от 40 AZN', '3–7 лет', ['Азербайджанский', 'Английский'], 'Онлайн · Очно, место уточняется'),
+            ('az', '40 AZN-dən', '3–7 yaş', ['Azərbaycan dili', 'İngilis dili'], 'Onlayn · Əyani, məkan dəqiqləşdirilir'),
+            ('en', 'from 40 AZN', '3–7 years', ['Azerbaijani', 'English'], 'Online · In person, location to be confirmed'),
         ]:
             with self.subTest(language=language):
                 public = self.public(language)
@@ -89,6 +89,8 @@ class SpecialistPublicPresentationTests(TestCase):
                 self.assertIsInstance(value, int)
 
     def test_map_is_locale_independent_plain_data_including_zero(self):
+        self.person.offers_office = True
+        self.person.save(update_fields=['offers_office'])
         category = Category.objects.create(code='presentation-probe', name_ru='Probe', name_az='Probe', name_en='Probe')
         marker = '<img src=x onerror="alert(1)"></script>'
         place = Place.objects.create(name='Private venue', name_en='Private venue', name_ru='Private venue',

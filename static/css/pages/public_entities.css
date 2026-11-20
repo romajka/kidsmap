@@ -1752,3 +1752,28 @@
  .public-activity-layout .public-aside .public-section:last-child { margin-bottom:0; }
  .public-activity-layout .public-aside h2 { font-size:18px; margin-bottom:10px; }
 }
+
+/* Long Russian/English labels must never widen a card past the screen. */
+.public-reviews-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+}
+.public-review-card,
+.public-review-author-meta,
+.public-review-author-name {
+  min-width: 0;
+}
+.public-review-card__header {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+.public-review-author-name {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .public-programs-grid,
+  .public-org-team-grid,
+  .public-org-events-grid,
+  .public-reviews-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

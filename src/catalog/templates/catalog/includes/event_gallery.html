@@ -1,0 +1,31 @@
+{% load event_editorial %}
+{% with gallery=event.gallery.all %}
+  {% if gallery %}
+    <section class="event-detail-gallery" aria-labelledby="event-gallery-title">
+      <h2 id="event-gallery-title">{% if language == 'az' %}Fotoqalereya{% elif language == 'en' %}Photo gallery{% else %}Фотогалерея{% endif %}</h2>
+      <div class="event-detail-gallery__grid">
+        {% for image in gallery %}
+          {% with caption=image.caption|event_caption %}
+            <figure>
+              <a class="event-photo-link" href="{{ image.image.url }}" data-event-photo
+                 aria-label="{% if language == 'az' %}Şəkli aç{% elif language == 'en' %}Open photo{% else %}Открыть фото{% endif %} · {{ caption.title|default:forloop.counter }}">
+                <img src="{{ image.image.url }}" alt="" loading="lazy" decoding="async">
+              </a>
+              {% if caption.title %}
+                <figcaption class="event-gallery__caption">
+                  <span>{{ caption.title }}</span>
+                  {% if caption.credits %}
+                    <details class="event-gallery__credits">
+                      <summary>{% if language == 'az' %}Müəllif və lisenziya{% elif language == 'en' %}Photo credit and license{% else %}Автор и лицензия{% endif %}</summary>
+                      <p>{% include 'catalog/includes/event_credit_links.html' with parts=caption.credits %}</p>
+                    </details>
+                  {% endif %}
+                </figcaption>
+              {% endif %}
+            </figure>
+          {% endwith %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+{% endwith %}

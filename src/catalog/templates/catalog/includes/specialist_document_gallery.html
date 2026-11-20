@@ -1,0 +1,29 @@
+<section id="qualifications" class="sp-card" aria-labelledby="qualifications-heading">
+  <h2 id="qualifications-heading">{% if language == 'az' %}Diplomlar və sertifikatlar{% elif language == 'en' %}Diplomas and certificates{% else %}Дипломы и сертификаты{% endif %}</h2>
+  <div class="sp-doc-gallery">
+    {% for doc in visible_documents %}
+      <a class="sp-doc-card" href="{% url 'specialist_document_preview' doc.pk %}" data-document-open>
+        <span class="sp-doc-thumb{% if doc.document_type == 'certificate' %} sp-doc-thumb--certificate{% endif %}">
+          <span class="material-symbols-rounded" aria-hidden="true">description</span>
+          <img src="{% url 'specialist_document_page' doc.pk 1 %}?thumb=1" alt="" loading="lazy" decoding="async">
+        </span>
+        <span class="sp-doc-caption">
+          <span class="sp-doc-type">{% if doc.document_type == 'diploma' %}{% if language == 'az' %}Diplom{% elif language == 'en' %}Diploma{% else %}Диплом{% endif %}{% else %}{% if language == 'az' %}Sertifikat{% elif language == 'en' %}Certificate{% else %}Сертификат{% endif %}{% endif %}</span>
+          <strong>{{ doc.name }}</strong>
+          <span class="sp-doc-open-label">{% if language == 'az' %}Sənədə bax{% elif language == 'en' %}View document{% else %}Рассмотреть документ{% endif %}
+            <svg class="sp-doc-expand" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6m-6 0 6-6M10 20H4v-6m6 0-6 6"/></svg>
+          </span>
+        </span>
+      </a>
+    {% endfor %}
+  </div>
+  <dialog class="sp-doc-dialog" data-document-dialog aria-label="{% if language == 'az' %}Sənədə baxış{% elif language == 'en' %}Document viewer{% else %}Просмотр документа{% endif %}">
+    <form method="dialog"><button type="submit">{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}Закрыть{% endif %}</button></form>
+    <div data-document-body></div>
+    <p data-document-loading role="status">{% if language == 'az' %}Sənəd yüklənir…{% elif language == 'en' %}Loading document…{% else %}Загружаем документ…{% endif %}</p>
+    <div class="sp-doc-error" data-document-error hidden>
+      <span role="status">{% if language == 'az' %}Səhifəni yükləmək mümkün olmadı.{% elif language == 'en' %}This page could not be loaded.{% else %}Не удалось загрузить страницу.{% endif %}</span>
+      <button type="button" data-document-retry>{% if language == 'az' %}Yenidən cəhd et{% elif language == 'en' %}Try again{% else %}Попробовать ещё раз{% endif %}</button>
+    </div>
+  </dialog>
+</section>

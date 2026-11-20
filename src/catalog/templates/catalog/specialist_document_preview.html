@@ -1,0 +1,37 @@
+{% load i18n static %}{% get_current_language as lang %}
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,noarchive">
+  <title>{{ document.name }} · KidsMap</title>
+  <link rel="stylesheet" href="{% static 'css/components/specialist_document_gallery.css' %}?v=20261120_gallery3">
+</head>
+<body class="sp-doc-page">
+<main class="sp-doc-reader" data-document-reader>
+  <div class="sp-doc-heading">
+    <span class="sp-doc-type">{% if document.document_type == 'diploma' %}{% if lang == 'az' %}Diplom{% elif lang == 'en' %}Diploma{% else %}Диплом{% endif %}{% else %}{% if lang == 'az' %}Sertifikat{% elif lang == 'en' %}Certificate{% else %}Сертификат{% endif %}{% endif %}</span>
+    <h1 tabindex="-1">{{ document.name }}</h1>
+  </div>
+  {% if page_count %}
+    <div class="sp-doc-controls">
+      {% if page_count > 1 %}
+        <nav class="sp-doc-pager" aria-label="{% if lang == 'az' %}Sənədin səhifələri{% elif lang == 'en' %}Document pages{% else %}Страницы документа{% endif %}">
+          {% if page > 1 %}<a href="?page={{ page|add:'-1' }}" rel="prev" aria-label="{% if lang == 'az' %}Əvvəlki səhifə{% elif lang == 'en' %}Previous page{% else %}Предыдущая страница{% endif %}">←</a>{% endif %}
+          <span>{{ page }} / {{ page_count }}</span>
+          {% if page < page_count %}<a href="?page={{ page|add:'1' }}" rel="next" aria-label="{% if lang == 'az' %}Növbəti səhifə{% elif lang == 'en' %}Next page{% else %}Следующая страница{% endif %}">→</a>{% endif %}
+        </nav>
+      {% endif %}
+      <label class="sp-doc-zoom"><input type="checkbox"><svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5M7.5 10.5h6"/><path class="sp-doc-zoom-plus" d="M10.5 7.5v6"/></svg> {% if lang == 'az' %}Böyüt{% elif lang == 'en' %}Zoom in{% else %}Увеличить{% endif %}</label>
+    </div>
+    <div class="sp-doc-sheet" tabindex="0" aria-label="{{ document.name }}">
+      <img src="{{ image_url }}" alt="{{ document.name }}{% if page_count > 1 %} ({{ page }} / {{ page_count }}){% endif %}">
+    </div>
+  {% else %}
+    <p class="sp-doc-fallback">{% if lang == 'az' %}Sənədə önbaxış hazırda mümkün deyil.{% elif lang == 'en' %}The document preview is unavailable.{% else %}Предпросмотр документа сейчас недоступен.{% endif %}
+      {% if download_url %}<a href="{{ download_url }}">{% if lang == 'az' %}Orijinalı yüklə{% elif lang == 'en' %}Download original{% else %}Скачать оригинал{% endif %}</a>{% endif %}
+    </p>
+  {% endif %}
+</main>
+</body>
+</html>

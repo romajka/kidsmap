@@ -245,7 +245,6 @@ body.page-home .home-specialists--rail .home-rail-heading { margin-bottom: 14px;
   transition: transform .5s cubic-bezier(.22, 1, .36, 1);
 }
 .home-sp-card__link:hover .home-sp-card__photo img { transform: scale(1.05); }
-.home-sp-card__format,
 .home-sp-card__price {
   position: absolute;
   left: 8px;
@@ -256,7 +255,12 @@ body.page-home .home-specialists--rail .home-rail-heading { margin-bottom: 14px;
   font-weight: 800;
   line-height: 1.3;
 }
-.home-sp-card__format { top: 8px; background: rgba(255, 255, 255, .94); color: var(--brand-turf, #136f38); box-shadow: 0 4px 10px -6px rgba(0, 0, 0, .3); }
+.home-sp-card__format {
+  color: var(--brand-turf, #136f38);
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
 .home-sp-card__price { bottom: 8px; background: rgba(13, 82, 41, .92); color: #fff; }
 .home-sp-card__body { display: grid; gap: 4px; padding: 12px 6px 6px; }
 .home-sp-card__name { color: var(--home-ink, #143c2d); font-size: 16px; font-weight: 800; line-height: 1.25; }

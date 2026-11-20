@@ -244,6 +244,7 @@ class PlaceAdminForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceScheduleE
         else:
             self.add_error("name_az", _("Заполните хотя бы одно название, лучше азербайджанское как основное."))
 
+        self._discard_stale_point(cleaned)
         cleaned = clean_location_fields(self, cleaned)
         is_active = cleaned.get("is_active")
         if is_active is None:
@@ -285,7 +286,28 @@ class PlaceAdminForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceScheduleE
 
         return cleaned
 
+    @property
+    def location_point_confirmed(self):
+        return self.is_bound and self.data.get("_location_point_confirmed") == "1"
+
+    def _discard_stale_point(self, cleaned):
+        previous = self._edited_location
+        if previous is None or self.location_point_confirmed or "address" not in cleaned:
+            return
+        address, lat, lng, district = previous
+        if cleaned["address"].strip() == address.strip() or lat is None or lng is None:
+            return
+        submitted = (cleaned.get("lat"), cleaned.get("lng"))
+        # The map writes both coordinates back to the form with six decimals.
+        if submitted not in ((lat, lng), (round(lat, 6), round(lng, 6)), (None, None)):
+            return
+        cleaned.update(lat=None, lng=None, location_override_reason="")
+        from catalog.services.locations import normalize_to_key
+        if cleaned.get("district") == normalize_to_key(district):
+            cleaned.update(region="", district="")
+
     def __init__(self, *args, **kwargs):
+        self._edited_location = None
         if not args and kwargs.get("data") is None and kwargs.get("instance") is not None:
             from catalog.services.publication_forms import candidate_for_edit
             kwargs["instance"]=candidate_for_edit(kwargs["instance"])
@@ -298,6 +320,7 @@ class PlaceAdminForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceScheduleE
         if self.is_bound and self.instance.pk:
             from catalog.services.publication_forms import candidate_for_edit
             candidate = candidate_for_edit(self.instance)
+            self._edited_location = (candidate.address, candidate.lat, candidate.lng, candidate.district)
             # No upload means keep the saved candidate, not the live file.
             # ClearableFileInput still handles explicit removal and replacement.
             for name in ("photo", "cover_photo"):

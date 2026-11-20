@@ -83,13 +83,17 @@ class SpecialistSelfOnboardingTests(TestCase):
 
     def test_reopening_drafts_preserves_silent_or_edited_fields_and_all_work_formats(self):
         self.set_account_details()
-        for selected_format, name in (('online', ''), ('offline', 'Edited name'), ('both', 'Second name')):
+        for selected_format, expected_codes, name in (
+            ('online', ['online'], ''), ('offline', ['office'], 'Edited name'),
+            ('both', ['online', 'office'], 'Second name'),
+        ):
             with self.subTest(selected_format=selected_format):
                 draft = self.save(self.data(name=name, consultation_format=selected_format, phone=''))
                 page = self.client.get(f'/ru/account/specialists/proposals/{draft.pk}/')
                 form = page.context['form']
                 self.assertEqual(form['name'].value(), name)
                 self.assertEqual(form['consultation_format'].value(), selected_format)
+                self.assertEqual(form['session_formats'].value(), expected_codes)
                 self.assertFalse(form['phone'].value())
                 self.assertEqual(page.context.get('account_phone_for_public_profile'), '+994501234567')
 
@@ -186,6 +190,11 @@ class SpecialistSelfOnboardingTests(TestCase):
         self.assertEqual(page.redirect_chain, [(index, 302)])
         self.assertContains(page, 'О решении модератора')
         self.assertContains(page, 'Подтверждение личности')
+        self.assertContains(page, 'От вас пока ничего не требуется.')
+        self.assertContains(page, 'Анкета ожидает проверки')
+        self.assertContains(page, 'Ожидает решения модератора')
+        self.assertNotContains(page, 'sw-application-documents')
+        self.assertNotContains(page, 'data-step="4"')
         person = sent.submitted_specialist
         person.status = Specialist.STATUS_DRAFT
         person.rejection_reason = 'Уточните предмет'
@@ -195,6 +204,37 @@ class SpecialistSelfOnboardingTests(TestCase):
         page = self.client.get(entry, follow=True)
         self.assertEqual(page.redirect_chain, [(f'/ru/account/specialists/proposals/{reopened.pk}/', 302)])
         self.assertContains(page, 'Уточните предмет')
+
+    def test_rejected_identity_does_not_tell_the_applicant_to_wait(self):
+        sent = self.save(self.data(), submit=True)
+        claim = SpecialistClaim.objects.get(specialist=sent.submitted_specialist, applicant=self.actor)
+        claim.status = SpecialistClaim.REJECTED
+        claim.reason = 'Уточните фамилию в запросе.'
+        claim.save(update_fields=['status', 'reason'])
+        page = self.client.get('/ru/account/specialists/')
+        self.assertContains(page, claim.reason)
+        self.assertContains(page, f'/ru/account/specialists/{claim.specialist_id}/claims/')
+        self.assertNotContains(page, 'От вас пока ничего не требуется.')
+
+    def test_pending_clocks_use_separate_submission_and_claim_dates(self):
+        from datetime import timedelta
+        from catalog.models import SpecialistProposalDraft
+
+        draft = self.save(self.data(), submit=True)
+        claim = SpecialistClaim.objects.get(specialist=draft.submitted_specialist, applicant=self.actor)
+        submitted = timezone.now().replace(microsecond=0) - timedelta(days=2)
+        claimed = submitted + timedelta(hours=3)
+        SpecialistProposalDraft.objects.filter(pk=draft.pk).update(submitted_at=submitted)
+        SpecialistClaim.objects.filter(pk=claim.pk).update(created_at=claimed)
+        url = f'/ru/account/specialists/{claim.specialist_id}/claims/'
+
+        self.assertContains(self.client.get('/ru/account/specialists/'), f'datetime="{timezone.localtime(submitted).isoformat()}"')
+        self.assertContains(self.client.get(url), f'datetime="{timezone.localtime(claimed).isoformat()}"')
+        self.assertContains(self.client.get(url), 'data-wait-elapsed')
+        self.client.post(url, {'action': 'withdraw', 'claim_id': claim.pk, 'expected_version': claim.version})
+        page = self.client.get(url)
+        self.assertNotContains(page, 'data-wait-elapsed')
+        self.assertContains(page, 'Запрос отозван')
 
     def test_entry_takes_confirmed_owner_to_management_even_with_an_old_draft(self):
         self.save(self.data())

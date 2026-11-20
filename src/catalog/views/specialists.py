@@ -26,7 +26,8 @@ def serve_specialist_document(request, document_id):
     if not can_download_document(request.user, doc):
         raise Http404(_("Документ не найден или доступ ограничен."))
     # Legacy public files require an explicitly verified operational transition.
-    if not doc.file or not doc.file.name.startswith('specialist-documents/'):
+    from catalog.private_storage import is_private_document_file
+    if not is_private_document_file(doc.file):
         raise Http404()
     try:
         response = FileResponse(doc.file.open('rb'), as_attachment=True, filename='document.bin',
@@ -45,8 +46,9 @@ def specialist_list(request):
     from catalog.services.public_filter_options import build_public_specialist_filter_options
     from catalog.services.specialist_filtering import (
         apply_specialist_price_filter, get_specialist_max_price,
-        normalize_specialist_price_bounds,
+        normalize_specialist_price_bounds, specialist_format_match,
     )
+    from catalog.services.specialist_formats import format_choices, profile_format_codes, public_format_label
     from django.db import models
     from django.core.paginator import Paginator
 
@@ -95,31 +97,19 @@ def specialist_list(request):
             | models.Q(specializations__code__in=subject_matches)
         )
 
-    # 3. Consultation Format
-    cf = (request.GET.get("format") or "").strip()
-    if cf:
-        if cf == "online":
-            qs = qs.filter(consultation_format__in=[Specialist.FORMAT_ONLINE, Specialist.FORMAT_BOTH])
-        elif cf == "offline":
-            qs = qs.filter(consultation_format__in=[Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH])
-
-    # 4. Location Filters
+    formats = tuple(dict.fromkeys(code for code in request.GET.getlist("format")
+                                  if code in ("online", "office", "visit", "offline")))
     region_key = (request.GET.get("region") or "").strip()
     district_key = (request.GET.get("district") or "").strip()
     metro_key = (request.GET.get("metro") or "").strip()
-
-    if cf == "online":
-        region_key = district_key = metro_key = ""
-
-    if region_key or district_key or metro_key:
-        loc_q = models.Q(practice_locations__is_active=True)
-        if region_key:
-            loc_q &= models.Q(practice_locations__region_id=region_key)
-        if district_key:
-            loc_q &= models.Q(practice_locations__district_id=district_key)
-        if metro_key:
-            loc_q &= models.Q(practice_locations__metro_id=metro_key)
-        qs = qs.filter(loc_q)
+    online_only = formats == ("online",)
+    office_allowed = not formats or "office" in formats or "offline" in formats
+    if online_only:
+        region_key = district_key = ""
+    if not office_allowed or (region_key and region_key != "baku"):
+        metro_key = ""
+    district_region = District.objects.filter(pk=district_key).values("region_id")[:1] if district_key else None
+    geography = dict(region=region_key, district=district_key, district_region=district_region, metro=metro_key)
 
     # 5. Age (supports age_from and age_to range like catalog places, with fallback to single age)
     age = (request.GET.get("age") or "").strip()
@@ -166,6 +156,13 @@ def specialist_list(request):
             pass
 
     # Quick links replace the current direction and subject, keeping all other filters.
+    geo_candidates = with_direction(with_subject(qs)).order_by().values("pk")
+    qs = qs.filter(specialist_format_match(formats, **geography))
+    # The online branch also matches outside the requested in-person area.
+    if 'online' in formats and len(formats) > 1 and any((region_key, district_key, metro_key)):
+        local_formats = tuple(code for code in formats if code != 'online')
+        local_match = Specialist.objects.filter(pk=models.OuterRef('pk')).filter(specialist_format_match(local_formats, **geography))
+        qs = qs.annotate(online_match_only=~models.Exists(local_match))
     direction_candidates = qs
     subject_candidates = with_subject(qs)
     qs = with_direction(subject_candidates)
@@ -202,8 +199,11 @@ def specialist_list(request):
 
     specialist_query_params = request.GET.copy()
     specialist_query_params.pop("page", None)
-    if cf == "online":
-        for key in ("region", "district", "metro"):
+    specialist_query_params.pop("format", None)
+    if formats:
+        specialist_query_params.setlist("format", formats)
+    for key, value in (("region", region_key), ("district", district_key), ("metro", metro_key)):
+        if not value:
             specialist_query_params.pop(key, None)
     for name, value in (("price_from", price_from), ("price_to", price_to)):
         specialist_query_params.pop(name, None)
@@ -233,14 +233,17 @@ def specialist_list(request):
             'label': subject_item(subject_code, language)['label'] if subject_code in SUBJECTS else subject_code,
             'remove_url': rebuild_url('subject'),
         })
-    if cf:
-        format_labels = {
-            "online": _("Онлайн"),
-            "offline": _("Очно"),
-        }
+    choices = dict(format_choices(language))
+    legacy_offline_label = {"ru": "Очно", "az": "Əyani", "en": "In person"}[language]
+    for code in formats:
+        remaining = [value for value in formats if value != code]
+        params = specialist_query_params.copy()
+        params.pop("format", None)
+        if remaining:
+            params.setlist("format", remaining)
         active_filter_chips.append({
-            "label": format_labels.get(cf, cf),
-            "remove_url": rebuild_url("format")
+            "label": choices.get(code, legacy_offline_label),
+            "remove_url": "?" + params.urlencode() if params else request.path,
         })
     if region_key:
         reg_obj = Region.objects.filter(key=region_key).first()
@@ -310,6 +313,8 @@ def specialist_list(request):
 
     filter_options = build_public_specialist_filter_options(
         language_code=language, candidate_ids=direction_candidates.order_by().values("pk"),
+        geo_candidate_ids=geo_candidates, formats=formats, region=region_key,
+        district=district_key, district_region=district_region, metro=metro_key,
     )
 
     subject_options = [dict(subject_item(s['value'], language), count=s['count'])
@@ -455,20 +460,14 @@ def specialist_list(request):
         specialist.card_age = f"{age_range} {age_unit}" if age_range else ""
 
         # 3. Format
-        fmt = specialist.consultation_format
-        if fmt == Specialist.FORMAT_ONLINE:
-            specialist.card_format_label = "Onlayn" if language == "az" else ("Online" if language == "en" else "Онлайн")
-            specialist.card_format_icon = "videocam"
-        elif fmt == Specialist.FORMAT_OFFLINE:
-            specialist.card_format_label = "Otaqda (Əyani)" if language == "az" else ("In Office" if language == "en" else "Очно (в кабинете)")
-            specialist.card_format_icon = "location_on"
-        else:
-            specialist.card_format_label = "Onlayn və əyani" if language == "az" else ("Online & In Office" if language == "en" else "Онлайн и очно")
-            specialist.card_format_icon = "devices"
-
+        codes = profile_format_codes(specialist)
+        specialist.card_format_label = public_format_label(specialist, language)
+        specialist.card_format_icon = {"online": "videocam", "office": "location_on", "visit": "home"}.get(
+            codes[0] if len(codes) == 1 else "", "devices"
+        )
         locations = list(specialist.practice_locations.all())
         location_names = []
-        if fmt != Specialist.FORMAT_ONLINE:
+        if 'office' in codes:
             for loc in locations:
                 if loc.district:
                     name = loc.district.name_i18n(language)
@@ -514,7 +513,7 @@ def specialist_list(request):
             "q": q,
             "specialization": spec_code,
             "subject": subject_code,
-            "format": cf,
+
             "region": region_key,
             "district": district_key,
             "metro": metro_key,
@@ -528,6 +527,11 @@ def specialist_list(request):
             "min_rating": min_rating,
         },
         "filter_options": filter_options,
+        "selected_formats": formats,
+        "format_choices": choices.items(),
+        "legacy_offline_label": legacy_offline_label,
+        "online_only": online_only,
+        "office_allowed": office_allowed,
         "specialization_chips": specialization_chips,
         "all_specializations_url": all_specializations_url,
         "all_tutors_url": all_tutors_url,
@@ -575,7 +579,8 @@ def specialist_detail(request, slug):
     if specialist.rating_count != reviews_count:
         specialist.refresh_rating_stats()
 
-    visible_documents = specialist.documents.filter(
+    from catalog.services.specialist_documents import documents_for_current_person, is_person
+    visible_documents = documents_for_current_person(specialist).filter(
         document_type__in=["diploma", "certificate"],
         status="approved",
         is_published=True, opted_in_by_id=specialist.verified_person_user_id,
@@ -603,7 +608,6 @@ def specialist_detail(request, slug):
         "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
     }
     from catalog.services.specialist_presentation import public_profile_context
-    from catalog.services.specialist_documents import is_person
     context.update(public_profile_context(specialist))
     context['can_manage_specialist'] = is_person(request.user, specialist)
     context['claim_workspace_url'] = reverse('specialist_workspace_claims', args=[specialist.pk])

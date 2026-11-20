@@ -1,0 +1,51 @@
+{% load i18n %}{% get_current_language as lang %}
+<section class="sw-card sw-review-section" id="specialist-identity" aria-labelledby="sw-review-identity-title">
+  <h2 id="sw-review-identity-title">{% trans 'Подтверждение личности' %}</h2>
+  {% if claims %}
+    <ul class="sw-rows sw-review-list">
+      {% for claim in claims %}
+        <li>
+          <div class="sw-review-heading">
+            <h3>{% trans 'Запрос' %} #{{ claim.pk }}</h3>
+            <span class="sw-pill sw-pill--{{ claim.status }}">
+              {% if claim.status == 'pending' %}<span class="material-symbols-rounded" aria-hidden="true">schedule</span>{% endif %}
+              {{ claim.status_label }}
+            </span>
+          </div>
+          {% if claim.applicant %}
+            <dl class="sw-review-facts">
+              <div><dt>{% trans 'Заявитель' %}</dt><dd>{{ claim.applicant.get_full_name|default:claim.applicant.get_username }}</dd></div>
+              {% if claim.applicant.email %}<div><dt>{% trans 'Email' %}</dt><dd>{{ claim.applicant.email }}</dd></div>{% endif %}
+            </dl>
+          {% endif %}
+          {% if claim.status == 'pending' %}
+            {% include 'pages/includes/specialist_wait_time.html' with since=claim.created_at only %}
+          {% else %}
+            <p class="sw-review-date">{% if lang == 'en' %}Updated{% elif lang == 'az' %}Yenilənib{% else %}Обновлено{% endif %} <time datetime="{{ claim.reviewed_at|default:claim.updated_at|date:'c' }}">{{ claim.reviewed_at|default:claim.updated_at|date:'d.m.Y · H:i' }}</time></p>
+          {% endif %}
+          {% if claim.reason %}<p class="sw-review-note"><strong>{% trans 'Причина отклонения' %}</strong> {{ claim.reason|linebreaksbr }}</p>{% endif %}
+          {% if claim.can_review %}
+            {% with claim_id=claim.pk|stringformat:"s" %}
+              <form class="sw-doc-actions sw-review-claim-actions" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="claim_id" value="{{ claim.pk }}">
+                <input type="hidden" name="expected_version" value="{{ claim.version }}">
+                <button type="submit" name="action" value="claim_approve" formnovalidate class="sw-button sw-primary">{% trans 'Подтвердить личность' %}</button>
+                <details class="sw-doc-reject"{% if error and request.POST.claim_id == claim_id and request.POST.action == 'claim_reject' %} open{% endif %}>
+                  <summary>{% trans 'Отклонить' %}</summary>
+                  <div class="sw-field">
+                    <label for="claim-reason-{{ claim.pk }}">{% trans 'Причина отклонения' %}</label>
+                    <textarea id="claim-reason-{{ claim.pk }}" name="reason" rows="2" maxlength="2000" required>{% if error and request.POST.claim_id == claim_id and request.POST.action == 'claim_reject' %}{{ request.POST.reason|slice:":2000" }}{% endif %}</textarea>
+                  </div>
+                  <button type="submit" name="action" value="claim_reject" class="sw-button sw-danger">{% trans 'Отклонить запрос' %}</button>
+                </details>
+              </form>
+            {% endwith %}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="sw-review-muted">{% trans 'Запросов пока нет.' %}</p>
+  {% endif %}
+</section>

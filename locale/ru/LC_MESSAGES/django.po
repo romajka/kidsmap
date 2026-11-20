@@ -22060,3 +22060,41 @@ msgstr "Укажите причину: автор увидит её в каби�
 #: catalog/controllers/owner_places_controller.py
 msgid "Сначала одобрите или верните на доработку текущую заявку. Затем снимите карточку с публикации."
 msgstr "Сначала одобрите или верните на доработку текущую заявку. Затем снимите карточку с публикации."
+
+#: src/catalog/templates/pages/includes/specialist_application_status.html
+msgid "Анкета ожидает проверки"
+msgstr "Анкета ожидает проверки"
+
+#: src/catalog/templates/pages/specialist_workspace.html
+msgid "Ожидает решения модератора"
+msgstr "Ожидает решения модератора"
+
+#: src/catalog/templates/pages/includes/specialist_application_status.html
+msgid "От вас пока ничего не требуется."
+msgstr "От вас пока ничего не требуется."
+
+#: src/catalog/templates/pages/includes/specialist_application_status.html
+msgid "О решении модератора сообщим в уведомлениях."
+msgstr "О решении модератора сообщим в уведомлениях."
+
+#: src/catalog/controllers/specialist_workspace.py
+msgid "Анкета отправлена на проверку."
+msgstr "Анкета отправлена на проверку."
+
+#: src/catalog/templates/pages/includes/specialist_application_documents.html
+msgid "Документы ожидают проверки"
+msgstr "Документы ожидают проверки"
+
+#: src/catalog/templates/pages/includes/specialist_application_documents.html
+msgid "Проверка начнётся после подтверждения личности."
+msgstr "Проверка начнётся после подтверждения личности."
+
+msgid "Точный адрес не определён. Уточните запрос или укажите точку на карте."
+msgstr "Точный адрес не определён. Уточните запрос или укажите точку на карте."
+
+msgid "Сервис поиска адреса недоступен. Попробуйте ещё раз или укажите точку на карте."
+msgstr "Сервис поиска адреса недоступен. Попробуйте ещё раз или укажите точку на карте."
+
+#, python-format
+msgid "Повторное геокодирование завершено: обновлено %(updated)s, без изменений %(unchanged)s, без адреса %(missing)s, не найдено %(not_found)s, требуют уточнения %(review)s, ошибки сервиса %(errors)s."
+msgstr "Повторное геокодирование завершено: обновлено %(updated)s, без изменений %(unchanged)s, без адреса %(missing)s, не найдено %(not_found)s, требуют уточнения %(review)s, ошибки сервиса %(errors)s."

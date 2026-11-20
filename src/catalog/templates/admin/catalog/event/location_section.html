@@ -1,10 +1,13 @@
-{% load i18n %}
+{% load i18n kidsmap_map %}
 {% with form=adminform.form obj=adminform.form.instance %}
   <div class="km-location-section km-place-location" data-km-location-section data-km-place-location
        data-map-provider="{% if google_maps_api_key %}google{% else %}unavailable{% endif %}"
        data-default-lat="40.409264" data-default-lng="49.867092"
        data-selected-prefix="{% translate 'Выбрана точка:' %}"
        data-empty-label="{% translate 'Точка на карте не выбрана.' %}"
+       data-geocoding-policy="{% geocoding_policy_json %}"
+       data-search-imprecise="{% translate 'Точный адрес не определён. Уточните запрос или укажите точку на карте.' %}"
+       data-search-unavailable="{% translate 'Сервис поиска адреса недоступен. Попробуйте ещё раз или укажите точку на карте.' %}"
        data-search-error="{% translate 'Не удалось найти место по этому запросу. Уточните адрес.' %}"
        data-search-empty="{% translate 'Введите адрес или выберите точку на карте.' %}"
        data-search-fallback="{% translate 'Поиск выполнится после сохранения формы и серверного пересчёта координат.' %}"
@@ -31,6 +34,8 @@
       <button type="button" class="km-place-location__action km-place-location__action--secondary" data-km-place-location-toggle aria-expanded="{% if obj.has_coordinates %}true{% else %}false{% endif %}"><i class="fas fa-map" aria-hidden="true"></i><span>{% if obj.has_coordinates %}{% translate "Скрыть карту" %}{% else %}{% translate "Указать на карте" %}{% endif %}</span></button>
       <button type="button" class="km-place-location__action km-place-location__action--ghost" data-km-place-location-locate><i class="fas fa-location-arrow" aria-hidden="true"></i><span>{% translate "Моё местоположение" %}</span></button>
     </div>
+    <p data-km-place-location-status role="status"></p>
+    <ul data-km-place-location-choices hidden></ul>
     <div class="km-location-status-compact"><div class="km-location-status-compact__badge" id="km-location-status-compact-badge"><span id="km-location-status-compact-text">{% translate "Нет координат" %}</span></div><div class="km-location-status-compact__coords" id="km-location-status-compact-coords" style="display:none"><span id="km-location-status-compact-coords-val"></span></div></div>
     <div class="km-place-location__map-panel" id="km-admin-event-map-panel" data-km-place-location-panel hidden>
       <div class="km-place-location__map-head"><div class="km-place-location__map-hint"><strong>{% translate "Нажмите на карту или перетащите маркер" %}</strong><span>{% translate "Так можно быстро уточнить координаты." %}</span></div><button type="button" class="km-place-location__action km-place-location__action--primary" data-km-place-location-confirm><i class="fas fa-check" aria-hidden="true"></i><span>{% translate "Подтвердить точку" %}</span></button></div>

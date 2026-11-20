@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 
 from catalog.models import Specialist, SpecialistDocument
@@ -37,9 +38,25 @@ def is_person(user, specialist):
                 and get_user_model().objects.filter(pk=user.pk, is_active=True).exists())
 
 
+def documents_for_current_person(person):
+    # Rows created before the uploader was recorded retain the legacy access policy.
+    return person.documents.filter(
+        Q(verified_at_upload__isnull=True)
+        | Q(uploaded_by_id=person.verified_person_user_id, verified_at_upload=person.person_verified_at)
+    )
+
+
+def matches_verified_uploader(document, person):
+    return document.verified_at_upload is None or (
+        document.uploaded_by_id is not None and document.uploaded_by_id == person.verified_person_user_id
+        and document.verified_at_upload == person.person_verified_at
+    )
+
+
 def is_public_document(document):
     person = document.specialist
     return bool(document.document_type in {'diploma', 'certificate'}
+                and matches_verified_uploader(document, person)
                 and document.status == 'approved' and document.is_published
                 and document.opted_in_at and document.opted_in_by_id
                 and document.opted_in_by_id == person.verified_person_user_id
@@ -48,7 +65,8 @@ def is_public_document(document):
 
 
 def can_download_document(user, document):
-    return is_person(user, document.specialist) or can_review_documents(user) or is_public_document(document)
+    return ((matches_verified_uploader(document, document.specialist) and is_person(user, document.specialist))
+            or can_review_documents(user) or is_public_document(document))
 
 
 def upload_document(*, actor, specialist_id, uploaded_file, document_type, name):
@@ -68,7 +86,8 @@ def upload_document(*, actor, specialist_id, uploaded_file, document_type, name)
         if not is_person(actor, person):
             raise PermissionError('Verified specialist person required')
         document = SpecialistDocument.objects.create(specialist=person, document_type=document_type,
-                name=name, file=uploaded_file, status='pending', is_published=False)
+                name=name, file=uploaded_file, status='pending', is_published=False,
+                uploaded_by=actor, verified_at_upload=person.person_verified_at)
         _advance_document_epoch(person)
         return document
 
@@ -83,8 +102,8 @@ def set_document_public_choice(*, actor, document_id, publish):
         person_id = SpecialistDocument.objects.values_list('specialist_id', flat=True).get(pk=document_id)
         person = Specialist.objects.select_for_update().get(pk=person_id)
         document = SpecialistDocument.objects.select_for_update().get(pk=document_id, specialist=person)
-        if not is_person(actor, person):
-            raise PermissionError('Verified specialist person required')
+        if not is_person(actor, person) or not matches_verified_uploader(document, person):
+            raise PermissionError('Verified uploader required')
         if publish and document.document_type == 'identity':
             raise ValidationError('Identity evidence is always private')
         document.is_published = bool(publish)

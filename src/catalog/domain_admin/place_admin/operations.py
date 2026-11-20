@@ -1,6 +1,8 @@
 """PlaceAdmin: custom admin views, URLs, bulk actions and soft delete."""
 
 import json
+from collections import Counter
+
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.core.exceptions import ValidationError
@@ -24,6 +26,7 @@ from catalog.services.content_quality import (
     place_quality_check,
     public_place_queryset,
 )
+from catalog.services.geocoding import GEOCODING_ISSUE_MESSAGES
 from catalog.services.place_identity_copy import identity_copy
 from catalog.services.place_readiness import (
     evaluate_saved_place_readiness,
@@ -213,6 +216,9 @@ class PlaceAdminOperationsMixin:
                 % {"prefix": saved_prefix},
                 messages.ERROR,
             )
+        if geocoding_result.reason in GEOCODING_ISSUE_MESSAGES:
+            level = messages.ERROR if geocoding_result.reason == "provider_error" else messages.WARNING
+            return str(GEOCODING_ISSUE_MESSAGES[geocoding_result.reason]), level
         if geocoding_result.reason == "location_unresolved":
             from catalog.services.location_assignment import UNRESOLVED_MESSAGE
             return str(UNRESOLVED_MESSAGE), messages.WARNING
@@ -224,13 +230,34 @@ class PlaceAdminOperationsMixin:
             )
         return _("%(prefix)s Для геокодирования нужен адрес.") % {"prefix": saved_prefix}, messages.WARNING
 
+    def _refresh_candidate_coordinates(self, candidate):
+        from catalog.services.district_geometry import resolve_location
+        from catalog.services.geocoding import PlaceGeocodingResult
+
+        lookup = self.geocoding_service.geocode_location(address=candidate.address, district=candidate.city)
+        if not lookup.resolved or lookup.point is None:
+            return PlaceGeocodingResult(updated=False, reason=lookup.reason)
+        point = lookup.point
+        if (candidate.lat, candidate.lng) == (point.lat, point.lng):
+            return PlaceGeocodingResult(updated=False, reason="unchanged", point=point)
+
+        location = resolve_location(point.lat, point.lng)
+        if location.status not in {"resolved", "ambiguous", "outside_coverage"}:
+            return PlaceGeocodingResult(updated=False, reason="location_unresolved", point=point)
+        if location.status != "resolved" and candidate.pk and Place.objects.filter(
+            pk=candidate.pk, status=Place.STATUS_PUBLISHED, is_active=True
+        ).exists():
+            return PlaceGeocodingResult(updated=False, reason="location_unresolved", point=point)
+        candidate.lat, candidate.lng = point.lat, point.lng
+        candidate.city, candidate.district = location.city_key, location.district_key
+        # Any pending exception was confirmed for the previous point.
+        if hasattr(candidate, "_location_override_request"):
+            del candidate._location_override_request
+        return PlaceGeocodingResult(updated=True, reason="updated", point=point)
+
     def _handle_refresh_coordinates_submit(self, request, obj: Place, *, saved_prefix: str):
-        geocoding_result = self._refresh_place_coordinates_with_audit(
-            place=obj,
-            changed_by=request.user,
-        )
         message, level = self._build_admin_coordinate_refresh_feedback(
-            geocoding_result=geocoding_result,
+            geocoding_result=request._km_coordinate_refresh,
             saved_prefix=saved_prefix,
         )
         self.message_user(request, message, level=level)
@@ -1260,37 +1287,27 @@ class PlaceAdminOperationsMixin:
             )
             return
 
-        updated_count = 0
-        unchanged_count = 0
-        missing_query_count = 0
-        not_found_count = 0
-
+        counts = Counter()
         for place in queryset.iterator(chunk_size=100):
-            geocoding_result = self._refresh_place_coordinates_with_audit(
-                place=place,
-                changed_by=request.user,
-            )
-            if geocoding_result.updated:
-                updated_count += 1
-                continue
-
-            if geocoding_result.reason in {"unchanged", "coordinates_present"}:
-                unchanged_count += 1
-            elif geocoding_result.reason == "not_found":
-                not_found_count += 1
-            else:
-                missing_query_count += 1
+            result = self._refresh_place_coordinates_with_audit(place=place, changed_by=request.user)
+            counts[result.reason] += 1
 
         self.message_user(
             request,
-            _("Повторное геокодирование завершено: обновлено %(updated)s, без изменений %(unchanged)s, без адреса %(missing)s, не найдено %(not_found)s.")
+            _(
+                "Повторное геокодирование завершено: обновлено %(updated)s, без изменений %(unchanged)s, "
+                "без адреса %(missing)s, не найдено %(not_found)s, требуют уточнения %(review)s, "
+                "ошибки сервиса %(errors)s."
+            )
             % {
-                "updated": updated_count,
-                "unchanged": unchanged_count,
-                "missing": missing_query_count,
-                "not_found": not_found_count,
+                "updated": counts["updated"],
+                "unchanged": counts["unchanged"] + counts["coordinates_present"],
+                "missing": counts["missing_query"],
+                "not_found": counts["not_found"],
+                "review": counts["ambiguous"] + counts["location_unresolved"],
+                "errors": counts["provider_error"] + counts["provider_not_configured"],
             },
-            level=messages.SUCCESS if updated_count else messages.WARNING,
+            level=messages.SUCCESS if counts["updated"] else messages.WARNING,
         )
 
     def delete_view(self, request, object_id, extra_context=None):

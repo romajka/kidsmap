@@ -3144,3 +3144,18 @@
 @media (prefers-reduced-motion: reduce) {
   .catalog-search-dropdown, .catalog-search-dropdown .search-card-item { animation: none; transition: none; }
 }
+
+/* Narrow phones: arrows only, so "Назад / Вперед" never push the bar off-screen.
+   The links keep their aria-label for screen readers. */
+@media (max-width: 420px) {
+  .catalog-pagination-bar {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .catalog-pag-nav {
+    padding: 0 10px;
+  }
+  .catalog-pag-nav-text {
+    display: none;
+  }
+}

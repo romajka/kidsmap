@@ -21,6 +21,10 @@
 .mappy-portrait {
   position: relative;
   display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
   flex: 0 0 144px;
   height: 160px;
   overflow: visible;
@@ -552,7 +556,7 @@ body.page-home .home-hero .mappy-helper .mappy-bubble p {
 
 /* Mappy 3D: the live bear replaces the picture once it is ready (static/js/mappy3d_boot.js) */
 [data-mappy3d] { position: relative; }
-[data-mappy3d][data-mappy3d-state="ready"] { animation: none; outline-offset: 6px; }
+[data-mappy3d][data-mappy3d-state="ready"] { animation: none; outline-offset: 6px; cursor: pointer; }
 [data-mappy3d]:focus-visible { outline: 3px solid var(--brand-turf, #136f38); border-radius: 16px; }
 .mappy-portrait[data-mappy3d-state="ready"]::after,
 .mappy-scene[data-mappy3d-state="ready"]::after { display: none; }

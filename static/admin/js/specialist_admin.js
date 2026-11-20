@@ -319,41 +319,21 @@ if(ageOpenEnded&&ageTo){
   });
 }
 
-// 6. Consultation Format Cards
-var formatSelect=form.querySelector('#id_consultation_format');
-var formatCards=page.querySelectorAll('[data-format-cards] .km-spec-format-card');
-var locationBanner=page.querySelector('[data-location-banner]');
-
-function syncFormatCards(val){
-  formatCards.forEach(function(card){
-    var match=card.dataset.formatVal===val;
-    card.classList.toggle('is-active',match);
-  });
-  if(locationBanner){
-    if(val==='online'){
-      locationBanner.classList.add('is-optional');
-    } else {
-      locationBanner.classList.remove('is-optional');
-    }
-  }
+// 6. Office addresses apply only when the specialist receives families.
+var formatBoxes = Array.from(form.querySelectorAll('input[name="session_formats"]'));
+function formatSelected(value) {
+  return formatBoxes.some(function(box) { return box.value === value && box.checked; });
 }
-
-if(formatSelect){
-  syncFormatCards(formatSelect.value);
-  formatCards.forEach(function(card){
-    card.addEventListener('click',function(){
-      var val=card.dataset.formatVal;
-      formatSelect.value=val;
-      syncFormatCards(val);
-      formatSelect.dispatchEvent(new Event('change',{bubbles:true}));
-      updateReadiness();
-    });
-  });
-  formatSelect.addEventListener('change',function(){
-    syncFormatCards(formatSelect.value);
-    updateReadiness();
-  });
+function syncOfficeSection() {
+  var section = page.querySelector('#km-sec-8');
+  var showOffice = formatBoxes.length ? formatSelected('office') : Boolean(section && section.dataset.savedOffice === 'true');
+  if (section && section.querySelector('.errorlist, .form-row.errors')) showOffice = true;
+  page.querySelectorAll('[data-office-section]').forEach(function(node) { node.hidden = !showOffice; });
+  var counter = page.querySelector('.km-nav-header__count');
+  if (counter) counter.textContent = page.querySelectorAll('.km-nav-list > li:not([hidden])').length;
 }
+formatBoxes.forEach(function(box) { box.addEventListener('change', syncOfficeSection); });
+syncOfficeSection();
 
 // 7. Contacts Sync: Phone to WhatsApp & Smart Same-Number Toggle
 var syncWaBtn=page.querySelector('[data-sync-wa]');
@@ -526,7 +506,24 @@ function updateReadiness(){
   var needsSubject=subjectRules.requires.some(function(id){return selectedSpecs.indexOf(id)!==-1;});
   var hasSubject=subjectRules.subjects.some(function(id){return selectedSpecs.indexOf(id)!==-1;});
 
-  var hasFormat=Boolean(formatSelect&&formatSelect.value);
+  var hasFormat = formatBoxes.some(function(box) { return box.checked; });
+  var visitArea = form.querySelector('[data-specialist-visit-area]');
+  var visitRegion = form.querySelector('[name="visit_region"]');
+  var citywide = form.querySelector('[name="visit_citywide"]');
+  var validVisit = Boolean(visitRegion && visitRegion.value && (citywide && citywide.checked ||
+    form.querySelector('[name="visit_districts"]:checked:not(:disabled)')));
+  var officeSection = form.querySelector('#km-sec-8');
+  var officeRows = officeSection && officeSection.querySelectorAll('.inline-related:not(.empty-form)');
+  var validOffice = Boolean(officeRows && Array.from(officeRows).some(function(row) {
+    function val(name) { return row.querySelector('[name$="-'+name+'"]'); }
+    var active = val('is_active'), removed = val('DELETE'), region = val('region');
+    var place = val('place'), address = val('address');
+    return active && active.checked && !(removed && removed.checked) && region && region.value &&
+      ((place && place.value) || (address && address.value.trim()));
+  }));
+  if (officeSection && !officeSection.querySelector('[name$="-region"]')) {
+    validOffice = officeSection.dataset.savedOffice === 'true';
+  }
 
   var langAz=form.querySelector('#id_language_az');
   var langRu=form.querySelector('#id_language_ru');
@@ -551,6 +548,13 @@ function updateReadiness(){
     {id:'bio',label:readinessBar.dataset.bio,section:'#km-sec-2',done:hasBio}
   ];
 
+  if (formatSelected('visit') && visitArea) {
+    rules.push({id:'visit', label:visitArea.querySelector('legend').textContent, section:'#km-sec-6', done:validVisit});
+  }
+  if (formatSelected('office') && officeSection) {
+    rules.push({id:'office', label:officeSection.querySelector('h2').textContent, section:'#km-sec-8', done:validOffice});
+  }
+
   if(needsSubject)rules.splice(2,0,{id:'subject',label:readinessBar.dataset.subject,section:'#km-sec-3',done:hasSubject});
 
   var completed=rules.filter(function(r){return r.done;}).length;
@@ -569,7 +573,8 @@ function updateReadiness(){
     else if(secId==='km-sec-2')isDone=hasBio;
     else if(secId==='km-sec-3')isDone=hasSpecs&&(!needsSubject||hasSubject);
     else if(secId==='km-sec-5')isDone=hasLang;
-    else if(secId==='km-sec-6')isDone=hasFormat;
+    else if(secId==='km-sec-6')isDone=hasFormat && (!formatSelected('visit') || validVisit);
+    else if(secId==='km-sec-8')isDone=validOffice;
     else if(secId==='km-sec-11')isDone=hasContact;
     check.classList.toggle('is-done',isDone);
   });

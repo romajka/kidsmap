@@ -10,9 +10,33 @@ from catalog.forms import OwnerSpecialistForm
 from catalog.forms_specialist_locations import PracticeLocationForm,practice_location_formset
 from catalog.models import Specialist,SpecialistProposalDraft
 from catalog.services import specialist_domain
+from catalog.services.specialist_proposal_documents import qualification_formset, save_qualifications, transfer_confirmed_qualifications
+from catalog.services.specialist_formats import legacy_format_codes, profile_format_codes
 from catalog.services.owner_specialist_use_cases import save_owner_specialist_profile
 
 PUBLIC_FIELDS=set(OwnerSpecialistForm.Meta.fields)-{'photo'}
+MULTI_FIELDS = {'specializations', 'visit_districts', 'session_formats'}
+
+
+def _legacy_proposal_formats(payload):
+    scalar = (payload.get('consultation_format') or [''])[-1]
+    codes = list(legacy_format_codes(scalar))
+    if 'office' in codes:
+        # Older drafts can be incomplete. Only mark an office automatically when
+        # the author supplied an active, identified practice location.
+        def last(prefix, field):
+            return (payload.get(prefix + field) or [''])[-1]
+
+        for index in range(31):
+            prefix = f'locations-{index}-'
+            active = last(prefix, 'is_active') in ('on', 'true', '1', True)
+            deleted = last(prefix, 'DELETE') in ('on', 'true', '1', True)
+            identified = last(prefix, 'place') or last(prefix, 'address').strip()
+            if active and not deleted and last(prefix, 'region') and identified:
+                break
+        else:
+            codes.remove('office')
+    return codes
 
 
 def get_proposal(*,actor,draft_id):
@@ -50,7 +74,16 @@ def proposal_forms(*,actor,data=None,files=None,submit=False,payload=None,draft=
         specialist = Specialist.objects.get(pk=draft.submitted_specialist_id)
         specialist_domain.require_proposal_revision(actor, specialist, draft)
     if data is None:
-        initial={key:(values if key=='specializations' else values[-1]) for key,values in (payload or {}).items() if key in PUBLIC_FIELDS and values}
+        payload = payload or {}
+        initial = {key: (values if key in MULTI_FIELDS else values[-1])
+                   for key, values in payload.items() if key in PUBLIC_FIELDS and values}
+        if payload:
+            initial['session_formats'] = (
+                payload['session_formats'] if 'session_formats' in payload else _legacy_proposal_formats(payload)
+            )
+            initial['visit_region'] = (payload.get('visit_region') or [''])[-1]
+            initial['visit_districts'] = payload.get('visit_districts', [])
+            initial['visit_citywide'] = (payload.get('visit_citywide') or [''])[-1] in ('on', 'true', '1', True)
         form=OwnerSpecialistForm(initial=initial,instance=specialist,actor=actor,draft_save_only=True)
         if (payload or {}).get('photo-clear'):
             form.initial['photo'] = False
@@ -69,6 +102,7 @@ def proposal_forms(*,actor,data=None,files=None,submit=False,payload=None,draft=
 
 def save_proposal(*,actor,draft_id,expected_version,data,files,submit=False):
     new_photo=None
+    created_documents = []
     try:
         with transaction.atomic():
             actor=specialist_domain.lock_actor(actor)
@@ -92,6 +126,9 @@ def save_proposal(*,actor,draft_id,expected_version,data,files,submit=False):
             form,locations=proposal_forms(actor=actor,data=data,files=files,submit=submit,draft=draft)
             if files.get('documents') or data.get('documents'):
                 form.add_error('documents',_('Документы может загрузить только подтверждённый специалист.'))
+            form.qualification_formset = qualification_formset(draft=draft, subject=subject, data=data, files=files)
+            if form.qualification_formset.is_bound and not form.qualification_formset.is_valid():
+                form.add_error(None, _('Проверьте дипломы и сертификаты.'))
             if not form.is_valid():
                 error=ValidationError(_('Проверьте поля формы.'),code='invalid_form')
                 error.form=form;error.locations=locations
@@ -108,7 +145,11 @@ def save_proposal(*,actor,draft_id,expected_version,data,files,submit=False):
                 draft.photo_content_type=getattr(uploaded,'content_type','image/jpeg')
             elif data.get('photo-clear'):
                 draft.photo='';draft.photo_content_type=''
-            draft.payload = _payload(data)
+            draft.payload = _payload(form.data)
+            draft.payload['session_formats'] = list(form.cleaned_data.get('session_formats') or ())
+            # Keep the projection readable to older clients. Visits have no scalar equivalent.
+            draft.payload['consultation_format'] = [form.instance.consultation_format]
+            draft.payload['visit_citywide'] = ['on'] if form.cleaned_data.get('visit_citywide') else []
             draft.payload['profile_subject'] = [subject]
             draft.version += 1
             if submit:
@@ -126,16 +167,21 @@ def save_proposal(*,actor,draft_id,expected_version,data,files,submit=False):
                     specialist_domain.request_claim(actor=actor, specialist_id=result.specialist.pk)
                 draft.photo='';draft.photo_content_type=''
             draft.save()
+            save_qualifications(draft=draft, formset=form.qualification_formset, created_paths=created_documents)
+            if submit and subject == 'self':
+                transfer_confirmed_qualifications(draft.submitted_specialist)
             if old_photo and old_photo!=draft.photo.name:
                 storage=draft.photo.storage
-                transaction.on_commit(lambda:storage.delete(old_photo))
+                transaction.on_commit(lambda: storage.delete(old_photo), robust=True)
             if new_photo and new_photo!=draft.photo.name:
                 storage=draft.photo.storage
-                transaction.on_commit(lambda:storage.delete(new_photo))
+                transaction.on_commit(lambda: storage.delete(new_photo), robust=True)
             return draft
     except Exception:
+        from catalog.private_storage import specialist_private_storage
+        for filename in created_documents:
+            specialist_private_storage.delete(filename)
         if new_photo:
-            from catalog.private_storage import specialist_private_storage
             specialist_private_storage.delete(new_photo)
         raise
 
@@ -145,8 +191,13 @@ def _revision_payload(specialist, subject):
     data = QueryDict('', mutable=True)
     data['profile_subject'] = subject
     for name in PUBLIC_FIELDS:
-        if name == 'specializations':
-            data.setlist(name, [str(pk) for pk in specialist.specializations.values_list('pk', flat=True)])
+        if name in ('specializations', 'visit_districts'):
+            related = getattr(specialist, name)
+            data.setlist(name, [str(pk) for pk in related.values_list('pk', flat=True)])
+        elif name == 'session_formats':
+            data.setlist(name, list(profile_format_codes(specialist)))
+        elif name == 'visit_region':
+            data[name] = str(specialist.visit_region_id or '')
         else:
             value = getattr(specialist, name)
             data[name] = ('on' if value else '') if isinstance(value, bool) else '' if value is None else str(value)

@@ -1919,6 +1919,8 @@ class TestAdminOwnershipModerationUX(TestCase):
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
     def test_place_admin_can_refresh_coordinates_from_address(self, geocode_mock):
+        from catalog.models import VolunteerPlaceRevision
+
         self.place.address = "ул. Низами, 15"
         self.place.district = "Ясамал"
         self.place.metro = "Ичеришехер"
@@ -1940,12 +1942,13 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.context["adminform"].form.errors, response.context["adminform"].form.errors)
         self.place.refresh_from_db()
-        self.assertEqual(self.place.lat, 40.401234)
-        self.assertEqual(self.place.lng, 49.812345)
+        self.assertEqual((self.place.lat, self.place.lng), (None, None))
+        revision = VolunteerPlaceRevision.objects.get(place=self.place)
+        self.assertEqual((revision.payload["lat"], revision.payload["lng"]), (40.401234, 49.812345))
         self.assertContains(response, "Изменения сохранены. Координаты обновлены: 40.401234, 49.812345.")
         geocode_mock.assert_called_once()
         self.assertIn("ул. Низами, 15", geocode_mock.call_args.kwargs["query"])
-        self.assertTrue(
+        self.assertFalse(
             PlaceChangeAudit.objects.filter(
                 place=self.place,
                 changed_by=self.superuser,
@@ -2075,7 +2078,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         response_content = response.content.decode("utf-8")
         self.assertTrue(
             "Повторное геокодирование завершено: обновлено 1" in response_content
-            or "Təkrar geokodlaşdırma tamamlandi: yeniləndi 1" in response_content
+            or "Təkrar geokodlaşdırma tamamlandı: yeniləndi 1" in response_content
         )
         self.assertTrue(
             PlaceChangeAudit.objects.filter(

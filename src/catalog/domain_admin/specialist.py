@@ -4,17 +4,22 @@ from django import forms
 from django.core.exceptions import PermissionDenied
 from django.contrib import admin, messages
 from django.contrib.admin.utils import display_for_field
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Count, Q
 from django.utils.html import format_html, format_html_join, mark_safe
 from .ui_utils import render_action_menu, render_row_actions_container
 from django.utils import timezone
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from django.urls import reverse
 from .queue_sorting import QueueSortingAdminMixin, QueueSortParameter
 from .moderation_actor import ModerationActorAdminMixin
 from catalog.forms_specialist_locations import BasePracticeLocationFormSet
+from catalog.services.specialist_formats import (
+    SpecialistFormatsFormMixin, format_choices, format_labels, format_q,
+    has_office, missing_office_message, profile_format_errors, public_format_label,
+)
 
 from catalog.models import (
     Region,
@@ -28,7 +33,12 @@ from catalog.models import (
     Place,
 )
 
-class SpecialistAdminForm(forms.ModelForm):
+class SpecialistAdminForm(SpecialistFormatsFormMixin, forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'session_formats' in self.fields:
+            self._init_format_fields()
+
     @property
     def subject_rules(self):
         from catalog.services.specialist_subjects import form_subject_rules
@@ -36,13 +46,16 @@ class SpecialistAdminForm(forms.ModelForm):
 
     class Meta:
         model = Specialist
-        fields = "__all__"
+        exclude = ('consultation_format', 'offers_online', 'offers_office', 'offers_visits')
         widgets = {"specializations": forms.CheckboxSelectMultiple()}
 
     def clean(self):
         data = super().clean()
         from catalog.services.specialist_subjects import subject_required, subject_error
-        if data.get('status') in (Specialist.STATUS_PENDING, Specialist.STATUS_PUBLISHED):
+        require = data.get('status') in (Specialist.STATUS_PENDING, Specialist.STATUS_PUBLISHED)
+        self.clean_format_fields(data, require=require, allow_incomplete=not require)
+        self.instance._admin_requires_office = require
+        if require:
             if subject_required(data.get('specializations') or []):
                 self.add_error('specializations', subject_error())
         if (data.get('status') == Specialist.STATUS_REJECTED and 'rejection_reason' in self.fields
@@ -54,13 +67,25 @@ class SpecialistAdminForm(forms.ModelForm):
             locked=Specialist.objects.select_for_update().get(pk=self.instance.pk)
             if self.data.get('expected_updated_at','')!=locked.updated_at.isoformat():
                 raise forms.ValidationError(_('Запись изменилась. Обновите страницу.'),code='stale_version')
-        # When this role has no location inline, do not accept an empty offline
-        # profile or disclose row metadata. Editable rows are checked by formset.
-        if data.get('consultation_format') in (Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH) and 'practice_locations-TOTAL_FORMS' not in self.data:
-            if not self.instance.pk or not self.instance.practice_locations.filter(is_active=True,region__isnull=False).exclude(Q(place__isnull=True,address='')).exists():
-                raise forms.ValidationError(_('Для очного формата работы (или онлайн и очно) необходимо указать хотя бы одно активное место приема.'))
+        # An editable inline validates the submitted rows. Other editors can rely
+        # only on locations already saved for this profile.
+        office_selected = 'office' in (data.get('session_formats') or ())
+        if require and office_selected and not getattr(self.instance, '_editing_office_rows', False):
+            if not has_office(self.instance):
+                self.add_error('session_formats', missing_office_message())
         return data
 
+
+
+class SpecialistFormatFilter(admin.SimpleListFilter):
+    title = _('Формат приёма')
+    parameter_name = 'format'
+
+    def lookups(self, request, model_admin):
+        return format_choices()
+
+    def queryset(self, request, queryset):
+        return queryset.filter(format_q(self.value())) if self.value() else queryset
 
 
 class RegionContentPresenceFilter(admin.SimpleListFilter):
@@ -415,8 +440,14 @@ class SpecialistSpecializationAdmin(admin.ModelAdmin):
     search_fields = ("code", "name_ru", "name_az", "name_en")
 
 
+class AdminPracticeLocationFormSet(BasePracticeLocationFormSet):
+    def clean(self):
+        self.require_active = getattr(self.instance, '_admin_requires_office', True)
+        super().clean()
+
+
 class SpecialistPracticeLocationInline(admin.StackedInline):
-    formset = BasePracticeLocationFormSet
+    formset = AdminPracticeLocationFormSet
     model = SpecialistPracticeLocation
     extra = 0
     verbose_name = _("Место приёма")
@@ -425,7 +456,30 @@ class SpecialistPracticeLocationInline(admin.StackedInline):
     autocomplete_fields = ("place",)
 
 
+class DocumentReviewForm(forms.ModelForm):
+    class Meta:
+        model = SpecialistDocument
+        fields = ('status', 'rejection_reason')
+
+    def clean(self):
+        data = super().clean()
+        if data.get('status') == SpecialistDocument.STATUS_REJECTED:
+            if not data.get('rejection_reason', '').strip():
+                self.add_error('rejection_reason', _('Укажите причину отклонения.'))
+        else:
+            data['rejection_reason'] = ''
+        return data
+
+    def save(self, commit=True):
+        document = super().save(commit=False)
+        if commit:
+            # A reviewer may only change their decision. The owner controls consent.
+            document.save(update_fields=['status', 'rejection_reason'])
+        return document
+
+
 class SpecialistDocumentInline(admin.TabularInline):
+    form = DocumentReviewForm
     model = SpecialistDocument
     extra = 0
     verbose_name = _("Документ")
@@ -446,12 +500,15 @@ class SpecialistDocumentInline(admin.TabularInline):
     def has_delete_permission(self, request, obj=None):
         return False  # Document retention is a separate policy, not a generic admin operation.
 
-    @admin.display(description=_("Скачать"))
+    @admin.display(description=_("Документ"))
     def download_link(self, obj):
-        if obj and obj.pk:
-            url = reverse("serve_specialist_document", args=[obj.pk])
-            return format_html('<a href="{}" target="_blank">{}</a>', url, _("Скачать / Просмотреть"))
-        return "-"
+        if not obj or not obj.pk:
+            return "-"
+        if obj.document_type in (SpecialistDocument.TYPE_DIPLOMA, SpecialistDocument.TYPE_CERTIFICATE):
+            url = reverse('specialist_document_preview', args=[obj.pk])
+            return format_html('<a href="{}" target="_blank" rel="noopener">{}</a>', url, _("Открыть документ"))
+        url = reverse('serve_specialist_document', args=[obj.pk])
+        return format_html('<a href="{}">{}</a>', url, _("Скачать"))
 
 
 @admin.register(Specialist)
@@ -462,10 +519,10 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     form = SpecialistAdminForm
     change_form_template = "admin/catalog/specialist/change_form.html"
     change_list_template = "admin/catalog/specialist/change_list.html"
-    km_primary_filters = ("status", "is_active", "consultation_format")
+    km_primary_filters = ("status", "is_active", "format")
     
     list_display = ("profile_column", "directions_column", "owner", "identity_review_column", "format_badge", "status_badge", "documents_count", "rating_column", "row_actions")
-    list_filter = (QueueSortParameter, "status", "is_active", "consultation_format", "specializations")
+    list_filter = (QueueSortParameter, "status", "is_active", SpecialistFormatFilter, "specializations")
     search_fields = ("name", "name_alt", "bio_ru", "bio_az", "bio_en")
     readonly_fields = ("owner", "verified_person_user", "identity_verification_date", "created_by",
                        "rating_avg", "rating_count", "created_at", "updated_at")
@@ -498,7 +555,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         original=context.get('original')
         # Bound ModelForms mutate the instance even when validation fails.
         # The header describes the saved profile, not an unsuccessful POST.
-        saved_state = Specialist.objects.only('status', 'is_active', 'consultation_format').filter(pk=original.pk).first() if original else None
+        saved_state = Specialist.objects.prefetch_related('practice_locations').filter(pk=original.pk).first() if original else None
         from catalog.services import specialist_domain
         try:
             specialist_domain._reviewer(request.user)
@@ -509,7 +566,9 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         context.update(
             specialist_public_visible=bool(saved_state and saved_state.status == Specialist.STATUS_PUBLISHED and saved_state.is_active),
             specialist_saved_status=saved_state.status if saved_state else '',
-            specialist_saved_format=saved_state.consultation_format if saved_state else '',
+            specialist_saved_formats=format_labels(saved_state) if saved_state else (),
+            specialist_has_saved_office=bool(saved_state and has_office(saved_state)),
+            specialist_saved_profile=saved_state,
             specialist_pending_claims=claims,
             specialist_pending_claim_count=len(claims),
             specialist_identity_review_url=reverse('specialist_workspace_review', args=[original.pk]) if original and can_review_identity else '',
@@ -519,7 +578,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
 
     def get_queryset(self, request):
         from catalog.services.specialist_documents import can_review_documents
-        queryset = super().get_queryset(request).select_related("owner").prefetch_related("specializations").annotate(
+        queryset = super().get_queryset(request).select_related("owner").prefetch_related("specializations", "practice_locations").annotate(
             pending_person_claims=Count('person_claims', filter=Q(person_claims__status='pending'), distinct=True))
         return queryset.prefetch_related("documents") if can_review_documents(request.user) else queryset
 
@@ -724,7 +783,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             for f in fields:
                 q_filter |= Q(**{f"{f}__icontains": v})
 
-        queryset = Specialist.objects.filter(q_filter).select_related("owner").prefetch_related("specializations").distinct()[:8]
+        queryset = Specialist.objects.filter(q_filter).select_related("owner").prefetch_related("specializations", "practice_locations").distinct()[:8]
 
         results = []
         for specialist in queryset:
@@ -738,7 +797,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             if specs_label:
                 meta_parts.append(specs_label)
 
-            format_label = specialist.get_consultation_format_display()
+            format_label = public_format_label(specialist, language_code)
             if format_label:
                 meta_parts.append(format_label)
 
@@ -828,10 +887,26 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             self.message_user(request, subject_error(), level=messages.WARNING)
         return queryset.exclude(pk__in=incomplete)
 
+    def _ready_for_review(self, request, queryset):
+        # Lock the parent rows before checking fields and related geography;
+        # owner and staff changes use the same parent lock.
+        selected = self._with_required_subjects(request, queryset).values('pk')
+        candidates = Specialist.objects.select_for_update().filter(pk__in=selected).order_by('pk')
+        candidates = candidates.prefetch_related('practice_locations', 'visit_districts', 'visit_region')
+        allowed = []
+        for person in candidates:
+            errors = profile_format_errors(person)
+            if errors:
+                self.message_user(request, f"{person.name} — {' '.join(errors)}", level=messages.WARNING)
+            else:
+                allowed.append(person.pk)
+        return Specialist.objects.filter(pk__in=allowed)
+
     @admin.action(permissions=['change'], description=_("Опубликовать выбранных специалистов"))
+    @transaction.atomic
     def mark_published(self, request, queryset):
         self._require_moderation_permission(request)
-        queryset = self._with_required_subjects(request, queryset)
+        queryset = self._ready_for_review(request, queryset)
         newly_published = list(queryset.exclude(status=Specialist.STATUS_PUBLISHED).values_list("pk", flat=True))
         updated_count = queryset.update(
             status=Specialist.STATUS_PUBLISHED,
@@ -863,9 +938,10 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         )
 
     @admin.action(permissions=['change'], description=_("Отправить выбранных специалистов на модерацию"))
+    @transaction.atomic
     def mark_pending(self, request, queryset):
         self._require_moderation_permission(request)
-        queryset = self._with_required_subjects(request, queryset)
+        queryset = self._ready_for_review(request, queryset)
         updated_count = queryset.update(
             status=Specialist.STATUS_PENDING,
             is_active=False,
@@ -917,6 +993,16 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
                 returned += 1
         if returned:
             self.message_user(request, _("Анкеты возвращены авторам на доработку."), level=messages.SUCCESS)
+
+    def get_formset_kwargs(self, request, obj, inline, prefix):
+        if inline.model is SpecialistPracticeLocation and request.method == 'POST':
+            obj._editing_office_rows = inline.has_change_permission(request, obj) or inline.has_add_permission(request, obj)
+        return super().get_formset_kwargs(request, obj, inline, prefix)
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        if not form.instance.offers_office:
+            form.instance.practice_locations.filter(is_active=True).update(is_active=False, is_primary=False)
 
     def save_model(self, request, obj, form, change):
         previous_status = (Specialist.objects.filter(pk=obj.pk).values_list("status", flat=True).first()
@@ -1003,32 +1089,12 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             handle or user.email or "",
         )
 
-    @admin.display(description=_("Формат"), ordering="consultation_format")
+    @admin.display(description=_("Формат"))
     def format_badge(self, obj):
-        fmt = str(obj.consultation_format or "").strip().lower()
-        if fmt == Specialist.FORMAT_BOTH:
-            icon = "fa-laptop-house"
-            label = _("Онлайн и очно")
-            tone = "both"
-        elif fmt in (Specialist.FORMAT_OFFLINE, "in_person"):
-            icon = "fa-map-marker-alt"
-            label = _("Только очно")
-            tone = "offline"
-        elif fmt == Specialist.FORMAT_ONLINE:
-            icon = "fa-video"
-            label = _("Только онлайн")
-            tone = "online"
-        else:
-            icon = "fa-user-clock"
-            label = obj.get_consultation_format_display() or _("Уточняется")
-            tone = "muted"
-            
-        return format_html(
-            '<span class="km-admin-spec-badge km-format-{}"><i class="fas {}"></i>{}</span>',
-            tone,
-            icon,
-            label,
-        )
+        return format_html_join(
+            " ", '<span class="km-admin-spec-badge">{}</span>',
+            ((label,) for label in format_labels(obj)),
+        ) or self.get_empty_value_display()
 
     @admin.display(description=_("Статус"), ordering="status")
     def status_badge(self, obj):
@@ -1234,12 +1300,8 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             },
         ),
         (
-            _("6. Онлайн / очно"),
-            {
-                "fields": (
-                    "consultation_format",
-                )
-            },
+            format_lazy("6. {}", _("Формат приёма")),
+            {"fields": ("session_formats", "visit_region", "visit_citywide", "visit_districts")},
         ),
         (
             _("7. Стоимость и продолжительность"),

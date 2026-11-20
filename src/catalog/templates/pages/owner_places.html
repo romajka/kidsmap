@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=20261116_return_1" />
+  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=20261120_decision_1" />
 {% endblock %}
 
 {% block content %}
@@ -752,7 +752,7 @@
                       {% endfor %}
                     </span>
                     <div class="account-specialist-meta">
-                      <span>{{ specialist.get_consultation_format_display }}</span>
+                      <span>{{ specialist|specialist_format_text }}</span>
                       <span>·</span>
                       <span>{{ specialist.updated_at|date:"d.m.Y" }}</span>
                     </div>

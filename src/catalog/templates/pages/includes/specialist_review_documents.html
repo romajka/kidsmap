@@ -1,0 +1,48 @@
+{% load i18n %}{% get_current_language as lang %}
+<section class="sw-card sw-document-review sw-review-section" id="specialist-documents" aria-labelledby="sw-review-docs-title">
+  <h2 id="sw-review-docs-title">{% if lang == 'en' %}Document review{% elif lang == 'az' %}Sənədlərin yoxlanması{% else %}Проверка документов{% endif %}</h2>
+  {% if documents %}
+    <ul class="sw-rows sw-review-list">
+      {% for document in documents %}
+        <li data-document-id="{{ document.pk }}" class="sw-review-document">
+          <div class="sw-review-document__main">
+            <div class="sw-review-heading">
+              <span class="sw-review-type">{{ document.get_document_type_display }}</span>
+              <span class="sw-pill sw-pill--{{ document.status }}">{{ document.get_status_display }}</span>
+            </div>
+            <h3 id="sw-document-{{ document.pk }}">{{ document.name }}</h3>
+            <p class="sw-review-visibility">
+              {% if document.is_public %}
+                {% if lang == 'en' %}Visible on the profile{% elif lang == 'az' %}Profildə görünür{% else %}Виден в профиле{% endif %}
+              {% elif document.is_published and document.opted_in_at and document.opted_in_by_id and document.opted_in_by_id == specialist.verified_person_user_id %}
+                {% if lang == 'en' %}The specialist chose to show this document. It is currently hidden.{% elif lang == 'az' %}Mütəxəssis bu sənədi göstərməyi seçib. Hazırda sənəd gizlidir.{% else %}Специалист разрешил показ. Сейчас документ скрыт.{% endif %}
+              {% else %}
+                <span class="material-symbols-rounded" aria-hidden="true">lock</span>
+                {% if lang == 'en' %}Hidden from parents{% elif lang == 'az' %}Valideynlərə göstərilmir{% else %}Скрыт от родителей{% endif %}
+              {% endif %}
+            </p>
+          </div>
+          {% if document.can_download and document.file %}
+            {% if document.document_type == 'diploma' or document.document_type == 'certificate' %}
+              <a class="sw-review-reader" href="{% url 'specialist_document_preview' document.pk %}" aria-labelledby="sw-read-{{ document.pk }} sw-document-{{ document.pk }}" target="_blank" rel="noopener">
+                <span class="sw-review-preview sw-review-preview--{{ document.document_type }}"><img src="{% url 'specialist_document_page' document.pk 1 %}?thumb=1" alt="" loading="lazy" width="96" height="80"></span>
+                <span id="sw-read-{{ document.pk }}">{% trans 'Открыть документ' %}</span>
+              </a>
+            {% else %}
+              <a class="sw-doc-file" href="{% url 'serve_specialist_document' document.pk %}" aria-labelledby="sw-read-{{ document.pk }} sw-document-{{ document.pk }}"><span id="sw-read-{{ document.pk }}">{% trans 'Скачать' %}</span></a>
+            {% endif %}
+          {% endif %}
+          {% if document.status == 'pending' %}{% include 'pages/includes/specialist_wait_time.html' with since=document.created_at only %}{% endif %}
+          {% if document.rejection_reason %}<p class="sw-review-note"><strong>{% trans 'Причина отклонения' %}</strong> {{ document.rejection_reason|linebreaksbr }}</p>{% endif %}
+          <div class="sw-doc-toolbar">
+            {% include 'pages/includes/specialist_document_decision.html' with doc_id=document.pk|stringformat:"s" %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% elif specialist.person_verified_at %}
+    <p class="sw-review-muted">{% if lang == 'en' %}No documents have been submitted.{% elif lang == 'az' %}Sənəd göndərilməyib.{% else %}Документы пока не поступили.{% endif %}</p>
+  {% else %}
+    <p class="sw-review-muted">{% if lang == 'en' %}If the specialist attached diplomas or certificates, they will appear here once their identity is confirmed.{% elif lang == 'az' %}Mütəxəssis diplom və ya sertifikat əlavə edibsə, şəxsiyyəti təsdiqləndikdən sonra həmin sənədlər burada görünəcək.{% else %}Если специалист приложил дипломы или сертификаты, они появятся здесь после подтверждения личности.{% endif %}</p>
+  {% endif %}
+</section>

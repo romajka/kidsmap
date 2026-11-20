@@ -10,8 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=20261026_specialist_r7">
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_moderation_changelist.css' %}?v=121">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_moderation_changelist.css' %}?v=124">
   <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=20261106_moderation_i18n" defer></script>
+  {% if km_decision_dialog %}<script src="{% static 'admin/js/kidsmap_moderation_decision.js' %}?v=1" defer></script>{% endif %}
 {% endblock %}
 
 {% block bodyclass %}{{ block.super }} km-custom-changelist km-moderation-changelist{% endblock %}
@@ -112,6 +113,42 @@
             </button>
           </div>
         </div>
+        {% if km_decision_dialog %}
+          {# Inside <template> so its own form is not swallowed by #changelist-form; JS moves it to <body>. #}
+          <template id="km-decision-template">
+          <dialog class="km-decision-dialog" id="km-decision-dialog" aria-labelledby="km-decision-title">
+            <form method="post" class="km-decision-dialog__form" novalidate>
+              {% csrf_token %}
+              <input type="hidden" name="action" value="">
+              <input type="hidden" name="select_across" value="0">
+              <input type="hidden" name="index" value="0">
+              <div data-km-decision-ids></div>
+              <header class="km-decision-dialog__head">
+                <div>
+                  <h2 class="km-decision-dialog__title" id="km-decision-title"></h2>
+                  <p class="km-decision-dialog__target" data-km-decision-target></p>
+                </div>
+                <button type="button" class="km-decision-dialog__close" data-km-decision-cancel aria-label="{{ km_decision_dialog.close }}">
+                  <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
+                </button>
+              </header>
+              <p class="km-decision-dialog__hint" data-km-decision-hint></p>
+              <p class="km-decision-dialog__edits" data-km-decision-edits hidden>{{ km_decision_dialog.edits_note }}</p>
+              <span class="km-decision-dialog__label">{{ km_decision_dialog.presets_label }}</span>
+              <div class="km-decision-dialog__presets" data-km-decision-presets></div>
+              <label class="km-decision-dialog__label" for="km-decision-reason">{{ km_decision_dialog.reason_label }}</label>
+              <textarea id="km-decision-reason" name="moderation_comment" rows="5" maxlength="4000"
+                        placeholder="{{ km_decision_dialog.placeholder }}" aria-describedby="km-decision-error"></textarea>
+              <p class="km-decision-dialog__error" id="km-decision-error" role="alert" hidden>{{ km_decision_dialog.required }}</p>
+              <footer class="km-decision-dialog__foot">
+                <button type="button" class="km-decision-dialog__cancel" data-km-decision-cancel>{{ km_decision_dialog.cancel }}</button>
+                <button type="submit" class="km-decision-dialog__submit" data-km-decision-submit></button>
+              </footer>
+            </form>
+            {{ km_decision_dialog.client|json_script:"km-decision-copy" }}
+          </dialog>
+          </template>
+        {% endif %}
       {% else %}
         <section class="km-moderation-empty" aria-label="{{ moderation_empty_title }}">
           <span class="km-moderation-empty__icon"><i class="fas fa-check-circle" aria-hidden="true"></i></span>

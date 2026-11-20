@@ -7,8 +7,8 @@
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/components/specialist_subjects.css' %}?v=20261105_subjects_r2" />
 <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261118_directory" />
-<script src="{% static 'js/specialists.js' %}?v=20261118_directory" defer></script>
-<link rel="stylesheet" href="{% static 'css/pages/specialist_directory.css' %}?v=20261118_card_link" />
+<script src="{% static 'js/specialists.js' %}?v=20261120_formats" defer></script>
+<link rel="stylesheet" href="{% static 'css/pages/specialist_directory.css' %}?v=20261120_format_filters" />
 <link rel="stylesheet" href="{% static 'css/pages/specialists_refresh.css' %}?v=20261118_sp_r2" />
 {% endblock %}
 
@@ -36,6 +36,7 @@
       <input id="specialists-hero-search-input" name="q" type="search" value="{{ selected.q }}" data-search-input placeholder="{% if language == 'az' %}Ad və ya fənn{% elif language == 'en' %}Name or subject{% else %}Имя или предмет{% endif %}">
       <button class="sp-search-clear" type="button" data-search-clear data-search-target="specialists-hero-search-input" aria-label="{% if language == 'az' %}Axtarışı təmizlə{% elif language == 'en' %}Clear search{% else %}Очистить поиск{% endif %}"{% if not selected.q %} hidden{% endif %}>×</button>
       {% for key, val in selected.items %}{% if key != 'q' and key != 'sort' and val %}<input type="hidden" name="{{ key }}" value="{{ val }}">{% endif %}{% endfor %}
+      {% for code in selected_formats %}<input type="hidden" name="format" value="{{ code }}">{% endfor %}
       {% if selected.sort and selected.sort != 'new' %}<input type="hidden" name="sort" value="{{ selected.sort }}">{% endif %}
       <button type="submit">{% if language == 'az' %}Axtar{% elif language == 'en' %}Search{% else %}Найти{% endif %}</button>
     </form>
@@ -128,41 +129,18 @@
           </select>
         </div>
 
-        <!-- Consultation Format (Custom Select) -->
-        <div class="km-filter-group" data-spec-custom-select-wrap>
-          <label id="format-select-label"><span class="material-symbols-rounded" aria-hidden="true">devices</span> {% if language == "az" %}Qəbul formatı{% elif language == "en" %}Format{% else %}Формат работы{% endif %}</label>
-          <div class="km-custom-select km-filter-custom-select" id="custom-select-format">
-            <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="format-select-label custom-select-format-val">
-              <span class="km-custom-select__value" id="custom-select-format-val">
-                {% if selected.format == 'online' %}{% if language == "az" %}Onlayn{% elif language == "en" %}Online{% else %}Можно онлайн{% endif %}
-                {% elif selected.format == 'offline' %}{% if language == "az" %}Əyani{% elif language == "en" %}In-person{% else %}Очно{% endif %}
-                {% else %}{% if language == "az" %}İstənilən format{% elif language == "en" %}Any format{% else %}Все форматы{% endif %}{% endif %}
-              </span>
-              <span class="km-custom-select__arrow" aria-hidden="true">
-                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
-              </span>
-            </button>
-            <div class="km-custom-select__menu" role="listbox" aria-labelledby="format-select-label" tabindex="-1">
-              <div class="km-custom-select__option{% if not selected.format %} is-selected{% endif %}" role="option" aria-selected="{% if not selected.format %}true{% else %}false{% endif %}" data-value="">
-                <span class="km-custom-select__opt-text">{% if language == "az" %}İstənilən format{% elif language == "en" %}Any format{% else %}Все форматы{% endif %}</span>
-              </div>
-              <div class="km-custom-select__option{% if selected.format == 'online' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.format == 'online' %}true{% else %}false{% endif %}" data-value="online">
-                <span class="km-custom-select__opt-text">{% if language == "az" %}Onlayn{% elif language == "en" %}Online{% else %}Можно онлайн{% endif %}</span>
-              </div>
-              <div class="km-custom-select__option{% if selected.format == 'offline' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.format == 'offline' %}true{% else %}false{% endif %}" data-value="offline">
-                <span class="km-custom-select__opt-text">{% if language == "az" %}Əyani{% elif language == "en" %}In-person{% else %}Очно{% endif %}</span>
-              </div>
-            </div>
-            <select name="format" id="filter-format" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
-              <option value="">{% if language == "az" %}İstənilən format{% elif language == "en" %}Any format{% else %}Все форматы{% endif %}</option>
-              <option value="online" {% if selected.format == "online" %}selected{% endif %}>{% if language == "az" %}Onlayn{% elif language == "en" %}Online{% else %}Можно онлайн{% endif %}</option>
-              <option value="offline" {% if selected.format == "offline" %}selected{% endif %}>{% if language == "az" %}Əyani{% elif language == "en" %}In-person{% else %}Очно{% endif %}</option>
-            </select>
+        <fieldset class="km-filter-group km-format-checks">
+          <legend class="km-filter-label">{% if language == "az" %}Qəbul formatı{% elif language == "en" %}Session format{% else %}Формат занятий{% endif %}</legend>
+          <div>
+            {% for code, label in format_choices %}
+              <label><input type="checkbox" name="format" value="{{ code }}"{% if code in selected_formats %} checked{% endif %}> {{ label }}</label>
+            {% endfor %}
+            {% if 'offline' in selected_formats %}<label><input type="checkbox" name="format" value="offline" checked> {{ legacy_offline_label }}</label>{% endif %}
           </div>
-        </div>
+        </fieldset>
 
         <!-- City / Region (Custom Select) -->
-        <div class="km-filter-group" id="location-filters-container"{% if selected.format == 'online' %} hidden{% endif %} data-spec-custom-select-wrap>
+        <div class="km-filter-group" id="location-filters-container"{% if online_only %} hidden{% endif %} data-spec-custom-select-wrap>
           <label id="region-select-label"><span class="material-symbols-rounded" aria-hidden="true">location_on</span> {% if language == "az" %}Şəhər / Region{% elif language == "en" %}City / Region{% else %}Город / Регион{% endif %}</label>
           <div class="km-custom-select km-filter-custom-select" id="custom-select-region">
             <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="region-select-label custom-select-region-val">
@@ -197,6 +175,21 @@
               {% endfor %}
             </select>
           </div>
+        </div>
+
+        <div class="km-filter-group" data-specialist-district{% if online_only %} hidden{% endif %}>
+          <label for="filter-district">{% if language == 'az' %}Rayon{% elif language == 'en' %}District{% else %}Район{% endif %}</label>
+          <select class="km-filter-select" name="district" id="filter-district">
+            <option value="">{% if language == 'az' %}Bütün rayonlar{% elif language == 'en' %}All districts{% else %}Все районы{% endif %}</option>
+            {% for item in filter_options.districts %}<option data-region="{{ item.region }}" value="{{ item.value }}"{% if item.value == selected.district %} selected{% endif %}>{{ item.label }}{% if item.count %} ({{ item.count }}){% endif %}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="km-filter-group" data-specialist-metro{% if not office_allowed or selected.region and selected.region != 'baku' %} hidden{% endif %}>
+          <label for="filter-metro">{% if language == 'az' %}Qəbul yerinə yaxın metro{% elif language == 'en' %}Metro near the specialist{% else %}Метро рядом с местом приёма{% endif %}</label>
+          <select class="km-filter-select" name="metro" id="filter-metro">
+            <option value="">{% if language == 'az' %}Bütün stansiyalar{% elif language == 'en' %}All stations{% else %}Все станции{% endif %}</option>
+            {% for item in filter_options.metro_stations %}<option value="{{ item.value }}"{% if item.value == selected.metro %} selected{% endif %}>{{ item.label }}{% if item.count %} ({{ item.count }}){% endif %}</option>{% endfor %}
+          </select>
         </div>
 
         <!-- Age of Child (Range Slider matching catalog places) -->
@@ -415,7 +408,8 @@
               {% endif %}
               <ul class="sp-card-facts">
                 {% if specialist.card_age %}<li><span class="material-symbols-rounded" aria-hidden="true">child_care</span>{{ specialist.card_age }}</li>{% endif %}
-                <li><span class="material-symbols-rounded" aria-hidden="true">{{ specialist.card_format_icon }}</span>{{ specialist.card_format_label }}</li>
+                {% if specialist.card_format_label %}<li><span class="material-symbols-rounded" aria-hidden="true">{{ specialist.card_format_icon }}</span><span>{{ specialist.card_format_label }}</span></li>{% endif %}
+                {% if specialist.online_match_only %}<li>{% if language == 'az' %}Sorğunuza yalnız onlayn format uyğun gəlir{% elif language == 'en' %}Matches your search online only{% else %}По вашему запросу подходит онлайн{% endif %}</li>{% endif %}
                 {% if specialist.language_az or specialist.language_ru or specialist.language_en %}<li><span class="material-symbols-rounded" aria-hidden="true">translate</span>{% if specialist.language_az %}AZ{% endif %}{% if specialist.language_ru %}{% if specialist.language_az %} · {% endif %}RU{% endif %}{% if specialist.language_en %}{% if specialist.language_ru or specialist.language_az %} · {% endif %}EN{% endif %}</li>{% endif %}
                 {% if specialist.card_location %}<li><span class="material-symbols-rounded" aria-hidden="true">location_on</span>{{ specialist.card_location }}</li>{% endif %}
               </ul>

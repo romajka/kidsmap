@@ -32,6 +32,12 @@ def _plural_form(count: int, language_code: str) -> str:
 
 
 @register.filter
+def specialist_format_text(specialist):
+    from catalog.services.specialist_formats import public_format_label
+    return public_format_label(specialist)
+
+
+@register.filter
 def ru_plural(value, forms: str) -> str:
     """Pick a Russian noun form: {{ n|ru_plural:"место,места,мест" }}."""
     try:

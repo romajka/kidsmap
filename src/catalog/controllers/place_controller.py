@@ -497,6 +497,7 @@ class PlaceController:
             chips.append(
                 {
                     "label": label,
+                    "compact_label": category_label,
                     # Снимая категорию, снимаем и подкатегорию: без родителя
                     # она не показывается в сайдбаре и осталась бы висеть
                     # невидимым фильтром.
@@ -517,6 +518,7 @@ class PlaceController:
             chips.append(
                 {
                     "label": label,
+                    "compact_label": subcategory_label,
                     "remove_url": remove_url("subcategory"),
                 }
             )
@@ -595,7 +597,7 @@ class PlaceController:
             else:
                 age_label = _("%(from)s–%(to)s лет") % {"from": age_from or "0", "to": age_to or "18"}
                 label = _("Возраст: %(value)s") % {"value": age_label}
-            chips.append({"label": label, "remove_url": remove_url("age", "age_from", "age_to")})
+            chips.append({"label": label, "compact_label": age_label, "remove_url": remove_url("age", "age_from", "age_to")})
 
         price_from = str(selected.get("price_from") or "").strip()
         price_to = str(selected.get("price_to") or "").strip()
@@ -614,7 +616,7 @@ class PlaceController:
                 label = f"Price: {price_label}"
             else:
                 label = _("Цена: %(value)s") % {"value": price_label}
-            chips.append({"label": label, "remove_url": remove_url("price_from", "price_to", "price_max")})
+            chips.append({"label": label, "compact_label": price_label, "remove_url": remove_url("price_from", "price_to", "price_max")})
 
         if force_new_only:
             days = str(selected.get("days") or "").strip()
@@ -842,8 +844,10 @@ class PlaceController:
         place_specialists = []
         if enabled_sections['specialists'] and not new_preview:
             from catalog.models.specialist import SpecialistPracticeLocation
+            from catalog.services.specialist_formats import format_q
             spec_locs = (
                 SpecialistPracticeLocation.objects.filter(
+                    format_q("office", prefix="specialist__"),
                     place=place,
                     is_active=True,
                     specialist__status="published",

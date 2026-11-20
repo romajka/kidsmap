@@ -1,0 +1,21 @@
+{% load tz %}
+{% timezone 'Asia/Baku' %}
+  <div class="event-ticket-date">
+    <dt class="visually-hidden">{% if language == 'az' %}Tarix{% elif language == 'en' %}Date{% else %}Дата{% endif %}</dt>
+    <dd>
+      <time datetime="{{ event.start_datetime|date:'c' }}" class="event-date-stamp">
+        <span class="event-date-day">{{ event.start_datetime|date:'j' }}</span>
+        <span class="event-date-caption">
+          <strong>{{ event.start_datetime|date:'E Y' }}</strong>
+          <span>{{ event.start_datetime|date:'l' }}</span>
+        </span>
+      </time>
+    </dd>
+  </div>
+  <div class="event-ticket-time">
+    <dt>{% if language == 'az' %}Bakı vaxtı ilə{% elif language == 'en' %}Baku time{% else %}По времени Баку{% endif %}</dt>
+    <dd>
+      <time datetime="{{ event.start_datetime|date:'c' }}">{{ event.start_datetime|date:'H:i' }}</time>{% if event.end_datetime %} – <time datetime="{{ event.end_datetime|date:'c' }}">{% if event.start_datetime|date:'Ymd' != event.end_datetime|date:'Ymd' %}{{ event.end_datetime|date:'j E Y' }}, {% endif %}{{ event.end_datetime|date:'H:i' }}</time>{% endif %}
+    </dd>
+  </div>
+{% endtimezone %}
