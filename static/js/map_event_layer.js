@@ -168,6 +168,7 @@
       if (self.engine === 'google' && window.kidsMapCreateGoogleMarker) {
         marker = window.kidsMapCreateGoogleMarker({
           position: { lat: p.lat, lng: p.lng }, title: p.name, visual: el,
+          icon: { scaledSize: new google.maps.Size(52, 64), anchor: new google.maps.Point(26, 62) },
           publicVisual: true, ownerMap: self.map, mapId: detail.mapId, zIndex: 2000,
         });
         marker.addListener('click', function () { self.open(p, el); });
@@ -210,6 +211,7 @@
             var live = cluster.markers.some(function (m) { return m.__kmPoint && phaseOf(m.__kmPoint, Date.now()) === 'running'; });
             return window.kidsMapCreateGoogleMarker({
               position: cluster.position, title: title.replace('{count}', cluster.count),
+              icon: { scaledSize: new google.maps.Size(58, 58), anchor: new google.maps.Point(29, 29) },
               publicVisual: true, ownerMap: self.map, visual: clusterElement(cluster.count, live, cluster.markers.map(function (m) { return m.__kmPoint; })), visualKind: 'cluster',
               zIndex: 3000000 + cluster.count, mapId: detail.mapId,
             });
