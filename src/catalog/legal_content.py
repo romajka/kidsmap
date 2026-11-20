@@ -3,6 +3,7 @@ from __future__ import annotations
 from contextvars import ContextVar
 
 from django.conf import settings
+from legalconsent.releases import public_metadata
 
 
 DEFAULT_LEGAL_CONTACT_EMAIL = "info@kidsmap.az"
@@ -27,8 +28,8 @@ def _current_legal_contact_email() -> str:
     """Use the public contact address configured in the admin panel."""
     from .models import SiteSettings
 
-    configured_email = (SiteSettings.get_solo().footer_email or "").strip()
-    return configured_email or DEFAULT_LEGAL_CONTACT_EMAIL
+    configured_email = SiteSettings.objects.order_by("id").values_list("footer_email", flat=True).first()
+    return (configured_email or "").strip() or DEFAULT_LEGAL_CONTACT_EMAIL
 
 
 def section(section_id: str, title: str, *content: dict, children: list[dict] | None = None) -> dict:
@@ -1332,7 +1333,6 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
                 "breadcrumb_aria_label": "Səhifə yolu",
                 "summary": "Bu sənəd KidsMap platformasında hansı məlumatların emal olunduğunu, hansı məqsədlərlə istifadə edildiyini və istifadəçinin hansı hüquqlara malik olduğunu aydın izah edir.",
                 "effective": "22 iyun 2026",
-                "updated": "20 oktyabr 2026",
                 "dates_aria_label": "Sənəd tarixləri",
                 "effective_label": "Qüvvəyə minmə tarixi",
                 "updated_label": "Son yenilənmə",
@@ -1348,7 +1348,6 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
                 "breadcrumb_aria_label": "Хлебные крошки",
                 "summary": "Этот документ объясняет, какие данные обрабатываются в KidsMap, для каких целей они используются и какими правами обладает пользователь.",
                 "effective": "22 июня 2026 года",
-                "updated": "20 октября 2026 года",
                 "dates_aria_label": "Даты документа",
                 "effective_label": "Дата вступления в силу",
                 "updated_label": "Последнее обновление",
@@ -1364,7 +1363,6 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
                 "breadcrumb_aria_label": "Breadcrumbs",
                 "summary": "This document explains what data is processed by KidsMap, why it is used, and what privacy rights users have.",
                 "effective": "June 22, 2026",
-                "updated": "October 20, 2026",
                 "dates_aria_label": "Document dates",
                 "effective_label": "Effective date",
                 "updated_label": "Last updated",
@@ -1403,7 +1401,7 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
             "hero_label": meta["hero_label"],
             "summary": meta["summary"],
             "effective_date": meta["effective"],
-            "updated_date": meta["updated"],
+            **public_metadata("privacy", safe_language),
             "breadcrumb_aria_label": meta["breadcrumb_aria_label"],
             "dates_aria_label": meta["dates_aria_label"],
             "effective_label": meta["effective_label"],
@@ -1430,7 +1428,6 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
                 "breadcrumb_aria_label": "Səhifə yolu",
                 "summary": "Bu sənəd KidsMap-dən istifadə qaydalarını, eləcə də istifadəçilərin və platformanın hüquq və vəzifələrini izah edir.",
                 "effective": "22 iyun 2026",
-                "updated": "03 sentyabr 2026",
                 "dates_aria_label": "Sənəd tarixləri",
                 "effective_label": "Qüvvəyə minmə tarixi",
                 "updated_label": "Son yenilənmə",
@@ -1446,7 +1443,6 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
                 "breadcrumb_aria_label": "Хлебные крошки",
                 "summary": "Этот документ объясняет правила использования KidsMap, а также права и обязанности пользователей и платформы.",
                 "effective": "22 июня 2026 года",
-                "updated": "03 сентября 2026 года",
                 "dates_aria_label": "Даты документа",
                 "effective_label": "Дата вступления в силу",
                 "updated_label": "Последнее обновление",
@@ -1462,7 +1458,6 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
                 "breadcrumb_aria_label": "Breadcrumbs",
                 "summary": "This document explains the rules for using KidsMap, as well as the rights and responsibilities of users and the platform.",
                 "effective": "June 22, 2026",
-                "updated": "September 03, 2026",
                 "dates_aria_label": "Document dates",
                 "effective_label": "Effective date",
                 "updated_label": "Last updated",
@@ -1484,7 +1479,7 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
             "hero_label": meta["hero_label"],
             "summary": meta["summary"],
             "effective_date": meta["effective"],
-            "updated_date": meta["updated"],
+            **public_metadata("terms", safe_language),
             "breadcrumb_aria_label": meta["breadcrumb_aria_label"],
             "dates_aria_label": meta["dates_aria_label"],
             "effective_label": meta["effective_label"],

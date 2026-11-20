@@ -18,6 +18,7 @@ User = get_user_model()
 class TestAuthValidationAndNextSecurity(TestCase):
     def _registration_payload(self, **overrides):
         payload = {
+            "legal_offer": self.client.get(reverse("account_register")).context["legal_offer"].token,
             "first_name": "Иван",
             "last_name": "Иванов",
             "email": "new@example.com",
@@ -304,6 +305,7 @@ class TestPasswordResetIdentifierSupport(TestCase):
 class TestEmailVerificationFlow(TestCase):
     def _registration_payload(self, *, username: str, email: str):
         return {
+            "legal_offer": self.client.get(reverse("account_register")).context["legal_offer"].token,
             "first_name": "Иван",
             "last_name": "Иванов",
             "email": email,

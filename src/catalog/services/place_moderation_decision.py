@@ -61,21 +61,26 @@ def decide(*, actor, place_id, decision, reason):
     place.moderated_by = actor
     place.moderated_at = timezone.now()
     place.save(update_fields=['status', 'is_active', 'rejection_reason', 'moderated_by', 'moderated_at', 'updated_at'])
-    # A new decision is a new version, so a later decision on the same card is
-    # never deduplicated into (or superseded by) an older notification.
-    Place.objects.filter(pk=place.pk).update(content_version=F('content_version') + 1)
-    place.refresh_from_db(fields=['content_version'])
     from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
     DjangoPlaceChangeAuditRepository().create_entries(
         place=place, changed_by=actor, source=PlaceChangeAudit.SOURCE_ADMIN,
         changes={'status': (old_status, place.status), 'rejection_reason': (old_reason, reason)})
 
+    record_card_decision(place, actor, decision, reason)
+    return 'card'
+
+
+def record_card_decision(place, actor, decision, reason, *, email=True):
+    """Record a direct moderation transition while the caller holds the place lock."""
+    # A new decision is a new version, so a later decision on the same card is
+    # never deduplicated into (or superseded by) an older notification.
+    Place.objects.filter(pk=place.pk).update(content_version=F('content_version') + 1)
+    place.refresh_from_db(fields=['content_version'])
     recipient = place.owner or place.created_by
     if recipient is not None and recipient.pk != actor.pk:
         from catalog.services.workflow_notifications import emit
         emit(kind='moderation_decision', entity_type='place', entity_id=place.pk,
-             version=place.content_version, recipient_user=recipient,
+             version=place.content_version, recipient_user=recipient, email=email,
              event_context={'actor_id': actor.pk, 'schema_version': 1, 'decision': decision,
                             'target_type': 'place', 'target_id': place.pk,
                             'titles': _titles(place), 'reason': reason})
-    return 'card'

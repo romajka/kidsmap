@@ -656,7 +656,7 @@ def owner_reviews_dashboard(request):
 
     context.update(
         {
-            "meta_description": _("Модерация отзывов: управление публикацией отзывов по вашим местам."),
+            "meta_description": _("Отзывы"),
         }
     )
     return render(request, "pages/owner_reviews.html", context)

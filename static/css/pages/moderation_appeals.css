@@ -1,0 +1,235 @@
+/* The public cabinet and moderator workspace use the same decision, evidence and status treatments. */
+.appeal-page {
+  --appeal-ink: var(--ink, #1f2924);
+  --appeal-muted: #526457;
+  --appeal-line: var(--tint-line-200, #e3eae4);
+  --appeal-green: var(--brand-turf, #136f38);
+  --appeal-dark: var(--brand-spruce, #0d4924);
+  display: grid;
+  align-content: start;
+  gap: clamp(16px, 2.5vw, 28px);
+  min-width: 0;
+  color: var(--appeal-ink);
+  overflow-wrap: anywhere;
+}
+
+.appeal-workspace {
+  width: min(100%, 1050px);
+  margin: 0 auto 28px;
+}
+
+.appeal-page *, .appeal-page *::after {
+  box-sizing: border-box;
+}
+
+.appeal-page h1, .appeal-page h2, .appeal-page h3 {
+  margin: 0;
+  color: var(--appeal-ink);
+  font-family: var(--font-display, inherit);
+  font-weight: 740;
+  line-height: 1.22;
+  letter-spacing: -.02em;
+}
+
+.appeal-page h1 { font-size: clamp(1.55rem, 3.5vw, 2.25rem); }
+.appeal-page h2 { font-size: clamp(1.12rem, 2vw, 1.38rem); }
+.appeal-page h3 { font-size: 1.06rem; }
+
+.appeal-page__heading p, .appeal-muted,
+.appeal-page .appeal-optional, .appeal-empty p {
+  color: var(--appeal-muted);
+  font-size: .94rem;
+  line-height: 1.5;
+}
+
+.appeal-page__heading p, .appeal-empty p { margin: 8px 0 0; max-width: 67ch; }
+.appeal-page__heading .appeal-meta { margin-bottom: 8px; }
+.appeal-section { min-width: 0; }
+.appeal-section > h2 { margin-bottom: 12px; }
+
+.appeal-page .appeal-list, .appeal-page .appeal-timeline {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.appeal-list { display: grid; gap: 12px; }
+.appeal-card, .appeal-empty, .appeal-queue {
+  min-width: 0;
+  padding: clamp(16px, 2.5vw, 24px);
+  border: 1px solid var(--appeal-line);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.appeal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin-bottom: 7px;
+  font-size: .81rem;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--appeal-muted);
+}
+.appeal-meta time, .appeal-timeline time { font-weight: 450; }
+.appeal-status {
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  padding: 3px 9px;
+  border-radius: 100px;
+  color: #60511f;
+  background: #f8eed3;
+  font-size: .8rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.appeal-status--second_review { color: #234e62; background: #e4eff3; }
+.appeal-status--approved { color: var(--appeal-dark); background: #e5f2e5; }
+.appeal-status--rejected { color: #813b2a; background: #f8eae6; }
+.appeal-card:target { outline: 2px solid var(--appeal-green); outline-offset: 2px; scroll-margin-top: 85px; }
+
+.appeal-card .appeal-caption {
+  margin: 14px 0 3px;
+  color: var(--appeal-muted);
+  font-size: .81rem;
+  font-weight: 650;
+}
+.appeal-page .appeal-prose { margin: 4px 0; color: var(--appeal-ink); white-space: pre-line; line-height: 1.55; }
+.appeal-muted { margin: 8px 0; }
+.appeal-disclosure { margin-top: 10px; border-top: 1px solid var(--appeal-line); }
+.appeal-disclosure > summary {
+  display: list-item;
+  width: fit-content;
+  min-height: 44px;
+  padding: 12px 4px 8px 0;
+  color: var(--appeal-dark);
+  font-weight: 680;
+  cursor: pointer;
+}
+
+.appeal-page .appeal-form, .appeal-page .appeal-field { display: grid; gap: 6px; }
+.appeal-page .appeal-form { margin: 12px 0 0; gap: 16px; }
+.appeal-field label { margin: 0; color: var(--appeal-ink); font-weight: 650; line-height: 1.4; }
+.appeal-field .appeal-optional { font-size: .84rem; font-weight: 450; }
+.appeal-field .appeal-muted { margin: 0; }
+.appeal-page .appeal-field :is(textarea,input) {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 12px;
+  color: var(--appeal-ink);
+  border: 1px solid #899d8e;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+.appeal-page .appeal-field textarea { min-height: 100px; max-height: 340px; resize: vertical; }
+.appeal-page .appeal-field [aria-invalid="true"] { border-color: #a1422d; }
+.appeal-page .appeal-error { margin: 0; color: #8a321e; font-size: .875rem; font-weight: 600; }
+
+.appeal-page .appeal-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  min-height: 44px;
+  max-width: 100%;
+  margin: 0;
+  padding: 9px 18px;
+  border: 1px solid var(--appeal-green);
+  border-radius: 12px;
+  color: #fff;
+  background: var(--appeal-green);
+  font: inherit;
+  font-weight: 670;
+  line-height: 1.35;
+  text-align: center;
+  cursor: pointer;
+}
+.appeal-page .appeal-button:hover { background: var(--appeal-dark); }
+.appeal-page .appeal-button--secondary { color: var(--appeal-ink); background: #fff; border-color: #899d8e; }
+.appeal-page .appeal-button--secondary:hover { background: #f2f6f2; }
+
+.appeal-actions, .appeal-filters, .appeal-pagination {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.appeal-page .appeal-filters a, .appeal-page .appeal-pagination a, .appeal-page .appeal-back {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 44px;
+  padding: 5px 12px;
+  border-radius: 9px;
+  color: var(--appeal-dark);
+  font-size: .91rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+.appeal-filters { gap: 4px; }
+.appeal-page .appeal-filters a:hover { background: #edf3ed; }
+#content .appeal-filters a[aria-current] { color: #fff; background: var(--appeal-dark); }
+.appeal-page .appeal-back { justify-self: start; padding: 4px 0; }
+.appeal-pagination { justify-content: center; color: var(--appeal-muted); }
+
+.appeal-page .appeal-queue { gap: 0; padding: 0; overflow: hidden; }
+.appeal-queue li + li { border-top: 1px solid var(--appeal-line); }
+.appeal-page .appeal-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 18px;
+  gap: 12px;
+  align-items: center;
+  padding: 16px 18px;
+  color: var(--appeal-ink);
+  text-decoration: none;
+}
+.appeal-row__body { min-width: 0; }
+.appeal-row__reviewer { display: block; margin-top: 4px; color: var(--appeal-muted); font-size: .84rem; }
+.appeal-row__arrow { color: var(--appeal-green); }
+.appeal-row .appeal-meta { margin-bottom: 3px; }
+.appeal-page .appeal-row:hover { color: var(--appeal-dark); background: #f3f7f3; }
+
+.appeal-evidence { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.appeal-facts { display: grid; gap: 5px; margin: 12px 0; }
+.appeal-facts > div { display: flex; flex-wrap: wrap; gap: 2px 8px; }
+.appeal-facts dt { color: var(--appeal-muted); font-size: .875rem; font-weight: 600; }
+.appeal-facts dd { margin: 0; font-size: .875rem; }
+.appeal-page .appeal-proof, .appeal-page .appeal-source, .appeal-page .appeal-timeline a {
+  display: inline-block;
+  min-height: 44px;
+  padding: 10px 0;
+  color: var(--appeal-dark);
+  text-decoration: underline;
+  text-underline-offset: .17em;
+}
+.appeal-proof span { display: block; font-size: .86rem; }
+.appeal-page .appeal-timeline { margin: 8px 0 0 5px; padding-left: 15px; border-left: 2px solid var(--appeal-line); }
+.appeal-timeline li { position: relative; padding-bottom: 12px; }
+.appeal-timeline li:last-child { padding-bottom: 2px; }
+.appeal-timeline li::before { content: ''; position: absolute; top: .45em; left: -20px; width: 8px; height: 8px; border-radius: 50%; background: var(--appeal-green); }
+.appeal-timeline time { display: block; color: var(--appeal-muted); font-size: .84rem; }
+.appeal-page .appeal-timeline strong { font-size: .94rem; }
+.appeal-page :is(a,button,summary,input,textarea):focus-visible { outline: 2px solid var(--appeal-green); outline-offset: 2px; }
+.appeal-page .appeal-row:focus-visible { outline-offset: -3px; }
+
+@media (max-width: 760px) {
+  .appeal-evidence { grid-template-columns: minmax(0, 1fr); }
+  .appeal-section { scroll-margin-top: 70px; }
+}
+@media (max-width: 450px) {
+  .appeal-workspace { margin-bottom: 16px; }
+  .appeal-actions { align-items: stretch; flex-direction: column; }
+  .appeal-form > .appeal-button { width: 100%; }
+  .appeal-page .appeal-row { grid-template-columns: minmax(0, 1fr) 18px; gap: 6px; }
+  .appeal-row > .appeal-status { grid-column: 1; }
+  .appeal-row__arrow { grid-column: 2; grid-row: 1 / 3; }
+}

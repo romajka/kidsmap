@@ -209,7 +209,10 @@ def review_event(*,actor,event_id,expected_updated_at,decision,reason=''):
         raise ValidationError(contact_copy('Укажите, что нужно исправить.', 'Nəyin düzəldilməli olduğunu qeyd edin.', 'Explain what needs to be corrected.'))
     event.status = 'rejected'
     event.rejection_reason = reason.strip()[:2000]
-    return _save(event)
+    saved = _save(event)
+    from moderation_appeals.sources import record_event_decision
+    record_event_decision(saved, actor, "needs_changes")
+    return saved
 
 
 def _facts(event):

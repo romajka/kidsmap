@@ -100,27 +100,45 @@ def _authorized(actor, place):
 
 def identity_registry(actor, *, can_view=None, can_edit=None, exclude_draft_id=None, places=None):
     actor = publication.fresh_actor(actor)
-    from catalog.services.business_team import platform_has_action
-    from catalog.services.staff_roles import is_volunteer
+    from catalog.services.business_team import place_access_candidates, platform_has_action
+    from catalog.services.staff_roles import can_use_volunteer_workspace, is_volunteer
     publisher = platform_has_action(user=actor, action='place.publish')
     staff_view = actor.is_staff and not is_volunteer(actor) and actor.has_perm('catalog.view_place')
     queryset = Place.objects.all() if places is None else places
     queryset = queryset.select_related('volunteer_revision').annotate(
         _identity_public=Exists(public_place_queryset(Place.objects.filter(pk=OuterRef('pk')))))
+    drafts = list(ServerDraft.objects.filter(actor=actor, target_type='place',
+        materialized_place__isnull=True).order_by('pk'))
+    draft_targets = {draft.target_id for draft in drafts if draft.target_id}
+    possible_edits = set()
+    volunteer = False
+    if not publisher:
+        candidates = place_access_candidates(actor)
+        if places is not None:
+            candidates = candidates.filter(pk__in=places.values("pk"))
+        possible_edits = set(candidates.values_list("pk", flat=True))
+        volunteer = can_use_volunteer_workspace(actor)
     records, by_id = [], {}
     for place in queryset.order_by('pk').iterator():
         if can_view is not None and not can_view(place): continue
-        editable = publisher or _authorized(actor, place)
-        if not (staff_view or editable or place._identity_public): continue
-        if can_edit is not None and not can_edit(place): editable = False
+        revision = getattr(place, 'volunteer_revision', None)
+        has_candidate = revision is not None and revision.status in ACTIVE
+        visible = staff_view or place._identity_public
+        # Public stored fields need no edit check. Check private versions against
+        # the normal authorization service only for plausible grantees or authors.
+        editable = publisher
+        if not publisher and (not visible or has_candidate or place.pk in draft_targets):
+            if place.pk in possible_edits or (volunteer and place.created_by_id == actor.pk):
+                editable = _authorized(actor, place)
+        if not (visible or editable): continue
+        if editable and can_edit is not None and not can_edit(place): editable = False
         stored = identity_fields(place)
         record = {'key': f'place:{place.pk}', 'id': place.pk, 'draft_id': None,
                   'status': place.status, 'deleted': place.deleted_at is not None,
                   'is_public': place._identity_public, 'base_content_version': place.content_version,
                   'versions': [{'source':'stored', 'status':place.status,
                                 'version':place.content_version, 'stale':False, 'fields':stored}]}
-        revision = getattr(place, 'volunteer_revision', None)
-        if editable and revision and revision.status in ACTIVE:
+        if editable and has_candidate:
             # A stale candidate inherits its historical base where available,
             # never a mixture of new live fields and an old partial proposal.
             stale = revision.base_content_version != place.content_version
@@ -129,8 +147,7 @@ def identity_registry(actor, *, can_view=None, can_edit=None, exclude_draft_id=N
                 'version':revision.version, 'base_content_version':revision.base_content_version,
                 'stale':stale, 'fields':_overlay(base, revision.payload)})
         records.append(record); by_id[place.pk] = (record, editable)
-    for draft in ServerDraft.objects.filter(actor=actor, target_type='place',
-            materialized_place__isnull=True).order_by('pk').iterator():
+    for draft in drafts:
         if str(draft.pk) == str(exclude_draft_id): continue
         if draft.target_id:
             target = by_id.get(draft.target_id)

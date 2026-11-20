@@ -254,7 +254,7 @@
                   {% if review.rating >= 1 %}★{% endif %}{% if review.rating >= 2 %}★{% endif %}{% if review.rating >= 3 %}★{% endif %}{% if review.rating >= 4 %}★{% endif %}{% if review.rating >= 5 %}★{% endif %}
                 </div>
                 <div class="account-review-content">
-                  <strong class="account-review-placename">{{ review.place.name_i18n }}</strong>
+                  <strong class="account-review-placename">{{ review.target_name }}</strong>
                   <p class="account-review-text">{{ review.text|truncatechars:110 }}</p>
                 </div>
                 <span class="account-status-pill account-status-pill--{{ review.status }}">

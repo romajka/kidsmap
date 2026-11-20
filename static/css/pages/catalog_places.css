@@ -3020,7 +3020,8 @@
   pointer-events: none;
 }
 
-/* The native sort mirror is hidden; its legacy control size must not extend /new. */
+/* Keep the native sort field submitted without giving it the visible control's width. */
+.page-place_list .results-toolbar-sort-select.visually-hidden,
 .page-place_new .results-toolbar-sort-select.visually-hidden {
   width: 1px !important;
   height: 1px !important;

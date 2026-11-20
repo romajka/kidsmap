@@ -405,6 +405,7 @@
       initialized: false,
       bound: false,
       googleMap: null,
+      followLoadedBounds: true,
       leafletMap: null,
       bounds: null,
       projectionHelper: null,
@@ -431,10 +432,13 @@
     state.paging=window.KidsMapPaging.create({
       control, initial:{...initial,points:state.places},
       getParams:()=>new URLSearchParams(window.location.search),
-      onChange:points=>{
+      onChange:(points, page)=>{
         state.panel.querySelector(".catalog-map-meta .chip")?.remove();
         closeActiveCard(state);state.motion?.cancel();state.choice?.close(false);state.places=points;
-        if (state.googleMap) state.syncGooglePlaces();
+        if (state.googleMap) {
+          state.syncGooglePlaces();
+          if (page.append && !page.bounds) revealCatalogResults(state);
+        }
         if (state.leafletMap) state.syncLeafletPlaces();
       },
     });
@@ -458,6 +462,15 @@
       return;
     }
     state.googleMap.fitBounds(state.bounds);
+  }
+
+  function revealCatalogResults(state) {
+    if (!state.followLoadedBounds || state.panel.hidden || !state.places.length) return;
+    const viewport = state.googleMap.getBounds();
+    if (!viewport || !viewport.contains(state.bounds.getSouthWest()) ||
+        !viewport.contains(state.bounds.getNorthEast())) {
+      fitCatalogMapBounds(state);
+    }
   }
 
   function fitCatalogLeafletBounds(state) {
@@ -850,9 +863,14 @@
         state.choice.close(false);
       })
     );
-    state.googleMap.addListener("dragstart", () => { state.viewportGesture=true; });
-    state.mapEl.addEventListener("wheel",()=>{state.viewportGesture=true;},{passive:true});
-    state.mapEl.addEventListener("keydown",()=>{state.viewportGesture=true;});
+    function markViewportGesture() {
+      state.followLoadedBounds = false;
+      state.viewportGesture = true;
+    }
+    state.googleMap.addListener("dragstart", markViewportGesture);
+    state.mapEl.addEventListener("pointerdown", () => { state.followLoadedBounds = false; }, {passive:true});
+    state.mapEl.addEventListener("wheel", markViewportGesture, {passive:true});
+    state.mapEl.addEventListener("keydown", markViewportGesture);
     state.activeListeners.push(
       state.googleMap.addListener("idle", function () {
         positionDesktopCard(state);
@@ -1082,19 +1100,42 @@
     }
   }
 
+  function syncCatalogViewControls(state) {
+    const isOpen = !state.panel.hidden;
+    state.openBtn.setAttribute("aria-expanded", String(isOpen));
+    state.openBtn.setAttribute("aria-pressed", String(isOpen));
+    state.openBtn.classList.toggle("is-active", isOpen);
+    const listBtn = document.querySelector("[data-catalog-list-view]");
+    if (listBtn) {
+      listBtn.classList.toggle("is-active", !isOpen);
+      listBtn.setAttribute("aria-pressed", String(!isOpen));
+    }
+
+    const mapHash = "#" + state.panel.id;
+    const controls = document.querySelectorAll(
+      "#filters-form, .mobile-catalog-search, .catalog-hero-search, [data-catalog-shortcut], " +
+      ".mobile-active-chip, .active-filter-chip, .active-filter-reset, .km-filter-head-reset, .km-btn-reset, .catalog-empty-reset"
+    );
+    controls.forEach(control => {
+      const attr = control.tagName === "FORM" ? "action" : "href";
+      const url = new URL(control.getAttribute(attr) || location.pathname, location.href);
+      if (url.origin !== location.origin || url.pathname !== location.pathname) return;
+      if (url.hash && url.hash !== mapHash) return;
+      const hash = state.panel.hidden ? "" : mapHash;
+      if (url.hash === hash) return;
+      url.hash = hash;
+      control.setAttribute(attr, url.pathname + url.search + url.hash);
+    });
+  }
+
   function setCatalogMapOpen(isOpen) {
     const state = ensureCatalogMapState();
     if (!state) return;
 
     state.panel.hidden = !isOpen;
-    state.openBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    state.openBtn.setAttribute("aria-pressed", isOpen ? "true" : "false");
-    state.openBtn.classList.toggle("is-active", isOpen);
-
-    const listBtn = document.querySelector("[data-catalog-list-view]");
-    if (listBtn) {
-      listBtn.classList.toggle("is-active", !isOpen);
-      listBtn.setAttribute("aria-pressed", !isOpen ? "true" : "false");
+    syncCatalogViewControls(state);
+    if (!isOpen && location.hash === "#" + state.panel.id) {
+      history.replaceState(history.state, "", location.pathname + location.search);
     }
 
     if (isOpen) {
@@ -1184,6 +1225,7 @@
     } else if (typeof state.mobileMedia.addListener === "function") {
       state.mobileMedia.addListener(handleViewportChange);
     }
+    if (location.hash === "#" + state.panel.id) setCatalogMapOpen(true);
   }
 
   window.kidsMapInitCatalogResultsMap = function () {
@@ -1221,9 +1263,11 @@
         listBtn.dataset.boundListView = "true";
         listBtn.addEventListener("click", () => setCatalogMapOpen(false));
       }
+      syncCatalogViewControls(state);
       if (state.googleMap) {
         state.syncGooglePlaces();
         google.maps.event.trigger(state.googleMap, 'resize');
+        revealCatalogResults(state);
       } else if (state.leafletMap) {
         state.syncLeafletPlaces();
       } else if (!state.panel.hidden) {

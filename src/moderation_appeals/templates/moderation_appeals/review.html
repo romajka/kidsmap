@@ -1,0 +1,69 @@
+{% extends 'admin/base_site.html' %}
+{% load static i18n %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/moderation_appeals.css' %}">{% endblock %}
+{% block content %}
+{% get_current_language as lang %}
+<section class="appeal-page appeal-workspace" aria-labelledby="appeal-heading">
+  <a class="appeal-back" href="{% url 'appeal_queue' %}"><span aria-hidden="true">←</span> {% if lang == 'az' %}Apellyasiyalar{% elif lang == 'en' %}All appeals{% else %}Все апелляции{% endif %}</a>
+  <header class="appeal-page__heading">
+    <div class="appeal-meta"><span>{{ appeal.kind_label }}</span><span class="appeal-status appeal-status--{{ appeal.status }}">{{ appeal.status_label }}</span></div>
+    <h1 id="appeal-heading">{{ appeal.title }}</h1>
+  </header>
+
+  {% if appeal_error %}<p class="appeal-error" role="alert">{{ appeal_error }}</p>{% endif %}
+  <div class="appeal-evidence">
+    <section class="appeal-card">
+      <h2>{% if lang == 'az' %}İlkin qərar{% elif lang == 'en' %}Original decision{% else %}Первое решение{% endif %}</h2>
+      <dl class="appeal-facts">
+        <div><dt>{% if lang == 'az' %}Moderator{% elif lang == 'en' %}Moderator{% else %}Модератор{% endif %}</dt><dd>{% if appeal.original_reviewer %}{{ appeal.original_reviewer }}{% elif appeal.original_reviewer_key %}#{{ appeal.original_reviewer_key }}{% else %}{% if lang == 'az' %}Qeyd edilməyib{% elif lang == 'en' %}Not recorded{% else %}Не зафиксирован{% endif %}{% endif %}</dd></div>
+        {% if appeal.original_decided_at %}<div><dt>{% if lang == 'az' %}Tarix{% elif lang == 'en' %}Date{% else %}Дата{% endif %}</dt><dd><time datetime="{{ appeal.original_decided_at|date:'c' }}">{{ appeal.original_decided_at|date:'SHORT_DATETIME_FORMAT' }}</time></dd></div>{% endif %}
+      </dl>
+      <p class="appeal-caption">{% if lang == 'az' %}İmtinanın səbəbi{% elif lang == 'en' %}Reason for rejection{% else %}Причина отказа{% endif %}</p>
+      <p class="appeal-prose">{% if appeal.original_reason %}{{ appeal.original_reason }}{% else %}{% if lang == 'az' %}Göstərilməyib{% elif lang == 'en' %}Not provided{% else %}Не указана{% endif %}{% endif %}</p>
+    </section>
+    <section class="appeal-card">
+      <h2>{% if lang == 'az' %}İstifadəçinin müraciəti{% elif lang == 'en' %}User’s appeal{% else %}Обращение пользователя{% endif %}</h2>
+      <dl class="appeal-facts">
+        <div><dt>{% if lang == 'az' %}Müəllif{% elif lang == 'en' %}Appellant{% else %}Автор{% endif %}</dt><dd>{{ appeal.appellant }}</dd></div>
+        <div><dt>{% if lang == 'az' %}Göndərilib{% elif lang == 'en' %}Submitted{% else %}Отправлено{% endif %}</dt><dd><time datetime="{{ appeal.submitted_at|date:'c' }}">{{ appeal.submitted_at|date:'SHORT_DATETIME_FORMAT' }}</time></dd></div>
+      </dl>
+      <p class="appeal-prose">{{ appeal.explanation }}</p>
+      {% if appeal.evidence_url %}<a class="appeal-proof" href="{{ appeal.evidence_url }}" rel="noopener noreferrer nofollow" referrerpolicy="no-referrer">{% if lang == 'az' %}Əlavə material{% elif lang == 'en' %}Supporting material{% else %}Подтверждающий материал{% endif %} <span>{{ appeal.evidence_url }}</span></a>{% endif %}
+    </section>
+  </div>
+  <section class="appeal-card">
+    <h2>{% if lang == 'az' %}Təkrar baxış{% elif lang == 'en' %}Second review{% else %}Повторная проверка{% endif %}</h2>
+    {% if appeal.reviewer_key or appeal.resolved_at %}
+      <dl class="appeal-facts">
+        {% if appeal.reviewer_key %}<div><dt>{% if lang == 'az' %}Təkrar baxan moderator{% elif lang == 'en' %}Second reviewer{% else %}Второй модератор{% endif %}</dt><dd>{% if appeal.reviewer %}{{ appeal.reviewer }}{% else %}#{{ appeal.reviewer_key }}{% endif %}</dd></div>{% endif %}
+        {% if appeal.claimed_at %}<div><dt>{% if lang == 'az' %}Baxışa götürülüb{% elif lang == 'en' %}Claimed{% else %}Взято в работу{% endif %}</dt><dd><time datetime="{{ appeal.claimed_at|date:'c' }}">{{ appeal.claimed_at|date:'SHORT_DATETIME_FORMAT' }}</time></dd></div>{% endif %}
+        {% if appeal.resolved_at %}<div><dt>{% if lang == 'az' %}Qərar tarixi{% elif lang == 'en' %}Decision date{% else %}Дата решения{% endif %}</dt><dd><time datetime="{{ appeal.resolved_at|date:'c' }}">{{ appeal.resolved_at|date:'SHORT_DATETIME_FORMAT' }}</time></dd></div>{% endif %}
+      </dl>
+    {% endif %}
+    {% if appeal.status == 'approved' %}
+      <p class="appeal-muted">{% if lang == 'az' %}Təsdiqlənmiş düzəlişi və ya dərci materialın cari versiyasına ayrıca tətbiq edin.{% elif lang == 'en' %}Apply any warranted change or publication separately to the current submission.{% else %}Примените обоснованное изменение или публикацию отдельно к текущей версии материала.{% endif %}</p>
+    {% endif %}
+    {% if source_url %}<a href="{{ source_url }}" class="appeal-source">{% if lang == 'az' %}Materialın cari versiyasını aç{% elif lang == 'en' %}Open the current submission{% else %}Открыть текущую версию материала{% endif %}</a>{% endif %}
+    {% if appeal.final_reason %}<p class="appeal-caption">{% if lang == 'az' %}İstifadəçiyə cavab{% elif lang == 'en' %}Reply to the user{% else %}Ответ пользователю{% endif %}</p><p class="appeal-prose">{{ appeal.final_reason }}</p>{% endif %}
+    {% if can_claim %}
+      <form action="{% url 'appeal_review' appeal.pk %}" method="post" class="appeal-form">{% csrf_token %}<button class="appeal-button" type="submit" name="action" value="claim">{% if lang == 'az' %}Baxışa götür{% elif lang == 'en' %}Take this appeal{% else %}Взять на проверку{% endif %}</button></form>
+    {% elif can_decide %}
+      <form action="{% url 'appeal_review' appeal.pk %}" method="post" class="appeal-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="appeal-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="appeal-field">
+          <label for="{{ form.reason.id_for_label }}">{% if lang == 'az' %}İstifadəçiyə cavab{% elif lang == 'en' %}Reply to the user{% else %}Ответ пользователю{% endif %}</label>
+          <p class="appeal-muted">{% if lang == 'az' %}Qərarınızı və növbəti addımı izah edin. Apellyasiyanın qəbul edilməsi materialı avtomatik dərc etmir.{% elif lang == 'en' %}Explain your decision and what happens next. Allowing the appeal does not automatically publish the submission.{% else %}Объясните причину решения и следующий шаг. При удовлетворении апелляции материал не публикуется автоматически.{% endif %}</p>
+          {{ form.reason }}
+          {% if form.reason.errors %}<p id="{{ form.reason.auto_id }}_error" role="alert" class="appeal-error">{{ form.reason.errors|join:' ' }}</p>{% endif %}
+        </div>
+        <div class="appeal-actions"><button class="appeal-button" type="submit" name="action" value="approve">{% if lang == 'az' %}Apellyasiyanı qəbul et{% elif lang == 'en' %}Allow appeal{% else %}Удовлетворить апелляцию{% endif %}</button><button class="appeal-button appeal-button--secondary" type="submit" name="action" value="reject">{% if lang == 'az' %}İmtinanı qüvvədə saxla{% elif lang == 'en' %}Uphold rejection{% else %}Оставить отказ в силе{% endif %}</button></div>
+      </form>
+    {% elif appeal.status == 'submitted' and not appeal.original_reviewer_key %}
+      <p class="appeal-muted">{% if lang == 'az' %}İlkin moderator göstərilməyib. Onun kimliyi təsdiqlənənədək apellyasiyanı baxışa götürmək mümkün deyil.{% elif lang == 'en' %}The original moderator was not recorded. This appeal can be assigned once their identity is confirmed.{% else %}Первый модератор не зафиксирован. Взять апелляцию в работу можно после подтверждения его личности.{% endif %}</p>
+    {% elif appeal.status == 'submitted' %}
+      <p class="appeal-muted">{% if lang == 'az' %}Apellyasiyaya ilkin qərarı verməyən moderator baxmalıdır.{% elif lang == 'en' %}A moderator who did not make the original decision must review this appeal.{% else %}Апелляцию должен рассмотреть модератор, который не принимал первое решение.{% endif %}</p>
+    {% endif %}
+  </section>
+</section>
+{% endblock %}

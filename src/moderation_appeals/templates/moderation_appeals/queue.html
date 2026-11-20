@@ -1,0 +1,39 @@
+{% extends 'admin/base_site.html' %}
+{% load static i18n %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/moderation_appeals.css' %}">{% endblock %}
+{% block content %}
+{% get_current_language as lang %}
+<section class="appeal-page appeal-workspace" aria-labelledby="appeals-heading">
+  <header class="appeal-page__heading">
+    <h1 id="appeals-heading">{% if lang == 'az' %}Apellyasiyalar{% elif lang == 'en' %}Moderation appeals{% else %}Апелляции на решения модерации{% endif %}</h1>
+    <p>{% if lang == 'az' %}İmtinadan sonra təkrar baxış üçün göndərilmiş müraciətlər.{% elif lang == 'en' %}Requests for an independent review after a rejection.{% else %}Обращения пользователей, которые оспаривают отказ в публикации.{% endif %}</p>
+  </header>
+  <nav class="appeal-filters" aria-label="{% if lang == 'az' %}Apellyasiyanın statusu{% elif lang == 'en' %}Appeal status{% else %}Статус апелляции{% endif %}">
+    {% for key,label in filters %}<a href="?status={{ key|urlencode }}"{% if status == key %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+  </nav>
+  {% if appeals %}
+  <ul class="appeal-list appeal-queue">
+    {% for appeal in appeals %}
+      <li><a class="appeal-row" href="{% url 'appeal_review' appeal.pk %}">
+        <span class="appeal-row__body">
+          <span class="appeal-meta"><span>{{ appeal.kind_label }}</span><time datetime="{{ appeal.submitted_at|date:'c' }}">{{ appeal.submitted_at|date:'SHORT_DATETIME_FORMAT' }}</time></span>
+          <strong>{{ appeal.title }}</strong>
+          {% if appeal.reviewer_key %}<span class="appeal-row__reviewer">{% if lang == 'az' %}Təkrar baxan moderator{% elif lang == 'en' %}Second reviewer{% else %}Второй модератор{% endif %} · {% if appeal.reviewer %}{{ appeal.reviewer }}{% else %}#{{ appeal.reviewer_key }}{% endif %}</span>{% endif %}
+        </span>
+        <span class="appeal-status appeal-status--{{ appeal.status }}">{{ appeal.status_label }}</span>
+        <span class="appeal-row__arrow" aria-hidden="true">→</span>
+      </a></li>
+    {% endfor %}
+  </ul>
+  {% if appeals.has_other_pages %}
+    <nav class="appeal-pagination" aria-label="{% if lang == 'az' %}Növbənin səhifələri{% elif lang == 'en' %}Queue pages{% else %}Страницы очереди{% endif %}">
+      {% if appeals.has_previous %}<a href="?status={{ status|urlencode }}&amp;page={{ appeals.previous_page_number }}">← {% if lang == 'az' %}Geri{% elif lang == 'en' %}Previous{% else %}Назад{% endif %}</a>{% endif %}
+      <span>{{ appeals.number }} / {{ appeals.paginator.num_pages }}</span>
+      {% if appeals.has_next %}<a href="?status={{ status|urlencode }}&amp;page={{ appeals.next_page_number }}">{% if lang == 'az' %}İrəli{% elif lang == 'en' %}Next{% else %}Далее{% endif %} →</a>{% endif %}
+    </nav>
+  {% endif %}
+  {% else %}
+    <div class="appeal-empty"><h2>{% if lang == 'az' %}Burada apellyasiya yoxdur{% elif lang == 'en' %}No matching appeals{% else %}Здесь пока нет апелляций{% endif %}</h2><p>{% if lang == 'az' %}Bu statusda müraciət yoxdur.{% elif lang == 'en' %}There are no appeals with this status.{% else %}Обращений с выбранным статусом нет.{% endif %}</p></div>
+  {% endif %}
+</section>
+{% endblock %}

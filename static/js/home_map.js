@@ -1258,13 +1258,24 @@
         window.KidsMapPins.markVisited(place);
         marker.getElement?.()?.querySelector('.km-pin')?.classList.add('is-visited');
       }
-      infoWindow.setOptions({maxWidth: Math.min(320, mapEl.clientWidth - 32), disableAutoPan: window.KidsMapGoogleMotion.reduced()});
+      const reducedMotion = window.KidsMapGoogleMotion.reduced();
+      infoWindow.setOptions({maxWidth: Math.min(320, mapEl.clientWidth - 32), disableAutoPan: reducedMotion});
       infoWindow.setContent(renderPopupContent(place, detailsLabel, ageLabels));
       infoWindow.open({anchor: marker, map: map, shouldFocus: false});
       if (google.maps?.event?.addListenerOnce) {
         google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
           const iwD = mapEl.querySelector('.gm-style-iw-d');
-          if (iwD) iwD.scrollTop = 0;
+          if (!iwD || selectedMarker !== marker) return;
+          iwD.scrollTop = 0;
+          if (reducedMotion) {
+            // Frame the popup and pin together without Google's animated auto-pan.
+            const projection = map.getProjection();
+            if (!projection) return;
+            const point = projection.fromLatLngToPoint(marker.getPosition());
+            const pinHeight = marker.getElement()?.offsetHeight || 0;
+            point.y -= (iwD.offsetHeight + pinHeight) / (2 * 2 ** map.getZoom());
+            map.moveCamera({center: projection.fromPointToLatLng(point)});
+          }
         });
       }
     }

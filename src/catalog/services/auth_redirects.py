@@ -12,6 +12,8 @@ AUTH_URL_NAMES = frozenset(
         "account_login",
         "google_login",
         "google_callback",
+        "google_signup_consent",
+        "account_legal_consent",
         "account_logout",
         "account_register",
         "account_verify_email",

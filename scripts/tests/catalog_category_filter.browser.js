@@ -22,6 +22,9 @@ async page => {
   }
 
   await page.setViewportSize({ width: 768, height: 900 });
+  const mapPanel = page.locator('[data-catalog-map-panel]');
+  await page.locator('[data-catalog-map-open]').click();
+  await mapPanel.waitFor({ state: 'visible' });
   await page.locator('.mobile-catalog-search [data-filters-open]').click();
   const drawer = await page.getByRole('dialog').boundingBox();
   if (!drawer || drawer.x !== 0 || Math.abs(drawer.y + drawer.height - 900) > 1) {
@@ -32,8 +35,11 @@ async page => {
   await picker.locator('[role="option"][data-select-value="' + code + '"]').click();
   await page.waitForURL(url => url.searchParams.get('category') === code);
   if (await results.innerText() === initialCount) throw new Error('The tablet drawer did not filter the results');
+  await mapPanel.waitFor({ state: 'visible' });
+  await page.locator('[data-catalog-map-close]').click();
   const strip = page.getByRole('tablist').filter({ has: page.locator('[data-select-target="category"]') });
   await strip.locator('[data-select-value=""]').click();
   await page.waitForURL(url => !url.searchParams.has('category'));
   if (await results.innerText() !== initialCount) throw new Error('The tablet category strip did not reset the results');
+  if (await mapPanel.isVisible()) throw new Error('A list filter unexpectedly reopened the map');
 };

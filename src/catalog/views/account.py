@@ -18,8 +18,11 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
 from django.views import View
 from django.views.generic import TemplateView
+from legalconsent.services import StaleOffer
+from legalconsent.views import reject_stale_offer
 from ..services.email_change import EmailChangeError, copy as email_change_copy, pending_for as pending_email_change_for
 from ..forms import UserPasswordResetForm
 from ..models import AccountDeletionRequest
@@ -647,6 +650,7 @@ def account_deletion_request(request):
 def account_deletion_confirm(request, subject_reference):
     return AccountDeletionConfirmView.as_view()(request, subject_reference=subject_reference)
 
+@never_cache
 def account_register(request):
     if request.user.is_authenticated:
         return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
@@ -661,35 +665,29 @@ def account_register(request):
     if is_submission and form.is_valid():
         try:
             user = auth_controller.register_user_from_form(form=form)
+        except StaleOffer:
+            reject_stale_offer(form, form.consent_language)
         except IntegrityError:
             form.add_error("email", _("Пользователь с таким email уже зарегистрирован. Войдите в аккаунт или используйте другой email."))
-            return render(request, "auth/register.html", {
-                "form": form,
-                "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
-                "auth_intent": auth_intent,
-            })
-        verification = auth_controller.send_registration_verification_code(
-            user=user,
-            email=form.cleaned_data["email"],
-        )
-        # On success the verification page itself says what to do next, so a
-        # toast repeating it would only push the code field down.
-        if not verification.ok:
-            messages.error(request, verification.message)
-        query = urlencode(
-            {
+        else:
+            verification = auth_controller.send_registration_verification_code(
+                user=user, email=form.cleaned_data["email"],
+            )
+            if not verification.ok:
+                messages.error(request, verification.message)
+            query = urlencode({
                 "email": form.cleaned_data["email"],
                 "next": _resolve_safe_next_url(request, reverse("account_profile")),
                 "intent": auth_intent,
-            }
-        )
-        return redirect(f"{reverse('account_verify_email')}?{query}")
+            })
+            return redirect(f"{reverse('account_verify_email')}?{query}")
 
     return render(
         request,
         "auth/register.html",
         {
             "form": form,
+            "legal_offer": form.legal_offer,
             "meta_description": {
                 "az": "KidsMap qeydiyyatı: hesab yaradın və kataloqdan rahat istifadə etməyə başlayın.",
                 "en": "Register on KidsMap and start using the catalog.",

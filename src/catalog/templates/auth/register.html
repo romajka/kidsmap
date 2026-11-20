@@ -6,7 +6,7 @@
 {% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Qeydiyyat | KidsMap{% elif CURRENT_LANGUAGE == "en" %}Register | KidsMap{% else %}Регистрация | KidsMap{% endif %}{% endblock %}
 {% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Qeydiyyat | KidsMap{% elif CURRENT_LANGUAGE == "en" %}Register | KidsMap{% else %}Регистрация | KidsMap{% endif %}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/components/google_auth.css' %}" />{% if auth_intent == "specialist_profile" %}<link rel="stylesheet" href="{% static 'css/pages/specialist_auth.css' %}" />{% endif %}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/components/legal_consent.css' %}" /><link rel="stylesheet" href="{% static 'css/components/google_auth.css' %}" />{% if auth_intent == "specialist_profile" %}<link rel="stylesheet" href="{% static 'css/pages/specialist_auth.css' %}" />{% endif %}{% endblock %}
 
 {% block content %}
   <section class="register-shell register-shell--compact-mobile{% if auth_intent == "specialist_profile" %} specialist-auth{% endif %}">
@@ -217,21 +217,7 @@
               {% if form.password2.errors %}<span class="auth-field-error">{{ form.password2.errors|join:", " }}</span>{% endif %}
             </label>
 
-            <div class="register-consent {% if form.agreement.errors %}has-error{% endif %}">
-              <label class="register-consent-label" for="{{ form.agreement.id_for_label }}">
-                {{ form.agreement }}
-                <span>
-                  {% if CURRENT_LANGUAGE == "az" %}
-                    <a href="{% url 'terms' %}">Qaydalar</a> və <a href="{% url 'privacy' %}">Şəxsi məlumatların mühafizəsi siyasəti</a> ilə razıyam.
-                  {% elif CURRENT_LANGUAGE == "en" %}
-                    I agree with the <a href="{% url 'terms' %}">Terms</a> and <a href="{% url 'privacy' %}">Privacy Policy</a>.
-                  {% else %}
-                    Я согласен с <a href="{% url 'terms' %}">правилами</a> и <a href="{% url 'privacy' %}">политикой конфиденциальности</a>.
-                  {% endif %}
-                </span>
-              </label>
-              {% if form.agreement.errors %}<span class="auth-field-error">{{ form.agreement.errors|join:", " }}</span>{% endif %}
-            </div>
+            {% include "auth/includes/legal_agreement.html" %}
           </div>
 
           <div class="register-progress" data-register-progress aria-live="polite" hidden></div>
@@ -366,7 +352,10 @@
             if (spec.box.classList.contains("has-error")) {
               spec.box.classList.remove("has-error");
               var old = spec.box.querySelector(".auth-field-error");
-              if (old) old.remove();
+              if (old) {
+                if (spec.input.getAttribute("aria-describedby") === old.id) spec.input.removeAttribute("aria-describedby");
+                old.remove();
+              }
             }
             if (spec.name === "agreement") spec.touched = true;
             render();
@@ -386,6 +375,8 @@
           try { first.input.focus({ preventScroll: true }); } catch (e) { first.input.focus(); }
         });
         render();
+        var invalid = form.querySelector(".has-error input:not([type=hidden])");
+        if (invalid) invalid.focus();
       }
       document.querySelectorAll("[data-password-toggle]").forEach(function (button) {
         button.addEventListener("click", function () {

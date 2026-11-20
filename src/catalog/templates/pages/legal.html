@@ -37,6 +37,14 @@
         <p class="legal-hero-summary">{{ summary }}</p>
 
         <div class="legal-hero-dates" aria-label="{{ dates_aria_label }}">
+          {% if legal_version %}
+            <div class="legal-date-chip">
+              <div class="legal-date-info">
+                <span class="legal-date-lbl">{% if CURRENT_LANGUAGE == "az" %}Versiya{% elif CURRENT_LANGUAGE == "en" %}Version{% else %}Версия{% endif %}</span>
+                <strong class="legal-date-val">{{ legal_version }}</strong>
+              </div>
+            </div>
+          {% endif %}
           <div class="legal-date-chip">
             <span class="material-symbols-rounded">verified</span>
             <div class="legal-date-info">

@@ -1,6 +1,7 @@
 """Exercise real allauth callbacks; only Google's HTTP transport is replaced."""
 import json
 import time
+from html.parser import HTMLParser
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 
@@ -22,6 +23,18 @@ PROVIDERS = {"google": {
     "OAUTH_PKCE_ENABLED": True,
     "AUTH_PARAMS": {"access_type": "online", "prompt": "select_account"},
 }}
+
+
+class HiddenInputs(HTMLParser):
+    def __init__(self, response):
+        super().__init__()
+        self.fields = {}
+        self.feed(response.content.decode())
+
+    def handle_starttag(self, tag, attrs):
+        field = dict(attrs)
+        if tag == "input" and field.get("type") == "hidden" and "name" in field:
+            self.fields[field["name"]] = field.get("value", "")
 
 
 @override_settings(SOCIALACCOUNT_PROVIDERS=PROVIDERS,
@@ -53,14 +66,104 @@ class GoogleAuthTests(TestCase):
         with patch("requests.sessions.Session.request", return_value=response):
             return self.client.get("/auth/google/callback/", {"state": state, "code": "test-code"})
 
+    def finish_if_signup(self, response):
+        if urlsplit(response.url).path.endswith("/auth/google/consent/"):
+            fields = HiddenInputs(self.client.get(response.url)).fields
+            return self.client.post(response.url, {**fields, "agreement": "on"})
+        return response
+
     def login_google(self, **claims):
-        return self.callback(self.start()["state"][0], **claims)
+        return self.finish_if_signup(self.callback(self.start()["state"][0], **claims))
 
     def assert_denied(self, response):
         self.assertEqual(response.status_code, 302)
         self.assertIn("/auth/login/", response.url)
         self.assertNotIn("_auth_user_id", self.client.session)
         self.assertNotIn("test-access-token", str(dict(self.client.session)))
+
+    def test_verified_google_identity_waits_for_explicit_signup_consent(self):
+        from allauth.socialaccount.models import SocialAccount
+        from legalconsent.models import LegalAcceptance
+
+        response = self.callback(self.start(language="en")["state"][0])
+        self.assertEqual(response.url, "/en/auth/google/consent/")
+        self.assertFalse(User.objects.exists())
+        self.assertFalse(SocialAccount.objects.exists())
+        self.assertNotIn("_auth_user_id", self.client.session)
+        self.assertNotIn("test-access-token", str(dict(self.client.session)))
+
+        url = response.url
+        page = self.client.get(url)
+        fields = HiddenInputs(page).fields
+        self.assertIn("google_flow", fields)
+        self.assertIn("legal_offer", fields)
+        for submission in [fields, {**fields, "agreement": "on", "legal_offer": "outdated"}]:
+            response = self.client.post(url, submission)
+            self.assertTrue(response.context["form"].errors)
+            self.assertFalse(User.objects.exists())
+            self.assertFalse(LegalAcceptance.objects.exists())
+            self.assertNotIn("_auth_user_id", self.client.session)
+
+        response = self.client.post(url, {**fields, "agreement": "on"})
+        user = User.objects.get()
+        self.assertEqual(response.url, "/en/account/profile/")
+        self.assertEqual(LegalAcceptance.objects.filter(user=user).count(), 2)
+        self.assertEqual(self.client.session["_auth_user_id"], str(user.pk))
+        self.assertNotIn("google_pending_signup", self.client.session)
+        self.client.post(reverse("account_logout"))
+        self.assert_denied(self.client.post(url, {**fields, "agreement": "on"}))
+        self.assertEqual(User.objects.count(), 1)
+
+    def test_signup_pending_timeout_preserves_anonymous_state(self):
+        url = self.callback(self.start()["state"][0]).url
+        fields = HiddenInputs(self.client.get(url)).fields
+        session = self.client.session
+        session["google_pending_signup"]["expires_at"] = int(time.time()) - 1
+        session.save()
+        self.assert_denied(self.client.post(url, {**fields, "agreement": "on"}))
+        self.assertFalse(User.objects.exists())
+
+    def test_pending_signup_requires_csrf_to_record_agreement(self):
+        url = self.callback(self.start()["state"][0]).url
+        strict = Client(enforce_csrf_checks=True)
+        strict.cookies = self.client.cookies.copy()
+        fields = HiddenInputs(strict.get(url)).fields
+        fields.pop("csrfmiddlewaretoken", None)
+        response = strict.post(url, {**fields, "agreement": "on"})
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(User.objects.exists())
+
+    def test_intervening_account_does_not_receive_a_link_or_consent(self):
+        from allauth.socialaccount.models import SocialAccount
+        from legalconsent.models import LegalAcceptance
+
+        url = self.callback(self.start()["state"][0]).url
+        fields = HiddenInputs(self.client.get(url)).fields
+        User.objects.create_user("newly-registered", "parent@gmail.com")
+        self.assert_denied(self.client.post(url, {**fields, "agreement": "on"}))
+        self.assertFalse(SocialAccount.objects.exists())
+        self.assertFalse(LegalAcceptance.objects.exists())
+
+    def test_cancel_pending_signup_can_return_to_login_without_creating_an_account(self):
+        url = self.callback(self.start(language="ru", next="/ru/favorites/")["state"][0]).url
+        fields = HiddenInputs(self.client.get(url)).fields
+        response = self.client.post(url, {**fields, "action": "cancel"})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(urlsplit(response.url).path, "/ru/auth/login/")
+        self.assertEqual(parse_qs(urlsplit(response.url).query), {"next": ["/ru/favorites/"]})
+        self.assertNotIn("google_pending_signup", self.client.session)
+        self.assertFalse(User.objects.exists())
+        self.assert_denied(self.client.post(url, {**fields, "agreement": "on"}))
+
+    def test_previous_tabs_agreement_cannot_create_the_new_tabs_account(self):
+        url = self.callback(self.start()["state"][0]).url
+        old_fields = HiddenInputs(self.client.get(url)).fields
+        self.callback(self.start()["state"][0], sub="second-sub", email="other@gmail.com")
+        self.assert_denied(self.client.post(url, {**old_fields, "agreement": "on"}))
+        self.assertFalse(User.objects.exists())
+        new_fields = HiddenInputs(self.client.get(url)).fields
+        self.client.post(url, {**new_fields, "agreement": "on"})
+        self.assertEqual(User.objects.get().email, "other@gmail.com")
 
     def test_start_contract_csrf_scopes_pkce_and_fixed_callback(self):
         self.assertEqual(self.client.get("/auth/google/").status_code, 405)
@@ -77,7 +180,7 @@ class GoogleAuthTests(TestCase):
         from allauth.socialaccount.models import SocialAccount, SocialToken
         state = self.start()["state"][0]
         old_session = self.client.session.session_key
-        response = self.callback(state)
+        response = self.finish_if_signup(self.callback(state))
         self.assertEqual(response.url, "/account/profile/")
         user = User.objects.get(email="parent@gmail.com")
         self.assertEqual(self.client.session["_auth_user_id"], str(user.pk))
@@ -109,12 +212,14 @@ class GoogleAuthTests(TestCase):
 
     def test_existing_email_links_case_insensitively_preserving_password_permissions(self):
         from allauth.socialaccount.models import SocialAccount
+        from legalconsent.models import LegalAcceptance
         user = User.objects.create_user("existing", "Parent@Gmail.com", "StrongPassword123!", is_staff=True)
         profile = UserProfile.objects.create(user=user, phone="+994501112233")
         response = self.login_google()
         self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 1)
         self.assertEqual(SocialAccount.objects.get().user_id, user.pk)
+        self.assertFalse(LegalAcceptance.objects.exists())
         user.refresh_from_db()
         profile.refresh_from_db()
         self.assertTrue(user.check_password("StrongPassword123!"))
@@ -176,7 +281,7 @@ class GoogleAuthTests(TestCase):
         with patch("allauth.socialaccount.internal.statekit.time.time", return_value=time.time() + 700):
             self.assert_denied(self.callback(state))
         state = self.start()["state"][0]
-        self.callback(state)
+        self.finish_if_signup(self.callback(state))
         self.client.post(reverse("account_logout"))
         self.assert_denied(self.callback(state))
         self.assertEqual(User.objects.count(), 1)
@@ -198,13 +303,13 @@ class GoogleAuthTests(TestCase):
 
     def test_local_next_and_language_survive_callback(self):
         state = self.start(next="/ru/account/profile/?tab=places#saved", language="ru")["state"][0]
-        self.assertEqual(self.callback(state).url, "/ru/account/profile/?tab=places#saved")
+        self.assertEqual(self.finish_if_signup(self.callback(state)).url, "/ru/account/profile/?tab=places#saved")
 
     def test_unsafe_next_and_auth_loop_fall_back_to_local_profile(self):
         for target in ["https://evil.test/", "//evil.test/", "/\\evil.test/", "/auth/google/", "/ru/auth/login/"]:
             with self.subTest(target=target):
                 state = self.start(next=target, language="en")["state"][0]
-                self.assertEqual(self.callback(state).url, "/en/account/profile/")
+                self.assertEqual(self.finish_if_signup(self.callback(state)).url, "/en/account/profile/")
                 self.client.post(reverse("account_logout"))
 
     def test_auth_pages_have_localized_google_post_form(self):
@@ -274,7 +379,9 @@ class GoogleAuthTests(TestCase):
             return original(controller, form=form)
 
         with patch.object(AuthController, "register_user_from_form", concurrent_winner):
+            fields = HiddenInputs(self.client.get(reverse("account_register"))).fields
             response = self.client.post(reverse("account_register"), {
+                "legal_offer": fields["legal_offer"],
                 "first_name": "Leyla", "last_name": "Aliyeva", "email": "parent@gmail.com",
                 "phone": "+994501112233", "password1": "StrongPassword123!",
                 "password2": "StrongPassword123!", "agreement": "on",

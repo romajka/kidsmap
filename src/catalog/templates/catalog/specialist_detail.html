@@ -3,7 +3,13 @@
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 {% block title %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}{% if visible_documents %}<link rel="stylesheet" href="{% static 'css/components/specialist_document_gallery.css' %}?v=20261120_gallery3" />{% endif %}<link rel="stylesheet" href="{% static 'css/components/specialist_subjects.css' %}?v=20261105_subjects_r2" /><link rel="stylesheet" href="{% static 'css/pages/specialist_detail.css' %}?v=20261104_soft_motion_r1" /><link rel="stylesheet" href="{% static 'css/pages/specialists_refresh.css' %}?v=20261118_sp_r2" />{% endblock %}
+{% block extra_head %}
+  {% if visible_documents %}<link rel="stylesheet" href="{% static 'css/components/specialist_document_gallery.css' %}?v=20261120_gallery3">{% endif %}
+  <link rel="stylesheet" href="{% static 'css/components/specialist_subjects.css' %}?v=20261105_subjects_r2">
+  <link rel="stylesheet" href="{% static 'css/pages/specialist_detail.css' %}?v=20261104_soft_motion_r1">
+  <link rel="stylesheet" href="{% static 'css/pages/specialists_refresh.css' %}?v=20261118_sp_r2">
+  <link rel="stylesheet" href="{% static 'css/components/official_reviews.css' %}?v=20261120_threads">
+{% endblock %}
 
 {% block content %}
 <article class="sp-detail km-specialist-detail-page km-specialists-detail">
@@ -169,8 +175,13 @@
         <div class="sp-section-head"><h2>{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}</h2>{% include 'catalog/includes/typed_review_link.html' with review_kind='specialist' review_target=specialist %}</div>
         {% include 'catalog/includes/review_submission_notice.html' %}
         <div class="sp-review-list">{% for r in reviews %}<article class="sp-review">
-          <header><h3>{{ r.author_name }}</h3><time datetime="{{ r.created_at|date:'Y-m-d' }}">{{ r.created_at|date:'d.m.Y' }}</time></header>
-          <p class="sp-review-rating"><span aria-hidden="true">{% if r.rating == 5 %}★★★★★{% elif r.rating == 4 %}★★★★☆{% elif r.rating == 3 %}★★★☆☆{% elif r.rating == 2 %}★★☆☆☆{% else %}★☆☆☆☆{% endif %}</span><span class="sp-sr-only">{{ r.rating }} / 5</span></p><p class="sp-review-text">{{ r.text }}</p>
+          {% if r.is_anonymous %}
+            {% include "catalog/includes/review_byline.html" with review=r author=_("Аноним") %}
+          {% else %}
+            {% include "catalog/includes/review_byline.html" with review=r author=r.author_name|default:_("Гость") %}
+          {% endif %}
+          <p class="sp-review-text">{{ r.text|linebreaksbr }}</p>
+          {% include "catalog/includes/official_review_replies.html" with review=r review_kind="specialist" reply_target_name=specialist.name show_reply_action=True %}
         </article>{% empty %}<p class="sp-muted">{% if language == 'az' %}Hələ dərc olunmuş rəy yoxdur.{% elif language == 'en' %}No published reviews yet.{% else %}Пока нет опубликованных отзывов.{% endif %}</p>{% endfor %}</div>
         {% if request.user.is_authenticated %}
           <form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation data-review-login hidden target="_blank" rel="noopener">

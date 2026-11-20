@@ -56,6 +56,7 @@ urlpatterns = [
     ),
     path("admin/add-choice/", admin_add_choice),
     path("admin/editor/", include("catalog.admin_editor_urls", namespace="admin_editor")),
+    path("admin/moderation/appeals/", include(("moderation_appeals.staff_urls", "default_appeals"))),
     path("admin/", admin.site.urls),
     re_path(
         rf"^{(settings.LANGUAGE_CODE or 'az').split('-')[0]}(?:/(?P<path>.*))?$",
@@ -65,6 +66,7 @@ urlpatterns = [
 ]
 
 urlpatterns += i18n_patterns(
+    path("admin/moderation/appeals/", include("moderation_appeals.staff_urls")),
     path("admin/add-choice/", admin_add_choice, name="admin_add_choice"),
     path(
         "admin/",

@@ -187,6 +187,8 @@ def _inbox_items(user):
             item.join_action_url = reverse('organization_confirm_preview', args=[join.organization_id, item.entity_id])
             item.join_place_name = join.place.name_i18n
             item.join_organization_name = join.organization.name_az
+    from catalog.services.review_notifications import attach_review_links
+    attach_review_links(items, user)
     return items
 
 

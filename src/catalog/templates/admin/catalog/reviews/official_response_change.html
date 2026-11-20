@@ -1,0 +1,16 @@
+{% extends "admin/change_form.html" %}
+{% load i18n static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/official_review_response.css' %}">{% endblock %}
+{% block form_top %}
+  {{ block.super }}
+  {% if original.kind == 'reply' or original.kind == 'hidden' %}
+    {% get_current_language as language %}
+    <div class="km-response-state">
+      <p><strong>{% if language == 'ru' %}Видимость ответа{% elif language == 'en' %}Reply visibility{% else %}Cavabın görünməsi{% endif %}</strong>
+        {% if original.hidden_at %}{% if language == 'ru' %}Скрыт модератором{% elif language == 'en' %}Hidden by a moderator{% else %}Moderator tərəfindən gizlədilib{% endif %}
+        {% else %}{% if language == 'ru' %}Показывается вместе с опубликованной версией отзыва{% elif language == 'en' %}Visible with the published version of the review{% else %}Rəyin yayımlanmış versiyası ilə birlikdə görünür{% endif %}{% endif %}
+      </p>
+      {% if response_visibility_link %}{{ response_visibility_link }}{% endif %}
+    </div>
+  {% endif %}
+{% endblock %}

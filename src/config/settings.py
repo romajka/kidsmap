@@ -230,6 +230,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "catalog",
+    "legalconsent",
+    "moderation_appeals",
     "catalog.proxy_apps.catalog_moderation.apps.CatalogModerationConfig",
 ]
 
@@ -364,6 +366,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "catalog.auth_throttle_middleware.AuthThrottleMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "legalconsent.middleware.LegalConsentMiddleware",
     "catalog.r1_middleware.R1WriteCohortMiddleware",
     "catalog.volunteer_middleware.VolunteerAccessMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",

@@ -229,6 +229,9 @@ def moderate_place_request(*,actor,request_id,new_status,note=''):
             return item
     old=item.status;item.status=new_status;item.moderated_by=actor;item.moderated_at=timezone.now();item.moderation_note=note;item.save(update_fields=['status','moderated_by','moderated_at','moderation_note','updated_at'])
     PlaceOwnershipRequestAudit.log_event(ownership_request=item,actor=actor,action=new_status,from_status=old,to_status=new_status,note=note)
+    if new_status == "REJECTED" and item.request_kind == PlaceOwnershipRequest.KIND_PUBLICATION:
+        from moderation_appeals.sources import record_publication_request_rejection
+        record_publication_request_rejection(item, row, actor)
     return item
 
 

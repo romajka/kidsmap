@@ -1,4 +1,5 @@
 import re
+from functools import lru_cache
 
 from django.utils.translation import gettext as _
 
@@ -406,6 +407,46 @@ def _deduplicate_location_segments(value: str, lang: str) -> str:
     return ", ".join(segments).strip(" ,")
 
 
+def _district_match_key(value):
+    # Python re.IGNORECASE matches dotted and dotless I; casefold alone does not.
+    return value.casefold().replace("ı", "i").replace("i\u0307", "i")
+
+
+@lru_cache(maxsize=2)
+def _address_translation_rules(lang):
+    """Compile the static AZ/EN tables once; never cache address text."""
+    district_replacements = {}
+    for key, labels in BAKU_DISTRICTS_MAP.items():
+        variants = {
+            key,
+            labels["ru"],
+            labels["az"],
+            labels["en"],
+            f"{labels['ru']} район",
+            f"{labels['ru']} rayonu",
+            f"{labels['az']} rayonu",
+            f"{labels['en']} District",
+        }
+        target = get_location_translation(key, lang)
+        for variant in variants:
+            district_replacements[variant.casefold()] = target
+    # Substitute once: generated "Nizami District" must not itself be matched
+    # again. A street bearing a district's name is still a street.
+    district_pattern = re.compile(r'(?<!\w)(?:' + '|'.join(
+        re.escape(value) for value in sorted(district_replacements, key=len, reverse=True)
+    ) + r')(?!\w)(?!\s+(?:küç\w*|street|st\.|prospekt\w*|avenue|ave\.))', re.IGNORECASE)
+    district_targets = {_district_match_key(key): target for key, target in district_replacements.items()}
+
+    # Keep the established sequential replacement order for overlapping region names.
+    region_rules = []
+    for key, labels in AZERBAIJAN_REGIONS_MAP.items():
+        variants = {key, labels["ru"], labels["az"], labels["en"]}
+        target = get_location_translation(key, lang)
+        for variant in sorted(variants, key=len, reverse=True):
+            region_rules.append((re.compile(re.escape(variant), re.IGNORECASE), target))
+    return district_pattern, district_targets, tuple(region_rules)
+
+
 def localize_address_text(value: str, language_code: str = None) -> str:
     if not value:
         return ""
@@ -435,31 +476,13 @@ def localize_address_text(value: str, language_code: str = None) -> str:
     for source, target in proper_name_replacements.get(lang, {}).items():
         localized = localized.replace(source, target)
 
-    district_replacements = {}
-    for key, labels in BAKU_DISTRICTS_MAP.items():
-        variants = {
-            key,
-            labels["ru"],
-            labels["az"],
-            labels["en"],
-            f"{labels['ru']} район",
-            f"{labels['ru']} rayonu",
-            f"{labels['az']} rayonu",
-            f"{labels['en']} District",
-        }
-        target = get_location_translation(key, lang)
-        for variant in variants:
-            district_replacements[variant.casefold()] = target
-    # Substitute once: generated "Nizami District" must not itself be matched
-    # again. A street bearing a district's name is still a street.
-    district_pattern = re.compile(r'(?<!\w)(?:' + '|'.join(
-        re.escape(value) for value in sorted(district_replacements, key=len, reverse=True)
-    ) + r')(?!\w)(?!\s+(?:küç\w*|street|st\.|prospekt\w*|avenue|ave\.))', re.IGNORECASE)
+    district_pattern, district_targets, region_rules = _address_translation_rules(lang)
+
     def replace_district(match):
         if re.search(r'(?:ул\.?|улица|пр\.?|проспект|st\.?|street|ave\.?|avenue)\s*$',
                      localized[:match.start()], re.IGNORECASE):
             return match.group()
-        return district_replacements[match.group().casefold()]
+        return district_targets[_district_match_key(match.group())]
     localized = district_pattern.sub(replace_district, localized)
 
     replacements = {
@@ -491,11 +514,8 @@ def localize_address_text(value: str, language_code: str = None) -> str:
     for pattern, replacement in replacements[lang]:
         localized = re.sub(pattern, replacement, localized, flags=re.IGNORECASE)
 
-    for key, labels in AZERBAIJAN_REGIONS_MAP.items():
-        variants = {key, labels["ru"], labels["az"], labels["en"]}
-        target = get_location_translation(key, lang)
-        for variant in sorted(variants, key=len, reverse=True):
-            localized = re.sub(re.escape(variant), target, localized, flags=re.IGNORECASE)
+    for pattern, target in region_rules:
+        localized = pattern.sub(target, localized)
 
     return _deduplicate_location_segments(localized, lang)
 

@@ -1,0 +1,190 @@
+/* The same conversation appears on the directory cards, the feed and the review page. */
+.km-review-byline {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin-block-end: .8rem;
+}
+
+.km-review-byline__avatar,
+.km-official-reply__avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: 38px;
+  block-size: 38px;
+}
+
+.km-review-byline__avatar {
+  border-radius: 50%;
+  background: #f5ece0;
+  color: #754924;
+  font: 700 1rem/1 var(--font-body);
+}
+
+.km-review-byline__identity {
+  display: grid;
+  justify-items: start;
+  gap: 3px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.km-review-byline__identity strong,
+.km-official-reply__name {
+  color: var(--ink);
+  font: 700 1rem/1.3 var(--font-body);
+}
+
+.km-review-byline__stars {
+  display: inline-flex;
+  gap: 1px;
+  color: #a65b09;
+  font: 400 .95rem/1 var(--font-body);
+}
+
+.km-review-byline__stars .is-empty { color: #786d5e; }
+
+.km-review-byline time,
+.km-official-reply__footer time {
+  color: var(--muted);
+  font: 500 .78rem/1.4 var(--font-body);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.km-official-reply {
+  position: relative;
+  display: grid;
+  gap: .65rem;
+  min-width: 0;
+  margin: .9rem 0 .5rem .85rem;
+  padding: clamp(.85rem, 2.5vw, 1.15rem) clamp(.85rem, 3vw, 1.3rem) .25rem;
+  border: 1px solid var(--tint-turf-200);
+  border-radius: var(--radius-lg);
+  background: var(--tint-turf-050);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+  scroll-margin-block-start: 7rem;
+}
+
+/* A short elbow connects the response to the review even without colour. */
+.km-official-reply::before {
+  content: "";
+  position: absolute;
+  inset-block-start: .55rem;
+  inset-inline-start: -.82rem;
+  inline-size: .65rem;
+  block-size: 1.2rem;
+  box-sizing: border-box;
+  border-inline-start: 2px solid var(--brand-celadon);
+  border-block-end: 2px solid var(--brand-celadon);
+  border-end-start-radius: 7px;
+}
+
+.km-official-reply__identity {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+}
+
+.km-official-reply__identity > div { min-width: 0; }
+
+.km-official-reply__avatar {
+  border-radius: var(--radius-md);
+  background: var(--brand-spruce);
+  color: white;
+}
+
+.km-official-reply__avatar::before,
+.km-official-reply__report::before,
+.km-review-reply-link::before {
+  content: "";
+  display: inline-block;
+  flex: none;
+  background: currentColor;
+  mask: var(--review-icon) center / contain no-repeat;
+}
+
+.km-official-reply__avatar::before {
+  --review-icon: url("../../img/icon/coolicons.iconjar/icons/building-03.svg");
+  width: 23px;
+  height: 23px;
+}
+
+.km-official-reply--specialist .km-official-reply__avatar::before {
+  --review-icon: url("../../img/icon/coolicons.iconjar/icons/user-circle.svg");
+}
+
+.km-official-reply__role {
+  display: block;
+  margin-block-end: 2px;
+  color: var(--brand-spruce);
+  font: 600 .78rem/1.35 var(--font-body);
+}
+
+.km-official-reply__name { display: block; }
+
+.km-official-reply .km-official-reply__text {
+  max-inline-size: 70ch;
+  margin: 0;
+  color: var(--ink);
+  font: 400 .97rem/1.55 var(--font-body);
+}
+
+.km-official-reply__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0 .8rem;
+  border-block-start: 1px solid var(--tint-turf-200);
+}
+
+.km-official-reply a.km-official-reply__report,
+a.km-review-reply-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  min-height: 44px;
+  max-width: 100%;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.km-official-reply a.km-official-reply__report {
+  color: var(--muted);
+  font-size: .79rem;
+}
+
+.km-official-reply__report::before {
+  --review-icon: url("../../img/icon/coolicons.iconjar/icons/flag.svg");
+  width: 15px;
+  height: 15px;
+}
+
+a.km-review-reply-link {
+  margin-block: .35rem;
+  padding-inline: .8rem;
+  border: 1px solid var(--tone-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--brand-spruce);
+  background: var(--surface);
+  font-size: .9rem;
+  font-weight: 650;
+}
+
+.km-review-reply-link::before {
+  --review-icon: url("../../img/icon/coolicons.iconjar/icons/arrow-undo-up-left.svg");
+  width: 18px;
+  height: 18px;
+}
+
+.km-official-reply__report:is(:hover, :focus-visible) { text-decoration: underline; }
+a.km-review-reply-link:hover { background: var(--tint-turf-100); }
+
+:is(.km-official-reply__report, .km-review-reply-link):focus-visible {
+  outline: 3px solid var(--brand-turf);
+  outline-offset: 2px;
+}

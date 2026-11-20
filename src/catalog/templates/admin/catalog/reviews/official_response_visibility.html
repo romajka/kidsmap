@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+{% block title %}{% get_current_language as language %}{% if language == 'ru' %}Видимость ответа{% elif language == 'en' %}Reply visibility{% else %}Cavabın görünməsi{% endif %} | KidsMap{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/official_review_response.css' %}">{% endblock %}
+{% block content %}
+{% get_current_language as language %}
+<section class="km-response-decision" aria-labelledby="response-decision-title">
+  <h1 id="response-decision-title">{% if hide %}{% if language == 'ru' %}Скрыть ответ{% elif language == 'en' %}Hide reply{% else %}Cavabı gizlət{% endif %}{% else %}{% if language == 'ru' %}Восстановить ответ{% elif language == 'en' %}Restore reply{% else %}Cavabı bərpa et{% endif %}{% endif %}</h1>
+  <p class="km-response-decision__intro">{% if hide %}{% if language == 'ru' %}Ответ перестанет отображаться под отзывом. Вы сможете восстановить его позже.{% elif language == 'en' %}The reply will disappear from the review. You can restore it later.{% else %}Cavab rəyin altında görünməyəcək. Onu sonra bərpa edə bilərsiniz.{% endif %}{% else %}{% if language == 'ru' %}Восстановленный ответ будет виден вместе с той версией отзыва, к которой он относится.{% elif language == 'en' %}The restored reply will be visible when the version of the review it belongs to is published.{% else %}Bərpa edilmiş cavab aid olduğu rəy versiyası yayımlandıqda görünəcək.{% endif %}{% endif %}</p>
+
+  <figure class="km-response-decision__quote">
+    <figcaption>{% if language == 'ru' %}Официальный ответ{% elif language == 'en' %}Official reply{% else %}Rəsmi cavab{% endif %} · <time datetime="{{ original.created_at|date:'c' }}">{{ original.created_at|date:"d.m.Y" }}</time></figcaption>
+    {% if original.text|length > 300 %}
+      <details><summary><span class="km-response-decision__excerpt">{{ original.text|truncatechars:180 }} </span><strong>{% if language == 'ru' %}Полный текст ответа{% elif language == 'en' %}Full reply{% else %}Cavabın tam mətni{% endif %}</strong></summary><blockquote>{{ original.text|linebreaksbr }}</blockquote></details>
+    {% else %}<blockquote>{{ original.text|linebreaksbr }}</blockquote>{% endif %}
+  </figure>
+
+  {% if error == 'stale' %}
+    <p id="response-error" role="alert" tabindex="-1" autofocus class="km-response-decision__error">{% if language == 'ru' %}Статус уже изменился. Откройте ответ заново, чтобы увидеть актуальное решение.{% elif language == 'en' %}The status has changed. Reopen the reply to see the current decision.{% else %}Status dəyişib. Son qərarı görmək üçün cavabı yenidən açın.{% endif %}</p>
+    <a class="km-response-decision__back" href="{{ back_url }}">{% if language == 'ru' %}Вернуться к ответу{% elif language == 'en' %}Back to reply{% else %}Cavaba qayıt{% endif %}</a>
+  {% else %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="decision_at" value="{{ decision_at }}">
+      {% if hide %}
+        <label for="reason">{% if language == 'ru' %}Причина скрытия{% elif language == 'en' %}Reason for hiding{% else %}Gizlətmə səbəbi{% endif %}</label>
+        <p id="reason-help">{% if language == 'ru' %}Причина останется в истории модерации.{% elif language == 'en' %}The reason is saved in the moderation history.{% else %}Səbəb moderasiya tarixçəsində saxlanılacaq.{% endif %}</p>
+        {% if error == 'reason' %}<p id="reason-error" role="alert" class="km-response-decision__error">{% if language == 'ru' %}Укажите причину длиной до 5000 символов.{% elif language == 'en' %}Enter a reason of up to 5000 characters.{% else %}5000 simvoladək səbəb qeyd edin.{% endif %}</p>{% endif %}
+        <textarea name="reason" id="reason" rows="3" maxlength="5000" required aria-describedby="reason-help{% if error == 'reason' %} reason-error{% endif %}"{% if error == 'reason' %} aria-invalid="true" autofocus{% endif %}>{{ reason }}</textarea>
+      {% elif original.moderation_reason %}
+        <dl><dt>{% if language == 'ru' %}Причина скрытия{% elif language == 'en' %}Reason for hiding{% else %}Gizlətmə səbəbi{% endif %}</dt><dd>{{ original.moderation_reason|linebreaksbr }}</dd></dl>
+      {% endif %}
+      <div class="km-response-decision__actions">
+        <button type="submit" class="km-response-decision__confirm{% if hide %} km-response-decision__confirm--hide{% endif %}">{% if hide %}{% if language == 'ru' %}Скрыть ответ{% elif language == 'en' %}Hide reply{% else %}Cavabı gizlət{% endif %}{% else %}{% if language == 'ru' %}Восстановить ответ{% elif language == 'en' %}Restore reply{% else %}Cavabı bərpa et{% endif %}{% endif %}</button>
+        <a class="km-response-decision__back" href="{{ back_url }}">{% if language == 'ru' %}Отмена{% elif language == 'en' %}Cancel{% else %}Ləğv et{% endif %}</a>
+      </div>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% load i18n %}
+{% get_current_language as lang %}
+<div class="register-consent legal-agreement{% if form.agreement.errors %} has-error{% endif %}">
+  <input type="hidden" name="legal_offer" value="{{ legal_offer.token }}">
+  <ul class="legal-agreement__documents" aria-label="{% if lang == 'az' %}Hesab sənədləri{% elif lang == 'en' %}Account documents{% else %}Документы аккаунта{% endif %}">
+    {% for document in legal_offer.documents %}
+      <li>
+        <a class="legal-agreement__document" href="{% url document.slug %}" target="_blank" rel="noopener">
+          <span class="legal-agreement__title">{{ document.title }}</span>
+          <span class="legal-agreement__version">{% if lang == 'az' %}Versiya{% elif lang == 'en' %}Version{% else %}Версия{% endif %} {{ document.version }}</span>
+          <span class="legal-agreement__arrow" aria-hidden="true">↗</span>
+          <span class="visually-hidden">{% if lang == 'az' %}Yeni vərəqdə açılır{% elif lang == 'en' %}Opens in a new tab{% else %}Откроется в новой вкладке{% endif %}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+  <label class="register-consent-label legal-agreement__label" for="{{ form.agreement.id_for_label }}">
+    {{ form.agreement }}
+    <span>{% if lang == 'az' %}İstifadə şərtlərini və məxfilik siyasətini qəbul edirəm.{% elif lang == 'en' %}I accept the Terms of Use and Privacy Policy.{% else %}Я принимаю условия использования и политику конфиденциальности.{% endif %}</span>
+  </label>
+  {% if form.agreement.errors %}
+    <span class="auth-field-error" id="{{ form.agreement.auto_id }}_error" role="alert">{{ form.agreement.errors|join:" " }}</span>
+  {% endif %}
+</div>

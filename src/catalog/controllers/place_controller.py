@@ -817,6 +817,9 @@ class PlaceController:
         review_sort = normalize_review_sort(request.GET.get("review_sort"))
         place_reviews_qs = apply_review_sorting(public_review_queryset(place.reviews.none() if new_preview else place.reviews.all()), review_sort)
         place_reviews = mark_place_review_reactions(place_reviews_qs, request)
+        if not preview:
+            from catalog.services.public_review_replies import attach_public_review_replies
+            attach_public_review_replies(place_reviews, kind="place", user=request.user)
         if not preview and place.rating_count != len(place_reviews):
             place.refresh_rating_stats()
 

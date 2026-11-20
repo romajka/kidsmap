@@ -31,6 +31,19 @@ class EventAdminEfficiencyTests(TestCase):
         values.update(changes)
         return Event.objects.create(**values)
 
+    def test_portable_prompt_in_list_add_and_change(self):
+        self.client.force_login(self.actor)
+        event = self.event()
+        for path in ('/admin/catalog/event/', '/admin/catalog/event/add/',
+                     f'/admin/catalog/event/{event.pk}/change/'):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertContains(response, 'id="event-editor-prompt"', count=1)
+                self.assertContains(response, 'data-copy-event-prompt', count=1)
+                self.assertContains(response, 'https://admin.kidsmap.az/admin/catalog/event/')
+                self.assertContains(response, 'https://iticket.az/ru/page/rules')
+                self.assertNotContains(response, '/home/ramin/')
+
     def test_single_owned_organizer_is_initial_but_multiple_are_not_guessed(self):
         initial = self.admin.get_changeform_initial_data(self.request)
         self.assertEqual(initial.get('organizer_organization'), self.org.pk)

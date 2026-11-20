@@ -27,6 +27,7 @@ class TestAccountsAndReviewAccess(TestCase):
             response = self.client.post(
                 reverse("account_register"),
                 data={
+                    "legal_offer": self.client.get(reverse("account_register")).context["legal_offer"].token,
                     "first_name": "Рамин",
                     "last_name": "Алиев",
                     "email": "owner@example.com",

@@ -1,4 +1,4 @@
-{% load i18n static jazzmin kidsmap_navigation %}
+{% load i18n static jazzmin kidsmap_navigation appeal_access %}
         <aside class="main-sidebar elevation-4 {{ jazzmin_ui.sidebar_classes }} km-admin-sidebar" id="jazzy-sidebar">
             <a href="{% url 'admin:index' %}" class="brand-link {{ jazzmin_ui.brand_classes }}" id="jazzy-logo"
                 title="{{ jazzmin_settings.site_header }}">
@@ -52,6 +52,15 @@
                                         </span>
                                     </a>
                                 </li>
+                                {% can_review_appeals request.user as show_appeals %}
+                                {% if show_appeals %}
+                                <li class="km-admin-sidebar__entry">
+                                    <a href="{% url 'appeal_queue' %}" class="km-admin-sidebar__link{% if request.resolver_match.url_name == 'appeal_queue' or request.resolver_match.url_name == 'appeal_review' %} is-active{% endif %}"{% if request.resolver_match.url_name == 'appeal_queue' %} aria-current="page"{% endif %}>
+                                        <span class="km-admin-sidebar__icon-wrap"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-chat_bubble"></use></svg></span>
+                                        <span class="km-admin-sidebar__text"><span class="km-admin-sidebar__label">{% if LANGUAGE_CODE == 'az' %}Apellyasiyalar{% elif LANGUAGE_CODE == 'en' %}Appeals{% else %}Апелляции{% endif %}</span></span>
+                                    </a>
+                                </li>
+                                {% endif %}
                             </ul>
 
                             <div class="km-admin-sidebar__sections">

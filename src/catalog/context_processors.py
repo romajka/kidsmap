@@ -81,6 +81,7 @@ NOINDEX_URL_NAMES = {
 }
 
 QUERY_NOINDEX_URL_NAMES = {
+    "contacts",
     "specialist_list",
     "events_landing",
     "organization_list",
@@ -306,12 +307,13 @@ def _account_navigation_context(request):
     if '/account/' not in path and not path.startswith('/owner/'):
         return {}
     try:
-        from .models import PlaceReview, PlaceLike
+        from .models import PlaceLike
+        from .services.account_review_feeds import written_queries
         from .services.business_team import accessible_place_ids
         from .controllers.workflow_notifications import _mine
 
         places_cnt = len(accessible_place_ids(user=actor))
-        reviews_cnt = PlaceReview.objects.filter(user=actor).count()
+        reviews_cnt = sum(rows.count() for rows in written_queries(actor).values())
         fav_cnt = PlaceLike.objects.filter(user=actor, place__is_active=True, place__deleted_at__isnull=True).values('place_id').distinct().count()
         notif_cnt = _mine(actor).filter(read_at__isnull=True).count()
         return {

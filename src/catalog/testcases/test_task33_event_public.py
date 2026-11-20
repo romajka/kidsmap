@@ -1,7 +1,10 @@
 """Published occurrences retain honest public detail and typed review parity."""
 import json
 from datetime import timedelta
+from urllib.parse import urlsplit
+from xml.etree import ElementTree
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError, transaction
 from django.test import TestCase
 from django.utils import timezone
 from django.utils.translation import override
@@ -26,6 +29,53 @@ class EventPublicContractTests(TestCase):
     def response(self, event):
         with override('ru'):
             return self.client.get(event.get_absolute_url())
+
+    def test_localized_event_links_share_one_clean_address(self):
+        event = self.event(name_az='Xalçalar diyarı', start_datetime=self.now+timedelta(days=1),
+                           end_datetime=self.now+timedelta(days=2))
+        paths = {'az': '/event/xalcalar-diyari/', 'ru': '/ru/event/xalcalar-diyari/',
+                 'en': '/en/event/xalcalar-diyari/'}
+        for lang, path in paths.items():
+            with self.subTest(lang=lang), override(lang):
+                self.assertEqual(event.get_absolute_url(), path)
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(urlsplit(response.context['canonical_url']).path, path)
+                self.assertEqual(urlsplit(json.loads(response.context['event_schema_json'])['url']).path, path)
+                for code, alternate in paths.items():
+                    self.assertContains(response, f'hreflang="{code}" href="http://testserver{alternate}"')
+                self.assertContains(self.client.get(path.split('/event/')[0] + '/events/'), f'href="{path}"')
+                old_prefix = path.removesuffix('xalcalar-diyari/') + f'{event.pk}-'
+                for ending in ('xalcalar-diyari/', 'old-title/', 'old-title/?utm_source=shared'):
+                    old = old_prefix + ending
+                    self.assertRedirects(self.client.get(old), path, status_code=301, fetch_redirect_response=False)
+                self.assertRedirects(self.client.get(path, {'utm_source': 'shared'}), path,
+                                     status_code=301, fetch_redirect_response=False)
+        sitemap = ElementTree.fromstring(self.client.get('/sitemap.xml').content)
+        event_paths = {urlsplit(node.text).path for node in sitemap.findall('.//{*}loc') if '/event/' in node.text}
+        self.assertEqual(event_paths, set(paths.values()))
+
+    def test_same_titles_and_digits_have_distinct_stable_destinations(self):
+        one = self.event(name_az='2026 Yay²')
+        two = self.event(name_az='2026 Yay²')
+        for event in (one, two):
+            self.assertRegex(event.get_absolute_url(), r'^/event/[a-z-]+/$')
+        self.assertNotEqual(one.get_absolute_url(), two.get_absolute_url())
+        old_path = two.get_absolute_url()
+        two.name_az = 'Changed title'
+        two.save(update_fields=['name_az'])
+        self.assertEqual(two.get_absolute_url(), old_path)
+        self.assertEqual(self.client.get(old_path).context['event'].pk, two.pk)
+        self.assertRedirects(self.client.get(f'/event/{two.pk}-2026-yay-2/'), old_path,
+                             status_code=301, fetch_redirect_response=False)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Event.objects.filter(pk=two.pk).update(slug=one.slug)
+
+    def test_legacy_paths_do_not_redirect_private_events(self):
+        for event in (self.event(status='draft'), self.event(deleted_at=self.now)):
+            with self.subTest(event=event.pk):
+                self.assertEqual(self.client.get(f'/event/{event.pk}-old/').status_code, 404)
+                self.assertEqual(self.client.get(event.get_absolute_url()).status_code, 404)
 
     def test_approved_past_detail_remains_public(self):
         response = self.response(self.event())
