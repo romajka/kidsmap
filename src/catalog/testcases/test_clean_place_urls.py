@@ -288,8 +288,9 @@ class CleanPlaceUrlMigrationTests(TransactionTestCase):
         before = [('catalog', '0151_place_age_varies_by_program')]
         after = [('catalog', '0152_place_clean_public_urls')]
         executor = MigrationExecutor(connection)
-        executor.migrate(before)
+        latest = executor.loader.graph.leaf_nodes()
         try:
+            executor.migrate(before)
             old_apps = executor.loader.project_state(before).apps
             OldPlace = old_apps.get_model('catalog', 'Place')
             old_apps.get_model('catalog', 'Category').objects.get_or_create(
@@ -317,4 +318,4 @@ class CleanPlaceUrlMigrationTests(TransactionTestCase):
             with override('en'):
                 self.assertEqual(new.get_absolute_url(), '/en/place/new-museum/')
         finally:
-            MigrationExecutor(connection).migrate(after)
+            MigrationExecutor(connection).migrate(latest)
