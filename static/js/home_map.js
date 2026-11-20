@@ -1206,15 +1206,21 @@
 
   // Afisha venue markers join the place clusterer, so places and events never
   // stack as two separate cluster layers. The layer decides which are visible.
-  function homeEventMarkers(mapEl) {
+  // placeMarkers: the place markers about to be shown. An afisha venue that
+  // sits on one of them is merged into that place pin instead of a second pin.
+  function homeEventMarkers(mapEl, placeMarkers) {
     const layer = mapEl.__kmEventLayer;
-    return layer && typeof layer.visibleMarkers === "function" ? layer.visibleMarkers() : [];
+    return layer && typeof layer.visibleMarkers === "function" ? layer.visibleMarkers(placeMarkers || []) : [];
   }
   // Co-located markers that include afisha open the venue sheet (events and
   // places at that point together); places alone keep the place chooser.
   function homeRouteChoice(mapEl, markers, anchor, fallback) {
     const layer = mapEl.__kmEventLayer;
-    const events = markers.filter(marker => marker && marker.__kmEvents);
+    const events = [];
+    markers.forEach(marker => {
+      if (marker && marker.__kmEvents) events.push(marker);
+      else if (marker && marker.__kmAttached) events.push(marker.__kmAttached);
+    });
     if (layer && events.length) {
       layer.openVenue(events, markers.filter(marker => marker && !marker.__kmEvents), anchor);
       return;
@@ -1393,6 +1399,11 @@
       marker.__kidsMapPlace = place;
       marker.__kidsMapPointKey = place.key;
       marker.addListener("click", function () {
+        if (marker.__kmAttached && mapEl.__kmEventLayer) {
+          closePlace(); motion.cancel(); choice.close(false);
+          mapEl.__kmEventLayer.openVenue([marker.__kmAttached], [marker]);
+          return;
+        }
         const peers = markerItems.filter(item => visibleMarkers.has(item.marker) && item.position.lat === place.lat && item.position.lng === place.lng).map(item => item.marker);
         if (peers.length > 1 || (Array.isArray(place.members) && place.members.length > 1)) {
           closePlace();
@@ -1433,7 +1444,9 @@
     function _doSync() {
       const filters = getFilterState();
       const placesHidden = mapEl.dataset.kmPlaces === "off";
-      const activeMarkers = (placesHidden ? [] : markerItems.map(item => item.marker)).concat(homeEventMarkers(mapEl));
+      const placeMarkers = placesHidden ? [] : markerItems.map(item => item.marker);
+      mapEl.__kmPlaceMarkerList = placeMarkers;
+      const activeMarkers = placeMarkers.concat(homeEventMarkers(mapEl, placeMarkers));
       const next = new Set(activeMarkers);
       if (selectedMarker && !next.has(selectedMarker)) closePlace();
       if (updateMembership) updateMembership(activeMarkers);
@@ -1443,7 +1456,6 @@
       }
       visibleMarkers = next;
       setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || '', placesHidden || activeMarkers.length > 0);
-      mapEl.__kmPlaceMarkerList = placesHidden ? [] : markerItems.map(item => item.marker);
       updateLiveCount(businessCount(markerItems.map(item => item.place)));
     }
     function syncVisibleMarkersFromFilter() {
@@ -1830,8 +1842,8 @@
         layersToAdd.push(item.marker);
         visibleItems.push(item);
       });
-      homeEventMarkers(mapEl).forEach(marker => layersToAdd.push(marker));
       mapEl.__kmPlaceMarkerList = visibleItems.map(item => item.marker);
+      homeEventMarkers(mapEl, mapEl.__kmPlaceMarkerList).forEach(marker => layersToAdd.push(marker));
 
       if (layersToAdd.length) {
         markerClusterGroup.addLayers(layersToAdd);

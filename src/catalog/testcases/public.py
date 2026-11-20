@@ -3521,9 +3521,9 @@ class EventsLandingTests(TestCase):
 
         self.assertContains(response, f'href="{reverse("events_landing")}"')
 
-    def test_home_shows_only_four_upcoming_events(self):
+    def test_home_slider_shows_at_most_eight_upcoming_events(self):
         now = timezone.now()
-        for idx in range(5):
+        for idx in range(9):
             Event.objects.create(
                 name=f"Extra Event {idx}",
                 name_ru=f"Дополнительное событие {idx}",
@@ -3538,7 +3538,7 @@ class EventsLandingTests(TestCase):
         response = self.client.get(reverse("home"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["upcoming_events"]), 4)
+        self.assertEqual(len(response.context["upcoming_events"]), 8)
 
     def event_with_approved_address(self, address):
         event = Event.objects.create(name_ru='Событие с историческим адресом', category='ART',

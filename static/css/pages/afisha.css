@@ -720,31 +720,10 @@ a.km-cal__day:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset:
 .km-home-afisha__track:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset: -3px; border-radius: 20px; }
 .km-home-afisha__item { flex: 0 0 clamp(250px, 27%, 300px); scroll-snap-align: start; display: flex; }
 .km-home-afisha__item > .km-ev-card { width: 100%; }
-.km-home-afisha__more a {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 300px;
-  border-radius: var(--ev-radius);
-  border: 2px dashed rgba(19, 111, 56, 0.25);
-  background: rgba(255, 255, 255, 0.6);
-  color: var(--ev-deep);
-  text-align: center;
-  text-decoration: none;
-  transition: background 0.2s, border-color 0.2s, transform 0.3s var(--ev-spring);
-}
-.km-home-afisha__more a:hover { background: #fff; border-color: var(--ev-green); color: var(--ev-deep); transform: translateY(-3px); }
-.km-home-afisha__more .material-symbols-rounded { font-size: 2.4rem; color: var(--ev-hot); transition: transform 0.4s var(--ev-spring); }
-.km-home-afisha__more a:hover .material-symbols-rounded { transform: rotate(-12deg) scale(1.1); }
-.km-home-afisha__more strong { font-size: 1.05rem; }
-.km-home-afisha__more small { color: var(--ev-muted); font-weight: 700; }
 .km-home-afisha__arrow {
   position: absolute;
   z-index: 3;
-  top: 38%;
+  top: 92px;
   display: none;
   place-items: center;
   width: 44px;
@@ -1665,3 +1644,124 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
 .km-evlist__row { background: #fff; box-shadow: 0 0 0 1px rgba(13, 73, 36, 0.08); }
 .is-events-mode .km-evlist > li { animation: km-rise 0.45s var(--ev-ease) both; animation-delay: calc(var(--n, 0) * 40ms); }
 @media (prefers-reduced-motion: reduce) { .is-events-mode .km-evlist > li { animation: none; } }
+
+/* ─── HOME AFISHA: clean event slider ─── */
+/* soft fade on the edge that still has cards behind it */
+.km-home-afisha.is-scrollable:not(.is-at-start) .km-home-afisha__track { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 64px); mask-image: linear-gradient(90deg, transparent 0, #000 64px); }
+.km-home-afisha.is-scrollable:not(.is-at-end) .km-home-afisha__track { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent 100%); mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent 100%); }
+.km-home-afisha.is-scrollable:not(.is-at-start):not(.is-at-end) .km-home-afisha__track { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 64px, #000 calc(100% - 64px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 64px, #000 calc(100% - 64px), transparent 100%); }
+.km-home-afisha__dots { display: none; justify-content: center; gap: 6px; margin-top: 2px; }
+.km-home-afisha.is-scrollable .km-home-afisha__dots { display: flex; }
+.km-home-afisha__dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: rgba(19, 111, 56, 0.2); cursor: pointer; transition: width 0.35s var(--ev-spring), background 0.25s; }
+.km-home-afisha__dots button.is-active { width: 26px; background: var(--ev-green); }
+.km-home-afisha__arrow:active { transform: scale(0.94); }
+@media (prefers-reduced-motion: reduce) { .km-home-afisha__dots button { transition: none; } }
+@media (max-width: 760px) {
+  /* the scrollable chip row must not widen the header column on phones */
+  .km-home-afisha__head { grid-template-columns: minmax(0, 1fr); }
+  .km-home-afisha__head > * { min-width: 0; }
+  .km-home-afisha__copy h2 { overflow-wrap: anywhere; }
+}
+@media (max-width: 760px) {
+  .km-home-afisha.is-scrollable .km-home-afisha__track { -webkit-mask-image: none !important; mask-image: none !important; }
+  .km-home-afisha__item { flex: 0 0 82%; }
+}
+@media (max-width: 760px) {
+  .km-home-afisha__item, .km-home-afisha__item > .km-ev-card { min-width: 0; }
+  .km-home-afisha__cta { flex-wrap: wrap; }
+  .km-home-afisha__add { flex: 1 0 100%; justify-content: center; }
+}
+@media (max-width: 760px) {
+  .km-home-afisha .km-ev-card__actions { gap: 6px; }
+  .km-home-afisha .km-ev-card__actions .km-ev-btn:not(.km-ev-btn--icon) { flex: 1 1 0; min-width: 0; padding: 0 8px; font-size: 0.82rem; }
+  .km-home-afisha .km-ev-card__actions .km-ev-btn--icon { flex: none; }
+  .km-home-afisha .km-ev-card__actions .km-ev-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+@media (max-width: 760px) {
+  /* narrow slider card: keep the main action readable, details open from the title/photo */
+  .km-home-afisha .km-ev-card__actions:has(.km-ev-btn--primary ~ .km-ev-btn--ghost) .km-ev-btn--ghost { display: none; }
+}
+
+/* ─── MAP: place that also hosts afisha ─── */
+.km-pin__events {
+  position: absolute; z-index: 3; top: -8px; right: -14px;
+  display: inline-flex; align-items: center; gap: 1px; height: 19px; padding: 0 5px 0 3px; box-sizing: border-box;
+  border-radius: 7px; background: #e8533f; color: #fff; font-size: 10.5px; font-weight: 900; line-height: 1; white-space: nowrap;
+  box-shadow: 0 0 0 2px #fff, 0 6px 10px -5px rgba(150, 30, 10, 0.7);
+  transform: rotate(8deg); pointer-events: none;
+  animation: km-cluster-tab 0.55s var(--ev-spring, ease) 0.2s both;
+}
+.km-pin__events .material-symbols-rounded { font-size: 12px; }
+.leaflet-marker-icon > .km-pin__events, .custom-leaflet-marker > .km-pin__events { top: -6px; right: -12px; }
+.custom-leaflet-marker { overflow: visible !important; }
+.km-pin.has-events::after, .custom-leaflet-marker.has-events::after {
+  content: ""; position: absolute; left: 50%; bottom: -4px; width: 30px; height: 10px; margin-left: -15px; border-radius: 50%;
+  border: 2px solid rgba(232, 83, 63, 0.55); animation: km-host-ring 2.2s ease-out infinite; pointer-events: none;
+}
+@keyframes km-host-ring { 0% { opacity: 0.9; transform: scale(0.4); } 100% { opacity: 0; transform: scale(1.6); } }
+
+/* venue sheet led by the place */
+.km-venue__hero { display: grid; }
+.km-venue__photo { position: relative; display: block; aspect-ratio: 16 / 6; background: linear-gradient(135deg, #e7f4ea, #fff6e9); overflow: hidden; border-radius: 22px 22px 0 0; }
+.km-venue__photo img { width: 100%; height: 100%; object-fit: cover; display: block; animation: km-evcard-zoom 6s ease-out both; }
+.km-venue__photo > .material-symbols-rounded { display: grid; place-items: center; height: 100%; font-size: 2.6rem; color: var(--ev-green); }
+.km-venue__photo::after { content: ""; position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, rgba(10, 30, 18, 0.35)); pointer-events: none; }
+.km-venue__badge {
+  position: absolute; z-index: 1; left: 12px; bottom: 10px; display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px 4px 7px; border-radius: 999px; background: #e8533f; color: #fff; font-size: 0.74rem; font-weight: 900;
+  box-shadow: 0 8px 16px -8px rgba(150, 30, 10, 0.8);
+}
+.km-venue__badge .material-symbols-rounded { font-size: 1rem; }
+.km-venue__about { display: grid; gap: 6px; padding: 12px 16px 4px; }
+.km-venue__cat { justify-self: start; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, var(--cat) 12%, #fff); color: var(--cat); font-size: 0.72rem; font-weight: 900; letter-spacing: 0.02em; }
+.km-venue__hero .km-venue__title { margin: 0; font-size: 1.08rem; line-height: 1.3; }
+.km-venue__hero .km-venue__title a { color: var(--ev-ink); text-decoration: none; }
+.km-venue__hero .km-venue__title a:hover { color: var(--ev-green); }
+.km-venue__facts { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; color: var(--ev-muted); font-size: 0.8rem; font-weight: 700; }
+.km-venue__facts > span { display: inline-flex; align-items: center; gap: 4px; }
+.km-venue__facts .material-symbols-rounded { font-size: 1rem; color: var(--ev-green); }
+.km-venue__facts:empty { display: none; }
+.km-venue__actions { display: flex; gap: 8px; margin-top: 4px; }
+.km-venue__actions .km-ev-btn--primary { flex: 1; }
+.km-venue__section--events { display: flex; align-items: center; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(232, 83, 63, 0.3); color: #c23a28; }
+.km-venue__section--events .material-symbols-rounded { font-size: 1rem; }
+.km-evcard.is-open .km-venue__about > * { animation: km-rise 0.45s var(--ev-ease) both; }
+.km-evcard.is-open .km-venue__about > :nth-child(2) { animation-delay: 0.06s; }
+.km-evcard.is-open .km-venue__about > :nth-child(3) { animation-delay: 0.1s; }
+.km-evcard.is-open .km-venue__about > :nth-child(4) { animation-delay: 0.14s; }
+@media (max-width: 640px) { .km-venue__photo { aspect-ratio: 16 / 6; border-radius: 20px 20px 0 0; } }
+@media (prefers-reduced-motion: reduce) { .km-pin__events, .km-pin.has-events::after, .custom-leaflet-marker.has-events::after, .km-venue__photo img, .km-evcard.is-open .km-venue__about > * { animation: none !important; } }
+
+/* ─── MAP: place card in the side card (same look as the event card) ─── */
+.km-evcard__placebody .home-map-popup-members,
+.km-evcard__placebody .home-map-popup { width: 100% !important; max-width: none !important; margin: 0; border-radius: 0; box-shadow: none; }
+.km-evcard__placebody .home-map-popup-thumb-link { aspect-ratio: 16 / 8; height: auto; border-radius: 22px 22px 0 0; overflow: hidden; }
+.km-evcard__placebody .home-map-popup-thumb { width: 100%; height: 100%; object-fit: cover; }
+.km-evcard__placebody .home-map-popup-thumb-blur { display: none; }
+.km-evcard__placebody .home-map-popup-price { top: auto; bottom: 10px; left: 12px; right: auto; padding: 5px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.95); color: var(--ev-deep); font-size: 0.76rem; font-weight: 800; box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.5); }
+.km-evcard__placebody .home-map-popup-badges { top: 12px; bottom: auto; left: 12px; right: 56px; gap: 6px; flex-wrap: wrap; }
+.km-evcard__placebody .home-map-popup-badge-cat,
+.km-evcard__placebody .home-map-popup-badge-age { padding: 4px 9px; border-radius: 999px; font-size: 0.7rem; letter-spacing: 0.02em; box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.5); }
+.km-evcard__placebody .home-map-popup-body { gap: 8px; padding: 12px 16px 16px; }
+.km-evcard__placebody .home-map-popup-title { font-family: var(--font-display, inherit); font-size: 1.05rem; line-height: 1.3; -webkit-line-clamp: 3; }
+.km-evcard__placebody .home-map-popup-details { gap: 6px; }
+.km-evcard__placebody .home-map-popup-info-row { align-items: flex-start; font-size: 0.8rem; color: var(--ev-muted); }
+.km-evcard__placebody .home-map-popup-info-text { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.km-evcard__placebody .popup-info-icon { flex: none; margin-top: 2px; color: var(--ev-green); }
+/* two equal buttons, then the main one */
+.km-evcard__placebody .home-map-popup-actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; padding: 0; }
+.km-evcard__placebody .home-map-popup-route-link,
+.km-evcard__placebody .home-map-popup-phone-link {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; padding: 0 10px; box-sizing: border-box;
+  border: 1.5px solid rgba(19, 111, 56, 0.18); border-radius: 14px; background: #fff; color: var(--ev-deep);
+  font: inherit; font-size: 0.82rem; font-weight: 800; text-decoration: none; white-space: nowrap; cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.25s var(--ev-spring);
+}
+.km-evcard__placebody .home-map-popup-route-link:hover,
+.km-evcard__placebody .home-map-popup-phone-link:hover { background: #eef8f1; border-color: var(--ev-green); text-decoration: none; transform: translateY(-1px); }
+.km-evcard__placebody .home-map-popup-phone-link svg { width: 16px; height: 16px; }
+.km-evcard__placebody .home-map-popup-actions-row > :only-child { grid-column: 1 / -1; }
+.km-evcard__placebody .home-map-popup-link-btn { min-height: 46px; margin-top: 2px; border-radius: 14px; font-size: 0.9rem; background: linear-gradient(135deg, #1f9450, var(--ev-green)) !important; box-shadow: 0 10px 20px -12px rgba(19, 111, 56, 0.9); }
+.km-evcard__placebody .home-map-popup-badges { flex-direction: row; align-items: center; }
+.km-evcard__placebody .home-map-popup-actions-row .home-map-popup-phone-link.km-phone-control { border: 1.5px solid rgba(19, 111, 56, 0.18) !important; background: #fff !important; border-radius: 14px !important; min-height: 42px !important; padding: 0 10px !important; }
+.km-evcard__placebody .home-map-popup-actions-row .home-map-popup-phone-link.km-phone-control:hover { background: #eef8f1 !important; border-color: var(--ev-green) !important; }

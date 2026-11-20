@@ -39,12 +39,12 @@
   }
 
   var UI = {
-    ru: { here: 'Афиша здесь', places: 'Места здесь', back: 'Все события здесь', open: 'Открыть', noLang: '',
+    ru: { about: 'О месте', here: 'Афиша здесь', places: 'Места здесь', back: 'Все события здесь', open: 'Открыть', noLang: '',
       ev: function (n) { var a = n % 10, b = n % 100; return n + ' ' + (b > 10 && b < 15 ? 'событий' : a === 1 ? 'событие' : a > 1 && a < 5 ? 'события' : 'событий'); },
       pl: function (n) { var a = n % 10, b = n % 100; return n + ' ' + (b > 10 && b < 15 ? 'мест' : a === 1 ? 'место' : a > 1 && a < 5 ? 'места' : 'мест'); } },
-    az: { here: 'Burada afişa', places: 'Burada məkanlar', back: 'Buradakı bütün tədbirlər', open: 'Aç', noLang: '',
+    az: { about: 'Məkan haqqında', here: 'Burada afişa', places: 'Burada məkanlar', back: 'Buradakı bütün tədbirlər', open: 'Aç', noLang: '',
       ev: function (n) { return n + ' tədbir'; }, pl: function (n) { return n + ' məkan'; } },
-    en: { here: 'Events here', places: 'Places here', back: 'All events here', open: 'Open', noLang: '',
+    en: { about: 'About the place', here: 'Events here', places: 'Places here', back: 'All events here', open: 'Open', noLang: '',
       ev: function (n) { return n + (n === 1 ? ' event' : ' events'); }, pl: function (n) { return n + (n === 1 ? ' place' : ' places'); } },
   };
   function ui() { return UI[(document.documentElement.lang || 'az').slice(0, 2)] || UI.az; }
@@ -269,8 +269,72 @@
     }).join('');
   };
 
-  Layer.prototype.visibleMarkers = function () {
-    return this.visible ? (this.markers || []) : [];
+  // Event venues that sit on a shown place (±~40 m) are not drawn as a second
+  // pin: the place pin gets a ticket badge and opens the shared venue sheet.
+  Layer.prototype.visibleMarkers = function (placeMarkers) {
+    var self = this;
+    (this.hosts || []).forEach(function (host) { self.detach(host); });
+    this.hosts = [];
+    if (!this.visible) return [];
+    var shown = [];
+    (this.markers || []).forEach(function (marker) {
+      var group = marker.__kmGroup, best = null, bestDistance = Infinity;
+      (placeMarkers || []).forEach(function (place) {
+        var pos = markerPosition(place);
+        if (!pos) return;
+        var dLat = Math.abs(pos.lat - group.lat), dLng = Math.abs(pos.lng - group.lng);
+        if (dLat > 0.0004 || dLng > 0.0005) return;
+        if (dLat + dLng < bestDistance) { bestDistance = dLat + dLng; best = place; }
+      });
+      if (best && !best.__kmAttached) { self.attach(best, marker); return; }
+      shown.push(marker);
+    });
+    return shown;
+  };
+
+  function hostElement(marker) {
+    var el = marker.getElement ? marker.getElement() : null;
+    if (!el) return null;
+    return el.querySelector('.km-pin') || el.querySelector('.kidsmap-marker-visual') || el;
+  }
+
+  Layer.prototype.decorate = function (place) {
+    var el = hostElement(place), attached = place.__kmAttached;
+    if (!el || !attached) return;
+    var badge = el.querySelector(':scope > .km-pin__events');
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'km-pin__events';
+      badge.setAttribute('aria-hidden', 'true');
+      el.appendChild(badge);
+    }
+    badge.innerHTML = '<span class="material-symbols-rounded">confirmation_number</span>' + attached.__kmEvents.length;
+    el.classList.add('has-events');
+    var host = el.closest('.leaflet-marker-icon, .kidsmap-marker-button');
+    if (host) host.setAttribute('aria-label', (host.getAttribute('aria-label') || '').replace(/ · .*$/, '') + ' · ' + ui().ev(attached.__kmEvents.length));
+  };
+
+  Layer.prototype.attach = function (place, eventMarker) {
+    var self = this;
+    place.__kmAttached = eventMarker;
+    eventMarker.__kmHost = place;
+    this.hosts.push(place);
+    this.decorate(place);
+    if (place.on && !place.__kmDecorateOnAdd) {
+      // Leaflet rebuilds the icon whenever the marker leaves and re-enters a cluster.
+      place.__kmDecorateOnAdd = function () { setTimeout(function () { self.decorate(place); }, 0); };
+      place.on('add', place.__kmDecorateOnAdd);
+    }
+  };
+
+  Layer.prototype.detach = function (place) {
+    if (place.__kmAttached) place.__kmAttached.__kmHost = null;
+    place.__kmAttached = null;
+    var el = hostElement(place);
+    if (!el) return;
+    var badge = el.querySelector(':scope > .km-pin__events');
+    if (badge) badge.remove();
+    el.classList.remove('has-events');
   };
 
   // Places: the map engine still opens its own popup (selection, list sync, phone
@@ -281,6 +345,15 @@
     this.mapEl.classList.add('km-placecards');
     if (this.engine === 'leaflet') {
       this.map.on('popupopen', function (event) {
+        var source = event.popup._source;
+        if (source && source.__kmAttached) {
+          // A place that also hosts afisha opens the shared venue sheet.
+          self.switching = true;
+          self.map.closePopup();
+          self.switching = false;
+          self.openVenue([source.__kmAttached], [source]);
+          return;
+        }
         var content = event.popup.getContent();
         self.openPlace(typeof content === 'string' ? content : (content && content.outerHTML) || '');
       });
@@ -318,6 +391,7 @@
     this.kind = kind;
     this.card.classList.toggle('km-evcard--place', kind === 'place');
     this.card.classList.toggle('km-evcard--venue', kind === 'venue');
+    if (kind !== 'venue') this.card.classList.remove('km-evcard--host');
     this.card.innerHTML = '<button type="button" class="km-evcard__close" data-km-evcard-close aria-label="' + esc(this.L.close || 'Закрыть') +
       '"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>' + html;
     this.card.querySelector('[data-km-evcard-close]').addEventListener('click', function () { self.close(); });
@@ -413,7 +487,8 @@
     if (points.length === 1 && !places.length) { this.select(eventMarkers[0].__kmPin); this.open(points[0]); return; }
     this.select(eventMarkers[0].__kmPin);
     var first = points[0];
-    var title = first.venue || first.address || first.name;
+    var host = places.length === 1 ? places[0] : null;
+    var title = host ? host.name : (first.venue || first.address || first.name);
     var subtitle = [t.ev(points.length)].concat(places.length ? [t.pl(places.length)] : []).join(' · ');
     var rows = points.map(function (p, index) {
       var phase = phaseOf(p, now);
@@ -434,13 +509,34 @@
         '<span class="km-venue__go material-symbols-rounded" aria-hidden="true">arrow_forward</span></a></li>';
     }).join('');
     if (this.kind === 'place') this.closeEnginePopup();
+    var head = host
+      // One place hosts the events: the place leads, its afisha follows.
+      ? '<header class="km-venue__hero">' +
+          '<a class="km-venue__photo" href="' + esc(host.url || '#') + '" tabindex="-1" aria-hidden="true">' +
+            (host.image_url ? '<img src="' + esc(host.image_url) + '" alt="" decoding="async">' : '<span class="material-symbols-rounded">storefront</span>') +
+            '<span class="km-venue__badge"><span class="material-symbols-rounded" aria-hidden="true">confirmation_number</span>' + esc(t.ev(points.length)) + '</span>' +
+          '</a>' +
+          '<div class="km-venue__about">' +
+            (host.category ? '<span class="km-venue__cat" style="--cat:' + esc(host.category_color_text || '#136f38') + '">' + esc(host.category) + '</span>' : '') +
+            '<h3 class="km-venue__title"><a href="' + esc(host.url || '#') + '">' + esc(host.name) + '</a></h3>' +
+            '<p class="km-venue__facts">' + (host.age ? '<span><span class="material-symbols-rounded" aria-hidden="true">child_care</span>' + esc(host.age) + '</span>' : '') +
+              (host.price ? '<span><span class="material-symbols-rounded" aria-hidden="true">payments</span>' + esc(host.price) + '</span>' : '') + '</p>' +
+            '<div class="km-venue__actions">' +
+              '<a class="km-ev-btn km-ev-btn--primary" href="' + esc(host.url || '#') + '"><span>' + esc(t.about) + '</span><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>' +
+              '<a class="km-ev-btn km-ev-btn--ghost" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(first.lat + ',' + first.lng) + '"><span class="material-symbols-rounded" aria-hidden="true">near_me</span><span>' + esc(L.route) + '</span></a>' +
+            '</div>' +
+          '</div>' +
+        '</header>' +
+        '<p class="km-venue__section km-venue__section--events"><span class="material-symbols-rounded" aria-hidden="true">confirmation_number</span>' + esc(t.here) + ' · ' + points.length + '</p>'
+      : '<header class="km-venue__head">' +
+          '<span class="km-venue__icon material-symbols-rounded" aria-hidden="true">confirmation_number</span>' +
+          '<span><span class="km-venue__tag">' + esc(t.here) + '</span><h3 class="km-venue__title">' + esc(title) + '</h3><span class="km-venue__sub">' + esc(subtitle) + '</span></span>' +
+        '</header>';
+    this.card.classList.toggle('km-evcard--host', !!host);
     this.show('venue',
-      '<header class="km-venue__head">' +
-        '<span class="km-venue__icon material-symbols-rounded" aria-hidden="true">confirmation_number</span>' +
-        '<span><span class="km-venue__tag">' + esc(t.here) + '</span><h3 class="km-venue__title">' + esc(title) + '</h3><span class="km-venue__sub">' + esc(subtitle) + '</span></span>' +
-      '</header>' +
+      head +
       '<ul class="km-venue__list">' + rows + '</ul>' +
-      (places.length ? '<p class="km-venue__section">' + esc(t.places) + '</p><ul class="km-venue__list">' + placeRows + '</ul>' : ''));
+      (places.length && !host ? '<p class="km-venue__section">' + esc(t.places) + '</p><ul class="km-venue__list">' + placeRows + '</ul>' : ''));
     Array.prototype.forEach.call(this.card.querySelectorAll('[data-km-venue-event]'), function (button) {
       button.addEventListener('click', function () {
         self.open(points[+button.dataset.kmVenueEvent], function () { self.openVenue(eventMarkers, placeMarkers); });

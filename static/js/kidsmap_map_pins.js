@@ -122,6 +122,8 @@
     (markers || []).forEach(function (marker) {
       // Afisha venue markers (map_event_layer.js) share the place clusterer.
       if (marker && marker.__kmEvents) { events += marker.__kmEvents.length; return; }
+      // A place pin that also hosts afisha counts both.
+      if (marker && marker.__kmAttached) events += (marker.__kmAttached.__kmEvents || []).length;
       members(marker && marker.__kidsMapPlace).forEach(function (place) {
         var root = marker.__kidsMapPlace || {};
         var color = safeColor(place.category_color_text || root.category_color_text, DEFAULT_INK);

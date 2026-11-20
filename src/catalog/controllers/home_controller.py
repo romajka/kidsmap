@@ -61,7 +61,7 @@ class HomeController:
             # Same public reader as /events/, so home counters match the afisha.
             from catalog.services.event_afisha import build_event_quick_stats, upcoming_events_for_home
             from catalog.services.event_afisha import event_map_points
-            upcoming_events = upcoming_events_for_home(limit=4)
+            upcoming_events = upcoming_events_for_home(limit=8)
             events_quick_stats = build_event_quick_stats()
             home_map_events = event_map_points(language_code=language_code)
 
