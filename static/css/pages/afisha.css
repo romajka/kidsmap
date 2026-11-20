@@ -720,31 +720,10 @@ a.km-cal__day:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset:
 .km-home-afisha__track:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset: -3px; border-radius: 20px; }
 .km-home-afisha__item { flex: 0 0 clamp(250px, 27%, 300px); scroll-snap-align: start; display: flex; }
 .km-home-afisha__item > .km-ev-card { width: 100%; }
-.km-home-afisha__more a {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 300px;
-  border-radius: var(--ev-radius);
-  border: 2px dashed rgba(19, 111, 56, 0.25);
-  background: rgba(255, 255, 255, 0.6);
-  color: var(--ev-deep);
-  text-align: center;
-  text-decoration: none;
-  transition: background 0.2s, border-color 0.2s, transform 0.3s var(--ev-spring);
-}
-.km-home-afisha__more a:hover { background: #fff; border-color: var(--ev-green); color: var(--ev-deep); transform: translateY(-3px); }
-.km-home-afisha__more .material-symbols-rounded { font-size: 2.4rem; color: var(--ev-hot); transition: transform 0.4s var(--ev-spring); }
-.km-home-afisha__more a:hover .material-symbols-rounded { transform: rotate(-12deg) scale(1.1); }
-.km-home-afisha__more strong { font-size: 1.05rem; }
-.km-home-afisha__more small { color: var(--ev-muted); font-weight: 700; }
 .km-home-afisha__arrow {
   position: absolute;
   z-index: 3;
-  top: 38%;
+  top: 92px;
   display: none;
   place-items: center;
   width: 44px;
@@ -1514,3 +1493,275 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   padding: 1px 5px; border-radius: 6px; background: #33408a; color: #fff;
   font-size: 8px; font-weight: 800; letter-spacing: 0.03em; white-space: nowrap; box-shadow: 0 0 0 1.5px #fff;
 }
+
+/* ─── EVENT LANGUAGE: readable at a glance ─── */
+.km-ev-lang {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px 3px 6px; border-radius: 999px;
+  background: #eef1ff; color: #2f3c8f; font-size: 0.76rem; font-weight: 800; white-space: nowrap;
+  box-shadow: inset 0 0 0 1px rgba(47, 60, 143, 0.14);
+}
+.km-ev-card__meta .km-ev-lang .material-symbols-rounded { font-size: 0.98rem; color: #4253c4; }
+.km-ev-lang b + b::before { content: "·"; margin: 0 3px; opacity: 0.55; }
+.km-ev-card__langs { background: #fff; color: #2f3c8f; box-shadow: 0 6px 16px -8px rgba(20, 30, 60, 0.55); backdrop-filter: none; font-size: 0.74rem; }
+.km-ev-card__langs .material-symbols-rounded { color: #4253c4; }
+
+/* ─── MAP MODE SWITCH: Всё / Места / Афиша ─── */
+.km-modes {
+  --i: 0;
+  position: relative; display: inline-grid; grid-template-columns: repeat(3, auto);
+  justify-self: start; align-self: start; width: max-content; max-width: 100%; box-sizing: border-box;
+  margin: 4px 0 12px; padding: 4px; border: 0; min-inline-size: 0;
+  border-radius: 999px; background: #eef3ef; box-shadow: inset 0 0 0 1px rgba(19, 111, 56, 0.08);
+}
+.km-modes[data-mode="places"] { --i: 1; }
+.km-modes[data-mode="events"] { --i: 2; }
+.km-modes__thumb {
+  position: absolute; top: 4px; bottom: 4px; left: 4px; width: var(--w, 33%);
+  border-radius: 999px; background: #fff; box-shadow: 0 6px 16px -8px rgba(13, 40, 25, 0.45), 0 0 0 1px rgba(13, 73, 36, 0.06);
+  transform: translateX(var(--x, 0)); transition: transform 0.45s var(--ev-spring), width 0.35s var(--ev-ease);
+}
+.km-mode {
+  position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 7px;
+  min-height: 40px; padding: 6px 16px; border-radius: 999px;
+  color: #5d6b63; font-size: 0.88rem; font-weight: 800; cursor: pointer; user-select: none;
+  transition: color 0.25s;
+}
+.km-mode input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.km-mode:has(input:checked) { color: var(--ev-ink); }
+.km-mode:has(input:focus-visible) { outline: 3px solid var(--ev-leaf); outline-offset: 1px; }
+.km-mode__icon { font-size: 1.15rem; transition: transform 0.4s var(--ev-spring); }
+.km-mode--places .km-mode__icon { color: var(--ev-green); }
+.km-mode--events .km-mode__icon { color: #e8533f; }
+.km-mode:has(input:checked) .km-mode__icon { transform: scale(1.18) rotate(-8deg); }
+.km-mode b { padding: 1px 7px; border-radius: 999px; font-size: 0.74rem; background: rgba(19, 111, 56, 0.1); color: var(--ev-green); font-variant-numeric: tabular-nums; }
+.km-mode--events b { background: rgba(232, 83, 63, 0.12); color: #c23a28; }
+.km-mode__dots { display: inline-flex; }
+.km-mode__dots i { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff; background: var(--ev-green); }
+.km-mode__dots i + i { margin-left: -4px; background: #e8533f; }
+
+/* ─── MAP: TICKET STACK (several events at one venue) ─── */
+.km-evpin__stack i {
+  position: absolute; left: 4px; top: 12px; width: 44px; height: 44px; border-radius: 12px;
+  background: #ffd9cd; border: 2px solid #fff; box-sizing: border-box;
+  transform: translate(5px, -5px) rotate(8deg); transform-origin: 50% 100%;
+  transition: transform 0.35s var(--ev-spring);
+}
+.km-evpin__stack i + i { background: #ffb59f; transform: translate(2.5px, -2.5px) rotate(4deg); }
+.km-evpin--stack:hover .km-evpin__stack i { transform: translate(10px, -8px) rotate(14deg); }
+.km-evpin--stack:hover .km-evpin__stack i + i { transform: translate(5px, -4px) rotate(7deg); }
+.km-evpin__count {
+  position: absolute; z-index: 3; top: 2px; right: -8px;
+  display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 5px; box-sizing: border-box;
+  border-radius: 999px; background: #e8533f; color: #fff; font-size: 11px; font-weight: 900;
+  box-shadow: 0 0 0 2.5px #fff, 0 6px 10px -4px rgba(150, 30, 10, 0.6);
+  animation: km-evpin-badge-in 0.5s var(--ev-spring) both; animation-delay: calc(0.35s + var(--km-i, 0) * 70ms);
+}
+/* the time-left badge sits centred above the ticket, not over neighbours */
+.km-evpin__badge { top: -4px; right: auto; left: 0; right: 0; margin: 0 auto; width: max-content; transform-origin: 50% 100%; }
+.km-evpin__langs { display: none; }
+
+/* ─── MAP: CLUSTERS WITH AFISHA (shared with places) ─── */
+.km-cluster-host { background: none !important; border: 0 !important; }
+.km-cluster--events .km-cluster__core { background: #e8533f; }
+.km-cluster--events::before { background: rgba(255, 170, 150, 0.45); }
+.km-cluster__events {
+  position: absolute; z-index: 2; top: -6px; right: -10px;
+  display: inline-flex; align-items: center; gap: 2px; height: 20px; padding: 0 6px 0 4px; box-sizing: border-box;
+  border-radius: 7px; background: #e8533f; color: #fff; font-size: 11px; font-weight: 900; line-height: 1;
+  box-shadow: 0 0 0 2px #fff, 0 6px 10px -5px rgba(150, 30, 10, 0.7);
+  transform: rotate(8deg); animation: km-cluster-tab 0.55s var(--ev-spring) 0.25s both;
+}
+.km-cluster__events .material-symbols-rounded { font-size: 13px; line-height: 1; }
+@keyframes km-cluster-tab { 0% { opacity: 0; transform: translate(-8px, 8px) scale(0.3) rotate(-20deg); } 100% { opacity: 1; transform: rotate(8deg); } }
+
+/* ─── MAP: VENUE SHEET ─── */
+.km-evcard--venue { padding-bottom: 8px; }
+.km-venue__head { display: flex; gap: 12px; align-items: center; padding: 16px 56px 12px 16px; background: linear-gradient(135deg, #fff1ec, #fff9ef); border-radius: 22px 22px 0 0; }
+.km-venue__icon { display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 14px; background: #e8533f; color: #fff; font-size: 1.4rem; box-shadow: 0 10px 18px -10px rgba(200, 50, 30, 0.8); }
+.km-evcard.is-open .km-venue__icon { animation: km-venue-pop 0.6s var(--ev-spring) 0.1s both; }
+.km-venue__tag { display: block; color: #c23a28; font-size: 0.7rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; }
+.km-venue__title { margin: 2px 0 1px; font-family: var(--font-display, inherit); font-size: 1rem; line-height: 1.25; color: var(--ev-ink); }
+.km-venue__sub { color: var(--ev-muted); font-size: 0.78rem; font-weight: 700; }
+.km-venue__section { margin: 10px 16px 4px; color: var(--ev-green); font-size: 0.7rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; }
+.km-venue__list { list-style: none; margin: 0; padding: 6px 8px 0; display: grid; gap: 4px; }
+.km-evcard.is-open .km-venue__list > li { animation: km-rise 0.45s var(--ev-ease) both; animation-delay: calc(0.08s + var(--n, 0) * 45ms); }
+.km-venue__row {
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; box-sizing: border-box;
+  border: 0; border-radius: 16px; background: transparent; color: inherit; text-align: left; text-decoration: none; font: inherit; cursor: pointer;
+  transition: background 0.2s, transform 0.25s var(--ev-spring);
+}
+.km-venue__row:hover { background: #fff4f0; transform: translateX(3px); }
+.km-venue__row--place:hover { background: #eef8f1; }
+.km-venue__row:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset: -2px; }
+.km-venue__stamp { display: grid; justify-items: center; width: 46px; flex: none; padding: 0 0 4px; border-radius: 12px; background: #fff; box-shadow: 0 0 0 1.5px #ffd2c6, 0 6px 12px -8px rgba(160, 50, 30, 0.5); overflow: hidden; line-height: 1.05; }
+.km-venue__stamp small:first-child { justify-self: stretch; text-align: center; padding: 2px 0; background: linear-gradient(135deg, #ff7a59, #e8533f); color: #fff; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; }
+.km-venue__stamp b { margin-top: 3px; font-size: 1.05rem; font-weight: 900; color: var(--ev-ink); }
+.km-venue__stamp small:last-child { font-size: 0.62rem; font-weight: 800; color: var(--ev-muted); }
+.km-venue__row[data-phase="running"] .km-venue__stamp small:first-child { background: linear-gradient(135deg, #1fb05a, #0f8a3e); }
+.km-venue__info { display: grid; gap: 3px; min-width: 0; flex: 1; }
+.km-venue__name { font-weight: 800; font-size: 0.9rem; color: var(--ev-ink); line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.km-venue__meta { display: flex; flex-wrap: wrap; gap: 2px 8px; color: var(--ev-muted); font-size: 0.75rem; font-weight: 700; }
+.km-venue__langs { justify-self: start; display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px 1px 4px; border-radius: 999px; background: #eef1ff; color: #2f3c8f; font-size: 0.7rem; font-weight: 800; }
+.km-venue__langs .material-symbols-rounded { font-size: 0.9rem; }
+.km-venue__langs b + b::before { content: "·"; margin: 0 2px; opacity: 0.55; }
+.km-venue__left { flex: none; padding: 3px 8px; border-radius: 999px; background: var(--ev-ink); color: #fff; font-size: 0.7rem; font-weight: 800; white-space: nowrap; }
+.km-venue__row[data-phase="soon"] .km-venue__left { background: var(--ev-hot); }
+.km-venue__row[data-phase="running"] .km-venue__left { background: #12a150; }
+.km-venue__thumb { width: 46px; height: 46px; flex: none; border-radius: 12px; object-fit: cover; display: grid; place-items: center; background: #eef8f1; color: var(--ev-green); }
+.km-venue__go { color: var(--ev-green); transition: transform 0.25s var(--ev-spring); }
+.km-venue__row--place:hover .km-venue__go { transform: translateX(3px); }
+.km-evcard__back {
+  position: absolute; z-index: 3; top: 10px; left: 10px; display: inline-flex; align-items: center; gap: 4px;
+  height: 36px; padding: 0 12px 0 8px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.95); color: var(--ev-ink);
+  font: inherit; font-size: 0.78rem; font-weight: 800; box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.5); cursor: pointer;
+  transition: transform 0.25s var(--ev-spring);
+}
+.km-evcard__back:hover { transform: translateX(-3px); }
+.km-evcard__back .material-symbols-rounded { font-size: 1.1rem; }
+.km-evcard__back ~ .km-evcard__media .km-evcard__chips { top: 54px; }
+.km-evcard__langs--photo { position: absolute; right: 12px; bottom: 10px; background: #fff; box-shadow: 0 6px 14px -8px rgba(20, 30, 60, 0.6); }
+/* soft shimmer while the photo decodes, instead of an empty frame */
+.km-evcard__media { background: linear-gradient(110deg, #fde9e2 30%, #fff6ef 50%, #fde9e2 70%) 0 0 / 220% 100%; animation: km-evcard-shimmer 1.2s linear infinite; }
+.km-evcard__media:has(img) { animation: none; }
+@keyframes km-evcard-shimmer { to { background-position: -220% 0; } }
+@keyframes km-venue-pop { 0% { transform: scale(0.4) rotate(-25deg); } 100% { transform: none; } }
+@media (max-width: 640px) {
+  .km-modes { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; box-sizing: border-box; }
+  .km-mode { justify-content: center; padding: 6px 8px; gap: 5px; font-size: 0.82rem; }
+  .km-mode b { display: none; }
+  .km-venue__head { padding: 14px 52px 10px 14px; border-radius: 20px 20px 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .km-modes__thumb, .km-mode__icon, .km-evpin__stack i, .km-venue__row { transition: none; }
+  .km-cluster__events, .km-evpin__count, .km-evcard.is-open .km-venue__list > li, .km-evcard.is-open .km-venue__icon, .km-evcard__media { animation: none !important; }
+}
+
+/* ─── "Афиша" mode: event list beside the map ─── */
+.km-evlist { display: none; list-style: none; margin: 0; padding: 2px; gap: 6px; }
+.is-events-mode .km-evlist { display: grid; }
+.is-events-mode [data-home-map-list], .is-events-mode [data-home-explorer-empty], .is-events-mode .km-map-pages, .is-events-mode [data-map-pagination] { display: none !important; }
+.km-evlist__row { background: #fff; box-shadow: 0 0 0 1px rgba(13, 73, 36, 0.08); }
+.is-events-mode .km-evlist > li { animation: km-rise 0.45s var(--ev-ease) both; animation-delay: calc(var(--n, 0) * 40ms); }
+@media (prefers-reduced-motion: reduce) { .is-events-mode .km-evlist > li { animation: none; } }
+
+/* ─── HOME AFISHA: clean event slider ─── */
+/* soft fade on the edge that still has cards behind it */
+.km-home-afisha.is-scrollable:not(.is-at-start) .km-home-afisha__track { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 64px); mask-image: linear-gradient(90deg, transparent 0, #000 64px); }
+.km-home-afisha.is-scrollable:not(.is-at-end) .km-home-afisha__track { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent 100%); mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent 100%); }
+.km-home-afisha.is-scrollable:not(.is-at-start):not(.is-at-end) .km-home-afisha__track { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 64px, #000 calc(100% - 64px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 64px, #000 calc(100% - 64px), transparent 100%); }
+.km-home-afisha__dots { display: none; justify-content: center; gap: 6px; margin-top: 2px; }
+.km-home-afisha.is-scrollable .km-home-afisha__dots { display: flex; }
+.km-home-afisha__dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: rgba(19, 111, 56, 0.2); cursor: pointer; transition: width 0.35s var(--ev-spring), background 0.25s; }
+.km-home-afisha__dots button.is-active { width: 26px; background: var(--ev-green); }
+.km-home-afisha__arrow:active { transform: scale(0.94); }
+@media (prefers-reduced-motion: reduce) { .km-home-afisha__dots button { transition: none; } }
+@media (max-width: 760px) {
+  /* the scrollable chip row must not widen the header column on phones */
+  .km-home-afisha__head { grid-template-columns: minmax(0, 1fr); }
+  .km-home-afisha__head > * { min-width: 0; }
+  .km-home-afisha__copy h2 { overflow-wrap: anywhere; }
+}
+@media (max-width: 760px) {
+  .km-home-afisha.is-scrollable .km-home-afisha__track { -webkit-mask-image: none !important; mask-image: none !important; }
+  .km-home-afisha__item { flex: 0 0 82%; }
+}
+@media (max-width: 760px) {
+  .km-home-afisha__item, .km-home-afisha__item > .km-ev-card { min-width: 0; }
+  .km-home-afisha__cta { flex-wrap: wrap; }
+  .km-home-afisha__add { flex: 1 0 100%; justify-content: center; }
+}
+@media (max-width: 760px) {
+  .km-home-afisha .km-ev-card__actions { gap: 6px; }
+  .km-home-afisha .km-ev-card__actions .km-ev-btn:not(.km-ev-btn--icon) { flex: 1 1 0; min-width: 0; padding: 0 8px; font-size: 0.82rem; }
+  .km-home-afisha .km-ev-card__actions .km-ev-btn--icon { flex: none; }
+  .km-home-afisha .km-ev-card__actions .km-ev-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+@media (max-width: 760px) {
+  /* narrow slider card: keep the main action readable, details open from the title/photo */
+  .km-home-afisha .km-ev-card__actions:has(.km-ev-btn--primary ~ .km-ev-btn--ghost) .km-ev-btn--ghost { display: none; }
+}
+
+/* ─── MAP: place that also hosts afisha ─── */
+.km-pin__events {
+  position: absolute; z-index: 3; top: -8px; right: -14px;
+  display: inline-flex; align-items: center; gap: 1px; height: 19px; padding: 0 5px 0 3px; box-sizing: border-box;
+  border-radius: 7px; background: #e8533f; color: #fff; font-size: 10.5px; font-weight: 900; line-height: 1; white-space: nowrap;
+  box-shadow: 0 0 0 2px #fff, 0 6px 10px -5px rgba(150, 30, 10, 0.7);
+  transform: rotate(8deg); pointer-events: none;
+  animation: km-cluster-tab 0.55s var(--ev-spring, ease) 0.2s both;
+}
+.km-pin__events .material-symbols-rounded { font-size: 12px; }
+.leaflet-marker-icon > .km-pin__events, .custom-leaflet-marker > .km-pin__events { top: -6px; right: -12px; }
+.custom-leaflet-marker { overflow: visible !important; }
+.km-pin.has-events::after, .custom-leaflet-marker.has-events::after {
+  content: ""; position: absolute; left: 50%; bottom: -4px; width: 30px; height: 10px; margin-left: -15px; border-radius: 50%;
+  border: 2px solid rgba(232, 83, 63, 0.55); animation: km-host-ring 2.2s ease-out infinite; pointer-events: none;
+}
+@keyframes km-host-ring { 0% { opacity: 0.9; transform: scale(0.4); } 100% { opacity: 0; transform: scale(1.6); } }
+
+/* venue sheet led by the place */
+.km-venue__hero { display: grid; }
+.km-venue__photo { position: relative; display: block; aspect-ratio: 16 / 6; background: linear-gradient(135deg, #e7f4ea, #fff6e9); overflow: hidden; border-radius: 22px 22px 0 0; }
+.km-venue__photo img { width: 100%; height: 100%; object-fit: cover; display: block; animation: km-evcard-zoom 6s ease-out both; }
+.km-venue__photo > .material-symbols-rounded { display: grid; place-items: center; height: 100%; font-size: 2.6rem; color: var(--ev-green); }
+.km-venue__photo::after { content: ""; position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, rgba(10, 30, 18, 0.35)); pointer-events: none; }
+.km-venue__badge {
+  position: absolute; z-index: 1; left: 12px; bottom: 10px; display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px 4px 7px; border-radius: 999px; background: #e8533f; color: #fff; font-size: 0.74rem; font-weight: 900;
+  box-shadow: 0 8px 16px -8px rgba(150, 30, 10, 0.8);
+}
+.km-venue__badge .material-symbols-rounded { font-size: 1rem; }
+.km-venue__about { display: grid; gap: 6px; padding: 12px 16px 4px; }
+.km-venue__cat { justify-self: start; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, var(--cat) 12%, #fff); color: var(--cat); font-size: 0.72rem; font-weight: 900; letter-spacing: 0.02em; }
+.km-venue__hero .km-venue__title { margin: 0; font-size: 1.08rem; line-height: 1.3; }
+.km-venue__hero .km-venue__title a { color: var(--ev-ink); text-decoration: none; }
+.km-venue__hero .km-venue__title a:hover { color: var(--ev-green); }
+.km-venue__facts { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; color: var(--ev-muted); font-size: 0.8rem; font-weight: 700; }
+.km-venue__facts > span { display: inline-flex; align-items: center; gap: 4px; }
+.km-venue__facts .material-symbols-rounded { font-size: 1rem; color: var(--ev-green); }
+.km-venue__facts:empty { display: none; }
+.km-venue__actions { display: flex; gap: 8px; margin-top: 4px; }
+.km-venue__actions .km-ev-btn--primary { flex: 1; }
+.km-venue__section--events { display: flex; align-items: center; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(232, 83, 63, 0.3); color: #c23a28; }
+.km-venue__section--events .material-symbols-rounded { font-size: 1rem; }
+.km-evcard.is-open .km-venue__about > * { animation: km-rise 0.45s var(--ev-ease) both; }
+.km-evcard.is-open .km-venue__about > :nth-child(2) { animation-delay: 0.06s; }
+.km-evcard.is-open .km-venue__about > :nth-child(3) { animation-delay: 0.1s; }
+.km-evcard.is-open .km-venue__about > :nth-child(4) { animation-delay: 0.14s; }
+@media (max-width: 640px) { .km-venue__photo { aspect-ratio: 16 / 6; border-radius: 20px 20px 0 0; } }
+@media (prefers-reduced-motion: reduce) { .km-pin__events, .km-pin.has-events::after, .custom-leaflet-marker.has-events::after, .km-venue__photo img, .km-evcard.is-open .km-venue__about > * { animation: none !important; } }
+
+/* ─── MAP: place card in the side card (same look as the event card) ─── */
+.km-evcard__placebody .home-map-popup-members,
+.km-evcard__placebody .home-map-popup { width: 100% !important; max-width: none !important; margin: 0; border-radius: 0; box-shadow: none; }
+.km-evcard__placebody .home-map-popup-thumb-link { aspect-ratio: 16 / 8; height: auto; border-radius: 22px 22px 0 0; overflow: hidden; }
+.km-evcard__placebody .home-map-popup-thumb { width: 100%; height: 100%; object-fit: cover; }
+.km-evcard__placebody .home-map-popup-thumb-blur { display: none; }
+.km-evcard__placebody .home-map-popup-price { top: auto; bottom: 10px; left: 12px; right: auto; padding: 5px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.95); color: var(--ev-deep); font-size: 0.76rem; font-weight: 800; box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.5); }
+.km-evcard__placebody .home-map-popup-badges { top: 12px; bottom: auto; left: 12px; right: 56px; gap: 6px; flex-wrap: wrap; }
+.km-evcard__placebody .home-map-popup-badge-cat,
+.km-evcard__placebody .home-map-popup-badge-age { padding: 4px 9px; border-radius: 999px; font-size: 0.7rem; letter-spacing: 0.02em; box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.5); }
+.km-evcard__placebody .home-map-popup-body { gap: 8px; padding: 12px 16px 16px; }
+.km-evcard__placebody .home-map-popup-title { font-family: var(--font-display, inherit); font-size: 1.05rem; line-height: 1.3; -webkit-line-clamp: 3; }
+.km-evcard__placebody .home-map-popup-details { gap: 6px; }
+.km-evcard__placebody .home-map-popup-info-row { align-items: flex-start; font-size: 0.8rem; color: var(--ev-muted); }
+.km-evcard__placebody .home-map-popup-info-text { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.km-evcard__placebody .popup-info-icon { flex: none; margin-top: 2px; color: var(--ev-green); }
+/* two equal buttons, then the main one */
+.km-evcard__placebody .home-map-popup-actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; padding: 0; }
+.km-evcard__placebody .home-map-popup-route-link,
+.km-evcard__placebody .home-map-popup-phone-link {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; padding: 0 10px; box-sizing: border-box;
+  border: 1.5px solid rgba(19, 111, 56, 0.18); border-radius: 14px; background: #fff; color: var(--ev-deep);
+  font: inherit; font-size: 0.82rem; font-weight: 800; text-decoration: none; white-space: nowrap; cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.25s var(--ev-spring);
+}
+.km-evcard__placebody .home-map-popup-route-link:hover,
+.km-evcard__placebody .home-map-popup-phone-link:hover { background: #eef8f1; border-color: var(--ev-green); text-decoration: none; transform: translateY(-1px); }
+.km-evcard__placebody .home-map-popup-phone-link svg { width: 16px; height: 16px; }
+.km-evcard__placebody .home-map-popup-actions-row > :only-child { grid-column: 1 / -1; }
+.km-evcard__placebody .home-map-popup-link-btn { min-height: 46px; margin-top: 2px; border-radius: 14px; font-size: 0.9rem; background: linear-gradient(135deg, #1f9450, var(--ev-green)) !important; box-shadow: 0 10px 20px -12px rgba(19, 111, 56, 0.9); }
+.km-evcard__placebody .home-map-popup-badges { flex-direction: row; align-items: center; }
+.km-evcard__placebody .home-map-popup-actions-row .home-map-popup-phone-link.km-phone-control { border: 1.5px solid rgba(19, 111, 56, 0.18) !important; background: #fff !important; border-radius: 14px !important; min-height: 42px !important; padding: 0 10px !important; }
+.km-evcard__placebody .home-map-popup-actions-row .home-map-popup-phone-link.km-phone-control:hover { background: #eef8f1 !important; border-color: var(--ev-green) !important; }

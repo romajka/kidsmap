@@ -29,7 +29,7 @@ class EventSchemaTests(TestCase):
         values = dict(name='Synthetic Event', category=self.category,
                       organizer_organization=self.organization,
                       start_datetime=timezone.now() + timedelta(days=2),
-                      end_datetime=timezone.now() + timedelta(days=2, hours=1))
+                      end_datetime=timezone.now() + timedelta(days=2, hours=1), languages='az')
         values.update(overrides)
         return Event.objects.create(**values)
 

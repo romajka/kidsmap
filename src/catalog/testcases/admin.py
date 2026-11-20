@@ -88,7 +88,7 @@ def create_reviewable_event(actor, *, name, published=False, **values):
         'name': name, 'name_az': name, 'description_az': 'Approved event description', 'category_id': 'EDU',
         'organizer_organization_id': organizer.pk, 'event_format': 'online',
         'photo': 'events/reviewable-fixture.jpg', 'phone': '+994501112233', 'price_mode': 'unknown',
-        'start_datetime': start, 'end_datetime': start+timedelta(hours=2), **values})
+        'start_datetime': start, 'end_datetime': start+timedelta(hours=2), 'languages': 'az', **values})
     if published:
         event_domain.publish_event(actor=actor, event_id=event.pk, expected_updated_at=event.updated_at)
         event.refresh_from_db()

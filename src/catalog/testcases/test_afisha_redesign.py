@@ -210,7 +210,7 @@ class AfishaMapLayerTests(TestCase):
         html = self.client.get('/ru/').content.decode()
         if 'id="home-map-section"' in html:  # the map renders only when places have pins
             self.assertIn('id="home-map-events"', html)
-            self.assertIn('data-km-layer="events"', html)
+            self.assertIn('value="events" data-km-mode', html)
             self.assertIn('map_event_layer.js', html)
         self.assertLess(html.index('id="home-afisha"'), html.index('id="home-parent-guide-title"'))
 

@@ -101,10 +101,10 @@ class FilterDrawerTests(TestCase):
                 with self.subTest(model=model.__name__, lang=lang):
                     response = self.page(model, lang=lang)
                     parsed = DrawerControls(response.content.decode())
-                    expected = (['category', 'status', 'start_datetime', 'owner'] if model is Event
+                    expected = (['category', 'status', 'start_datetime', 'event_language', 'owner'] if model is Event
                         else ['status', 'is_active', 'format', 'specializations'])
                     self.assertEqual(list(parsed.selects), expected)
-                    self.assertEqual(len(set(c['id'] for c in parsed.selects.values())), 4)
+                    self.assertEqual(len(set(c['id'] for c in parsed.selects.values())), len(expected))
                     for spec in response.context['cl'].filter_specs:
                         field = getattr(spec, 'field_path', None) or getattr(spec, 'parameter_name', None)
                         if field not in expected:
@@ -116,6 +116,12 @@ class FilterDrawerTests(TestCase):
                     status = parsed.selects['status']['options']
                     self.assertIn({'ru': 'Опубликовано', 'az': 'Dərc olunub', 'en': 'Published'}[lang], [o['text'] for o in status])
                     self.assertNotContains(response, 'km-filter-chips-section')
+
+    def test_event_language_filter_returns_only_matching_events(self):
+        Event.objects.filter(pk=self.events[0]).update(languages='az,ru')
+        page = self.page(Event)
+        self.assert_ids(self.choose(page, 'event_language', 'event_language', 'missing'), self.events[1:])
+        self.assert_ids(self.choose(page, 'event_language', 'event_language', 'set'), self.events[:1])
 
     def test_event_multiple_rendered_choices_preserve_search_sort_and_zero_results(self):
         response = self.choose(self.page(Event), 'category', 'category__code__exact', self.categories[0].pk)

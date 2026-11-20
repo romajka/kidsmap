@@ -3,14 +3,16 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const {JSDOM} = require(process.env.KIDSMAP_JSDOM || '../../.tmp/phone-dom/node_modules/jsdom');
 
-test('Google renders ticket pins with languages and counts nearby events in their own cluster', () => {
+test('Google stacks sessions at one venue, opens each one and counts them in mixed clusters', () => {
   const dom = new JSDOM('<section data-home-map-explorer><div id="home-map"></div></section><script id="home-map-events" type="application/json"></script>', {runScripts: 'outside-only'});
   const w = dom.window;
   try {
     const now = Date.now();
-    const events = ['Workshop', 'Concert'].map((name, index) => ({
-      name, lat: 40.4 + index / 10000, lng: 49.8, languages: ['RU'],
-      start: new Date(now + 3600000).toISOString(), end: new Date(now + 7200000).toISOString(),
+    const events = ['Concert', 'Concert', 'Workshop'].map((name, index) => ({
+      name, lat: index < 2 ? 40.4 : 40.41, lng: 49.8, languages: [index === 1 ? 'AZ' : 'RU'],
+      url: '/events/session-' + index + '/',
+      start: new Date(now + (index + 1) * 3600000).toISOString(),
+      end: new Date(now + (index + 2) * 3600000).toISOString(),
     }));
     w.document.getElementById('home-map-events').textContent = JSON.stringify(events);
     const mapEl = w.document.getElementById('home-map');
@@ -21,7 +23,7 @@ test('Google renders ticket pins with languages and counts nearby events in thei
         super();
         if (content) this.append(content);
       }
-      addListener() {}
+      addListener(type, handler) { this.addEventListener(type, handler); }
     }
     w.customElements.define('test-google-marker', AdvancedMarker);
     w.google = {maps: {
@@ -29,21 +31,34 @@ test('Google renders ticket pins with languages and counts nearby events in thei
       Size: class {constructor(width, height) {Object.assign(this, {width, height});}},
       Point: class {constructor(x, y) {Object.assign(this, {x, y});}},
     }};
-    let clusterOptions;
-    w.markerClusterer = {MarkerClusterer: class {constructor(options) {clusterOptions = options;}}};
-    for (const file of ['google_maps_markers', 'map_event_layer']) {
+    for (const file of ['kidsmap_map_pins', 'google_maps_markers', 'map_event_layer']) {
       w.eval(fs.readFileSync('static/js/' + file + '.js', 'utf8'));
     }
     w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
-    const {markers, renderer} = clusterOptions;
+    const markers = mapEl.__kmEventLayer.visibleMarkers();
     assert.equal(markers.length, 2);
     for (const pin of markers) {
       assert.ok(pin.querySelector('.km-evpin__ticket'));
-      assert.equal(pin.querySelector('.km-evpin__langs').textContent, 'RU');
-      assert.ok(pin.querySelector('[data-km-evpin-left]').textContent.trim());
     }
-    const cluster = renderer.render({markers, count: markers.length, position: events[0]});
-    assert.equal(cluster.querySelector('.km-evcluster__core b').textContent, '2');
+    const [stack, single] = markers;
+    assert.equal(stack.querySelector('.km-evpin__count').textContent, '2');
+    assert.ok(single.querySelector('[data-km-evpin-left]').textContent.trim());
+    const place = {__kidsMapPlace: {name: 'Museum'}};
+    const {element} = w.KidsMapPins.cluster([...markers, place]);
+    assert.ok(element.classList.contains('km-cluster--mixed'));
+    assert.equal(element.querySelector('.km-cluster__count').textContent, '4');
+    assert.equal(element.querySelector('.km-cluster__events').lastChild.textContent, '3');
+
+    stack.click();
+    const card = w.document.querySelector('.km-evcard');
+    for (const [index, session] of events.slice(0, 2).entries()) {
+      const sessions = card.querySelectorAll('[data-km-venue-event]');
+      assert.equal(sessions.length, 2);
+      sessions[index].click();
+      assert.equal(card.querySelector('.km-evcard__title a').getAttribute('href'), session.url);
+      assert.equal(card.querySelector('.km-evcard__langs b').textContent, session.languages[0]);
+      card.querySelector('[data-km-evcard-back]').click();
+    }
   } finally {
     w.close();
   }

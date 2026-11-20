@@ -26,7 +26,7 @@
       </div>
       <div class="km-media-main__bottom">
         <div class="km-media-main__actions">
-          {% if obj.is_public %}<a class="km-media-main__view" href="{{ obj.get_absolute_url }}" target="_blank" rel="noopener">{% translate "Посмотреть на сайте" %}</a>{% endif %}
+          {% if obj.pk and obj.is_public %}<a class="km-media-main__view" href="{{ obj.get_absolute_url }}" target="_blank" rel="noopener">{% translate "Посмотреть на сайте" %}</a>{% endif %}
           <button type="button" class="km-media-main__pick" data-main-photo-pick>{% translate "Выбрать фото" %}</button>
           <button type="button" class="km-media-main__clear" data-main-photo-clear>{% translate "Удалить" %}</button>
         </div>

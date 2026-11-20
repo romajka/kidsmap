@@ -95,7 +95,8 @@ class EventPublicContractTests(TestCase):
         from django.urls import reverse
         event = self.event(occurrence_state='cancelled', start_datetime=self.now+timedelta(days=1), end_datetime=self.now+timedelta(days=2))
         with override('ru'):
-            response = self.client.get(reverse('events_landing'), {'date':event.start_datetime.date().isoformat()})
+            selected_day = timezone.localdate(event.start_datetime).isoformat()
+            response = self.client.get(reverse('events_landing'), {'date': selected_day})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Отменено')
         self.assertNotContains(response, 'data-temporary-event-timer')

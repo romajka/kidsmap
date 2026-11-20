@@ -44,6 +44,7 @@
     <p class="km-ev-card__meta">
       <span class="km-ev-card__cat">{{ event.get_category_display }}</span>
       {% if event.age_display %}<span><span class="material-symbols-rounded" aria-hidden="true">child_care</span>{{ event.age_display }} {% if language == 'az' %}yaş{% elif language == 'en' %}y.o.{% else %}лет{% endif %}</span>{% endif %}
+      {% if event.language_list %}<span class="km-ev-lang" title="{% for item in event.language_list %}{{ item.name }}{% if not forloop.last %}, {% endif %}{% endfor %}"><span class="material-symbols-rounded" aria-hidden="true">record_voice_over</span>{% if event.language_list|length == 1 %}{{ event.language_list.0.name }}{% else %}{% for item in event.language_list %}<b>{{ item.short }}</b>{% endfor %}{% endif %}</span>{% endif %}
     </p>
     {% if event.event_format == 'online' %}
       <p class="km-ev-card__place"><span class="material-symbols-rounded" aria-hidden="true">videocam</span>{% if language == 'az' %}Onlayn{% elif language == 'en' %}Online{% else %}Онлайн{% endif %}</p>

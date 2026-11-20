@@ -11,6 +11,8 @@ def publication_errors(event):
         'category': (event.category_id, ('Выберите категорию.', 'Kateqoriya seçin.', 'Choose a category.')),
         'description_az': (event.description_az, ('Добавьте описание на AZ.', 'AZ dilində təsvir əlavə edin.', 'Add the AZ description.')),
         'photo': (event.photo, ('Добавьте обложку.', 'Üz qabığı əlavə edin.', 'Add a cover image.')),
+        # Parents choose by language: every published event states it.
+        'languages': (getattr(event, 'languages', ''), ('Укажите язык проведения.', 'Tədbirin dilini seçin.', 'Choose the event language.')),
     }
     for field, (value, messages) in required.items():
         if not value or isinstance(value, str) and not value.strip():

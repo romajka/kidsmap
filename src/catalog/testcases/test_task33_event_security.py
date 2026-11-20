@@ -40,7 +40,7 @@ class EventSecurityTests(TestCase):
             photo='events/synthetic.jpg', price_mode='unknown', phone='+994501234567',
             organizer_organization=self.org, owner=self.venue_owner, event_format='online',
             start_datetime=timezone.now()+timedelta(days=2),
-            end_datetime=timezone.now()+timedelta(days=2, hours=1))
+            end_datetime=timezone.now()+timedelta(days=2, hours=1), languages='az')
         values.update(changes)
         return Event.objects.create(**values)
 
