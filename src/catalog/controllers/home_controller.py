@@ -5,13 +5,11 @@ from dataclasses import dataclass
 
 from django.db.models import Q
 from django.templatetags.static import static
-from django.utils import timezone
 from django.utils.translation import gettext as _
-
 
 from catalog.homepage_copy import HOME_TITLES, HOME_SUBTITLES
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository
-from catalog.models import Event, PlaceReview, SiteGalleryImage
+from catalog.models import PlaceReview, SiteGalleryImage
 from catalog.repositories.django_repositories import (
     DjangoPlaceRepository,
     DjangoSettingsRepository,
@@ -57,17 +55,15 @@ class HomeController:
             liked_ids,
         )
         upcoming_events = []
+        events_quick_stats = None
+        home_map_events = []
         if is_events_section_enabled():
-            upcoming_events = list(
-                Event.objects.filter(
-                    status=Event.STATUS_PUBLISHED,
-                    deleted_at__isnull=True,
-                    start_datetime__isnull=False,
-                    end_datetime__gte=timezone.now(),
-                )
-                .select_related("related_place")
-                .order_by("start_datetime", "-updated_at")[:4]
-            )
+            # Same public reader as /events/, so home counters match the afisha.
+            from catalog.services.event_afisha import build_event_quick_stats, upcoming_events_for_home
+            from catalog.services.event_afisha import event_map_points
+            upcoming_events = upcoming_events_for_home(limit=4)
+            events_quick_stats = build_event_quick_stats()
+            home_map_events = event_map_points(language_code=language_code)
 
         from catalog.services.filtering import PlaceListFilters
         from catalog.services.public_map_page import build_map_page, page_metadata
@@ -118,6 +114,8 @@ class HomeController:
             "popular_places": popular_places,
             "home_rail_places": home_rail_places,
             "upcoming_events": upcoming_events,
+            "events_quick_stats": events_quick_stats,
+            "home_map_events": home_map_events,
             "map_places": map_places,
             "home_map_page": page_metadata(map_page),
             "map_business_count": map_business_count,

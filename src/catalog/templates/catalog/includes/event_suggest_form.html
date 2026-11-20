@@ -1,0 +1,58 @@
+{% load i18n %}{% with l=language %}
+<form class="km-suggest__form" method="post" action="{% url 'event_suggest' %}" data-event-suggest-form novalidate data-offline="{% if l == 'az' %}Bağlantı yoxdur. Yenidən cəhd edin və ya WhatsApp-da yazın.{% elif l == 'en' %}No connection. Try again or message us on WhatsApp.{% else %}Нет связи. Попробуйте ещё раз или напишите нам в WhatsApp.{% endif %}">
+  {% csrf_token %}
+  <input type="hidden" name="started" value="{{ suggest_started|default:'' }}" data-suggest-started>
+  <div class="km-suggest__trap" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+
+  <div class="km-suggest__grid">
+    <label class="km-suggest__field km-suggest__field--wide">
+      <span>{% if l == 'az' %}Tədbirin adı{% elif l == 'en' %}Event name{% else %}Название мероприятия{% endif %} <em aria-hidden="true">*</em></span>
+      <input name="title" required maxlength="160" autocomplete="off" value="{{ suggest_form.title.value|default:'' }}" placeholder="{% if l == 'az' %}Məs.: Uşaqlar üçün keramika master-klası{% elif l == 'en' %}E.g. Pottery workshop for kids{% else %}Например: мастер-класс по керамике для детей{% endif %}">
+    </label>
+    <label class="km-suggest__field">
+      <span>{% if l == 'az' %}Nə vaxt{% elif l == 'en' %}When{% else %}Когда{% endif %}</span>
+      <input name="when" maxlength="80" value="{{ suggest_form.when.value|default:'' }}" placeholder="{% if l == 'az' %}28 noyabr, 12:00{% elif l == 'en' %}28 Nov, 12:00{% else %}28 ноября, 12:00{% endif %}">
+    </label>
+    <label class="km-suggest__field">
+      <span>{% if l == 'az' %}Təşkilat və ya məkan{% elif l == 'en' %}Organisation or venue{% else %}Организация или площадка{% endif %}</span>
+      <input name="organization" maxlength="120" autocomplete="organization" value="{{ suggest_form.organization.value|default:'' }}">
+    </label>
+    <label class="km-suggest__field">
+      <span>{% if l == 'az' %}Adınız{% elif l == 'en' %}Your name{% else %}Ваше имя{% endif %} <em aria-hidden="true">*</em></span>
+      <input name="name" required maxlength="80" autocomplete="name" value="{{ suggest_form.name.value|default:'' }}">
+    </label>
+    <label class="km-suggest__field">
+      <span>{% if l == 'az' %}Telefon və ya WhatsApp{% elif l == 'en' %}Phone or WhatsApp{% else %}Телефон или WhatsApp{% endif %}</span>
+      <input name="contact" type="tel" inputmode="tel" maxlength="40" autocomplete="tel" value="{{ suggest_form.contact.value|default:'' }}" placeholder="+994 __ ___ __ __">
+    </label>
+    <label class="km-suggest__field">
+      <span>E-mail</span>
+      <input name="email" type="email" inputmode="email" maxlength="120" autocomplete="email" value="{{ suggest_form.email.value|default:'' }}" placeholder="name@mail.az">
+    </label>
+    <label class="km-suggest__field">
+      <span>{% if l == 'az' %}Link (Instagram, sayt){% elif l == 'en' %}Link (Instagram, website){% else %}Ссылка (Instagram, сайт){% endif %}</span>
+      <input name="link" type="url" inputmode="url" maxlength="300" value="{{ suggest_form.link.value|default:'' }}" placeholder="instagram.com/…">
+    </label>
+    <label class="km-suggest__field km-suggest__field--wide">
+      <span>{% if l == 'az' %}Qısaca: yaş, qiymət, proqram{% elif l == 'en' %}In short: ages, price, programme{% else %}Коротко: возраст, цена, программа{% endif %}</span>
+      <textarea name="message" rows="3" maxlength="1500">{{ suggest_form.message.value|default:'' }}</textarea>
+    </label>
+  </div>
+  <p class="km-suggest__hint">{% if l == 'az' %}* — vacib sahələr. Telefon və ya e-poçtdan birini yazın, cavab verək.{% elif l == 'en' %}* — required. Leave a phone number or e-mail so we can reply.{% else %}* — обязательно. Оставьте телефон или e-mail, чтобы мы могли ответить.{% endif %}</p>
+  <p class="km-suggest__error" data-suggest-error role="alert"{% if not suggest_form.errors and not suggest_message or suggest_ok %} hidden{% endif %}>{% if suggest_form.non_field_errors %}{{ suggest_form.non_field_errors.0 }}{% elif suggest_form.errors %}{% if l == 'az' %}Sahələri yoxlayın.{% elif l == 'en' %}Please check the fields.{% else %}Проверьте поля формы.{% endif %}{% elif not suggest_ok %}{{ suggest_message }}{% endif %}</p>
+  <div class="km-suggest__actions">
+    <button type="submit" class="km-ev-btn km-ev-btn--primary km-ev-btn--lg km-suggest__submit" data-suggest-submit>
+      <span class="material-symbols-rounded" aria-hidden="true">send</span>
+      <span>{% if l == 'az' %}Göndər{% elif l == 'en' %}Send{% else %}Отправить заявку{% endif %}</span>
+    </button>
+    <a class="km-ev-btn km-ev-btn--ghost km-ev-btn--lg km-suggest__wa" href="{{ footer_whatsapp_url|default:'https://wa.me/994554979723' }}?text={% if l == 'az' %}Salam!%20KidsMap%20afişasına%20tədbir%20əlavə%20etmək%20istəyirəm.{% elif l == 'en' %}Hello!%20I%27d%20like%20to%20add%20an%20event%20to%20the%20KidsMap%20afisha.{% else %}Здравствуйте!%20Хочу%20добавить%20мероприятие%20в%20афишу%20KidsMap.{% endif %}" target="_blank" rel="noopener noreferrer">
+      <span class="material-symbols-rounded" aria-hidden="true">chat</span><span>WhatsApp</span>
+    </a>
+  </div>
+  <p class="km-suggest__alt">
+    {% if l == 'az' %}Və ya{% elif l == 'en' %}Or{% else %}Или{% endif %}
+    <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">{{ footer_email|default:'info@kidsmap.az' }}</a>
+    · <a href="{% url 'owner_event_create' %}">{% if l == 'az' %}kabinetdə özünüz əlavə edin{% elif l == 'en' %}add it yourself in your account{% else %}добавьте сами в личном кабинете{% endif %}</a>
+  </p>
+</form>
+{% endwith %}

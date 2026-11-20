@@ -11,7 +11,8 @@
   data-selected-title="{% if request.LANGUAGE_CODE == 'az' %}Seçilmiş məkan{% elif request.LANGUAGE_CODE == 'en' %}Selected place{% else %}Выбранное место{% endif %}"
   data-fx-expand="{% if request.LANGUAGE_CODE == 'az' %}Tam ekran{% elif request.LANGUAGE_CODE == 'en' %}Full screen{% else %}На весь экран{% endif %}"
   data-fx-close="{% if request.LANGUAGE_CODE == 'az' %}Bağla{% elif request.LANGUAGE_CODE == 'en' %}Close{% else %}Закрыть{% endif %}"
-  data-fx-loading="{% if request.LANGUAGE_CODE == 'az' %}Xəritə yüklənir…{% elif request.LANGUAGE_CODE == 'en' %}Loading map…{% else %}Загружаем карту…{% endif %}">
+  data-fx-loading="{% if request.LANGUAGE_CODE == 'az' %}Xəritə yüklənir…{% elif request.LANGUAGE_CODE == 'en' %}Loading map…{% else %}Загружаем карту…{% endif %}"
+  {% include "pages/includes/home_map_event_labels.html" %}>
 
   <div class="home-map-head">
     <div class="home-map-copy">
@@ -48,6 +49,13 @@
      data-status-template="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə {count} məkan göstərilir. Əvvəlcə yeni məkanlar. Xəritədə işarə və ya siyahıdan məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Showing {count} places on map. Newest first. Select a pin or a place in the list.{% else %}Показано {count} мест на карте. Сначала новые. Выберите метку или карточку.{% endif %}"
      data-area-template="{% if request.LANGUAGE_CODE == 'az' %}Xəritənin bu hissəsində {area} məkan — siyahıda əvvəlcə onlar. Cəmi {count}.{% elif request.LANGUAGE_CODE == 'en' %}{area} places in this part of the map — listed first. {count} in total.{% else %}В этой части карты {area} мест — они первые в списке. Всего {count}.{% endif %}">
   </p>
+
+  {% if home_map_events %}
+  <fieldset class="km-layers" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show on map{% else %}Показать на карте{% endif %}">
+    <label class="km-layer km-layer--places"><input type="checkbox" data-km-layer="places" checked><span class="km-layer__box" aria-hidden="true"><span class="material-symbols-rounded">check</span></span><span class="km-layer__dot" aria-hidden="true"></span><span>{% if request.LANGUAGE_CODE == 'az' %}Məkanlar{% elif request.LANGUAGE_CODE == 'en' %}Places{% else %}Места{% endif %}</span><b>{{ map_business_count }}</b></label>
+    <label class="km-layer km-layer--events"><input type="checkbox" data-km-layer="events" checked><span class="km-layer__box" aria-hidden="true"><span class="material-symbols-rounded">check</span></span><span class="km-layer__dot" aria-hidden="true"></span><span>{% if request.LANGUAGE_CODE == 'az' %}Afişa{% elif request.LANGUAGE_CODE == 'en' %}Events{% else %}Афиша{% endif %}</span><b>{{ home_map_events|length }}</b></label>
+  </fieldset>
+  {% endif %}
 
   <div class="home-explorer-tabs" role="tablist" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Məkanlara baxış{% elif request.LANGUAGE_CODE == 'en' %}Places view{% else %}Вид мест{% endif %}">
     <button type="button" role="tab" id="home-explorer-map-tab" aria-selected="true" aria-controls="home-explorer-map-panel" data-home-explorer-tab="map">
@@ -96,5 +104,6 @@
   </noscript>
   {{ map_places|map_points_json:"home-map-data" }}
   {{ home_map_page|json_script:"home-map-page" }}
+  {% if home_map_events %}{{ home_map_events|json_script:"home-map-events" }}{% endif %}
   {% include "catalog/includes/map_pagination.html" with map_kind="home" map_page=home_map_page %}
 </section>

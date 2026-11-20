@@ -82,3 +82,20 @@ def event_caption(value):
 @register.filter
 def is_iticket_url(url):
     return _web_host(str(url or '')) == 'iticket.az'
+
+
+@register.simple_tag
+def event_card_facts(event):
+    """Phase/when/remaining for afisha cards and countdowns (display only)."""
+    from catalog.services.event_afisha import card_facts
+    return card_facts(event)
+
+
+@register.simple_tag
+def event_more(event):
+    """Upcoming events shown under an event page (same organizer/venue first)."""
+    from catalog.models import Event
+    from catalog.services.event_afisha import more_events_for
+    if not isinstance(event, Event):
+        return {'events': [], 'same_source': False}
+    return more_events_for(event)

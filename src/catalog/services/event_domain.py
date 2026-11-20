@@ -9,7 +9,7 @@ from catalog.models import Event, Organization, Specialist, Place
 from catalog.services.staff_roles import is_volunteer
 from catalog.services.phone_numbers import contact_copy
 
-CONTENT_FIELDS=frozenset({'name','name_az','name_ru','name_en','description_az','description_ru','description_en','category_id','start_datetime','end_datetime','age_from','age_to','price_text','price_mode','price_amount','price_amount_max','price_currency','registration_method','whatsapp','registration_url','related_place_id','address','district','metro','lat','lng','phone','instagram','website','photo','moderation_note','event_format','venue_label'})
+CONTENT_FIELDS=frozenset({'name','name_az','name_ru','name_en','description_az','description_ru','description_en','category_id','start_datetime','end_datetime','age_from','age_to','price_text','price_mode','price_amount','price_amount_max','price_currency','registration_method','whatsapp','registration_url','related_place_id','address','district','metro','lat','lng','phone','instagram','website','photo','moderation_note','event_format','venue_label','languages'})
 ORGANIZER_FIELDS=frozenset({'organizer_organization_id','organizer_specialist_id'})
 
 

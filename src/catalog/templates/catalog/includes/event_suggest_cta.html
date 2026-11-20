@@ -1,0 +1,34 @@
+{% comment %}
+"Have an event?" invitation. variant: banner (wide) | compact (one line) | tile (rail card).
+The link works without JS (opens /events/suggest/); event_suggest.js opens the dialog instead.
+{% endcomment %}{% with l=language %}{% url 'event_suggest' as suggest_url %}
+{% if variant == 'tile' %}
+<a class="km-suggest-tile" href="{{ suggest_url }}" data-event-suggest>
+  <span class="km-suggest-tile__icon" aria-hidden="true"><span class="material-symbols-rounded">add</span></span>
+  <strong>{% if l == 'az' %}Tədbiriniz var?{% elif l == 'en' %}Have an event?{% else %}Есть мероприятие?{% endif %}</strong>
+  <small>{% if l == 'az' %}Yazın — pulsuz əlavə edək{% elif l == 'en' %}Tell us — we’ll add it for free{% else %}Напишите — добавим бесплатно{% endif %}</small>
+</a>
+{% elif variant == 'compact' %}
+<p class="km-suggest-compact">
+  <span class="material-symbols-rounded" aria-hidden="true">campaign</span>
+  <span>{% if l == 'az' %}Tədbir keçirirsiniz?{% elif l == 'en' %}Running an event?{% else %}Проводите мероприятие?{% endif %}</span>
+  <a href="{{ suggest_url }}" data-event-suggest>{% if l == 'az' %}Afişaya əlavə edin{% elif l == 'en' %}Add it to the afisha{% else %}Добавьте в афишу{% endif %}<span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>
+</p>
+{% else %}
+<aside class="km-suggest-banner" aria-label="{% if l == 'az' %}Tədbir əlavə etmək{% elif l == 'en' %}Add an event{% else %}Добавить мероприятие{% endif %}">
+  <span class="km-suggest-banner__art" aria-hidden="true">
+    <span class="km-suggest-banner__ticket km-suggest-banner__ticket--a"><b>27</b><small>{% if l == 'az' %}noy{% elif l == 'en' %}nov{% else %}ноя{% endif %}</small></span>
+    <span class="km-suggest-banner__ticket km-suggest-banner__ticket--b"><span class="material-symbols-rounded">celebration</span></span>
+    <span class="km-suggest-banner__ticket km-suggest-banner__ticket--c"><span class="material-symbols-rounded">add</span></span>
+  </span>
+  <div class="km-suggest-banner__copy">
+    <h2>{% if l == 'az' %}Uşaqlar üçün tədbir keçirirsiniz?{% elif l == 'en' %}Running an event for kids?{% else %}Проводите мероприятие для детей?{% endif %}</h2>
+    <p>{% if l == 'az' %}Bizə yazın — afişaya pulsuz əlavə edək, xəritədə göstərək və valideynlərə çatdıraq.{% elif l == 'en' %}Tell us about it — we’ll add it to the afisha and the map for free so parents can find it.{% else %}Напишите нам — бесплатно добавим в афишу и на карту, чтобы его увидели родители.{% endif %}</p>
+  </div>
+  <div class="km-suggest-banner__actions">
+    <a class="km-ev-btn km-ev-btn--primary km-ev-btn--lg" href="{{ suggest_url }}" data-event-suggest><span class="material-symbols-rounded" aria-hidden="true">edit_note</span><span>{% if l == 'az' %}Müraciət göndər{% elif l == 'en' %}Send a request{% else %}Оставить заявку{% endif %}</span></a>
+    <a class="km-ev-btn km-ev-btn--ghost km-ev-btn--lg" href="mailto:{{ footer_email|default:'info@kidsmap.az' }}"><span class="material-symbols-rounded" aria-hidden="true">mail</span><span>{% if l == 'az' %}Məktub yaz{% elif l == 'en' %}E-mail us{% else %}Написать письмо{% endif %}</span></a>
+  </div>
+</aside>
+{% endif %}
+{% endwith %}

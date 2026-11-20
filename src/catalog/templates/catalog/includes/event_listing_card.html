@@ -1,69 +1,66 @@
-          {% load i18n static tz %}
-{% timezone 'Asia/Baku' %}
-<article class="panel events-card" id="event-card-{{ event.pk }}" data-event-id="{{ event.pk }}">
-  <a class="events-card__media" href="{{ event.get_absolute_url }}" aria-label="{{ event.name_i18n }}">
-    <span class="events-card__badge">{{ event.get_category_display }}</span>
-    {% if event.is_free %}
-      <span class="events-card__badge events-card__badge--free">{% if language == 'az' %}Pulsuz{% elif language == 'en' %}Free{% else %}Бесплатно{% endif %}</span>
-    {% endif %}
+{% load i18n static tz event_editorial %}{% event_card_facts event as facts %}{% timezone 'Asia/Baku' %}
+<article class="km-ev-card panel{% if compact %} km-ev-card--compact{% endif %}" id="event-card-{{ event.pk }}" data-event-id="{{ event.pk }}" data-event-card data-phase="{{ facts.phase }}">
+  <a class="km-ev-card__media" href="{{ event.get_absolute_url }}" tabindex="-1" aria-hidden="true">
     {% if event.photo %}
-      <img src="{{ event.photo.url }}" alt="{{ event.name_i18n }}" loading="lazy" decoding="async" />
+      <img src="{{ event.photo.url }}" alt="" loading="lazy" decoding="async">
     {% else %}
-      <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
+      <img class="km-ev-card__placeholder" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="" loading="lazy" decoding="async">
     {% endif %}
-
-    <!-- Floating price pill on bottom-left of photo (matching canonical place and specialist cards) -->
-    <div class="card-price-pill events-card__price-pill">
-      <span class="card-price-pill__amount">
-        {% if event.is_free %}
-          {% if language == 'az' %}Pulsuz{% elif language == 'en' %}Free{% else %}Бесплатно{% endif %}
-        {% elif event.price_display %}
-          {{ event.price_display }}
-        {% else %}
-          {% if language == 'az' %}Qiyməti dəqiqləşdirin{% elif language == 'en' %}Ask about price{% else %}Уточните цену{% endif %}
-        {% endif %}
-      </span>
-    </div>
+    <span class="km-ev-card__shade"></span>
+    <span class="km-ev-card__stamp{% if facts.long %} km-ev-card__stamp--range{% endif %}">
+      {% if facts.long %}
+        <span class="km-ev-card__stamp-top">{% if language == 'az' %}son gün{% elif language == 'en' %}until{% else %}до{% endif %}</span>
+        <b>{{ event.end_datetime|date:'j' }}</b><span>{{ event.end_datetime|date:'b'|cut:'.' }}</span>
+      {% else %}
+        <span class="km-ev-card__stamp-top">{{ event.start_datetime|date:'D' }}</span>
+        <b>{{ event.start_datetime|date:'j' }}</b><span>{{ event.start_datetime|date:'b'|cut:'.' }}</span>
+      {% endif %}
+    </span>
+    <span class="km-ev-card__chips">
+      {% if facts.phase == 'running' %}<span class="km-ev-chip km-ev-chip--live"><i aria-hidden="true"></i>{% if language == 'az' %}İndi{% elif language == 'en' %}Live{% else %}Идёт{% endif %}</span>
+      {% elif facts.when == 'today' %}<span class="km-ev-chip km-ev-chip--hot">{% if language == 'az' %}Bu gün{% elif language == 'en' %}Today{% else %}Сегодня{% endif %}</span>
+      {% elif facts.when == 'tomorrow' %}<span class="km-ev-chip km-ev-chip--warm">{% if language == 'az' %}Sabah{% elif language == 'en' %}Tomorrow{% else %}Завтра{% endif %}</span>
+      {% elif facts.when == 'weekend' %}<span class="km-ev-chip km-ev-chip--warm">{% if language == 'az' %}Həftəsonu{% elif language == 'en' %}Weekend{% else %}Выходные{% endif %}</span>{% endif %}
+      {% if facts.phase == 'ended' and event.occurrence_state != 'cancelled' %}<span class="km-ev-chip km-ev-chip--off">{% if language == 'az' %}Başa çatıb{% elif language == 'en' %}Ended{% else %}Завершено{% endif %}</span>{% endif %}
+      {% if event.occurrence_state == 'rescheduled' %}<span class="km-ev-chip km-ev-chip--warm">{% if language == 'az' %}Vaxtı dəyişib{% elif language == 'en' %}Rescheduled{% else %}Перенесено{% endif %}</span>{% endif %}
+    </span>
+    {% if event.language_list %}<span class="km-ev-card__langs" title="{% for item in event.language_list %}{{ item.name }}{% if not forloop.last %}, {% endif %}{% endfor %}"><span class="material-symbols-rounded" aria-hidden="true">translate</span>{% for item in event.language_list %}<b>{{ item.short }}</b>{% endfor %}<span class="visually-hidden">{% if language == 'az' %}Dil{% elif language == 'en' %}Language{% else %}Язык{% endif %}: {% for item in event.language_list %}{{ item.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</span></span>{% endif %}
+    <span class="km-ev-card__price{% if event.is_free %} is-free{% endif %}">{% if event.is_free %}{% if language == 'az' %}Pulsuz{% elif language == 'en' %}Free{% else %}Бесплатно{% endif %}{% elif event.price_display %}{{ event.price_display }}{% else %}{% if language == 'az' %}Qiyməti dəqiqləşdirin{% elif language == 'en' %}Ask about price{% else %}Уточните цену{% endif %}{% endif %}</span>
   </a>
 
-  <div class="events-card__body">
-    <div class="events-card__meta-row">
-      <span class="events-card__date">
-        <span class="material-symbols-rounded events-meta-icon" aria-hidden="true">calendar_today</span>
-        <strong>{{ event.start_datetime|date:"d.m.Y" }}</strong>
-        <span class="events-card__time">{{ event.start_datetime|date:"H:i" }}</span>
-      </span>
-      {% if event.age_display %}
-        <span class="events-card__age">
-          <span class="material-symbols-rounded events-meta-icon" aria-hidden="true">child_care</span>
-          <span>{{ event.age_display }} {% if language == "az" %}yaş{% elif language == "en" %}y.o.{% else %}лет{% endif %}</span>
-        </span>
+  {% if event.occurrence_state == 'cancelled' %}
+    <span class="km-ev-card__cancelled"><span class="material-symbols-rounded" aria-hidden="true">event_busy</span>{% if language == 'az' %}Ləğv edilib{% elif language == 'en' %}Cancelled{% else %}Отменено{% endif %}</span>
+  {% endif %}
+  <div class="km-ev-card__body">
+    <p class="km-ev-card__when">
+      <span class="material-symbols-rounded" aria-hidden="true">{% if facts.long %}date_range{% else %}schedule{% endif %}</span>
+      {% if facts.long %}
+        <span>{{ event.start_datetime|date:'j b'|cut:'.' }} – {{ event.end_datetime|date:'j b'|cut:'.' }}</span>
+      {% else %}
+        <span>{% if facts.when == 'today' %}{% if language == 'az' %}Bu gün{% elif language == 'en' %}Today{% else %}Сегодня{% endif %}{% elif facts.when == 'tomorrow' %}{% if language == 'az' %}Sabah{% elif language == 'en' %}Tomorrow{% else %}Завтра{% endif %}{% else %}{{ event.start_datetime|date:'D, j b'|cut:'.' }}{% endif %} · <time datetime="{{ event.start_datetime|date:'c' }}">{{ event.start_datetime|date:'H:i' }}</time>–<time datetime="{{ event.end_datetime|date:'c' }}">{{ event.end_datetime|date:'H:i' }}</time></span>
       {% endif %}
-    </div>
+    </p>
+    <h3 class="km-ev-card__title"><a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a>{% include 'catalog/includes/event_title_fallback.html' %}</h3>
+    <p class="km-ev-card__meta">
+      <span class="km-ev-card__cat">{{ event.get_category_display }}</span>
+      {% if event.age_display %}<span><span class="material-symbols-rounded" aria-hidden="true">child_care</span>{{ event.age_display }} {% if language == 'az' %}yaş{% elif language == 'en' %}y.o.{% else %}лет{% endif %}</span>{% endif %}
+    </p>
+    {% if event.event_format == 'online' %}
+      <p class="km-ev-card__place"><span class="material-symbols-rounded" aria-hidden="true">videocam</span>{% if language == 'az' %}Onlayn{% elif language == 'en' %}Online{% else %}Онлайн{% endif %}</p>
+    {% elif event.public_venue.address %}
+      <p class="km-ev-card__place"><span class="material-symbols-rounded" aria-hidden="true">location_on</span>{{ event.public_venue.address|truncatechars:52 }}</p>
+    {% endif %}
 
-    <h3 class="events-card__title"><a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a> {% include 'catalog/includes/event_title_fallback.html' %}</h3>
+    {% include 'catalog/includes/event_timer.html' with variant='card' %}
 
-    <p class="events-card__desc">{{ event.description_i18n|striptags|truncatechars:110 }}</p>
-
-    <div class="events-card__info-row">
-      {% if event.event_format == 'online' %}
-        <span class="events-card__address"><span class="material-symbols-rounded events-meta-icon" aria-hidden="true">videocam</span> {% if language == 'az' %}Onlayn{% elif language == 'en' %}Online{% else %}Онлайн{% endif %}</span>
-      {% elif event.public_venue.address %}
-        <span class="events-card__address"><span class="material-symbols-rounded events-meta-icon" aria-hidden="true">location_on</span> {{ event.public_venue.address|truncatechars:45 }}</span>
+    <div class="km-ev-card__actions">
+      {% if event.occurrence_state != 'cancelled' and facts.phase != 'ended' and event.registration.url %}
+        {% include 'catalog/includes/event_registration.html' with registration_class='km-ev-btn km-ev-btn--primary' %}
+        <a class="km-ev-btn km-ev-btn--ghost" href="{{ event.get_absolute_url }}">{% if language == 'az' %}Ətraflı{% elif language == 'en' %}Details{% else %}Подробнее{% endif %}</a>
+      {% else %}
+        <a class="km-ev-btn km-ev-btn--primary" href="{{ event.get_absolute_url }}"><span>{% if language == 'az' %}Ətraflı{% elif language == 'en' %}Details{% else %}Подробнее{% endif %}</span><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>
       {% endif %}
-    </div>
-
-    {% include 'catalog/includes/event_state.html' %}
-
-    <div class="events-card__actions">
-      <a class="events-card-btn" href="{{ event.get_absolute_url }}">
-        <span>{% if language == "az" %}Ətraflı{% elif language == "en" %}Details{% else %}Подробнее{% endif %}</span>
-        <span class="material-symbols-rounded events-btn-icon-end" aria-hidden="true">arrow_forward</span>
-      </a>
-      {% include 'catalog/includes/event_registration.html' with registration_class='events-card-btn events-card-btn--primary' %}
-      <a class="events-card-btn events-card-btn--reviews" data-event-reviews="{{ event.pk }}" href="{{ event.get_absolute_url }}#event-reviews" aria-label="{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}">
-        <span class="material-symbols-rounded events-btn-icon" aria-hidden="true">star</span>
-      </a>
+      <a class="km-ev-btn km-ev-btn--icon" data-event-reviews="{{ event.pk }}" href="{{ event.get_absolute_url }}#event-reviews" aria-label="{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">star</span></a>
     </div>
   </div>
 </article>

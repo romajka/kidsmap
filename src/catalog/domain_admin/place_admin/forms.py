@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from zoneinfo import ZoneInfo
 
+from catalog.services.event_languages import EventLanguagesField
 from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.forms import PlaceScheduleEditorFormMixin, SubcategorySelect
 from catalog.services.phone_forms import ContactPhoneFormMixin
@@ -457,6 +458,7 @@ class BakuEventDateTimeField(forms.DateTimeField):
 
 class EventAdminForm(forms.ModelForm):
     expected_updated_at = forms.CharField(required=False, widget=forms.HiddenInput())
+    languages = EventLanguagesField(label=_("Языки проведения"), required=False)
     DATETIME_LOCAL_FORMAT = ADMIN_DATETIME_LOCAL_FORMAT
     PICKER_DATETIME_FORMAT = "%Y-%m-%d %H:%M"
     require_location_region = False

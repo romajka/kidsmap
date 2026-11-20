@@ -33,6 +33,7 @@ from catalog.services.seo import build_catalog_seo_payload, build_place_seo_payl
 from catalog.services.seo_landing_visibility import build_seo_landing_visibility
 from catalog.services.tracking import TrackingService
 from catalog.services.features import is_events_section_enabled
+from catalog.services.event_afisha import ru_events_label as _ru_events_label
 from catalog.services.rating_ranking import rating_sort_is_available
 
 
@@ -300,7 +301,7 @@ class PlaceController:
             "age_to": age_to,
             "free": "1" if is_free else "",
             "sort": sort,
-            **{key: str(request.GET.get(key) or "").strip() for key in ("view", "month", "date", "date_from", "date_to", "format")},
+            **{key: str(request.GET.get(key) or "").strip() for key in ("view", "month", "date", "date_from", "date_to", "format", "age", "lang")},
         }
 
         qs = self._filtered_event_queryset(
@@ -315,6 +316,13 @@ class PlaceController:
             period_params=request.GET,
             calendar=request.GET.get("view") == "calendar",
         )
+
+        # --- afisha history: ended events of the last year, newest first ---
+        events_when = 'past' if request.GET.get('when') == 'past' and request.GET.get('view') != 'calendar' else ''
+        selected['when'] = events_when
+        if events_when:
+            from catalog.services.event_afisha import query_past_events
+            qs = query_past_events(selected, now=now)
 
         # --- total active (unfiltered) for stats ---
         active_total = self._filtered_event_queryset().count()
@@ -367,9 +375,22 @@ class PlaceController:
                 page_obj.paginator.count,
             ) % {"total": page_obj.paginator.count}
             stat_label = f"Опубликовано — сегодня и далее: {active_total}"
+            results_count_label = "Найдено " + _ru_events_label(page_obj.paginator.count)
             search_placeholder = "Найти мероприятие..."
 
+        if events_when:
+            from catalog.services.event_afisha import ru_plural
+            total = page_obj.paginator.count
+            results_count_label = {
+                'az': f"Keçmiş tədbirlər: {total}",
+                'en': f"Past events: {total}",
+            }.get(language_code, f"{total} " + ru_plural(total, 'прошедшее событие', 'прошедших события', 'прошедших событий'))
+        from catalog.services.event_afisha import build_event_quick_stats
+        from catalog.services.event_languages import choices as event_language_choices
         return {
+            "events_when": events_when,
+            "event_page_numbers": paginator.get_elided_page_range(page_obj.number, on_each_side=1, on_ends=1),
+            "events_quick_stats": build_event_quick_stats(now=now),
             "events": events,
             "calendar_events": calendar_events,
             "event_calendar": event_calendar,
@@ -377,6 +398,7 @@ class PlaceController:
             "events_mode_urls": {mode: event_calendar[mode + '_url'] for mode in ('list', 'calendar')},
             "events_quick_urls": event_calendar['quick_urls'],
             "event_format_choices": Event._meta.get_field('event_format').choices,
+            "event_language_choices": event_language_choices(language_code),
             "page_obj": page_obj,
             "results_total": page_obj.paginator.count,
             "results_count_label": results_count_label,
@@ -394,7 +416,7 @@ class PlaceController:
             "selected": selected,
             "categories": public_filter_options['categories'],
             "district_options": public_filter_options['districts'],
-            "has_active_filters": any(v for k, v in selected.items() if k != "sort" and v),
+            "has_active_filters": bool(query_params.keys() - {"view", "month", "date", "when"}),
         }
 
     def _filtered_event_queryset(

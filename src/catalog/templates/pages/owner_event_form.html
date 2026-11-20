@@ -9,7 +9,7 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-  <link rel="stylesheet" href="{% static 'css/pages/owner_event.css' %}?v=20261026event1" />
+  <link rel="stylesheet" href="{% static 'css/pages/owner_event.css' %}?v=20261120_lang" />
 {% endblock %}
 
 {% block content %}
@@ -313,6 +313,16 @@
               <label class="km-format-card" data-owner-format-card="offline"><input type="radio" name="event_format" value="physical" {% if form.event_format.value != form.online_format %}checked{% endif %}><strong>{% trans "Очно" %}</strong><span>{% trans "Площадка KidsMap или собственный адрес" %}</span></label>
               <label class="km-format-card" data-owner-format-card="online"><input type="radio" name="event_format" value="online" {% if form.event_format.value == form.online_format %}checked{% endif %}><strong>{% trans "Онлайн" %}</strong><span>{% trans "Физический адрес не требуется" %}</span></label>
               {% for error in form.event_format.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+            </fieldset>
+
+            <!-- Event language(s) -->
+            <fieldset class="km-lang-chips" data-event-languages>
+              <legend>{% if CURRENT_LANGUAGE == "az" %}Tədbirin dili{% elif CURRENT_LANGUAGE == "en" %}Language of the event{% else %}Язык проведения{% endif %} <span class="km-lang-chips__req" aria-hidden="true">*</span></legend>
+              <p class="km-lang-chips__hint">{% if CURRENT_LANGUAGE == "az" %}Bir neçəsini seçə bilərsiniz — valideynlər filtrdə görəcək.{% elif CURRENT_LANGUAGE == "en" %}You can pick several — parents filter by it.{% else %}Можно выбрать несколько — родители фильтруют по языку.{% endif %}</p>
+              <div class="km-lang-chips__list">
+                {% for option in form.languages %}<label class="km-lang-chip">{{ option.tag }}<span class="km-lang-chip__flag" aria-hidden="true">{% if option.data.value == "az" %}🇦🇿{% elif option.data.value == "ru" %}🇷🇺{% elif option.data.value == "en" %}🇬🇧{% else %}🇹🇷{% endif %}</span><span>{{ option.choice_label }}</span></label>{% endfor %}
+              </div>
+              {% for error in form.languages.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
             </fieldset>
 
             <!-- Online Format Notice -->
