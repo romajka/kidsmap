@@ -3,7 +3,7 @@
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 {% block title %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/components/specialist_subjects.css' %}?v=20261105_subjects_r2" /><link rel="stylesheet" href="{% static 'css/pages/specialist_detail.css' %}?v=20261104_soft_motion_r1" /><link rel="stylesheet" href="{% static 'css/pages/specialists_refresh.css' %}?v=20261118_sp_r2" />{% endblock %}
+{% block extra_head %}{% if visible_documents %}<link rel="stylesheet" href="{% static 'css/components/specialist_document_gallery.css' %}?v=20261120_gallery3" />{% endif %}<link rel="stylesheet" href="{% static 'css/components/specialist_subjects.css' %}?v=20261105_subjects_r2" /><link rel="stylesheet" href="{% static 'css/pages/specialist_detail.css' %}?v=20261104_soft_motion_r1" /><link rel="stylesheet" href="{% static 'css/pages/specialists_refresh.css' %}?v=20261118_sp_r2" />{% endblock %}
 
 {% block content %}
 <article class="sp-detail km-specialist-detail-page km-specialists-detail">
@@ -51,7 +51,13 @@
         </ul>{% endif %}
         <p class="sp-muted sp-contact-note">{% if specialist_public.phone_href or specialist_public.whatsapp_url or specialist.website or specialist.instagram %}{% if language == 'az' %}Vaxtı, qiyməti və qəbul şərtlərini birbaşa mütəxəssislə dəqiqləşdirin.{% elif language == 'en' %}Confirm availability, price and session details directly with the specialist.{% else %}Уточните время, стоимость и условия занятий напрямую у специалиста.{% endif %}{% else %}{% if language == 'az' %}Əlaqə məlumatları hələ göstərilməyib.{% elif language == 'en' %}Contact details have not been provided yet.{% else %}Контакты пока не указаны.{% endif %}{% endif %}</p>
       </section>
-      {% if specialist.consultation_format != 'online' %}
+      {% if specialist_visit_area %}
+      <section class="sp-card sp-locations" id="visit-area">
+        <h2>{% if language == 'az' %}Səfər ərazisi{% elif language == 'en' %}Home visit area{% else %}Территория выезда{% endif %}</h2>
+        <p>{{ specialist_visit_area }}</p>
+      </section>
+      {% endif %}
+      {% if specialist_active_practice_locations %}
       <section class="sp-card sp-locations" id="practice-locations">
         <h2>{% if language == 'az' %}Qəbul yerləri{% elif language == 'en' %}Session locations{% else %}Места приёма{% endif %}</h2>
         <ul class="sp-location-list">{% for loc in specialist_active_practice_locations %}<li>
@@ -157,35 +163,7 @@
         </details>
       {% endif %}
 
-      <!-- Verified documents and certificates -->
-      {% if visible_documents %}
-        <section class="km-detail-section">
-          <h2>
-            <span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span>
-            {% if language == "az" %}Kvalifikasiyanın təsdiqi{% elif language == "en" %}Qualification confirmation{% else %}Подтверждение квалификации{% endif %}
-          </h2>
-          <div class="km-documents-grid">
-            {% for doc in visible_documents %}
-              <a href="{% url 'serve_specialist_document' doc.id %}" target="_blank" rel="noopener" class="km-document-card">
-                <div class="km-doc-icon">
-                  <span class="material-symbols-rounded" aria-hidden="true">description</span>
-                </div>
-                <div class="km-doc-info">
-                  <p class="doc-type">
-                    {% if doc.document_type == "diploma" %}
-                      {% if language == "az" %}Diplom{% elif language == "en" %}Diploma{% else %}Диплом{% endif %}
-                    {% else %}
-                      {% if language == "az" %}Sertifikat{% elif language == "en" %}Certificate{% else %}Сертификат{% endif %}
-                    {% endif %}
-                  </p>
-                  <p class="doc-name">{{ doc.name }}</p>
-                </div>
-              </a>
-            {% endfor %}
-          </div>
-        </section>
-      {% endif %}
-
+      {% if visible_documents %}{% include "catalog/includes/specialist_document_gallery.html" %}{% endif %}
 
       <section class="sp-card sp-reviews" id="reviews">
         <div class="sp-section-head"><h2>{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}</h2>{% include 'catalog/includes/typed_review_link.html' with review_kind='specialist' review_target=specialist %}</div>
@@ -224,6 +202,7 @@
 {% endblock %}
 
 {% block extra_body %}
+  {% if visible_documents %}<script src="{% static 'js/specialist_document_gallery.js' %}?v=20261120_gallery3" defer></script>{% endif %}
   {% if specialist_public.phone_href or specialist_public.whatsapp_url %}<nav class="sp-mobile-contact" aria-label="{% if language == 'az' %}Mütəxəssislə əlaqə{% elif language == 'en' %}Contact the specialist{% else %}Связь со специалистом{% endif %}">
     {% if specialist_public.phone_href %}<a href="{{ specialist_public.phone_href }}" class="sp-button sp-button--primary"><span class="material-symbols-rounded" aria-hidden="true">call</span>{% if language == 'az' %}Zəng et{% elif language == 'en' %}Call{% else %}Позвонить{% endif %}</a>{% endif %}
     {% if specialist_public.whatsapp_url %}<a href="{{ specialist_public.whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="sp-button"><span class="material-symbols-rounded" aria-hidden="true">chat</span>WhatsApp</a>{% endif %}

@@ -68,8 +68,11 @@ def _one_address(address, activation, now, sender):
         for row in batch:
             row.attempts += 1
         try:
-            subject, body = policy.email_content([row.notification for row in batch])
-            if sender(subject, body, settings.DEFAULT_FROM_EMAIL, [address], fail_silently=False) != 1:
+            notifications = [row.notification for row in batch]
+            subject, body = policy.email_content(notifications)
+            html = policy.email_html(notifications)
+            extra = {'html_message': html} if html else {}
+            if sender(subject, body, settings.DEFAULT_FROM_EMAIL, [address], fail_silently=False, **extra) != 1:
                 raise SMTPException('not_sent')
         except (SMTPException, OSError):
             for row in batch:

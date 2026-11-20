@@ -16,8 +16,9 @@
 <link rel="stylesheet" href="{% static 'css/pages/home_search.css' %}?v=20261103_mobile_compact" />
 <link rel="stylesheet" href="{% static 'css/pages/home_layout.css' %}?v=20261117_desktop_search_cards" />
 <link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261103_mobile_compact" />
+<link rel="stylesheet" href="{% static 'css/pages/home_map_fx.css' %}?v=20261120_fx5" />
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_mobile_intro" />
-<link rel="stylesheet" href="{% static 'css/pages/home_specialists.css' %}?v=20261119_r7" />
+<link rel="stylesheet" href="{% static 'css/pages/home_specialists.css' %}?v=20261120_formats" />
 <link rel="stylesheet" href="{% static 'css/pages/home_refresh.css' %}?v=20261119_stage1" />
 <link rel="stylesheet" href="{% static 'css/pages/home_hero_stage.css' %}?v=20261119_stage6" />
 <script defer src="{% static 'js/mappy.js' %}?v=20261119_specialists"></script>
@@ -565,7 +566,7 @@
 <script src="{% static 'js/google_maps_motion.js' %}?v=20261105_pins_r2"></script>
 <script src="{% static 'js/google_maps_markers.js' %}?v=20261105_pins_r2"></script>
 <script src="{% static 'js/map_paging.js' %}?v=20261030_published_r1"></script>
-<script src="{% static 'js/home_map.js' %}?v=20261119_specialists" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+<script src="{% static 'js/home_map.js' %}?v=20261120_fx1" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
   data-home-map-route-label="{% trans 'Маршрут' %}"
   data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"
@@ -576,6 +577,7 @@
   data-home-map-leaflet-js="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   data-home-map-leaflet-js-integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"
   referrerpolicy="no-referrer"></script>
+<script src="{% static 'js/home_map_fx.js' %}?v=20261120_fx5" defer></script>
 
 
 

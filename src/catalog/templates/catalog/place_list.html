@@ -12,9 +12,9 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_sleep" />
-  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261118_category_filter" />
+  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261120_audit" />
   {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=20261106_card_height" />{% endif %}
-  {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_layout.css' %}?v=20261118_layout_r2" />{% endif %}
+  {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_layout.css' %}?v=20261120_mobile_cards" />{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -641,11 +641,13 @@
 
   <div class="catalog-top-stack">
     {% if categories and not is_new_page %}
+    <section class="catalog-category-picker" aria-labelledby="catalog-category-title">
+      <h2 class="catalog-category-title" id="catalog-category-title">{% trans "Категории" %}</h2>
       <div class="catalog-category-strip-wrap" data-catalog-categories-scroll>
         <button type="button" class="catalog-category-strip__arrow catalog-category-strip__arrow--prev" data-strip-prev aria-label="{% if language == 'az' %}Əvvəlki kateqoriyalar{% elif language == 'en' %}Previous categories{% else %}{% trans 'Предыдущие категории' %}{% endif %}" tabindex="-1" hidden>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
-        <div class="catalog-category-strip" role="tablist" aria-label="{% if language == 'az' %}Kateqoriyalar{% elif language == 'en' %}Categories{% else %}{% trans 'Категории' %}{% endif %}">
+        <div class="catalog-category-strip" role="tablist" aria-labelledby="catalog-category-title">
           <button
             type="button"
             role="tab"
@@ -664,11 +666,12 @@
               type="button"
               role="tab"
               class="catalog-category-chip{% if selected.category == category.value %} is-active{% endif %}"
+              style="--cat-bg: {{ category.color_bg|default:'#F3F4F6' }}; --cat-fg: {{ category.color_text|default:'#6B7280' }};"
               data-select-target="category"
               data-select-value="{{ category.value }}"
               aria-selected="{% if selected.category == category.value %}true{% else %}false{% endif %}"
             >
-              <span class="catalog-category-chip__icon" style="background-color: {{ category.color_bg|default:'#f0f5f2' }}; color: {{ category.color_text|default:'#47584d' }};" aria-hidden="true">
+              <span class="catalog-category-chip__icon" aria-hidden="true">
                 {% include "catalog/includes/category_visual_icon.html" with code=category.value icon_file_url=category.icon_file_url icon_is_svg=category.icon_is_svg icon_is_font=category.icon_is_font icon_name=category.icon_name %}
               </span>
               <span class="catalog-category-chip__label">{{ category.label }}</span>
@@ -682,19 +685,20 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       </div>
+    </section>
     {% endif %}
 
     {% if active_filter_chips %}
-      <div class="active-filter-bar" aria-label="{% if language == 'az' %}Seçilmiş filtrlər{% elif language == 'en' %}Selected filters{% else %}{% trans 'Выбранные фильтры' %}{% endif %}">
+      <div class="active-filter-bar" role="group" aria-label="{% if language == 'az' %}Seçilmiş filtrlər{% elif language == 'en' %}Selected filters{% else %}{% trans 'Выбранные фильтры' %}{% endif %}">
         <div class="active-filter-chips">
           {% for chip in active_filter_chips %}
-            <a class="active-filter-chip" href="{{ chip.remove_url }}">
-              <span>{{ chip.label }}</span>
+            <a class="active-filter-chip" href="{{ chip.remove_url }}" aria-label="{% if language == 'az' %}Filtri sil{% elif language == 'en' %}Remove filter{% else %}Снять фильтр{% endif %} — {{ chip.label }}">
+              <span>{% if is_new_page %}{{ chip.label }}{% else %}{% firstof chip.compact_label chip.label %}{% endif %}</span>
               <span class="active-filter-chip-remove" aria-hidden="true">×</span>
             </a>
           {% endfor %}
         </div>
-        <a class="link-btn icon-btn icon-reset active-filter-reset" href="{{ reset_filters_url }}">{% if language == "az" %}Sıfırla{% elif language == "en" %}Reset all{% else %}{% trans "Сбросить всё" %}{% endif %}</a>
+        <a class="link-btn icon-btn icon-reset active-filter-reset" href="{{ reset_filters_url }}"><span>{% if language == "az" %}Sıfırla{% elif language == "en" %}Reset all{% else %}{% trans "Сбросить всё" %}{% endif %}</span></a>
       </div>
     {% endif %}
 
@@ -2292,6 +2296,52 @@
       let activeRequest = null;
       let requestSequence = 0;
 
+      const phoneCards = window.matchMedia("(max-width: 820px)");
+      const cardMotion = window.matchMedia("(max-width: 820px) and (prefers-reduced-motion: no-preference)");
+      const revealObserver = "IntersectionObserver" in window && new IntersectionObserver((entries, observer) => {
+        for (const entry of entries) {
+          if (entry.intersectionRatio >= 0.15) {
+            entry.target.classList.add("is-revealed");
+            observer.unobserve(entry.target);
+          }
+        }
+      }, { threshold: 0.15 });
+
+      function observePlaceCards(root) {
+        if (!revealObserver) return;
+        revealObserver.disconnect();
+        if (cardMotion.matches) {
+          root.querySelectorAll(".grid > .place-card:not(.is-revealed)").forEach(card => revealObserver.observe(card));
+        }
+      }
+      observePlaceCards(document);
+      cardMotion.addEventListener("change", () => observePlaceCards(document));
+
+      // On touch, :active can arrive on release. Give feedback as soon as the finger lands.
+      function updateDetailsPress(event) {
+        if (!event.isPrimary || event.pointerType !== "touch") return;
+        const link = event.target.closest(".place-card .card-go-btn");
+        if (link) link.classList.toggle("is-touch-pressed", event.type === "pointerdown");
+      }
+      for (const type of ["pointerdown", "pointerup", "pointercancel", "lostpointercapture"]) {
+        document.addEventListener(type, updateDetailsPress, { passive: true });
+      }
+
+      function syncOfferDetails(root) {
+        root.querySelectorAll(".card-offer-details").forEach(function (details) {
+          details.open = !phoneCards.matches;
+          details.querySelector("summary").hidden = !phoneCards.matches;
+        });
+      }
+      syncOfferDetails(document);
+      phoneCards.addEventListener("change", () => syncOfferDetails(document));
+
+      document.addEventListener("focusin", function (event) {
+        if (event.target.matches(".active-filter-chip:focus-visible")) {
+          event.target.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "instant" });
+        }
+      });
+
       function buildFormUrl(form) {
         const formData = new FormData(form);
         const params = new URLSearchParams();
@@ -2396,6 +2446,8 @@
         }
         currentTopStack.replaceWith(nextTopStack);
         currentMainColumn.replaceWith(nextMainColumn);
+        observePlaceCards(nextMainColumn);
+        syncOfferDetails(nextMainColumn);
         window.kidsMapBindSelectTargets(nextTopStack);
         if (window.kidsMapInitCategoryStrip) window.kidsMapInitCategoryStrip();
 

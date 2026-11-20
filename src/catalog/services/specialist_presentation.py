@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from catalog.models.specialist_domain import SpecialistEmployment
 from catalog.services.age_display import format_age_range
+from catalog.services.specialist_formats import profile_format_codes, public_format_label
 from catalog.services.phone_numbers import normalize_whatsapp, safe_phone
 from catalog.services.pricing_plans import format_price_amount, format_price_range
 from catalog.services.public_presentation import language_code, visible
@@ -15,21 +16,18 @@ _LABELS = {
         'any_age': 'Hər hansı yaş', 'years': 'yaş',
         'from_price': '{value} AZN-dən', 'to_price': '{value} AZN-dək',
         'languages': ('Azərbaycan dili', 'Rus dili', 'İngilis dili'),
-        'formats': {'online': 'Yalnız onlayn', 'offline': 'Yalnız əyani', 'both': 'Onlayn və əyani'},
         'private_office': 'Şəxsi kabinet',
     },
     'ru': {
         'any_age': 'Любой возраст', 'years': 'лет',
         'from_price': 'от {value} AZN', 'to_price': 'до {value} AZN',
         'languages': ('Азербайджанский', 'Русский', 'Английский'),
-        'formats': {'online': 'Только онлайн', 'offline': 'Только очно', 'both': 'Онлайн и очно'},
         'private_office': 'Собственный кабинет',
     },
     'en': {
         'any_age': 'Any age', 'years': 'years',
         'from_price': 'from {value} AZN', 'to_price': 'up to {value} AZN',
         'languages': ('Azerbaijani', 'Russian', 'English'),
-        'formats': {'online': 'Online only', 'offline': 'In person only', 'both': 'Online and in person'},
         'private_office': 'Private office',
     },
 }
@@ -62,7 +60,7 @@ def _public_labels(specialist, language):
         'languages': [label for code, label in zip(('az', 'ru', 'en'), words['languages'])
                       if getattr(specialist, f'language_{code}')],
         'rating_percent': rating_percent,
-        'format_label': words['formats'].get(specialist.consultation_format, '—'),
+        'format_label': public_format_label(specialist, language) or '—',
     }
 
 
@@ -124,13 +122,22 @@ def public_profile_context(specialist):
     for item in current + past + future:
         item.organization_linkable = orgs_enabled and visible(item.organization)
 
-    active_locs = list(specialist.practice_locations.filter(is_active=True)
-        .select_related('place', 'region', 'district', 'metro'))
+    formats = profile_format_codes(specialist)
+    active_locs = (list(specialist.practice_locations.filter(is_active=True)
+                       .select_related('place', 'region', 'district', 'metro')) if 'office' in formats else [])
     for loc in active_locs:
         loc.is_place_visible = bool(loc.place and visible(loc.place))
 
     language = language_code()
     map_locations = _map_locations(active_locs, language)
+    visit_area = ""
+    if "visit" in formats and specialist.visit_region_id:
+        if specialist.visit_citywide:
+            coverage = {"az": "Bütün şəhər", "ru": "Весь город", "en": "Entire city"}[language]
+        else:
+            coverage = ", ".join(d.name_i18n(language) for d in specialist.visit_districts.filter(region_id=specialist.visit_region_id))
+        if coverage:
+            visit_area = f"{specialist.visit_region.name_i18n(language)} · {coverage}"
 
     from catalog.services.specialist_subjects import SUBJECTS, profile_subjects
     return {
@@ -138,6 +145,7 @@ def public_profile_context(specialist):
         'specialist_categories': [s for s in specialist.specializations.all() if s.code not in SUBJECTS],
         'specialist_public': _public_labels(specialist, language),
         'specialist_map_locations': map_locations,
+        'specialist_visit_area': visit_area,
         'has_coords': bool(map_locations),
         'specialist_current_employment': current,
         'specialist_past_employment': past,

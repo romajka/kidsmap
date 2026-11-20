@@ -28,7 +28,7 @@ from catalog.repositories.django_repositories import (
     DjangoPlaceChangeAuditRepository,
     DjangoPlaceOwnershipRequestRepository,
 )
-from catalog.services.geocoding import PlaceGeocodingResult, PlaceGeocodingService, place_location_fields_changed
+from catalog.services.geocoding import GEOCODING_ISSUE_MESSAGES, PlaceGeocodingResult, PlaceGeocodingService, place_location_fields_changed
 from catalog.services.content_quality import QualityCheck, place_quality_check, place_quality_error_labels
 from catalog.services.place_readiness import (
     evaluate_place_readiness,
@@ -191,6 +191,8 @@ class OwnerPlacesController:
             }
         if geocoding_result.reason == "provider_not_configured":
             return _("Не удалось проверить координаты: сервис геокодирования не настроен.")
+        if geocoding_result.reason in GEOCODING_ISSUE_MESSAGES:
+            return str(GEOCODING_ISSUE_MESSAGES[geocoding_result.reason])
         if geocoding_result.reason == "location_unresolved":
             from catalog.services.location_assignment import UNRESOLVED_MESSAGE
             return str(UNRESOLVED_MESSAGE)
@@ -215,6 +217,8 @@ class OwnerPlacesController:
             return _("Изменения сохранены. Координаты уже актуальны.")
         if geocoding_result.reason == "provider_not_configured":
             return _("Изменения сохранены, но сервис геокодирования не настроен.")
+        if geocoding_result.reason in GEOCODING_ISSUE_MESSAGES:
+            return str(GEOCODING_ISSUE_MESSAGES[geocoding_result.reason])
         if geocoding_result.reason == "location_unresolved":
             from catalog.services.location_assignment import UNRESOLVED_MESSAGE
             return str(UNRESOLVED_MESSAGE)

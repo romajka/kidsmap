@@ -11,6 +11,8 @@ from django.urls import Resolver404, resolve
 
 
 PUBLIC_QUERY_PARAMS = {
+    "specialist_document_preview": {"page"},
+    "specialist_document_page": {"thumb"},
     "organization_list": {"q", "district", "page"},
     "place_list": {
         "q", "category", "subcategory", "district", "metro", "min_rating", "event_type",

@@ -2,8 +2,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from catalog.interfaces.geocoding import GeocodingPoint, IGeocodingRepository
+from django.utils.translation import gettext_lazy as _
+
+from catalog.interfaces.geocoding import GeocodingIssue, GeocodingPoint, IGeocodingRepository
 from catalog.repositories.geocoding_repositories import GoogleMapsGeocodingRepository
+from catalog.services.locations import AZERBAIJAN_REGIONS_MAP, BAKU_DISTRICTS_MAP, normalize_to_key
+
+GEOCODING_ISSUE_MESSAGES = {
+    "ambiguous": _("Точный адрес не определён. Уточните запрос или укажите точку на карте."),
+    "provider_error": _("Сервис поиска адреса недоступен. Попробуйте ещё раз или укажите точку на карте."),
+}
 
 GEOCODING_LOCATION_FIELDS = ("address", "district", "metro")
 
@@ -37,26 +45,14 @@ class PlaceGeocodingService:
         if not address:
             return ""
 
-        parts: list[str] = [address]
-        district = (district or "").strip()
-        metro = (metro or "").strip()
-
-        if district:
-            parts.append(district)
-        if metro:
-            parts.append(f"метро {metro}")
-
-        parts.extend(["Баку", "Азербайджан"])
-
-        normalized_parts: list[str] = []
-        seen: set[str] = set()
-        for raw_value in parts:
-            value = (raw_value or "").strip()
-            if not value or value in seen:
-                continue
-            seen.add(value)
-            normalized_parts.append(value)
-        return ", ".join(normalized_parts)
+        # A district and a nearby metro can both describe the old map pin.
+        # Only the city is useful as geographic context for the submitted address.
+        region = normalize_to_key(district)
+        if region in BAKU_DISTRICTS_MAP:
+            region = "baku"
+        city = AZERBAIJAN_REGIONS_MAP.get(region, {}).get("ru")
+        parts = [part for part in (address, city, "Азербайджан") if part]
+        return ", ".join(dict.fromkeys(parts))
 
     @classmethod
     def build_query(cls, place) -> str:
@@ -81,6 +77,8 @@ class PlaceGeocodingService:
             return PlaceGeocodingLookupResult(resolved=False, reason="provider_not_configured", query=query)
 
         point = self.geocoding_repository.geocode(query=query, language="ru", region="az")
+        if isinstance(point, GeocodingIssue):
+            return PlaceGeocodingLookupResult(resolved=False, reason=point.value, query=query)
         if point is None:
             return PlaceGeocodingLookupResult(resolved=False, reason="not_found", query=query)
 

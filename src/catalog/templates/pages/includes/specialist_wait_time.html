@@ -1,0 +1,14 @@
+{% load i18n %}
+{% if since %}
+  {% get_current_language as lang %}
+  <dl class="sw-wait-time">
+    <div>
+      <dt>{% if lang == 'az' %}Yoxlamaya göndərilib{% elif lang == 'en' %}Submitted for review{% else %}Отправлено на проверку{% endif %}</dt>
+      <dd><time datetime="{{ since|date:'c' }}">{{ since|date:'d.m.Y' }} · {{ since|date:'H:i' }}</time></dd>
+    </div>
+    <div>
+      <dt>{% if lang == 'az' %}Gözləmə müddəti{% elif lang == 'en' %}Time waiting{% else %}Время ожидания{% endif %}</dt>
+      <dd data-wait-elapsed data-under-minute="{% if lang == 'az' %}Bir dəqiqədən az{% elif lang == 'en' %}Less than a minute{% else %}Меньше минуты{% endif %}">{{ since|timesince }}</dd>
+    </div>
+  </dl>
+{% endif %}

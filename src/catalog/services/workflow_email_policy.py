@@ -56,6 +56,14 @@ def _moderation_current(item):
         except PermissionDenied:
             return False
         return True
+    if item.entity_type == 'place':
+        from catalog.models import Place
+        place = Place.objects.filter(pk=item.entity_id, deleted_at__isnull=True).first()
+        expected = {'needs_changes': Place.STATUS_NEEDS_CHANGES, 'rejected': Place.STATUS_REJECTED}.get(decision)
+        return bool(place and expected and place.status == expected
+                    and place.content_version == item.entity_version
+                    and item.recipient_user_id is not None
+                    and item.recipient_user_id in {place.owner_id, place.created_by_id})
     if item.entity_type == 'specialist':
         person = Specialist.objects.filter(pk=item.entity_id).first()
         expected = {'approved': 'published', 'needs_changes': 'draft', 'rejected': 'rejected'}.get(decision)
@@ -185,10 +193,14 @@ def _label(item):
 
 
 def email_content(items):
-    """Private moderator text stays in the authenticated inbox, including digests."""
+    """Place decisions carry the moderator's reason (the owner asked for it);
+    other moderator text stays in the authenticated inbox."""
     from catalog.services.workflow_notifications import _email_content
+    from catalog.services import place_decision_email
     if len(items) == 1:
         item = items[0]
+        if place_decision_email.is_place_decision(item):
+            return place_decision_email.build(item)[:2]
         if item.entity_type == 'specialist' and item.event_kind == 'moderation_decision':
             return _email_content(item)
         if item.event_kind in CRITICAL:
@@ -207,8 +219,19 @@ def email_content(items):
         name = ' '.join(str(titles.get('ru') or titles.get('az') or '').split())[:120]
         label = _label(item)
         body.append(f'• {label}' + (f' — {name}' if name else ''))
+        if place_decision_email.is_place_decision(item):
+            reason = ' '.join(context['reason'].split())
+            body.append('  Комментарий модератора: ' + (reason[:300] + '…' if len(reason) > 300 else reason))
     body += ['', 'Откройте кабинет: там комментарии, текущий статус и необходимые действия.', inbox_url()]
     return f'KidsMap: сводка — {len(items)} событий', '\n'.join(body)
+
+
+def email_html(items):
+    """Optional HTML alternative; only the single place decision has one."""
+    from catalog.services import place_decision_email
+    if len(items) == 1 and place_decision_email.is_place_decision(items[0]):
+        return place_decision_email.build(items[0])[2]
+    return None
 
 
 def inbox_url():

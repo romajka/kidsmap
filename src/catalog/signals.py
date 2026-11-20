@@ -40,3 +40,11 @@ def prepare_responsive_photos(sender, instance, raw=False, **kwargs):
         image = getattr(instance, field)
         if image:
             generate_variants(image)
+
+
+@receiver(post_delete, sender='catalog.SpecialistProposalDocument')
+def discard_proposal_document_file(sender, instance, using, **kwargs):
+    from django.db import transaction
+    if instance.file:
+        storage, name = instance.file.storage, instance.file.name
+        transaction.on_commit(lambda: storage.delete(name), using=using, robust=True)

@@ -1,0 +1,37 @@
+{% load i18n %}{% get_current_language as lang %}
+{% widthratio qualification_formset.max_upload_bytes 1048576 1 as per_file_mb %}
+{% widthratio qualification_formset.max_batch_bytes 1048576 1 as per_save_mb %}
+<section class="owner-event-section km-step-section km-unified-section km-qual-editor" id="km-sec-documents" data-sec-id="km-sec-documents" aria-labelledby="km-qualification-title"
+  data-qualification-editor data-max-files="{{ qualification_formset.max_num|stringformat:'d' }}" data-max-bytes="{{ qualification_formset.max_upload_bytes|stringformat:'d' }}" data-batch-bytes="{{ qualification_formset.max_batch_bytes|stringformat:'d' }}"
+  data-format-error="{% if lang == 'az' %}JPG, PNG və ya PDF seçin{% elif lang == 'en' %}Choose a JPG, PNG or PDF{% else %}Выберите JPG, PNG или PDF{% endif %}"
+  data-size-error="{% if lang == 'az' %}Boş olmayan və {{ per_file_mb }} MB həddini aşmayan fayl seçin{% elif lang == 'en' %}Choose a non-empty file of up to {{ per_file_mb }} MB{% else %}Выберите непустой файл размером до {{ per_file_mb }} МБ{% endif %}"
+  data-batch-error="{% if lang == 'az' %}Qaralamanı saxlayın, sonra bu faylı əlavə edin{% elif lang == 'en' %}Save the draft, then add this file{% else %}Сохраните черновик, затем добавьте этот файл{% endif %}"
+  data-count-error="{% if lang == 'az' %}Anketdə ən çox {{ qualification_formset.max_num }} sənəd ola bilər{% elif lang == 'en' %}The application can contain up to {{ qualification_formset.max_num }} documents{% else %}В заявке может быть до {{ qualification_formset.max_num }} документов{% endif %}"
+  data-count-label="{% if lang == 'az' %}Anketdəki sənədlər{% elif lang == 'en' %}Documents in application{% else %}Документов в заявке{% endif %}">
+  <div class="km-step-header">
+    <div class="km-section-title-wrap">
+      <span class="km-section-num-pill">6</span>
+      <h2 id="km-qualification-title"><span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span> {% if lang == 'az' %}Diplomlar və sertifikatlar{% elif lang == 'en' %}Diplomas and certificates{% else %}Дипломы и сертификаты{% endif %}</h2>
+      <span class="km-section-opt-pill">{% if lang == 'az' %}İstəyə görə{% elif lang == 'en' %}Optional{% else %}По желанию{% endif %}</span>
+    </div>
+  </div>
+  {{ qualification_formset.management_form }}
+  {{ qualification_formset.non_form_errors }}
+  <div class="km-qual-upload">
+    <div data-qual-picker hidden>
+      <label for="km-qual-picker"><span class="material-symbols-rounded" aria-hidden="true">upload_file</span> {% if lang == 'az' %}Sənədləri əlavə edin{% elif lang == 'en' %}Add documents{% else %}Добавить документы{% endif %}</label>
+      <input type="file" id="km-qual-picker" accept=".pdf,.jpg,.jpeg,.png" multiple aria-describedby="km-qual-file-hint">
+    </div>
+    <p class="km-qual-hint" id="km-qual-file-hint">
+      {% if lang == 'az' %}JPG, PNG və ya PDF · hər fayl {{ per_file_mb }} MB-dək. Ən çox {{ qualification_formset.max_num }} sənəd, hər saxlamada {{ per_save_mb }} MB-dək.{% elif lang == 'en' %}JPG, PNG or PDF · up to {{ per_file_mb }} MB each. Up to {{ qualification_formset.max_num }} documents, {{ per_save_mb }} MB per save.{% else %}JPG, PNG или PDF · до {{ per_file_mb }} МБ на файл. До {{ qualification_formset.max_num }} документов, до {{ per_save_mb }} МБ за одно сохранение.{% endif %}
+    </p>
+  </div>
+  <p class="km-qual-hint km-qual-privacy"><span class="material-symbols-rounded" aria-hidden="true">lock</span><span>{% if lang == 'az' %}Paylaşmaq istəmədiyiniz şəxsi məlumatları faylda örtün.{% elif lang == 'en' %}Cover any personal details you want to keep private.{% else %}Закройте на копии личные данные, которые хотите скрыть.{% endif %}</span></p>
+  <p data-qual-message role="status" aria-live="polite"></p>
+  <p class="km-qual-hint" data-qual-fallback>{% if lang == 'az' %}Növbəti faylı əlavə etmək üçün qaralamanı saxlayın.{% elif lang == 'en' %}Save the draft to add another file.{% else %}Чтобы добавить следующий файл, сохраните черновик.{% endif %}</p>
+  {% if qualification_formset.is_bound and qualification_formset.files %}
+    <p class="km-qual-hint" role="status">{% if lang == 'az' %}Yeni sənəd əlavə etmisinizsə, faylı yenidən seçin. Əvvəl saxlanılan sənədlər qaralamada qalır.{% elif lang == 'en' %}If you attached new documents, select those files again. Previously saved documents remain in your draft.{% else %}Если вы приложили новые документы, выберите эти файлы повторно. Ранее сохранённые документы остались в черновике.{% endif %}</p>
+  {% endif %}
+  <div data-qual-rows>{% for row in qualification_formset %}{% include 'pages/includes/specialist_qualification_row.html' with row=row %}{% endfor %}</div>
+  <template>{% include 'pages/includes/specialist_qualification_row.html' with row=qualification_formset.empty_form %}</template>
+</section>

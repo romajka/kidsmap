@@ -1,5 +1,6 @@
 from .controllers.organization_directory import organization_list
 from .controllers.organization_workspace import organization_connections, organization_connection_result, organization_detach_preview, organization_connection_target
+from .controllers.specialist_document_preview import specialist_document_page, specialist_document_preview
 from .controllers.public_map_api import public_map
 from .controllers.public_details import organization_detail as public_organization_detail, activity_detail
 from .controllers.server_draft_api import draft_collection, draft_detail, draft_photo, draft_materialize, draft_media, draft_media_file
@@ -12,7 +13,7 @@ from .controllers.typed_reviews import target_reviews, review_action
 from .controllers.specialist_workspace import (specialist_workspace_index, specialist_workspace_profile,
     specialist_workspace_claims, specialist_workspace_invitations, specialist_workspace_certificates,
     specialist_workspace_review, organization_specialists, specialist_workspace_proposal,
-    specialist_proposal_photo, specialist_workspace_reopen)
+    specialist_proposal_photo, specialist_proposal_document, specialist_workspace_reopen)
 from django.contrib.auth import views as auth_views
 from django.urls import include, path, re_path, reverse_lazy
 
@@ -226,6 +227,10 @@ urlpatterns = [
     path('account/specialists/proposals/new/',specialist_workspace_proposal,name='specialist_workspace_proposal'),
     path('account/specialists/proposals/<uuid:draft_id>/',specialist_workspace_proposal,name='specialist_workspace_proposal_resume'),
     path('account/specialists/proposals/<uuid:draft_id>/photo/',specialist_proposal_photo,name='specialist_proposal_photo'),
+    path('account/specialists/proposals/<uuid:draft_id>/qualifications/<uuid:document_id>/',
+         specialist_proposal_document, name='specialist_proposal_document_reader'),
+    path('account/specialists/proposals/<uuid:draft_id>/qualifications/<uuid:document_id>/pages/<int:page>/',
+         specialist_proposal_document, name='specialist_proposal_document_page'),
     path("account/places/specialists/create/", specialist_workspace_profile, name="owner_specialist_create"),
     path("account/places/specialists/<int:pk>/edit/", specialist_workspace_profile, name="owner_specialist_edit"),
     path("account/places/events/<int:pk>/edit/", owner_event_edit, name="owner_event_edit"),
@@ -274,6 +279,8 @@ urlpatterns = [
     path("specialists/", specialist_list, name="specialist_list"),
     path("specialists/<slug:slug>/", specialist_detail, name="specialist_detail"),
     path("specialists/<int:pk>/review/", add_specialist_review, name="add_specialist_review"),
+    path("specialists/documents/<int:document_id>/preview/", specialist_document_preview, name="specialist_document_preview"),
+    path("specialists/documents/<int:document_id>/preview/<int:page>/", specialist_document_page, name="specialist_document_page"),
     path("specialists/documents/<int:document_id>/download/", serve_specialist_document, name="serve_specialist_document"),
     # Old card links used a root-level ID and slug, before /place/ URLs.
     re_path(

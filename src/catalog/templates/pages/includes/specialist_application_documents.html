@@ -1,0 +1,8 @@
+{% load i18n %}
+{% if names %}
+  <div class="sw-application-documents">
+    <strong>{% if waiting_for_identity %}{% trans 'Дипломы и сертификаты' %}{% else %}{% trans 'Документы ожидают проверки' %}{% endif %}</strong>
+    <ul>{% for name in names %}<li>{{ name }}</li>{% endfor %}</ul>
+    {% if waiting_for_identity %}<p>{% trans 'Проверка начнётся после подтверждения личности.' %}</p>{% endif %}
+  </div>
+{% endif %}

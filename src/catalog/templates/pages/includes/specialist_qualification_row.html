@@ -1,0 +1,47 @@
+{% load i18n %}{% get_current_language as lang %}
+<fieldset class="km-qual-row" data-qual-row{% if row.saved_document %} data-saved{% endif %}{% if row.errors or row.is_bound and row.has_changed %} data-bound-row{% endif %}>
+  <legend>
+    <span class="km-qual-file-head">
+      <span class="km-qual-thumbnail" aria-hidden="true">
+        <span class="material-symbols-rounded">description</span>
+        {% if row.saved_document %}
+          <img src="{% url 'specialist_proposal_document_page' proposal_draft.pk row.saved_document.pk 1 %}?thumb=1" alt="" width="44" height="54" loading="lazy">
+        {% else %}
+          <img data-qual-preview hidden alt="" width="44" height="54">
+        {% endif %}
+      </span>
+      <span class="km-qual-file-label"><span data-qual-heading>{% if row.saved_document %}{{ row.saved_document.name }}{% elif lang == 'az' %}Sənəd{% elif lang == 'en' %}Document{% else %}Документ{% endif %}</span><small data-qual-meta hidden></small></span>
+    </span>
+  </legend>
+  {{ row.id }}{{ row.id.errors }}{{ row.non_field_errors }}
+  <div data-qual-body>
+    {% if row.saved_document %}
+      <a class="km-qual-saved-open" href="{% url 'specialist_proposal_document_reader' proposal_draft.pk row.saved_document.pk %}" target="_blank" rel="noopener">
+        {% if lang == 'az' %}Sənədə bax{% elif lang == 'en' %}View saved document{% else %}Посмотреть сохранённый документ{% endif %}
+      </a>
+    {% else %}
+      <label class="km-qual-file" for="{{ row.file.id_for_label }}">{% if lang == 'az' %}Sənədin faylı{% elif lang == 'en' %}Document file{% else %}Файл документа{% endif %}
+        {{ row.file }}{{ row.file.errors }}
+      </label>
+    {% endif %}
+    <div class="km-qual-fields">
+      <div class="km-qual-type">
+        <label for="{{ row.type.id_for_label }}">{% if lang == 'az' %}Sənədin növü{% elif lang == 'en' %}Document type{% else %}Тип документа{% endif %}</label>
+        {{ row.type }}{{ row.type.errors }}
+      </div>
+      <label for="{{ row.name.id_for_label }}">{% if lang == 'az' %}Sənədin adı{% elif lang == 'en' %}Document title{% else %}Название документа{% endif %}
+        {{ row.name }}{{ row.name.errors }}
+      </label>
+    </div>
+    <label class="km-qual-choice km-qual-publish" for="{{ row.publish.id_for_label }}">{{ row.publish }}
+      <span>{% if lang == 'az' %}Profilimdə göstərilsin{% elif lang == 'en' %}Show in my profile{% else %}Показывать в моём профиле{% endif %}
+        <small>{% if lang == 'az' %}Valideynlər sənədi profiliniz təsdiqləndikdən və sənəd yoxlanıldıqdan sonra görəcəklər.{% elif lang == 'en' %}Parents will see this document once your profile is confirmed and the document is approved.{% else %}Появится после подтверждения профиля и проверки документа.{% endif %}</small>
+      </span>
+    </label>
+    {{ row.publish.errors }}
+  </div>
+  <label class="km-qual-choice km-qual-delete" for="{{ row.DELETE.id_for_label }}">{{ row.DELETE }}
+    {% if lang == 'az' %}Müraciətdən çıxar{% elif lang == 'en' %}Remove from application{% else %}Убрать из заявки{% endif %}
+  </label>
+  {{ row.DELETE.errors }}
+</fieldset>

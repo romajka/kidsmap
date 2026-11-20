@@ -1,4 +1,4 @@
-"""Compact inline map data for the home page."""
+"""Template helpers for map data and address lookup."""
 import json
 
 from django import template
@@ -33,3 +33,16 @@ def map_points_json(points, element_id):
     data = json.dumps([_compact_point(point) for point in (points or [])], cls=DjangoJSONEncoder,
                       ensure_ascii=False, separators=(',', ':')).translate(_SCRIPT_ESCAPES)
     return format_html('<script id="{}" type="application/json">{}</script>', element_id, mark_safe(data))
+
+
+@register.simple_tag
+def geocoding_policy_json():
+    from catalog.repositories.geocoding_repositories import (
+        AZERBAIJAN_BOUNDS, GEOCODING_POINT_PRECISIONS, GEOCODING_POINT_TYPES, GEOCODING_TRANSIT_TYPES,
+    )
+    return json.dumps({
+        "bounds": AZERBAIJAN_BOUNDS,
+        "types": GEOCODING_POINT_TYPES,
+        "transit": GEOCODING_TRANSIT_TYPES,
+        "precision": GEOCODING_POINT_PRECISIONS,
+    }, separators=(",", ":"))

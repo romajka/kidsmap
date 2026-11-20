@@ -514,6 +514,9 @@ class PlaceAdmin(PlaceAdminLayoutMixin, PlaceAdminChangelistMixin, PlaceAdminOpe
     def save_model(self, request, obj, form, change):
         submit = not any(action in request.POST for action in ("_save_draft", "_refresh_coordinates_from_address"))
         from catalog.services.publication_forms import save_form,create_from_form,save_admin_metadata
+        if "_refresh_coordinates_from_address" in request.POST:
+            # Save the resolved point with the other fields in this revision.
+            request._km_coordinate_refresh = self._refresh_candidate_coordinates(form.instance)
         if change and obj.pk:
             if "_publish_place" in request.POST:
                 # The explicit review may save staff corrections before publish.

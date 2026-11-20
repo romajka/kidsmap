@@ -24583,3 +24583,71 @@ msgstr "Səbəbi göstərin: müəllif onu kabinetdə və bildirişdə görəcə
 #: catalog/controllers/owner_places_controller.py
 msgid "Сначала одобрите или верните на доработку текущую заявку. Затем снимите карточку с публикации."
 msgstr "Əvvəlcə cari müraciəti təsdiqləyin və ya düzəliş üçün geri qaytarın. Sonra kartı yayımdan çıxarın."
+
+msgid "В профиле видны только одобренные дипломы и сертификаты, которые специалист разрешил показывать. Удостоверения личности всегда приватны."
+msgstr "Profildə yalnız təsdiqlənmiş və mütəxəssisin paylaşmağa icazə verdiyi diplom və sertifikatlar görünür. Şəxsiyyət sənədləri həmişə məxfi qalır."
+
+msgid "Пока нет документов для проверки"
+msgstr "Hələ yoxlanılacaq sənəd yoxdur"
+
+msgid "Документы из личной заявки поступают на проверку после подтверждения личности. Специалист также может добавить их позже в кабинете."
+msgstr "Şəxsi müraciətə əlavə olunan sənədlər mütəxəssisin şəxsiyyəti təsdiqləndikdən sonra yoxlamaya göndərilir. Mütəxəssis onları şəxsi kabinetindən daha sonra da əlavə edə bilər."
+
+msgid "Чтобы заменить файл, уберите документ и добавьте новый."
+msgstr "Faylı dəyişmək üçün sənədi silin və yenisini əlavə edin."
+
+msgid "Выберите файл диплома или сертификата."
+msgstr "Diplom və ya sertifikat faylını seçin."
+
+msgid "Выберите JPG, PNG или PDF до 10 МБ."
+msgstr "Ölçüsü 10 MB-dək olan JPG, PNG və ya PDF faylı seçin."
+
+msgid "Список документов изменился. Обновите страницу."
+msgstr "Sənədlərin siyahısı dəyişib. Səhifəni yeniləyin."
+
+msgid "Документы можно приложить только к своей анкете."
+msgstr "Sənədləri yalnız öz anketinizə əlavə edə bilərsiniz."
+
+msgid "За одно сохранение можно добавить до 20 МБ. Остальные файлы добавьте следующим сохранением."
+msgstr "Hər dəfə 20 MB-dək fayl əlavə edə bilərsiniz. Qalan faylları əlavə etməzdən əvvəl anketi yadda saxlayın."
+
+msgid "Проверьте дипломы и сертификаты."
+msgstr "Diplom və sertifikatları yoxlayın."
+
+#: src/catalog/templates/pages/includes/specialist_application_status.html
+msgid "Анкета ожидает проверки"
+msgstr "Anket yoxlama gözləyir"
+
+#: src/catalog/controllers/specialist_workspace.py
+msgid "Ожидает решения модератора"
+msgstr "Moderatorun qərarı gözlənilir"
+
+#: src/catalog/templates/pages/includes/specialist_application_status.html
+msgid "От вас пока ничего не требуется."
+msgstr "Hələlik heç nə etməyinizə ehtiyac yoxdur."
+
+#: src/catalog/templates/pages/includes/specialist_application_status.html
+msgid "О решении модератора сообщим в уведомлениях."
+msgstr "Qərar barədə bildiriş alacaqsınız."
+
+#: src/catalog/controllers/specialist_workspace.py
+msgid "Анкета отправлена на проверку."
+msgstr "Anket yoxlamaya göndərildi."
+
+#: src/catalog/templates/pages/includes/specialist_application_documents.html
+msgid "Документы ожидают проверки"
+msgstr "Sənədlər yoxlama gözləyir"
+
+#: src/catalog/templates/pages/includes/specialist_application_documents.html
+msgid "Проверка начнётся после подтверждения личности."
+msgstr "Şəxsiyyətiniz təsdiqləndikdən sonra sənədlər yoxlanılacaq."
+
+msgid "Точный адрес не определён. Уточните запрос или укажите точку на карте."
+msgstr "Dəqiq ünvan müəyyən edilmədi. Axtarışı dəqiqləşdirin və ya xəritədə nöqtəni göstərin."
+
+msgid "Сервис поиска адреса недоступен. Попробуйте ещё раз или укажите точку на карте."
+msgstr "Ünvan axtarışı xidməti əlçatan deyil. Yenidən cəhd edin və ya xəritədə nöqtəni göstərin."
+
+#, python-format
+msgid "Повторное геокодирование завершено: обновлено %(updated)s, без изменений %(unchanged)s, без адреса %(missing)s, не найдено %(not_found)s, требуют уточнения %(review)s, ошибки сервиса %(errors)s."
+msgstr "Təkrar geokodlaşdırma tamamlandı: yeniləndi %(updated)s, dəyişiklik yoxdur %(unchanged)s, ünvan yoxdur %(missing)s, tapılmadı %(not_found)s, dəqiqləşdirmə tələb olunur %(review)s, xidmət xətaları %(errors)s."

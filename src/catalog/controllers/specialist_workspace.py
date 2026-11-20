@@ -11,14 +11,16 @@ from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import transaction
-from django.db.models import Q
-from django.http import Http404, HttpResponseNotAllowed, FileResponse
+from django.db.models import Max, Q
+from django.http import Http404, HttpResponseNotAllowed, HttpResponseNotFound, FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_safe
 from django.utils.translation import gettext as _, get_language
 
 from catalog.forms import OwnerSpecialistForm
-from catalog.models import Organization, Specialist, SpecialistDocument, SpecialistProposalDraft
+from catalog.models import Organization, Specialist, SpecialistDocument, SpecialistProposalDocument, SpecialistProposalDraft
 from catalog.models.specialist_domain import SpecialistClaim, SpecialistEmployment
 from catalog.services import specialist_documents, specialist_domain
 from catalog.services.features import require_specialists_section_enabled
@@ -253,8 +255,11 @@ def _context(request, *, mode, specialist=None, organization=None, **extra):
     if mode == 'profile':
         from catalog.forms import _PHONE_RE
         from catalog.forms_specialist_locations import BasePracticeLocationFormSet
+        from catalog.services.specialist_formats import legacy_format_codes
         context['specialist_readiness_rules'] = {
             'location_required_formats': list(BasePracticeLocationFormSet.location_required_formats),
+            'visit_required_format': 'visit',
+            'legacy_session_formats': {value: list(legacy_format_codes(value)) for value in (*dict(Specialist.FORMAT_CHOICES), 'in_person')},
             'location_required_fields': ['region'],
             'location_identity_fields': ['place', 'address'],
             'phone_pattern': _PHONE_RE.pattern,
@@ -309,6 +314,11 @@ def specialist_workspace_index(request):
         review_ids.update(SpecialistDocument.objects.filter(status=SpecialistDocument.STATUS_PENDING)
                           .values_list('specialist_id', flat=True))
     my_specialist = Specialist.objects.filter(verified_person_user=actor, person_verified_at__isnull=False).first()
+    if my_specialist:
+        my_specialist.pending_qualifications = specialist_documents.documents_for_current_person(my_specialist).filter(
+            status=SpecialistDocument.STATUS_PENDING,
+            document_type__in=[SpecialistDocument.TYPE_DIPLOMA, SpecialistDocument.TYPE_CERTIFICATE],
+        ).order_by('pk').values_list('name', flat=True)
     working_proposals = SpecialistProposalDraft.objects.filter(actor=actor, submitted_at__isnull=True).select_related('submitted_specialist').order_by('-updated_at')
     returned_ids = {draft.submitted_specialist_id for draft in working_proposals if draft.submitted_specialist_id}
     latest_claims = {}
@@ -320,10 +330,29 @@ def specialist_workspace_index(request):
         claim.status_label = _claim_status(claim.status)
         latest_claims.setdefault(claim.specialist_id, claim)
     claims = list(latest_claims.values())
+    waiting_claims = {claim.specialist_id: claim for claim in claims if claim.status == SpecialistClaim.PENDING}
+    for claim in waiting_claims.values():
+        claim.staged_qualifications = []
+    staged = SpecialistProposalDocument.objects.filter(
+        draft__actor=actor, draft__submitted_at__isnull=False, draft__submitted_specialist_id__in=waiting_claims,
+    ).values_list('draft__submitted_specialist_id', 'name')
+    for person_id, document_name in staged:
+        waiting_claims[person_id].staged_qualifications.append(document_name)
     proposals = Specialist.objects.filter(created_by=actor, verified_person_user__isnull=True).exclude(
         pk__in=[claim.specialist_id for claim in claims] + list(returned_ids)).order_by('-pk')
     if not (my_specialist or working_proposals.exists() or claims or proposals.exists() or review_ids):
         return redirect('account_dashboard')
+    visible_profiles = [claim.specialist for claim in claims] + list(proposals)
+    if my_specialist:
+        visible_profiles.append(my_specialist)
+    pending_profiles = [person for person in visible_profiles if person.status == Specialist.STATUS_PENDING]
+    submitted_dates = dict(SpecialistProposalDraft.objects.filter(
+        actor=actor, submitted_specialist_id__in=[person.pk for person in pending_profiles],
+        submitted_at__isnull=False,
+    ).order_by().values('submitted_specialist_id').annotate(last_sent=Max('submitted_at'))
+     .values_list('submitted_specialist_id', 'last_sent'))
+    for person in pending_profiles:
+        person.application_submitted_at = submitted_dates.get(person.pk)
     rejected_ids = [claim.specialist_id for claim in claims if claim.specialist.status == Specialist.STATUS_REJECTED]
     rejected_ids += [person.pk for person in proposals if person.status == Specialist.STATUS_REJECTED]
     reopen_ids = set(SpecialistProposalDraft.objects.filter(
@@ -534,8 +563,8 @@ def specialist_workspace_certificates(request, pk):
                     locked_actor = specialist_domain.lock_actor(actor)
                     locked_person = Specialist.objects.select_for_update().get(pk=person.pk)
                     specialist_domain.require_person(locked_actor, locked_person)
-                    doc = get_object_or_404(SpecialistDocument.objects.select_for_update(),
-                        pk=_posted_id(request, 'document_id'), specialist=locked_person)
+                    doc = get_object_or_404(specialist_documents.documents_for_current_person(locked_person).select_for_update(),
+                        pk=_posted_id(request, 'document_id'))
                     _current_document(doc, request.POST.get('document_version'))
                     specialist_documents.set_document_public_choice(actor=locked_actor,
                         document_id=doc.pk, publish=_explicit_choice(request.POST.get('publish')))
@@ -547,7 +576,7 @@ def specialist_workspace_certificates(request, pk):
                 form.add_error('file', exc)
             error = _error_context(exc); status = _error_status(exc)
     return render(request, 'pages/specialist_workspace.html', _context(request, mode='certificates',
-        specialist=person, upload_form=form, documents=_document_cards(person.documents.all(), actor, True),
+        specialist=person, upload_form=form, documents=_document_cards(specialist_documents.documents_for_current_person(person), actor, True),
         **error), status=status)
 
 
@@ -595,7 +624,7 @@ def specialist_workspace_review(request, pk):
 
 
 def _claim_status(status):
-    return {SpecialistClaim.PENDING: _("На проверке"), SpecialistClaim.APPROVED: _("Подтверждено"),
+    return {SpecialistClaim.PENDING: _("Ожидает решения модератора"), SpecialistClaim.APPROVED: _("Подтверждено"),
             SpecialistClaim.REJECTED: _("Отклонено"), SpecialistClaim.WITHDRAWN: _("Запрос отозван")}.get(
                 status, _("На проверке"))
 
@@ -627,7 +656,7 @@ def specialist_workspace_proposal(request, draft_id=None):
                 submit=request.POST.get('form_action')!='save_draft')
             request.session['specialist_saved_recovery']=[f'proposal-{key}','proposal-new']
             if draft.submitted_at:
-                messages.success(request, _('Анкета отправлена на проверку. О решении модератора мы сообщим в уведомлениях и по email.'))
+                messages.success(request, _('Анкета отправлена на проверку.'))
                 return redirect('specialist_workspace_index')
             messages.success(request, _('Черновик сохранён.'))
             return redirect('specialist_workspace_proposal_resume',draft_id=draft.pk)
@@ -656,6 +685,12 @@ def specialist_workspace_proposal(request, draft_id=None):
         account_name = request.specialist_actor.get_full_name().strip()
         if account_name and len(account_name) <= form.fields['name'].max_length:
             form.initial['name'] = account_name
+    from catalog.services.specialist_proposal_documents import qualification_formset
+    qualifications = getattr(form, 'qualification_formset', None)
+    if qualifications is None:
+        qualifications = qualification_formset(
+            draft=draft, subject=profile_subject, data=request.POST if request.method == 'POST' else None,
+            files=request.FILES if request.method == 'POST' else None)
     account_phone = ''
     if profile_subject == 'self' and not form['phone'].value():
         account_profile = getattr(request.specialist_actor, 'profile', None)
@@ -664,6 +699,7 @@ def specialist_workspace_proposal(request, draft_id=None):
     return render(request,'pages/owner_specialist_create.html',_context(request,mode='profile',
         form=form,locations=locations,is_proposal=True,proposal_draft=draft,draft_key=key,
         profile_subject=profile_subject, account_phone_for_public_profile=account_phone,
+        qualification_formset=qualifications,
         draft_version=request.POST.get('draft_version','0') if status==409 else draft.version if draft else '0',
         recovery_actor=request.specialist_actor.pk,recovery_entity=f'proposal-{key}' if draft else 'proposal-new',
         recovery_version=request.POST.get('draft_version','0') if status==409 else str(draft.version) if draft else '0',
@@ -697,3 +733,24 @@ def specialist_proposal_photo(request,draft_id):
     response['X-Content-Type-Options']='nosniff'
     response['Content-Security-Policy']="default-src 'none'; sandbox"
     return response
+
+
+@never_cache
+@require_safe
+def specialist_proposal_document(request, draft_id, document_id, page=None):
+    from catalog.controllers.specialist_document_preview import document_image_response, document_reader_response
+    from catalog.models import SpecialistProposalDocument
+    from catalog.services import features
+    if not request.user.is_authenticated or not features.is_specialists_section_enabled():
+        return HttpResponseNotFound()
+    document = SpecialistProposalDocument.objects.filter(
+        pk=document_id, draft_id=draft_id, draft__actor_id=request.user.pk, draft__actor__is_active=True,
+        draft__submitted_at__isnull=True, file__startswith='specialist-documents/',
+        document_type__in=['diploma', 'certificate'],
+    ).first()
+    if document is None:
+        return HttpResponseNotFound()
+    if page is not None:
+        return document_image_response(request, document, page)
+    return document_reader_response(request, document, page_route='specialist_proposal_document_page',
+                                    route_args=[draft_id, document_id])

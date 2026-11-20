@@ -57,3 +57,36 @@ def apply_specialist_price_filter(queryset, lower, upper):
         locations = locations.filter(price_per_session__lte=upper)
     # Correlate both bounds to one location; different addresses cannot combine.
     return queryset.filter(profile_match | Exists(locations))
+
+
+def specialist_format_match(formats, *, region="", district="", district_region=None, metro=""):
+    """Match a format together with its own geography. An online match is worldwide."""
+    from catalog.services.specialist_formats import format_q
+
+    if not any((region, district, metro)):
+        if not formats:
+            return Q()
+        matches = Q(pk__in=[])
+        for code in formats:
+            matches |= format_q(code)
+        return matches
+
+    matches = format_q("online") if "online" in formats else Q(pk__in=[])
+    if not formats or "office" in formats or "offline" in formats:
+        office = Q(practice_locations__is_active=True)
+        if region:
+            office &= Q(practice_locations__region_id=region)
+        if district:
+            office &= Q(practice_locations__district_id=district)
+        if metro:
+            office &= Q(practice_locations__metro_id=metro)
+        matches |= format_q("office") & office
+    if not metro and (not formats or "visit" in formats or "offline" in formats):
+        visits = format_q("visit") & Q(visit_region__isnull=False)
+        if region:
+            visits &= Q(visit_region_id=region)
+        if district:
+            visits &= Q(visit_region_id=district_region)
+            visits &= Q(visit_districts__pk=district) | Q(visit_citywide=True)
+        matches |= visits
+    return matches

@@ -170,7 +170,7 @@ class SpecialistModerationFeedbackTests(TestCase):
         data = self.payload(draft_key=str(uuid4()), draft_version='0', form_action='submit')
         with translation.override('ru'):
             response = self.client.post(reverse('specialist_workspace_proposal'), data, follow=True)
-            expected = translation.gettext('Анкета отправлена на проверку. О решении модератора мы сообщим в уведомлениях и по email.')
+            expected = translation.gettext('Анкета отправлена на проверку.')
         self.assertContains(response, expected)
 
 

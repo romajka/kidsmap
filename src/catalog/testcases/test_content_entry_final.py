@@ -399,13 +399,14 @@ class EventVenueMetadataTests(TestCase):
 
 class SpecialistCatalogVenueTests(TestCase):
     def test_practice_at_kidsmap_place_localizes_string_district_without_500(self):
-        from catalog.models import SiteSettings, SpecialistPracticeLocation
+        from catalog.models import Region, SiteSettings, SpecialistPracticeLocation
         from django.utils.translation import override
         site = SiteSettings.get_solo(); site.specialists_section_enabled = True; site.save()
         place = create_quality_place(district='baku_yasamal')
         specialist = Specialist.objects.create(name='QA catalog venue', status='published',
                                               consultation_format='offline')
-        SpecialistPracticeLocation.objects.create(specialist=specialist, place=place, is_active=True)
+        region = Region.objects.create(key='qa-catalog-venue-city', name_ru='QA City')
+        SpecialistPracticeLocation.objects.create(specialist=specialist, place=place, region=region, is_active=True)
         for language in ('ru', 'az', 'en'):
             with self.subTest(language=language), override(language):
                 response = self.client.get(reverse('specialist_list'))

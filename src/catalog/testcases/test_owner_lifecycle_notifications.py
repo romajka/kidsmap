@@ -46,6 +46,8 @@ class OwnerLifecycleNotificationTests(TestCase):
         response = self.client.get('/ru/account/notifications/')
         self.assertContains(response, 'Нужны исправления')
         self.assertContains(response, 'Одобрено')
+        self.assertContains(response, 'data-decision="needs_changes"', count=1)
+        self.assertContains(response, 'data-decision="approved"', count=1)
         self.assertContains(response, 'Маленькие открытия', count=2)
         self.assertNotContains(response, 'Позднее название')
         self.assertContains(response, 'Уточните возраст группы')
@@ -70,7 +72,15 @@ class OwnerLifecycleNotificationTests(TestCase):
     def test_final_rejection_does_not_look_like_a_request_for_changes(self):
         item = self.decide(final_reject=True)
         self.client.force_login(self.owner)
-        self.assertContains(self.client.get('/ru/account/notifications/'), 'Отклонено')
+        url = '/ru/account/notifications/'
+        response = self.client.get(url)
+        self.assertContains(response, 'Отклонено')
+        self.assertContains(response, 'data-decision="rejected"')
+        self.assertContains(response, 'Причина отказа')
+        self.client.post(reverse('account_notification_read', args=[item.pk]))
+        response = self.client.get(url)
+        self.assertNotContains(response, ' is-unread')
+        self.assertContains(response, 'data-decision="rejected"')
         self.assertEqual(item.event_context['decision'], 'rejected')
 
     def test_reemit_preserves_original_decision_and_one_email_intent(self):
@@ -89,6 +99,7 @@ class OwnerLifecycleNotificationTests(TestCase):
         self.client.force_login(self.owner)
         response = self.client.get('/ru/account/notifications/')
         self.assertContains(response, 'Решение модерации')
+        self.assertNotContains(response, 'data-decision=')
         self.assertNotContains(response, 'Маленькие открытия')
         self.assertNotContains(response, 'Уточните возраст группы')
         self.assertNotContains(response, reverse('owner_place_edit', args=[self.place.pk]))
@@ -99,7 +110,9 @@ class OwnerLifecycleNotificationTests(TestCase):
         self.assertNotContains(self.client.get('/ru/account/notifications/'), 'Уточните возраст группы')
         self.assertEqual(self.client.post(reverse('account_notification_read', args=[item.pk])).status_code, 404)
 
-    def test_reason_is_escaped_and_not_copied_into_email(self):
+    def test_reason_is_escaped_in_inbox_and_html_email(self):
+        # Place decisions now carry the moderator's reason in the email
+        # (owner request, 2026-11-20); HTML must still escape it.
         from django.core import mail
         from catalog.services.workflow_notifications import deliver_batch
         self.decide(note='<script>alert("private-note")</script>')
@@ -108,7 +121,11 @@ class OwnerLifecycleNotificationTests(TestCase):
         self.assertContains(response, '&lt;script&gt;')
         self.assertNotContains(response, '<script>alert("private-note")</script>')
         self.assertEqual(deliver_batch()['sent'], 1)
-        self.assertNotIn('private-note', mail.outbox[0].body)
+        message = mail.outbox[0]
+        self.assertIn('private-note', message.body)
+        html = message.alternatives[0][0]
+        self.assertIn('&lt;script&gt;', html)
+        self.assertNotIn('<script>alert', html)
 
     def test_legacy_event_does_not_guess_current_decision(self):
         emit(kind='moderation_decision', entity_type='volunteer_revision', entity_id=999,

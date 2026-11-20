@@ -8,7 +8,7 @@ ENV PYTHONPATH=/app/src
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc curl gettext default-libmysqlclient-dev libpq-dev pkg-config \
+    && apt-get install -y --no-install-recommends gcc curl gettext poppler-utils default-libmysqlclient-dev libpq-dev pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /app/requirements.txt

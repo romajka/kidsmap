@@ -90,28 +90,18 @@
     var region = page.querySelector('[name="region"][id="filter-region"]');
     var district = page.querySelector('#filter-district');
     var metro = page.querySelector('#filter-metro');
-    var format = page.querySelector('#filter-format');
+    var formats = Array.from(page.querySelectorAll('input[name="format"][type="checkbox"]'));
     if (region) {
       function syncLocationOptions() {
-        var online = Boolean(format && format.value === "online");
+        var selected = formats.filter(function (input) { return input.checked; }).map(function (input) { return input.value; });
+        var online = selected.length === 1 && selected[0] === "online";
+        var officeAllowed = !selected.length || selected.includes("office") || selected.includes("offline");
         var regionGroup = region.closest("#location-filters-container");
         if (regionGroup) regionGroup.hidden = online;
         region.disabled = online;
-        if (online && region.value) {
-          region.value = "";
-          var customRegion = region.closest(".km-custom-select");
-          if (customRegion) {
-            customRegion.querySelectorAll("[data-value]").forEach(function (option) {
-              var selected = !option.dataset.value;
-              option.classList.toggle("is-selected", selected);
-              option.setAttribute("aria-selected", String(selected));
-              if (selected) customRegion.querySelector(".km-custom-select__value").textContent = option.textContent.trim();
-            });
-          }
-        }
         if (district) {
           Array.from(district.options).forEach(function (option) {
-            var excluded = Boolean(option.value && (online || (region.value && option.dataset.region !== region.value)));
+            var excluded = Boolean(option.value && region.value && option.dataset.region !== region.value);
             option.hidden = excluded;
             option.disabled = excluded;
             if (excluded && option.selected) district.value = "";
@@ -119,18 +109,18 @@
           var hasDistricts = Array.from(district.options).some(function (option) {
             return option.value && !option.disabled;
           });
-          district.closest('[data-specialist-district]').hidden = !hasDistricts;
-          district.disabled = !hasDistricts;
+          district.closest('[data-specialist-district]').hidden = online || !hasDistricts;
+          district.disabled = online || !hasDistricts;
         }
         if (metro) {
-          var outsideBaku = Boolean(online || (region.value && region.value !== "baku"));
+          var outsideBaku = region.value && region.value !== "baku";
           if (outsideBaku) metro.value = "";
-          metro.disabled = outsideBaku;
-          metro.closest('[data-specialist-metro]').hidden = outsideBaku;
+          metro.disabled = !officeAllowed || Boolean(outsideBaku);
+          metro.closest('[data-specialist-metro]').hidden = metro.disabled;
         }
       }
       region.addEventListener("change", syncLocationOptions);
-      if (format) format.addEventListener("change", syncLocationOptions);
+      formats.forEach(function (input) { input.addEventListener("change", syncLocationOptions); });
       syncLocationOptions();
     }
     var specialties = page.querySelector("#specialist-categories");
@@ -523,10 +513,18 @@
         var langChecked = form.querySelector("#id_language_az:checked, #id_language_ru:checked, #id_language_en:checked");
         var hasLangs = Boolean(langChecked);
 
-        var fmtField = form.querySelector("#id_consultation_format");
-        var hasFmt = Boolean(fmtField && fmtField.value.trim().length > 0);
-        var needsLocation = Boolean(readinessRules && fmtField && readinessRules.location_required_formats.indexOf(fmtField.value) !== -1);
+        var formats = Array.from(form.querySelectorAll('[name="session_formats"]:checked'), function (input) { return input.value; });
+        var hasFmt = formats.length > 0;
+        var needsLocation = Boolean(readinessRules && formats.some(function (value) {
+          return readinessRules.location_required_formats.includes(value);
+        }));
         var hasLocation = !needsLocation || hasActivePracticeLocation();
+        var needsVisit = Boolean(readinessRules && formats.includes(readinessRules.visit_required_format));
+        var region = form.querySelector('[name="visit_region"]');
+        var citywide = form.querySelector('[name="visit_citywide"]:checked');
+        var chosenDistricts = form.querySelectorAll('[name="visit_districts"]:checked');
+        var hasVisitArea = !needsVisit || Boolean(region && region.value && (citywide ||
+          Array.from(chosenDistricts).some(function (district) { return district.dataset.region === region.value; })));
 
         var phoneField = form.querySelector("#id_phone");
         var waField = form.querySelector("#id_whatsapp");
@@ -539,7 +537,7 @@
           return Boolean(el && el.value.trim().length > 0);
         });
 
-        var totalReq = 6 + (needsLocation ? 1 : 0) + (needsSubject ? 1 : 0);
+        var totalReq = 6 + Number(needsLocation) + Number(needsVisit) + Number(needsSubject);
         var doneCount = 0;
         if (hasName) doneCount++;
         if (hasSpecs) doneCount++;
@@ -549,6 +547,7 @@
         if (hasContacts) doneCount++;
         if (hasBio) doneCount++;
         if (needsLocation && hasLocation) doneCount++;
+        if (needsVisit && hasVisitArea) doneCount++;
 
         var pct = Math.round((doneCount / totalReq) * 100);
         var invalidField = Array.from(form.querySelectorAll('input,select,textarea')).some(function (field) {
@@ -649,7 +648,7 @@
 
         setTocStatus("km-sec-basic", hasName);
         setTocStatus("km-sec-directions", hasSpecs && hasLangs && (!needsSubject || hasSubject));
-        setTocStatus("km-sec-format-places", hasFmt && hasLocation);
+        setTocStatus("km-sec-format-places", hasFmt && hasLocation && hasVisitArea);
         setTocStatus("km-sec-pricing-contacts", hasContacts);
         setTocStatus("km-sec-bio-experience", hasBio);
       }
@@ -780,30 +779,23 @@
       showStep(current, false);
     }
 
-    // Format selection
-    var formatSelect = form.querySelector("#id_consultation_format");
     var locationBlock = form.querySelector("[data-owner-location-block]");
-    var formatCards = Array.from(form.querySelectorAll("[data-owner-format-card]"));
-    function syncFormat() {
-      if (!formatSelect) return;
-      // No preselected format: nothing is highlighted and no address is asked until the author picks one.
-      var value = formatSelect.value || "";
-      if (locationBlock) locationBlock.hidden = value !== "offline" && value !== "both";
-      formatCards.forEach(function (card) {
-        card.classList.toggle("is-selected", card.getAttribute("data-owner-format-card") === value);
-        card.setAttribute("aria-pressed",String(card.getAttribute("data-owner-format-card") === value));
-      });
+    function syncOfficeVisibility() {
+      if (!locationBlock) return;
+      locationBlock.hidden = !form.querySelector('[name="session_formats"][value="office"]:checked');
+      locationBlock.disabled = locationBlock.hidden;
     }
-    formatCards.forEach(function (card) {
-      card.addEventListener("click", function () {
-        if (formatSelect) {
-          formatSelect.value = card.getAttribute("data-owner-format-card");
-          formatSelect.dispatchEvent(new Event("change", { bubbles: true }));
-        }
-      });
+    // The disabled fieldset omits its rows. Django still needs an empty formset
+    // to retire active offices without submitting hidden, unfinished edits.
+    form.addEventListener("formdata", function (event) {
+      if (locationBlock && locationBlock.disabled && locationBlock.querySelector('[name="locations-TOTAL_FORMS"]')) {
+        event.formData.set("locations-TOTAL_FORMS", "0");
+        event.formData.set("locations-INITIAL_FORMS", "0");
+      }
     });
-    if (formatSelect) formatSelect.addEventListener("change", syncFormat);
-    syncFormat();
+    form.addEventListener("change", syncOfficeVisibility, true);
+    window.addEventListener("pageshow", syncOfficeVisibility);
+    syncOfficeVisibility();
 
     // Specializations: search and selected bar
     var searchInput = form.querySelector("[data-spec-search]");
@@ -1136,8 +1128,8 @@
         var subjectNotice = form.querySelector('[data-subject-required]');
         if (subjectNotice && !subjectNotice.hidden) target = form.querySelector('[data-subject-picker] input') || target;
       }
-      if (target.id === 'id_consultation_format') {
-        target = form.querySelector('[data-owner-format-card].is-selected, [data-owner-format-card]') || target;
+      if (target.id === 'id_session_formats' || target.id === 'id_visit_districts') {
+        target = target.querySelector('input:checked:not(:disabled), input:not(:disabled)') || target;
       }
       if (target.id === 'id_photo') target = form.querySelector('[data-specialist-photo-choose]') || target;
       var panel = target.closest('[data-owner-lang-panel]');

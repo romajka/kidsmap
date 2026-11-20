@@ -4103,3 +4103,7 @@
   .account-rejection-callout {animation:km-review-note-in var(--dur-base,260ms) var(--ease-out-quint,cubic-bezier(.22,1,.36,1)) both}
   .account-card-steps[open] .account-card-steps__content {animation:km-review-note-in var(--dur-fast,160ms) ease-out both}
 }
+/* Moderator decision: headline, reason, next step */
+.account-rejection-callout__title {font-size:14px;font-weight:700;line-height:1.4}
+.account-rejection-callout__note {display:block;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.7);color:var(--ink,#24352b);font-weight:500}
+.account-rejection-callout__next {font-size:13px;opacity:.9}

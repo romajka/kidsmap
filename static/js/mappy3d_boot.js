@@ -8,7 +8,15 @@
   if (!MODULE || !MODEL || !('IntersectionObserver' in window)) return;
   const net = navigator.connection;
   if (net && (net.saveData || /(^|-)2g$/.test(net.effectiveType || ''))) return;
-  const hasGL = () => { try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (_) { return false; } };
+  function hasWebGL2() {
+    try {
+      const context = document.createElement('canvas').getContext('webgl2');
+      context?.getExtension('WEBGL_lose_context')?.loseContext();
+      return !!context;
+    } catch (_) {
+      return false;
+    }
+  }
   const lang = (document.documentElement.lang || 'az').slice(0, 2);
   const sleepCopy = {
     ru: ['Маппи спит. Нажмите, чтобы разбудить.', 'Разбудить Маппи', 'Я проснулся! Поиграем?'],
@@ -27,9 +35,10 @@
     (lib ||= import(MODULE)).then(({ mountMappy }) => {
       const helper = el.closest('[data-mappy-helper]');
       const context = el.closest('[data-mappy-context]');
+      const awakeLabel = el.dataset.label || el.getAttribute('aria-label') || 'Mappy';
       const mappy = mountMappy(el, {
         src: MODEL, lang, mood: el.dataset.mappy3d || 'idle', bleed: bleedOf(el.dataset.bleed),
-        label: el.dataset.label || 'Mappy', sleepAfter: context ? Infinity : (Number(el.dataset.sleep) || 45), bubble: !helper && !context,
+        label: awakeLabel, sleepAfter: context ? Infinity : (Number(el.dataset.sleep) || 45), bubble: !helper && !context,
       });
       el.mappy = mappy;
       mappy.on('ready', () => { el.dataset.mappy3dState = 'ready'; });
@@ -39,7 +48,6 @@
         const text = helper.querySelector('[data-mappy-text]'), content = helper.querySelector('[data-mappy-content]');
         const bubble = helper.querySelector('.mappy-bubble');
         const live = helper.querySelector('[data-mappy-live]');
-        const awakeLabel = el.dataset.label || 'Mappy';
         const tipLabel = bubble?.getAttribute('aria-label');
         mappy.on('sleep', () => {
           helper.dataset.mappyState = 'sleeping';
@@ -81,7 +89,7 @@
 
   function start() {
     const boxes = document.querySelectorAll('[data-mappy3d]');
-    if (!boxes.length || !hasGL()) return;
+    if (!boxes.length || !hasWebGL2()) return;
     const io = new IntersectionObserver((entries) => entries.forEach((e) => {
       if (e.isIntersecting) { io.unobserve(e.target); idle(() => mount(e.target)); }
     }), { rootMargin: '200px 0px' });

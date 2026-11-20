@@ -1839,3 +1839,34 @@ body.km-drawer-locked {
   }
   .km-mlang.is-switching .km-mlang__flag { animation: none; }
 }
+
+/* Phones: "KidsMap" must always be shown in full. The flag-only language chip
+   and a tighter catalog pill free the space on 360–440px screens; the catalog
+   pill drops its label only on the narrowest phones (label stays for screen readers). */
+@media (max-width: 440px) {
+  .km-mlang__chip { width: 38px; height: 38px; padding: 0; justify-content: center; }
+  .km-mlang__code,
+  .km-mlang__chevron { display: none; }
+  .km-mlang__flag { width: 28px; height: 28px; }
+}
+@media (max-width: 400px) {
+  .km-header-inner { padding-left: 10px !important; padding-right: 10px !important; }
+  .km-brand { gap: 6px !important; }
+  .km-header-actions { gap: 4px !important; }
+  .km-m-catalog { padding: 0 10px 0 8px; gap: 4px; font-size: 13px; }
+}
+@media (max-width: 370px) {
+  .km-m-catalog { padding: 0 8px 0 7px; font-size: 12.5px; }
+  .km-m-catalog__icon { width: 16px; height: 16px; }
+}
+@media (max-width: 359px) {
+  .km-m-catalog { width: 38px; padding: 0; justify-content: center; }
+  .km-m-catalog__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

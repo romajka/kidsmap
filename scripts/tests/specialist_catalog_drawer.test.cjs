@@ -14,3 +14,28 @@ test('changing category clears the previous tutor subject; choosing a subject se
   category.value='psychologist';category.dispatchEvent(new w.Event('change',{bubbles:true}));assert.equal(subject.value,'');
   subject.value='math_tutor';subject.dispatchEvent(new w.Event('change',{bubbles:true}));assert.equal(category.value,'tutor');assert.equal(subject.value,'math_tutor');assert.equal(d.querySelector('.km-custom-select__value').textContent,'Tutor');w.close();
 });
+
+test('online selection hides geography without clearing a district needed by a second format', () => {
+  const dom = new JSDOM(`<main class="km-specialists-page"><form id="filters-form">
+    <input name="format" type="checkbox" value="online">
+    <input name="format" type="checkbox" value="visit">
+    <div id="location-filters-container"><select id="filter-region" name="region"><option></option><option selected value="baku">Baku</option></select></div>
+    <div data-specialist-district><select id="filter-district" name="district"><option></option><option data-region="baku" selected value="north">North</option></select></div>
+    <div data-specialist-metro><select id="filter-metro" name="metro"><option></option></select></div>
+    </form></main>`, {runScripts: 'outside-only', url: 'http://localhost/'});
+  const w = dom.window;
+  w.matchMedia = () => ({matches: false, addEventListener() {}});
+  w.eval(source);
+  w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
+  const form = w.document.querySelector('form');
+  form.querySelector('[value=online]').click();
+  assert.equal(form.elements.region.disabled, true);
+  assert.equal(new w.FormData(form).has('district'), false);
+  form.querySelector('[value=visit]').click();
+  const data = new w.FormData(form);
+  assert.deepEqual(data.getAll('format'), ['online', 'visit']);
+  assert.equal(data.get('region'), 'baku');
+  assert.equal(data.get('district'), 'north');
+  assert.equal(data.has('metro'), false);
+  w.close();
+});

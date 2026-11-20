@@ -1,6 +1,6 @@
 (function () {
   function parseCoordinate(value, limit) {
-    var normalized = String(value || "").trim().replace(",", ".");
+    var normalized = String(value == null ? "" : value).trim().replace(",", ".");
     if (!normalized) return null;
     var parsed = Number(normalized);
     return Number.isFinite(parsed) && Math.abs(parsed) <= limit ? parsed : null;
@@ -155,6 +155,11 @@
       copyCoordsBtn: root.querySelector("[data-km-copy-coords]"),
       recenterBtn: root.querySelector("[data-km-place-location-recenter]"),
       _isSettingPoint: false,
+      requestVersion: 0,
+      currentAddress: addressInput.value.trim(),
+      confirmation: root.querySelector('[name="_location_point_confirmed"]'),
+      choices: root.querySelector("[data-km-place-location-choices]"),
+      policy: root.dataset.geocodingPolicy ? JSON.parse(root.dataset.geocodingPolicy) : null,
       mapProvider: root.dataset.mapProvider || "leaflet",
       offlineOpenLabel: root.dataset.offlineOpenLabel,
       offlineClosedLabel: root.dataset.offlineClosedLabel,
@@ -194,6 +199,19 @@
 
     state.foundBox.hidden = false;
     state.foundText.textContent = normalized;
+  }
+
+  function invalidateLookup(state) {
+    state.requestVersion += 1;
+    updateFoundAddress(state, "");
+    if (state.choices) {
+      state.choices.replaceChildren();
+      state.choices.hidden = true;
+    }
+  }
+
+  function confirmPoint(state, confirmed) {
+    if (state.confirmation) state.confirmation.value = confirmed ? "1" : "";
   }
 
   function updateBadges(state) {
@@ -295,6 +313,8 @@
       var normalizedLng = parseCoordinate(lng, 180);
       if (normalizedLat === null || normalizedLng === null) return;
 
+      invalidateLookup(state);
+      if (!options || !options.initial) confirmPoint(state, true);
       var formattedLat = formatCoordinate(normalizedLat);
       var formattedLng = formatCoordinate(normalizedLng);
       state.latInput.value = formattedLat;
@@ -370,6 +390,8 @@
     if (state._isSettingPoint) return;
     state._isSettingPoint = true;
     try {
+      invalidateLookup(state);
+      confirmPoint(state, false);
       state.latInput.value = "";
       state.lngInput.value = "";
       state.latInput.dispatchEvent(new Event("input", { bubbles: true }));
@@ -391,7 +413,6 @@
         state.externalMapLink.style.display = "none";
         state.externalMapLink.removeAttribute("href");
       }
-      updateFoundAddress(state, "");
       updateBadges(state);
       var form = state.root.closest("form");
       if (form) form.dispatchEvent(new CustomEvent("km:location-change", { bubbles: true }));
@@ -405,37 +426,117 @@
     if (!state.geocoder) {
       state.geocoder = new google.maps.Geocoder();
     }
+    var version = state.requestVersion;
     state.geocoder.geocode({ location: { lat: lat, lng: lng } }, function (results, status) {
-      if (status !== "OK" || !results || !results.length) return;
+      if (version !== state.requestVersion || status !== "OK" || !results || !results[0]) return;
       updateFoundAddress(state, results[0].formatted_address || "");
     });
   }
 
-  function geocodeGoogle(state, query) {
-    if (!window.google || !window.google.maps) return;
-    if (!state.geocoder) {
-      state.geocoder = new google.maps.Geocoder();
+  function resultPoint(place) {
+    var location = place && place.geometry && place.geometry.location;
+    if (!location || typeof location.lat !== "function" || typeof location.lng !== "function") return null;
+    var lat = location.lat(), lng = location.lng();
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+    return {lat: lat, lng: lng};
+  }
+
+  function validAddressComponents(place) {
+    return place.address_components === undefined || (Array.isArray(place.address_components) &&
+      place.address_components.every(component => component && Array.isArray(component.types)));
+  }
+
+  function isLocalResult(place, point, bounds) {
+    var components = place.address_components || [];
+    var foreign = components.some(function (component) {
+      return component && Array.isArray(component.types) && component.types.includes("country") &&
+        String(component.short_name || "").toUpperCase() !== "AZ";
+    });
+    return !foreign && point.lat >= bounds[0] && point.lat <= bounds[1] &&
+      point.lng >= bounds[2] && point.lng <= bounds[3];
+  }
+
+  function resolveSearchResults(results, policy) {
+    var choices = new Map();
+    var labels = new Set();
+    var hasPoint = false;
+    results.forEach(function (place) {
+      var point = resultPoint(place);
+      if (!point || !validAddressComponents(place) || !Array.isArray(place.types) ||
+          !place.types.every(type => typeof type === "string")) return;
+      hasPoint = true;
+      if (!isLocalResult(place, point, policy.bounds)) return;
+      if (place.formatted_address) labels.add(place.formatted_address);
+      var types = place.types;
+      if (place.partial_match || !policy.precision.includes(place.geometry.location_type) ||
+          !types.some(type => policy.types.includes(type)) || types.some(type => policy.transit.includes(type))) return;
+      var key = formatCoordinate(point.lat) + "," + formatCoordinate(point.lng);
+      if (!choices.has(key)) choices.set(key, {place: place, point: point});
+    });
+    return {choices: Array.from(choices.values()), labels: Array.from(labels), hasPoint: hasPoint};
+  }
+
+  function applySearchResult(state, candidate) {
+    ensureMapVisible(state);
+    setPoint(state, candidate.point.lat, candidate.point.lng, { recenter: true, reverseGeocode: false });
+    updateFoundAddress(state, candidate.place.formatted_address || "");
+    if (candidate.place.geometry.viewport && state.mapInstance) {
+      state.mapInstance.fitBounds(candidate.place.geometry.viewport);
     }
+  }
 
-    state.geocoder.geocode({ address: query, region: "az" }, function (results, status) {
-      if (status !== "OK" || !results || !results.length) {
-        if (state.statusText) {
-          state.statusText.textContent = state.searchErrorLabel;
+  function showSearchChoices(state, resolved, version) {
+    if (!state.choices) return;
+    function item(text, candidate) {
+      var row = document.createElement("li");
+      if (candidate) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.textContent = text;
+        button.addEventListener("click", function () {
+          if (version !== state.requestVersion) return;
+          applySearchResult(state, candidate);
+          (state.confirmButton || state.searchButton).focus({preventScroll: true});
+        });
+        row.appendChild(button);
+      } else {
+        row.textContent = text;
+      }
+      state.choices.appendChild(row);
+    }
+    if (resolved.choices.length) {
+      resolved.choices.forEach(function (candidate) {
+        var coordinates = formatCoordinate(candidate.point.lat) + ", " + formatCoordinate(candidate.point.lng);
+        var address = candidate.place.formatted_address;
+        item(address ? address + " (" + coordinates + ")" : coordinates, candidate);
+      });
+    } else {
+      resolved.labels.forEach(function (label) { item(label); });
+    }
+    state.choices.hidden = !state.choices.childElementCount;
+  }
+
+  function geocodeGoogle(state, query) {
+    clearPoint(state);
+    var version = state.requestVersion;
+    if (!state.geocoder) state.geocoder = new google.maps.Geocoder();
+    state.geocoder.geocode({ address: query, region: "az", componentRestrictions: {country: "AZ"} }, function (results, status) {
+      if (version !== state.requestVersion || state.addressInput.value.trim() !== query) return;
+      var message;
+      if (status === "ZERO_RESULTS" || (status === "OK" && Array.isArray(results) && !results.length)) {
+        message = state.searchErrorLabel;
+      } else if (status !== "OK" || !Array.isArray(results) || !state.policy) {
+        message = state.root.dataset.searchUnavailable;
+      } else {
+        var resolved = resolveSearchResults(results, state.policy);
+        if (resolved.choices.length === 1) {
+          applySearchResult(state, resolved.choices[0]);
+          return;
         }
-        return;
+        showSearchChoices(state, resolved, version);
+        message = resolved.hasPoint ? state.root.dataset.searchImprecise : state.root.dataset.searchUnavailable;
       }
-
-      var place = results[0];
-      var location = place.geometry && place.geometry.location;
-      if (!location) return;
-
-      ensureMapVisible(state);
-      setPoint(state, location.lat(), location.lng(), { recenter: true, reverseGeocode: false });
-      updateFoundAddress(state, place.formatted_address || query);
-
-      if (place.geometry.viewport && state.mapInstance && typeof state.mapInstance.fitBounds === "function") {
-        state.mapInstance.fitBounds(place.geometry.viewport);
-      }
+      if (state.statusText) state.statusText.textContent = message;
     });
   }
 
@@ -444,7 +545,7 @@
 
     state.googleAutocomplete = new google.maps.places.Autocomplete(state.addressInput, {
       componentRestrictions: { country: "az" },
-      fields: ["formatted_address", "geometry", "name"],
+      fields: ["formatted_address", "geometry", "name", "address_components"],
     });
 
     if (state.mapInstance && typeof state.googleAutocomplete.bindTo === "function") {
@@ -453,16 +554,17 @@
 
     state.googleAutocomplete.addListener("place_changed", function () {
       var place = state.googleAutocomplete.getPlace();
-      if (!place || !place.geometry || !place.geometry.location) return;
-      ensureMapVisible(state);
-      state.addressInput.value = place.formatted_address || place.name || state.addressInput.value;
-      var form = state.root.closest("form");
-      if (form) form.dispatchEvent(new CustomEvent("km:location-change", { bubbles: true }));
-      updateFoundAddress(state, state.addressInput.value);
-      setPoint(state, place.geometry.location.lat(), place.geometry.location.lng(), { recenter: true, reverseGeocode: false });
-      if (place.geometry.viewport && state.mapInstance && typeof state.mapInstance.fitBounds === "function") {
-        state.mapInstance.fitBounds(place.geometry.viewport);
+      // Pressing Enter on free text can also emit place_changed with only a name.
+      if (!place || !place.geometry) return;
+      var point = resultPoint(place);
+      if (!point || !validAddressComponents(place) || !state.policy || !isLocalResult(place, point, state.policy.bounds)) {
+        clearPoint(state);
+        if (state.statusText) state.statusText.textContent = state.root.dataset.searchImprecise;
+        return;
       }
+      state.addressInput.value = place.formatted_address || place.name || state.addressInput.value;
+      state.currentAddress = state.addressInput.value.trim();
+      applySearchResult(state, {place: place, point: point});
     });
   }
 
@@ -500,7 +602,7 @@
     var lng = parseCoordinate(state.lngInput.value, 180);
     if (lat !== null && lng !== null) {
       state.mapInstance.setView([lat, lng], 15);
-      setPoint(state, lat, lng, { recenter: false });
+      setPoint(state, lat, lng, { recenter: false, initial: true });
     } else {
       state.mapInstance.setView([state.defaultLat, state.defaultLng], 12);
     }
@@ -527,7 +629,7 @@
     });
 
     if (hasPoint) {
-      setPoint(state, lat, lng, { recenter: false });
+      setPoint(state, lat, lng, { recenter: false, initial: true });
     }
 
     bindGoogleAutocomplete(state);
@@ -616,11 +718,15 @@
           return;
         }
 
+        invalidateLookup(state);
+        var version = state.requestVersion;
         navigator.geolocation.getCurrentPosition(
           function (position) {
+            if (version !== state.requestVersion) return;
             setPoint(state, position.coords.latitude, position.coords.longitude, { recenter: true, reverseGeocode: true });
           },
           function () {
+            if (version !== state.requestVersion) return;
             if (state.statusText) state.statusText.textContent = state.locateErrorLabel;
           },
           { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -631,6 +737,8 @@
 
     if (state.confirmButton && !state.confirmButton.dataset.kmBound) {
       state.confirmButton.addEventListener("click", function () {
+        invalidateLookup(state);
+        confirmPoint(state, parseCoordinate(state.latInput.value, 90) !== null && parseCoordinate(state.lngInput.value, 180) !== null);
         updateBadges(state);
         setToggleState(state, false);
         if (state.toggleButton) state.toggleButton.focus();
@@ -649,6 +757,8 @@
       state.applyAddressButton.addEventListener("click", function () {
         if (!state.pendingAddress) return;
         state.addressInput.value = state.pendingAddress;
+        state.currentAddress = state.addressInput.value.trim();
+        confirmPoint(state, true);
         updateBadges(state);
         var form = state.root.closest("form");
         if (form) form.dispatchEvent(new CustomEvent("km:location-change", { bubbles: true }));
@@ -657,21 +767,47 @@
     }
 
     if (!state.latInput.dataset.kmBound) {
-      state.latInput.addEventListener("input", function () {
-        updateBadges(state);
-        if (!state.mapPanel.hidden) {
-          setPoint(state, state.latInput.value, state.lngInput.value, { recenter: false, reverseGeocode: false });
+      var restoring = false;
+      var form = state.root.closest("form");
+      if (form) {
+        form.addEventListener("km:location-restore-start", function () {
+          restoring = true;
+          invalidateLookup(state);
+          confirmPoint(state, false);
+        });
+        form.addEventListener("km:location-restore-end", function () {
+          restoring = false;
+          state.currentAddress = state.addressInput.value.trim();
+          updateBadges(state);
+        });
+      }
+      [state.latInput, state.lngInput].forEach(function (input) {
+        input.addEventListener("input", function () {
+          if (state._isSettingPoint || restoring) return;
+          invalidateLookup(state);
+          confirmPoint(state, parseCoordinate(state.latInput.value, 90) !== null && parseCoordinate(state.lngInput.value, 180) !== null);
+          updateBadges(state);
+        });
+        input.addEventListener("change", function () {
+          if (!state._isSettingPoint && !restoring && !state.mapPanel.hidden) {
+            setPoint(state, state.latInput.value, state.lngInput.value, { recenter: false, reverseGeocode: false });
+          }
+        });
+      });
+      function addressChanged() {
+        var address = state.addressInput.value.trim();
+        if (restoring || address === state.currentAddress) return;
+        state.currentAddress = address;
+        if (state.latInput.value || state.lngInput.value || state.marker) clearPoint(state);
+        else {
+          invalidateLookup(state);
+          confirmPoint(state, false);
+          updateBadges(state);
         }
-      });
-      state.lngInput.addEventListener("input", function () {
-        updateBadges(state);
-        if (!state.mapPanel.hidden) {
-          setPoint(state, state.latInput.value, state.lngInput.value, { recenter: false, reverseGeocode: false });
-        }
-      });
-      state.addressInput.addEventListener("input", function () {
-        updateBadges(state);
-      });
+      }
+      state.addressInput.addEventListener("input", addressChanged);
+      state.addressInput.addEventListener("change", addressChanged);
+      if (form) form.addEventListener("submit", addressChanged, true);
       state.latInput.dataset.kmBound = "1";
     }
   }

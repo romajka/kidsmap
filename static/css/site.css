@@ -33327,3 +33327,22 @@ form[data-review-submission][hidden],
   .register-shell--compact-mobile .register-form-head { margin-bottom:18px; }
   .register-shell--compact-mobile .register-form-head p { margin:0; }
 }
+
+/* Phones: legal links wrap, so the "·" separators ended up dangling at line
+   ends. Drop them and let spacing separate the links. */
+@media (max-width: 640px) {
+  .footer-legal-line .footer-dot-sep,
+  .footer-legal-links .footer-dot-sep {
+    display: none;
+  }
+  .footer-legal-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .footer-legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 18px; /* links are already 44px tall tap targets */
+  }
+}

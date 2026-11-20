@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n kidsmap_map %}
 {% with form=adminform.form obj=adminform.form.instance %}
   <div
     class="km-pf-location"
@@ -11,6 +11,9 @@
     data-empty-label="{% translate 'Точка на карте не выбрана.' %}"
     data-locate-error="{{ km_place_entry_copy.map_locate_error }}"
     data-locate-unsupported="{{ km_place_entry_copy.map_locate_unsupported }}"
+    data-geocoding-policy="{% geocoding_policy_json %}"
+    data-search-imprecise="{% translate 'Точный адрес не определён. Уточните запрос или укажите точку на карте.' %}"
+    data-search-unavailable="{% translate 'Сервис поиска адреса недоступен. Попробуйте ещё раз или укажите точку на карте.' %}"
     data-search-error="{% translate 'Не удалось найти место по этому запросу. Уточните адрес.' %}"
     data-search-empty="{% translate 'Введите адрес или выберите точку на карте.' %}"
     data-search-fallback="{% translate 'Поиск выполнится после сохранения формы и серверного пересчёта координат.' %}"
@@ -25,6 +28,7 @@
     data-offline-open-label="{% translate 'Скрыть координаты' %}"
     data-offline-closed-label="{% translate 'Указать координаты' %}"
   >
+    <input type="hidden" name="_location_point_confirmed" value="{% if form.location_point_confirmed %}1{% endif %}">
     <div class="km-pf-group" data-pf-group="address">
       <div class="km-pf-group__head">
         <span class="km-pf-group__title">{% translate "Адрес" %}</span>
@@ -100,6 +104,7 @@
         {{ km_place_entry_copy.map_unavailable }}
       </p>
       <p class="km-pf-mapstatus" data-km-place-location-status role="status"></p>
+      <ul data-km-place-location-choices hidden></ul>
 
       {% include "includes/location_resolution.html" with location_admin=True %}
 

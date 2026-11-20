@@ -148,14 +148,20 @@
           else startRotation();
         });
 
-        // Click bubble or mascot to playfully cycle tips
-        const bubble = helper.querySelector('.mappy-bubble');
-        if (bubble) {
-          bubble.addEventListener('click', function () {
-            cycleTip();
-            startRotation();
-          });
+        function nextTip() {
+          cycleTip();
+          startRotation();
         }
+        helper.querySelector('.mappy-bubble')?.addEventListener('click', nextTip);
+        const portrait = helper.querySelector('[data-mappy3d]');
+        let pressedOnPicture = false;
+        portrait?.addEventListener('pointerdown', function (event) {
+          if (event.isPrimary !== false && event.button === 0) pressedOnPicture = !portrait.mappy?.ready;
+        });
+        portrait?.addEventListener('click', function (event) {
+          if (!portrait.mappy?.ready || (pressedOnPicture && event.detail > 0)) nextTip();
+          pressedOnPicture = false;
+        });
       }
     });
   }

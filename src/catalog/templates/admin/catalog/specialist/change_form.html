@@ -3,14 +3,16 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=20261105_subjects_r2">
+<link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=20261120_format_cards">
+<link rel="stylesheet" href="{% static 'css/components/specialist_formats.css' %}?v=20261120_formats">
 {% endblock %}
 
 {% block extrahead %}
 {{ block.super }}
 <script src="{% url 'admin:jsi18n' %}"></script>
 {{ media }}
-<script src="{% static 'admin/js/specialist_admin.js' %}?v=20261105_all_r1" defer></script>
+<script src="{% static 'js/specialist_visit_area.js' %}?v=20261120_formats" defer></script>
+<script src="{% static 'admin/js/specialist_admin.js' %}?v=20261120_formats" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -62,13 +64,9 @@
                 <span class="km-status-pill km-status-pill--inactive"><i class="fas fa-eye-slash" aria-hidden="true"></i> {% translate 'Скрыт' %}</span>
               {% endif %}
 
-              {% if specialist_saved_format == 'online' %}
-                <span class="km-status-pill km-status-pill--format"><i class="fas fa-laptop" aria-hidden="true"></i> {% translate 'Онлайн' %}</span>
-              {% elif specialist_saved_format == 'offline' %}
-                <span class="km-status-pill km-status-pill--format"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> {% translate 'Очно' %}</span>
-              {% elif specialist_saved_format == 'both' %}
-                <span class="km-status-pill km-status-pill--format"><i class="fas fa-globe" aria-hidden="true"></i> {% translate 'Онлайн и очно' %}</span>
-              {% endif %}
+              {% for label in specialist_saved_formats %}
+                <span class="km-status-pill km-status-pill--format">{{ label }}</span>
+              {% endfor %}
 
               {% if original.rating_count %}
                 <span class="km-status-pill km-status-pill--rating"><i class="fas fa-star" aria-hidden="true"></i> {{ original.rating_avg }} ({{ original.rating_count }})</span>
@@ -97,7 +95,7 @@
             </div>
           {% endif %}
 
-          {{ adminform.form.subject_rules|json_script:"specialist-subject-rules" }}
+          {% if adminform.form.specializations %}{{ adminform.form.subject_rules|json_script:"specialist-subject-rules" }}{% endif %}
           {# Interactive Readiness Progress Meter #}
           <div class="km-spec-readiness" data-spec-readiness
                data-summary="{% translate 'Заполнено {completed} из {total} пунктов' %}"
@@ -168,7 +166,7 @@
           </div>
           <ul class="km-nav-list">
             {% for section in specialist_sections %}
-              <li>
+              <li{% if section.number == 8 %} data-office-section{% endif %}>
                 <a href="#{{ section.id }}" class="km-nav-item" data-section="{{ section.id }}">
                   <span class="km-nav-num">{{ section.number }}</span>
                   <span class="km-nav-icon">
@@ -200,20 +198,19 @@
           <label for="specialist-section-jump">{% translate 'Раздел формы' %}</label>
           <select id="specialist-section-jump">
             {% for section in specialist_sections %}
-              <option value="{{ section.id }}">{{ section.title }}</option>
+              <option value="{{ section.id }}"{% if section.number == 8 %} data-office-section{% endif %}>{{ section.title }}</option>
             {% endfor %}
           </select>
         </div>
 
         {% for section in specialist_sections %}
-          <section class="km-specialist-section km-specialist-section--sec{{ section.number }}" id="{{ section.id }}">
+          <section class="km-specialist-section km-specialist-section--sec{{ section.number }}" id="{{ section.id }}"{% if section.number == 8 %} data-office-section data-saved-office="{{ specialist_has_saved_office|yesno:'true,false' }}"{% endif %}>
             <div class="km-section-header">
               <span class="km-section-header__num">{{ section.number }}</span>
               <h2 tabindex="-1">{{ section.title }}</h2>
               {% if section.number == 1 or section.number == 3 or section.number == 5 or section.number == 6 or section.number == 11 %}
                 <span class="km-section-req-badge km-section-req-badge--mandatory"><i class="fas fa-asterisk" aria-hidden="true"></i> {% translate 'Обязательный раздел' %}</span>
-              {% elif section.number == 8 %}
-                <span class="km-section-req-badge km-section-req-badge--optional"><i class="fas fa-info-circle" aria-hidden="true"></i> {% translate 'По желанию' %}</span>
+
               {% endif %}
             </div>
 
@@ -460,40 +457,43 @@
                   {{ adminform.form.language_en.errors }}
                 </div>
 
-              {# SECTION 6: ОНЛАЙН / ОЧНО #}
               {% elif section.number == 6 %}
+                {% if add or has_change_permission %}
                 <div class="km-spec-format-section">
-                  <div class="km-spec-format-cards" data-format-cards>
-                    <div class="km-spec-format-card" data-format-val="online">
-                      <div class="km-format-card__icon"><i class="fas fa-laptop" aria-hidden="true"></i></div>
-                      <div class="km-format-card__info">
-                        <strong>{% translate 'Только онлайн' %}</strong>
-                        <span>{% translate 'Удалённые консультации. Места приёма указывать не требуется.' %}</span>
-                      </div>
-                      <div class="km-format-card__check"><i class="fas fa-check" aria-hidden="true"></i></div>
+                  <fieldset class="km-spec-format-picker" id="id_session_formats">
+                    <legend>{% if LANGUAGE_CODE == 'az' %}Bir və ya bir neçə format seçin{% elif LANGUAGE_CODE == 'en' %}Select one or more formats{% else %}Выберите один или несколько форматов{% endif %}</legend>
+                    <div class="km-spec-format-cards">
+                      {% for choice in adminform.form.session_formats %}
+                        <label class="km-spec-format-card">
+                          <i aria-hidden="true" class="km-spec-format-icon fas {% if choice.data.value == 'online' %}fa-laptop{% elif choice.data.value == 'office' %}fa-map-marker-alt{% else %}fa-route{% endif %}"></i>
+                          <span class="km-spec-format-title">{{ choice.choice_label }}</span>
+                          {{ choice.tag }}
+                        </label>
+                      {% endfor %}
                     </div>
-                    <div class="km-spec-format-card" data-format-val="offline">
-                      <div class="km-format-card__icon"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></div>
-                      <div class="km-format-card__info">
-                        <strong>{% translate 'Только очно' %}</strong>
-                        <span>{% translate 'Приём в центре или кабинете. Укажите локацию в разделе 8.' %}</span>
-                      </div>
-                      <div class="km-format-card__check"><i class="fas fa-check" aria-hidden="true"></i></div>
-                    </div>
-                    <div class="km-spec-format-card" data-format-val="both">
-                      <div class="km-format-card__icon"><i class="fas fa-globe" aria-hidden="true"></i></div>
-                      <div class="km-format-card__info">
-                        <strong>{% translate 'Онлайн и очно' %}</strong>
-                        <span>{% translate 'Смешанный формат: и онлайн-сессии, и очный приём в центре.' %}</span>
-                      </div>
-                      <div class="km-format-card__check"><i class="fas fa-check" aria-hidden="true"></i></div>
-                    </div>
-                  </div>
-                  <div class="km-spec-format-hidden-select" style="display: none;">
-                    {{ adminform.form.consultation_format }}
-                  </div>
-                  {{ adminform.form.consultation_format.errors }}
+                    {{ adminform.form.session_formats.errors }}
+                  </fieldset>
+                  {% include 'pages/includes/specialist_visit_area.html' with form=adminform.form %}
                 </div>
+
+                {% else %}
+                  {% if specialist_saved_formats %}
+                    <ul class="km-spec-saved-formats">
+                      {% for label in specialist_saved_formats %}<li class="km-status-pill km-status-pill--format">{{ label }}</li>{% endfor %}
+                    </ul>
+                  {% endif %}
+                  {% if specialist_saved_profile.offers_visits %}
+                    <div data-saved-visit-area>
+                      <strong>{% if LANGUAGE_CODE == 'az' %}Səfər ərazisi{% elif LANGUAGE_CODE == 'en' %}Home visit area{% else %}Территория выезда{% endif %}</strong>
+                      {% if specialist_saved_profile.visit_region %}{{ specialist_saved_profile.visit_region.name_i18n }}{% endif %}
+                      {% if specialist_saved_profile.visit_citywide %}
+                        · {% if LANGUAGE_CODE == 'az' %}Bütün şəhər{% elif LANGUAGE_CODE == 'en' %}Entire city{% else %}Весь город{% endif %}
+                      {% else %}
+                        {% for district in specialist_saved_profile.visit_districts.all %}{% if forloop.first %} · {% else %}, {% endif %}{{ district.name_i18n }}{% endfor %}
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                {% endif %}
 
               {# SECTION 7: СТОИМОСТЬ И ПРОДОЛЖИТЕЛЬНОСТЬ #}
               {% elif section.number == 7 %}
@@ -528,14 +528,7 @@
 
               {# SECTION 8: МЕСТА РАБОТЫ И ПРИЁМА (INLINE) #}
               {% elif section.number == 8 %}
-                <div class="km-spec-location-banner" data-location-banner>
-                  <div class="km-location-banner__icon"><i class="fas fa-map-marked-alt" aria-hidden="true"></i></div>
-                  <div class="km-location-banner__text">
-                    <strong>{% translate 'Локации практики и кабинеты (по желанию / для очного формата)' %}</strong>
-                    <span>{% translate 'Если специалист принимает онлайн, данный блок можно пропустить. Для очного приёма выберите детский центр KidsMap или укажите адрес кабинета.' %}</span>
-                  </div>
-                </div>
-
+                <p class="help">{% if LANGUAGE_CODE == 'az' %}Qəbul üçün KidsMap mərkəzini və ya kabinetin ünvanını və şəhəri göstərin.{% elif LANGUAGE_CODE == 'en' %}For sessions at the specialist’s location, add a KidsMap centre or office address and its city.{% else %}Для приёма у специалиста укажите центр KidsMap или адрес кабинета и город.{% endif %}</p>
                 {% if section.inline %}
                   <div class="km-inline-body" id="practice_locations-group-wrapper">
                     {% with inline_admin_formset=section.inline %}
@@ -667,8 +660,8 @@
                   <div class="km-spec-doc-banner">
                     <div class="km-doc-banner__icon"><i class="fas fa-award" aria-hidden="true"></i></div>
                     <div class="km-doc-banner__text">
-                      <strong>{% translate 'Дипломы, лицензии и сертификаты специалиста' %}</strong>
-                      <span>{% translate 'Загруженные документы подтверждают квалификацию специалиста. После модерации специалист получает знак «Проверен» в каталоге KidsMap. Документы конфиденциальны и видны только администрации сайта.' %}</span>
+                      <strong>{% translate 'Дипломы и сертификаты' %}</strong>
+                      <span>{% translate 'В профиле видны только одобренные дипломы и сертификаты, которые специалист разрешил показывать. Удостоверения личности всегда приватны.' %}</span>
                     </div>
                   </div>
 
@@ -679,14 +672,13 @@
                           <i class="fas fa-folder-open" aria-hidden="true"></i>
                         </div>
                         <div class="km-docs-empty-state__info">
-                          <h5>{% translate 'Документы пока не загружены специалистом' %}</h5>
-                          <p>{% translate 'Дипломы, лицензии и сертификаты загружаются лично подтверждённым специалистом в своём кабинете («Кабинет специалиста → Дипломы и сертификаты»). Это обеспечивает защиту персональных данных согласно правилам конфиденциальности KidsMap.' %}</p>
-                          <p>{% translate 'Как только специалист прикрепит файлы, они автоматически появятся в этой таблице со статусом «На модерации» для вашей проверки, скачивания и утверждения.' %}</p>
+                          <h5>{% translate 'Пока нет документов для проверки' %}</h5>
+                          <p>{% translate 'Документы из личной заявки поступают на проверку после подтверждения личности. Специалист также может добавить их позже в кабинете.' %}</p>
                           {% if original and original.pk %}
                             <div class="km-docs-empty-state__links">
-                              <a href="{% url 'specialist_workspace_certificates' original.pk %}" target="_blank" class="km-docs-workspace-link">
+                              <a href="{% url 'specialist_workspace_review' original.pk %}" target="_blank" class="km-docs-workspace-link">
                                 <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-                                {% translate 'Перейти в раздел документов этого специалиста' %}
+                                {% translate 'Проверка KidsMap' %}
                               </a>
                             </div>
                           {% endif %}

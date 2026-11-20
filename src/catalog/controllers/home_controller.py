@@ -149,6 +149,7 @@ class HomeController:
         from django.db.models import Count
         from catalog.models import Specialist, SpecialistSpecialization
         from catalog.services.features import is_specialists_section_enabled
+        from catalog.services.specialist_formats import public_format_label
 
         if not is_specialists_section_enabled():
             return None
@@ -158,7 +159,7 @@ class HomeController:
             return {"mode": "soon", "total": 0, "people": [], "chips": [], "fillers": ["person", "book", "heart"]}
         with_photo = list(
             published.exclude(photo="").exclude(photo__isnull=True)
-            .prefetch_related("specializations")
+            .prefetch_related("specializations", "practice_locations")
             .order_by("-rating_count", "-rating_avg", "-pk")[:HOME_SPECIALISTS_RAIL_SIZE]
         )
         specialties = (
@@ -185,8 +186,7 @@ class HomeController:
                 "specialty": ", ".join(specialties_text[:2]),
                 "rating": round(person.rating_avg, 1) if person.rating_count else None,
                 "rating_count": person.rating_count,
-                "online": person.consultation_format in (Specialist.FORMAT_ONLINE, Specialist.FORMAT_BOTH),
-                "offline": person.consultation_format in (Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH),
+                "format_label": public_format_label(person, language_code),
                 "price_from": person.price_from,
             })
         # The band keeps at least three round faces; icons stand in for missing photos.

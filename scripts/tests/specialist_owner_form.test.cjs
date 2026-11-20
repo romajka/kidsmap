@@ -5,15 +5,24 @@ const path = require('node:path');
 const {JSDOM} = require(process.env.KIDSMAP_JSDOM || 'jsdom');
 const source = fs.readFileSync(path.join(__dirname, '../../static/js/specialists.js'), 'utf8');
 const accessibility = fs.readFileSync(path.join(__dirname, '../../static/js/specialist_workspace.js'), 'utf8');
-async function setup({locale = 'ru', format = 'online', phone = '+994501234567', row = '', errorLocale = '', desktop = false} = {}) {
-  const rules = {location_required_formats: ['offline', 'both'], location_required_fields: ['region'], location_identity_fields: ['place', 'address'], phone_pattern: '^\\+?[0-9()\\-\\s]{7,25}$', phone_min_digits: 7, phone_max_digits: 15};
+async function setup({locale = 'ru', formats = ['online'], phone = '+994501234567', row = '', errorLocale = '', desktop = false} = {}) {
+  const rules = {location_required_formats: ['office'], visit_required_format: 'visit', location_required_fields: ['region'], location_identity_fields: ['place', 'address'], phone_pattern: '^\\+?[0-9()\\-\\s]{7,25}$', phone_min_digits: 7, phone_max_digits: 15};
   const dom = new JSDOM(`<html lang="${locale}"><body><script id="specialist-readiness-rules" type="application/json">${JSON.stringify(rules)}</script>
     <form class="km-specialist-owner-form km-unified-form">
       <details class="km-section-navigation" open><summary>Sections</summary><a href="#km-sec-basic" data-toc-target="km-sec-basic">Personal</a></details><section id="km-sec-basic" class="km-unified-section"></section>
       <input id="id_name" value="Test specialist"><label class="owner-specialist-chip"><input name="specializations" type="checkbox" checked><span class="chip-title">Speech therapist</span></label>
       <label class="owner-specialist-chip"><input id="id_language_ru" name="language_ru" type="checkbox" checked><span class="chip-title">Russian</span></label>
       <div data-owner-selected-specs><span data-selected-count></span><div data-selected-chips></div><button type="button" data-clear-specs>Clear specializations</button></div>
-      <select id="id_consultation_format"><option selected>${format}</option></select>
+      ${['online','office','visit'].map(code => `<input type="checkbox" name="session_formats" value="${code}" ${formats.includes(code) ? 'checked' : ''}>`).join('')}
+      <fieldset data-owner-location-block>
+        <input type="hidden" name="locations-TOTAL_FORMS" value="1"><input type="hidden" name="locations-INITIAL_FORMS" value="0">
+        <input type="number" name="locations-0-price_per_session" min="0">
+      </fieldset>
+      <fieldset data-specialist-visit-area>
+        <select name="visit_region"><option value="">Choose</option><option value="baku">Baku</option><option value="ganja">Ganja</option></select>
+        <input type="checkbox" name="visit_citywide"><div data-visit-districts>
+        <label><input type="checkbox" name="visit_districts" value="yasamal" data-region="baku">Yasamal</label></div>
+      </fieldset>
       <input id="id_phone" value="${phone}" pattern="[+0-9 ()-]{7,25}"><input id="id_whatsapp">
       <div data-req-progress-fill></div><span data-req-badge></span><span data-req-invalid hidden>Correct the values</span><span data-req-status-text data-all-done="Filled"></span>
       <div data-owner-spec-dropdown><button type="button" data-owner-spec-dropdown-trigger aria-expanded="false"><span data-owner-spec-placeholder>Choose</span><span data-selected-count-badge></span></button>
@@ -26,6 +35,7 @@ async function setup({locale = 'ru', format = 'online', phone = '+994501234567',
   w.matchMedia = () => ({matches: desktop, addEventListener() {}});
   w.HTMLElement.prototype.scrollIntoView = function () {};
   Object.defineProperty(w.document, 'readyState', {value:'complete'});
+  w.eval(fs.readFileSync(path.join(__dirname, '../../static/js/specialist_visit_area.js'), 'utf8'));
   w.eval(source); w.eval(accessibility);
   w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
   await new Promise(resolve=>setTimeout(resolve, 65));
@@ -60,14 +70,14 @@ test('tutor subject selection controls readiness and reveals only the relevant s
   t.dom.window.close();
 });
 test('offline and mixed profiles without a practice location never show complete', async () => {
-  for (const format of ['offline','both']) {
-    const t = await setup({format});
+  for (const formats of [['office'], ['online', 'office']]) {
+    const t = await setup({formats});
     assert.equal(t.doc.querySelector('[data-req-progress-fill]').classList.contains('is-complete'), false);
     t.dom.window.close();
   }
 });
 test('location completeness follows active, deletion, address and region changes', async () => {
-  const t = await setup({format:'offline', row:locationRow('<input name="locations-0-address" value="42 Street"><select name="locations-0-region"><option value="">Choose</option><option value="1">Baku</option></select>')});
+  const t = await setup({formats:['office'], row:locationRow('<input name="locations-0-address" value="42 Street"><select name="locations-0-region"><option value="">Choose</option><option value="1">Baku</option></select>')});
   const complete=()=>t.doc.querySelector('[data-req-progress-fill]').classList.contains('is-complete');
   const change=(name, value)=>{const field=t.form.elements[name];if(field.type==='checkbox')field.checked=value;else field.value=value;field.dispatchEvent(new t.w.Event('change',{bubbles:true}));};
   assert.equal(complete(), false);
@@ -224,4 +234,51 @@ test('the first-error shortcut follows a visible field link and skips unresolved
   button.click();
   assert.equal(t.doc.activeElement, t.doc.querySelector('#id_phone'));
   t.w.close();
+});
+
+test('home visits can be combined with online without an office and require matching territory', async () => {
+  const t = await setup({formats: ['online', 'visit']});
+  const q = selector => t.form.querySelector(selector);
+  const complete = () => q('[data-req-progress-fill]').classList.contains('is-complete');
+  const region = q('[name="visit_region"]');
+  assert.equal(q('[data-owner-location-block]').hidden, true);
+  assert.equal(q('[data-specialist-visit-area]').hidden, false);
+  assert.equal(complete(), false);
+  region.value = 'baku';
+  region.dispatchEvent(new t.w.Event('change', {bubbles: true}));
+  q('[name="visit_districts"]').click();
+  assert.equal(complete(), true);
+  region.value = 'ganja';
+  region.dispatchEvent(new t.w.Event('change', {bubbles: true}));
+  assert.equal(q('[name="visit_districts"]').disabled, true);
+  assert.equal(complete(), false);
+  q('[name="visit_citywide"]').click();
+  assert.equal(complete(), true);
+  q('[name="session_formats"][value="office"]').click();
+  assert.equal(q('[data-owner-location-block]').hidden, false);
+  assert.equal(complete(), false);
+  q('[name="session_formats"][value="visit"]').click();
+  assert.equal(q('[data-specialist-visit-area]').hidden, true);
+  assert.deepEqual(new t.w.FormData(t.form).getAll('session_formats'), ['online', 'office']);
+  t.dom.window.close();
+});
+
+test('switching away from the office omits its unsaved rows and disables hidden native validation', async () => {
+  const t = await setup({formats: ['online', 'office']});
+  const fee = t.form.elements['locations-0-price_per_session'];
+  fee.value = '-1';
+  assert.equal(fee.checkValidity(), false);
+  t.form.querySelector('[name=session_formats][value=office]').click();
+  assert.equal(fee.willValidate, false);
+  const data = new t.w.FormData(t.form);
+  const event = new t.w.Event('formdata');
+  event.formData = data;
+  t.form.dispatchEvent(event);
+  assert.equal(data.has(fee.name), false);
+  assert.equal(data.get('locations-TOTAL_FORMS'), '0');
+  assert.equal(data.get('locations-INITIAL_FORMS'), '0');
+  t.form.querySelector('[name=session_formats][value=office]').click();
+  assert.equal(fee.value, '-1');
+  assert.equal(fee.willValidate, true);
+  t.dom.window.close();
 });

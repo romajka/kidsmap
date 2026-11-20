@@ -13,7 +13,8 @@ class EventFrontendEfficiencyTests(SimpleTestCase):
             ('django.template.loaders.locmem.Loader', {'base.html': '{% block extra_head %}{% endblock %}{% block content %}{% endblock %}'}),
             'django.template.loaders.filesystem.Loader'], libraries={
                 'i18n': 'django.templatetags.i18n', 'static': 'django.templatetags.static',
-                'tz': 'django.templatetags.tz', 'catalog_i18n': 'catalog.templatetags.catalog_i18n'})
+                'tz': 'django.templatetags.tz', 'catalog_i18n': 'catalog.templatetags.catalog_i18n',
+                'event_editorial': 'catalog.templatetags.event_editorial'})
         now = timezone.now()
         self.event = SimpleNamespace(pk=123, name_i18n='Event title', name_az='Event title', name_ru='Event title',
             description_az='Long event description', start_datetime=now+timedelta(days=1),
@@ -41,6 +42,11 @@ class EventFrontendEfficiencyTests(SimpleTestCase):
         self.assertIn('href="https://example.com/book"', html)
         self.assertNotIn('wa.me/', html)
         self.assertNotIn('data-temporary-event-timer', html)
+
+    def test_detail_explains_a_missing_legacy_price(self):
+        self.event.price_mode = 'legacy'
+        self.event.price_display = ''
+        self.assertIn('Цена не указана', self.render('catalog/event_detail.html'))
 
     def test_cancelled_and_ended_do_not_offer_booking(self):
         for ended, state in [(False, 'cancelled'), (True, 'scheduled')]:

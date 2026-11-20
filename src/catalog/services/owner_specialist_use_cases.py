@@ -19,8 +19,7 @@ class OwnerSpecialistResult:
 
 
 def _sync_primary_location(*, specialist: Specialist, form: OwnerSpecialistForm) -> None:
-    consultation_format = form.cleaned_data.get("consultation_format")
-    if consultation_format not in {Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH}:
+    if not specialist.offers_office:
         specialist.practice_locations.filter(is_active=True).update(is_active=False)
         return
 

@@ -84,6 +84,39 @@ def _moderation_detail(user, item, revision, access_cache):
             'reason': reason[:4000], 'url': access_cache[key]}
 
 
+def _place_card_moderation_detail(user, item, places):
+    """Decision taken on a legacy pending card itself (no candidate version)."""
+    from catalog.services import publication
+    from catalog.services.permanent_place_rules import copy as t
+
+    context = item.event_context
+    if (item.event_kind != 'moderation_decision' or item.entity_type != 'place'
+            or not isinstance(context, dict) or context.get('schema_version') != 1
+            or context.get('target_type') != 'place' or context.get('target_id') != item.entity_id):
+        return None
+    decisions = {
+        'needs_changes': t('Нужны исправления', 'Düzəliş lazımdır', 'Changes requested'),
+        'rejected': t('Отклонено', 'Rədd edildi', 'Rejected'),
+    }
+    decision, titles, reason = context.get('decision'), context.get('titles'), context.get('reason', '')
+    if (not isinstance(decision, str) or decision not in decisions
+            or not isinstance(titles, dict) or not isinstance(reason, str)):
+        return None
+    place = places.get(item.entity_id)
+    if place is None:
+        return None
+    try:
+        publication.authorize(user, place, 'place')
+    except PermissionDenied:
+        return None
+    lang = (get_language() or 'az').split('-')[0]
+    title = titles.get(lang) or titles.get('az')
+    if not isinstance(title, str):
+        return None
+    return {'decision': decisions[decision], 'title': title[:255], 'reason': reason[:4000],
+            'url': reverse('owner_place_edit', args=[place.pk])}
+
+
 def _specialist_moderation_detail(user, item, people):
     """Decision on the user's specialist application, linked only while it is theirs."""
     from catalog.models import Specialist
@@ -133,11 +166,17 @@ def _inbox_items(user):
                       and item.entity_type == 'specialist']
     people = {row.pk: row for row in Specialist.objects.filter(pk__in=specialist_ids)
               .only('pk', 'slug', 'status', 'is_active', 'created_by_id', 'verified_person_user_id')}
+    from catalog.models import Place
+    place_ids = [item.entity_id for item in items if item.event_kind == 'moderation_decision'
+                 and item.entity_type == 'place']
+    places = {row.pk: row for row in Place.objects.filter(pk__in=place_ids, deleted_at__isnull=True)}
     access_cache = {}
     current_email = current_email_for_privileges(user)
     for item in items:
         if item.entity_type == 'specialist':
             item.moderation = _specialist_moderation_detail(user, item, people)
+        elif item.entity_type == 'place':
+            item.moderation = _place_card_moderation_detail(user, item, places)
         else:
             item.moderation = _moderation_detail(user, item, revisions.get(item.entity_id), access_cache)
         item.can_accept = bool(current_email) and item.event_kind == 'team_invitation' and _invitation_current(item, current_email, timezone.now())

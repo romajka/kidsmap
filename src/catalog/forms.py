@@ -2237,7 +2237,10 @@ class OwnerTeamRoleUpdateForm(forms.Form):
     )
 
 
-class OwnerSpecialistForm(forms.ModelForm):
+from catalog.services.specialist_formats import SpecialistFormatsFormMixin
+
+
+class OwnerSpecialistForm(SpecialistFormatsFormMixin, forms.ModelForm):
     draft_save_only = False
 
     @property
@@ -2306,6 +2309,10 @@ class OwnerSpecialistForm(forms.ModelForm):
             "specializations",
             "requested_specialization",
             "consultation_format",
+            "session_formats",
+            "visit_region",
+            "visit_citywide",
+            "visit_districts",
             "experience_years",
             "age_from",
             "age_to",
@@ -2345,6 +2352,7 @@ class OwnerSpecialistForm(forms.ModelForm):
         self.actor = kwargs.pop("actor",None)
         self.locations = kwargs.pop("locations",None)
         super().__init__(*args, **kwargs)
+        self._init_format_fields()
         # Numeric hints read as examples, not as values already filled in.
         example_prefix = {'az': 'məs. ', 'en': 'e.g. ', 'ru': 'напр. '}.get((get_language() or 'az').split('-')[0], 'məs. ')
         for name in ('experience_years', 'age_from', 'age_to', 'price_from', 'price_to', 'duration_minutes'):
@@ -2385,20 +2393,20 @@ class OwnerSpecialistForm(forms.ModelForm):
             for field in self.fields.values():
                 field.required = False
         else:
-            required = ("name", "consultation_format")
+            required = ("name",)
             for field_name, field in self.fields.items():
                 field.required = field_name in required
 
     def clean(self):
         from django.db.models.fields.files import FieldFile
         cleaned = super().clean()
+        self.clean_format_fields(cleaned, require=not self.draft_save_only, allow_incomplete=self.draft_save_only)
         if self.locations is not None:
-            self.locations.instance.consultation_format=cleaned.get('consultation_format') or Specialist.FORMAT_ONLINE
+            self.locations.instance.consultation_format = self.instance.consultation_format
+            self.locations.instance.offers_office = self.instance.offers_office
             self.locations.require_active=not self.draft_save_only
             if not self.locations.is_valid():self.add_error(None,_('Проверьте места приёма.'))
         if self.draft_save_only:
-            if not cleaned.get('consultation_format'):
-                cleaned['consultation_format'] = Specialist.FORMAT_ONLINE
             photo = cleaned.get("photo")
             if photo and not (isinstance(photo, FieldFile) and photo._committed):
                 try:
@@ -2438,8 +2446,7 @@ class OwnerSpecialistForm(forms.ModelForm):
                     cleaned[field_name] = safe_phone(cleaned[field_name]) or cleaned[field_name]
 
         # Enforce that if format is offline or both, location fields are required and validated
-        consultation_format = cleaned.get("consultation_format")
-        if self.locations is None and consultation_format in [Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH]:
+        if self.locations is None and self.instance.offers_office:
             loc_place = cleaned.get("location_place")
             loc_address = cleaned.get("location_address")
             loc_region = cleaned.get("location_region")

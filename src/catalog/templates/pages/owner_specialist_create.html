@@ -14,24 +14,31 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261106_specialist_fixes" />
-  <link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}?v=20261118_profile_editor" />
+  <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261120_form_spacing" />
+  <link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}?v=20261120_form_spacing" />
   <link rel="stylesheet" href="{% static 'css/components/spec_picker.css' %}?v=20261119_r2" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="{% static 'js/owner_place_map_picker.js' %}?v=20261104_specialist_map" defer></script>
-  <script src="{% static 'js/specialists.js' %}?v=20261119_picker" defer></script>
+  <link rel="stylesheet" href="{% static 'css/components/specialist_formats.css' %}?v=20261120_formats" />
+  <link rel="stylesheet" href="{% static 'css/components/specialist_formats_fx.css' %}?v=20261120_choice_controls" />
+  <script src="{% static 'js/specialist_form_fx.js' %}?v=20261120_choice_controls2" defer></script>
+  <script src="{% static 'js/specialist_visit_area.js' %}?v=20261120_formats" defer></script>
+  <script src="{% static 'js/specialists.js' %}?v=20261120_formats" defer></script>
   <script src="{% static 'js/specialist_workspace.js' %}?v=20261118_profile_editor" defer></script>
   <script src="{% static 'js/specialist_locations.js' %}?v=20261104_specialist_flow" defer></script>
-  <script src="{% static 'js/specialist_recovery.js' %}?v=20261104_specialist_flow" defer></script>
+  <script src="{% static 'js/specialist_recovery.js' %}?v=20261120_formats" defer></script>
   <script src="{% static 'js/specialist_documents.js' %}?v=20261104" defer></script>
   <link rel="stylesheet" href="{% static 'css/components/specialist_documents.css' %}?v=20261104" />
+  {% if is_proposal and profile_subject == 'self' %}
+    <link rel="stylesheet" href="{% static 'css/components/specialist_qualification_editor.css' %}?v=20261120_choice_controls">
+    <script src="{% static 'js/specialist_qualification_editor.js' %}?v=20261120_credentials_r4" defer></script>
+  {% endif %}
   <noscript><style>
-    .km-specialist-owner-form .km-format-select-wrapper,
     .km-specialist-owner-form .km-file-input-hidden,
     .km-specialist-owner-form .owner-specialist-lang-panel { display: block; }
     .km-specialist-owner-form [data-location-panel="custom"][hidden],
     .km-specialist-owner-form [data-owner-spec-dropdown-panel][hidden] { position: static; display: block !important; }
-    .km-specialist-owner-form :is(.km-owner-format-cards, .km-practice-map-wrapper, [data-location-type-selector], [data-practice-remove], [data-owner-spec-dropdown-trigger], .owner-specialist-search-box, .km-dropdown-bottom-bar, .owner-specialist-lang-tabs, [data-specialist-photo-choose], .km-same-wa-label, .km-mobile-submit-bar) { display: none; }
+    .km-specialist-owner-form :is(.km-practice-map-wrapper, [data-location-type-selector], [data-practice-remove], [data-owner-spec-dropdown-trigger], .owner-specialist-search-box, .km-dropdown-bottom-bar, .owner-specialist-lang-tabs, [data-specialist-photo-choose], .km-same-wa-label, .km-mobile-submit-bar) { display: none; }
   </style></noscript>
 {% endblock %}
 
@@ -69,7 +76,7 @@
       {% if profile_subject == 'other' %}<p class="sw-help">{% trans 'Предложение профиля другого специалиста' %}</p>{% endif %}
     {% endif %}
     {% if draft_key %}<input type="hidden" name="draft_key" value="{{ draft_key }}"><input type="hidden" name="draft_version" value="{{ draft_version }}">{% endif %}
-    <div class="spec-save-state" role="status" aria-live="polite" data-specialist-save-status data-error="{% trans 'Изменения не сохранены. Проверьте ошибки.' %}" data-local="{% trans 'Есть несохранённые изменения. Копия ввода сохранена только в этом браузере.' %}" data-dirty="{% trans 'Есть несохранённые изменения' %}" data-saving="{% trans 'Сохранение… Дождитесь ответа сервера.' %}">{% if server_saved_at %}{% trans 'Сохранено на сервере' %}: {{ server_saved_at }}{% else %}{% trans 'Анкета ещё не сохранена' %}{% endif %}</div>
+    <div class="spec-save-state" role="status" aria-live="polite" data-specialist-save-status data-error="{% trans 'Изменения не сохранены. Проверьте ошибки.' %}" data-local="{% if is_proposal and profile_subject == 'self' %}{% if CURRENT_LANGUAGE == 'az' %}Dəyişikliklər var. Faylları və göstərmə seçiminizi saxlamaq üçün qaralamanı saxlayın.{% elif CURRENT_LANGUAGE == 'en' %}You have unsaved changes. Save the draft to keep your files and sharing choices.{% else %}Есть изменения. Сохраните черновик, чтобы сохранить файлы и разрешения на показ.{% endif %}{% else %}{% trans 'Есть несохранённые изменения. Копия ввода сохранена только в этом браузере.' %}{% endif %}" data-dirty="{% trans 'Есть несохранённые изменения' %}" data-saving="{% trans 'Сохранение… Дождитесь ответа сервера.' %}">{% if server_saved_at %}{% trans 'Сохранено на сервере' %}: {{ server_saved_at }}{% else %}{% trans 'Анкета ещё не сохранена' %}{% endif %}</div>
     {% if specialist.status == 'published' %}<p class="org-alert org-alert--warning">{% trans 'Сохранение черновика или отправка изменений снимает этот профиль с публикации до следующей проверки KidsMap.' %}</p>{% endif %}
     <div class="spec-recovery" data-specialist-recovery hidden><p data-recovery-description data-same="{% trans 'Есть несохранённая копия в этом браузере. Сравните её с данными сервера перед восстановлением.' %}" data-conflict="{% trans 'Данные сервера изменились. Локальную копию нельзя восстановить поверх новой версии. Скопируйте нужный текст и обновите форму.' %}"></p><ul data-recovery-diff></ul><button type="button" class="btn-secondary" data-recovery-restore>{% trans 'Восстановить ввод' %}</button><button type="button" class="btn-secondary" data-recovery-discard>{% trans 'Удалить локальную копию' %}</button></div>
 
@@ -114,9 +121,12 @@
       </div>
     {% endif %}
 
-    {% if form.errors or locations.total_error_count %}
+    {% if form.errors or locations.total_error_count or qualification_formset.total_error_count %}
       <div class="km-editor-errors">
         {% include "includes/form_error_summary.html" with form=form locations=locations %}
+        {% if qualification_formset.total_error_count %}
+          <a class="km-form-error-summary__link" href="#km-sec-documents">{% if CURRENT_LANGUAGE == 'az' %}Sənədlərdəki xətaları yoxlayın{% elif CURRENT_LANGUAGE == 'en' %}Review the document errors{% else %}Проверьте ошибки в документах{% endif %}</a>
+        {% endif %}
         <button type="button" class="km-first-error" data-first-error {% if locations.total_error_count %}data-location-error{% endif %} hidden>{% if CURRENT_LANGUAGE == 'az' %}İlk xətaya keç{% elif CURRENT_LANGUAGE == 'en' %}Go to first field to fix{% else %}Перейти к первому полю с ошибкой{% endif %}</button>
       </div>
     {% endif %}
@@ -167,10 +177,10 @@
                 <span class="toc-status" data-sec-status="km-sec-bio-experience"><span class="toc-req-dot">*</span></span>
               </a>
             </li>
-            {% if not is_proposal %}<li>
+            {% if not is_proposal or profile_subject == 'self' %}<li>
               <a href="#km-sec-documents" class="km-owner-toc-link" data-toc-target="km-sec-documents">
                 <span class="toc-num">06</span>
-                <span class="toc-label">{% if CURRENT_LANGUAGE == "az" %}Diplomlar və sənədlər{% elif CURRENT_LANGUAGE == "en" %}Diplomas{% else %}Дипломы и сертификаты{% endif %}</span>
+                <span class="toc-label">{% if CURRENT_LANGUAGE == "az" %}Diplomlar və sertifikatlar{% elif CURRENT_LANGUAGE == "en" %}Diplomas and certificates{% else %}Дипломы и сертификаты{% endif %}</span>
                 <span class="toc-status toc-status--opt" data-sec-status="km-sec-documents"><small>{% if CURRENT_LANGUAGE == "az" %}istəyə görə{% elif CURRENT_LANGUAGE == "en" %}optional{% else %}по желанию{% endif %}</small></span>
               </a>
             </li>{% endif %}
@@ -435,46 +445,39 @@
               <span class="km-section-num-pill">3</span>
               <h2><span class="material-symbols-rounded" aria-hidden="true">home_work</span> {% if CURRENT_LANGUAGE == "az" %}Format və qəbul yerləri{% elif CURRENT_LANGUAGE == "en" %}Format and session places{% else %}Формат и места работы{% endif %}</h2>
             </div>
-            <p class="km-step-desc">{% if CURRENT_LANGUAGE == "az" %}Qəbulun onlayn, əyani və ya hər iki formatda keçirildiyini qeyd edin.{% elif CURRENT_LANGUAGE == "en" %}Indicate whether sessions are held online, in-person, or both.{% else %}Укажите, проводите ли вы консультации онлайн, очно или совмещаете форматы.{% endif %}</p>
           </div>
+          <fieldset class="km-session-formats" id="id_session_formats" aria-describedby="km-format-help{% if form.session_formats.errors %} km-format-errors{% endif %}">
+            <legend>{% if CURRENT_LANGUAGE == "az" %}Dərsləri və ya konsultasiyaları harada keçirirsiniz?{% elif CURRENT_LANGUAGE == "en" %}Where do you hold lessons or consultations?{% else %}Где вы проводите занятия или консультации?{% endif %}</legend>
+            <p class="helptext" id="km-format-help">{% if CURRENT_LANGUAGE == "az" %}Bir neçə variant seçə bilərsiniz.{% elif CURRENT_LANGUAGE == "en" %}You can select more than one.{% else %}Можно выбрать несколько вариантов.{% endif %}</p>
+            <div class="km-format-choices">
+              {% for choice in form.session_formats %}
+                <label class="km-format-choice">
+                  {{ choice.tag }}
+                  <span class="km-format-icon material-symbols-rounded" aria-hidden="true">{% if choice.data.value == 'online' %}videocam{% elif choice.data.value == 'office' %}apartment{% else %}home_pin{% endif %}</span>
+                  <span class="km-format-name">
+                  {% if choice.data.value == 'online' %}
+                    {% if CURRENT_LANGUAGE == "az" %}Onlayn{% elif CURRENT_LANGUAGE == "en" %}Online{% else %}Онлайн{% endif %}
+                  {% elif choice.data.value == 'office' %}
+                    {% if CURRENT_LANGUAGE == "az" %}Öz ünvanımda və ya mərkəzdə qəbul edirəm{% elif CURRENT_LANGUAGE == "en" %}At my location or a centre{% else %}Принимаю у себя или в центре{% endif %}
+                  {% else %}
+                    {% if CURRENT_LANGUAGE == "az" %}Ailənin ünvanına gedirəm{% elif CURRENT_LANGUAGE == "en" %}I visit families at home{% else %}Выезжаю к семье{% endif %}
+                  {% endif %}
+                  </span>
+                </label>
+              {% endfor %}
+            </div>
+            {% if form.session_formats.errors %}<div id="km-format-errors">{{ form.session_formats.errors }}</div>{% endif %}
+          </fieldset>
 
-          <div class="km-input-wrapper km-format-select-wrapper">
-            <label for="id_consultation_format" class="km-label-text">
-              {% if CURRENT_LANGUAGE == "az" %}İş formatı{% elif CURRENT_LANGUAGE == "en" %}Work format{% else %}Формат работы{% endif %}
-              <span class="km-req-badge"><strong class="km-required" aria-hidden="true">*</strong> {% if CURRENT_LANGUAGE == "az" %}Mütləq{% elif CURRENT_LANGUAGE == "en" %}Required{% else %}Обязательно{% endif %}</span>
-            </label>
-            {{ form.consultation_format }}
-            {% for e in form.consultation_format.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-          </div>
-
-          <!-- Format Cards -->
-          <div class="km-owner-format-cards" aria-label="{% if CURRENT_LANGUAGE == 'az' %}İş formatı seçimi{% elif CURRENT_LANGUAGE == 'en' %}Work format selection{% else %}Выбор формата работы{% endif %}">
-            <button type="button" class="km-format-card" data-owner-format-card="online">
-              <span class="material-symbols-rounded" aria-hidden="true">videocam</span>
-              <strong>{% if CURRENT_LANGUAGE == "az" %}Yalnız onlayn{% elif CURRENT_LANGUAGE == "en" %}Online only{% else %}Только онлайн{% endif %}</strong>
-              <span>{% if CURRENT_LANGUAGE == "az" %}Şəhərdən asılı deyil, videozəng ilə{% elif CURRENT_LANGUAGE == "en" %}City independent, via video call{% else %}Консультации по видеосвязи без привязки к городу{% endif %}</span>
-            </button>
-            <button type="button" class="km-format-card" data-owner-format-card="offline">
-              <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
-              <strong>{% if CURRENT_LANGUAGE == "az" %}Yalnız əyani{% elif CURRENT_LANGUAGE == "en" %}In-person only{% else %}Только очно{% endif %}</strong>
-              <span>{% if CURRENT_LANGUAGE == "az" %}Mərkəzdə və ya şəxsi kabinetdə{% elif CURRENT_LANGUAGE == "en" %}At a center or private office{% else %}Приём в детском центре или собственном кабинете{% endif %}</span>
-            </button>
-            <button type="button" class="km-format-card" data-owner-format-card="both">
-              <span class="material-symbols-rounded" aria-hidden="true">home_work</span>
-              <strong>{% if CURRENT_LANGUAGE == "az" %}Onlayn və əyani{% elif CURRENT_LANGUAGE == "en" %}Both formats{% else %}Онлайн и очно{% endif %}</strong>
-              <span>{% if CURRENT_LANGUAGE == "az" %}Maksimum çeviklik və seçim imkanı{% elif CURRENT_LANGUAGE == "en" %}Maximum flexibility and choice{% else %}Максимальное удобство для родителей{% endif %}</span>
-            </button>
-          </div>
-
-          <!-- Location block for offline/both -->
-          <div id="spec-location-block" class="km-location-box" data-owner-location-block>
+          <fieldset id="spec-location-block" class="km-location-box" data-owner-location-block aria-labelledby="km-office-heading">
             <div class="km-location-header">
-              <h3><span class="material-symbols-rounded" aria-hidden="true">apartment</span> {% if CURRENT_LANGUAGE == "az" %}Əyani qəbul ünvanı{% elif CURRENT_LANGUAGE == "en" %}In-person location{% else %}Места работы и очного приёма{% endif %}</h3>
-              <p class="helptext">{% if CURRENT_LANGUAGE == "az" %}Əyani və ya qarışıq format üçün mərkəz və ya fərdi ünvan qeyd edin.{% elif CURRENT_LANGUAGE == "en" %}Specify a children's center or private address for in-person sessions.{% else %}Заполняется для очного или совмещенного приёма клиентов.{% endif %}</p>
+              <h3 id="km-office-heading"><span class="material-symbols-rounded" aria-hidden="true">apartment</span> {% if CURRENT_LANGUAGE == "az" %}Əyani qəbul ünvanı{% elif CURRENT_LANGUAGE == "en" %}In-person location{% else %}Места работы и очного приёма{% endif %}</h3>
+              <p class="helptext">{% if CURRENT_LANGUAGE == "az" %}Ailələrin gəldiyi mərkəzi və ya ünvanı göstərin.{% elif CURRENT_LANGUAGE == "en" %}Add the centre or address where families come to see you.{% else %}Укажите центр или адрес, куда семьи приходят к вам.{% endif %}</p>
             </div>
 
             {% if locations %}{% include 'pages/includes/specialist_locations.html' %}{% endif %}
-          </div>
+          </fieldset>
+          {% include 'pages/includes/specialist_visit_area.html' with form=form %}
         </section>
 
         <!-- ─── SECTION 4: Стоимость и контакты ─── -->
@@ -722,7 +725,9 @@
           </div>
         </section>
 
-        {% if not is_proposal %}
+        {% if is_proposal and profile_subject == 'self' %}
+          {% include 'pages/includes/specialist_qualification_editor.html' %}
+        {% elif not is_proposal %}
         <!-- ─── SECTION 6: Документы и сертификаты ─── -->
         <section class="owner-event-section km-step-section km-unified-section" id="km-sec-documents" data-sec-id="km-sec-documents">
           <div class="km-step-header">
@@ -731,10 +736,15 @@
               <h2><span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span> {% if CURRENT_LANGUAGE == "az" %}Diplomlar və sertifikatlar{% elif CURRENT_LANGUAGE == "en" %}Diplomas & certificates{% else %}Дипломы и подтверждение квалификации{% endif %}</h2>
               <span class="km-section-opt-pill">{% if CURRENT_LANGUAGE == "az" %}İstəyə görə{% elif CURRENT_LANGUAGE == "en" %}Optional{% else %}По желанию{% endif %}</span>
             </div>
-            <p class="km-step-desc">{% if CURRENT_LANGUAGE == "az" %}Təhsili və ixtisası təsdiq edən sənədlər. Sənədlər gizlidir və yalnız yoxlama üçün istifadə olunur.{% elif CURRENT_LANGUAGE == "en" %}Documents confirming education and qualification. Private by default.{% else %}Дипломы и сертификаты повышают доверие родителей. Документы строго конфиденциальны.{% endif %}</p>
+            <p class="km-step-desc">{% if CURRENT_LANGUAGE == "az" %}Yüklənən sənədlər əvvəlcə gizlidir. Hər birinin profildə göstərilməsinə özünüz qərar verirsiniz.{% elif CURRENT_LANGUAGE == "en" %}New files are private. You choose which documents to show in your profile.{% else %}После загрузки документы приватны. Вы сами выбираете, какие из них показать в профиле.{% endif %}</p>
           </div>
 
           <div class="km-documents-block">
+              {% if can_manage_specialist and specialist.pk %}
+                <a data-qualification-manage href="{% url 'specialist_workspace_certificates' specialist.pk %}">
+                  {% if CURRENT_LANGUAGE == 'az' %}Diplom əlavə et və sənədlərin göstərilməsini idarə et{% elif CURRENT_LANGUAGE == 'en' %}Add a diploma or manage document visibility{% else %}Добавить диплом и настроить показ документов{% endif %}
+                </a>
+              {% endif %}
               <!-- File upload for verified person -->
               <div class="km-owner-privacy-card">
                 <div class="privacy-header">
@@ -749,7 +759,7 @@
               </div>
 
               <label class="owner-event-full km-input-wrapper">
-                <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Sənəd faylları (PDF, JPG, PNG){% elif CURRENT_LANGUAGE == "en" %}Document files (PDF, JPG, PNG){% else %}Файлы документов (PDF, JPG, PNG){% endif %}</span>
+                <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Sertifikat faylları (PDF, JPG, PNG){% elif CURRENT_LANGUAGE == "en" %}Certificate files (PDF, JPG, PNG){% else %}Файлы сертификатов (PDF, JPG, PNG){% endif %}</span>
                 {{ form.documents }}
                 {% for e in form.documents.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
               </label>
@@ -759,8 +769,8 @@
         {% endif %}
 
         <!-- ─── Unified Form Actions Card ─── -->
-        <div class="km-unified-actions-card">
-          <p class="km-review-note">{% if CURRENT_LANGUAGE == 'az' %}Nəticəni şəxsi kabinetdə görəcəksiniz.{% elif CURRENT_LANGUAGE == 'en' %}You can find the review result in your dashboard.{% else %}Результат проверки появится в личном кабинете.{% endif %}{% if is_proposal %} {% trans 'Дипломы и сертификаты можно добавить после подтверждения профиля.' %}{% endif %}</p>
+        <div class="km-unified-actions-card" id="specialist-form-actions">
+          <p class="km-review-note">{% if CURRENT_LANGUAGE == 'az' %}Nəticəni şəxsi kabinetdə görəcəksiniz.{% elif CURRENT_LANGUAGE == 'en' %}You can find the review result in your dashboard.{% else %}Результат проверки появится в личном кабинете.{% endif %}</p>
           <div class="km-actions-buttons-row">
             <button type="submit" name="form_action" value="save_draft" class="btn-save-draft" formnovalidate title="{% trans 'Сохранить черновик' %}">
               <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
