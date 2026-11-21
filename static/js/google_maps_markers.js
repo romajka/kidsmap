@@ -117,6 +117,8 @@
       const addListener = marker.addListener.bind(marker);
       marker.addListener = (name, handler) => name === 'click'
         ? clicks.addListener(name, handler) : addListener(name, handler);
+      button.style.left = '0';
+      button.style.top = '0';
       overlay = new google.maps.OverlayView();
       overlay.onAdd = function () {
         overlay.getPanes().overlayMouseTarget.append(button);
@@ -127,12 +129,14 @@
         if (!projection || !marker.getMap()) return;
         const point = projection.fromLatLngToDivPixel(marker.getPosition());
         if (!point) return;
-        button.style.left = (point.x - anchor.x - Math.max(0, 44 - width) / 2) + "px";
-        button.style.top = (point.y - anchor.y) + "px";
-        button.style.zIndex = String((marker.getZIndex() || Math.round(point.y)) + 1);
         const screen = projection.fromLatLngToContainerPixel(marker.getPosition());
         const mapEl = marker.getMap().getDiv();
         const inView = screen && screen.x >= 0 && screen.x <= mapEl.clientWidth && screen.y >= 0 && screen.y <= mapEl.clientHeight;
+        // Moving an overlay with left/top forces layout for neighbouring pins.
+        const x = point.x - anchor.x - Math.max(0, 44 - width) / 2;
+        const y = point.y - anchor.y;
+        button.style.transform = `translate(${x}px, ${y}px)`;
+        button.style.zIndex = String((marker.getZIndex() || Math.round(point.y)) + 1);
         button.tabIndex = inView ? 0 : -1;
         button.setAttribute('aria-hidden', String(!inView));
       };
