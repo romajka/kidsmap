@@ -1,6 +1,6 @@
 """Map URLs and machine coordinates must not use localized decimal separators."""
 from html.parser import HTMLParser
-from urllib.parse import parse_qs, unquote, urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -37,10 +37,10 @@ class MapLinkLocalizationTests(TestCase):
         markup = MapMarkup(response.content.decode())
         lat, lng = str(self.place.lat), str(self.place.lng)
         self.assertEqual(markup.coordinates, (lat, lng))
-        self.assertEqual(len(markup.links), 3)
-        google, gis, yandex = map(urlsplit, markup.links)
+        google, yandex = map(urlsplit, markup.links)
+        self.assertEqual((google.scheme, google.hostname, google.path), ('https', 'www.google.com', '/maps/search/'))
+        self.assertEqual((yandex.scheme, yandex.hostname, yandex.path), ('https', 'yandex.com', '/maps/'))
         self.assertEqual(parse_qs(google.query)['query'], [f'{lat},{lng}'])
-        self.assertEqual(unquote(gis.path).split('/')[-1], f'{lat},{lng}')
         self.assertEqual(parse_qs(yandex.query)['ll'], [f'{lng},{lat}'])
 
     def test_public_map_links_keep_decimal_points_and_provider_axis_order_in_all_languages(self):
