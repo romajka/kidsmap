@@ -211,6 +211,8 @@
   }
 
   if (edit && workspaceEl) {
+    const editFields = fields.filter(name => edit.elements[name]);
+    const values = () => Object.fromEntries(editFields.map(name => [name, edit.elements[name].value]));
     const status = edit.querySelector('[data-draft-status]');
     const orgIdEl = document.querySelector('[data-org-id]');
     const orgId = orgIdEl ? orgIdEl.dataset.orgId : '0';
@@ -224,18 +226,17 @@
       if (edit.hasAttribute('data-org-server-errors')) {
         // A rejected native POST is newer than any saved recovery copy.
         sessionStorage.setItem(key, JSON.stringify({ source: edit.dataset.sourceVersion,
-          fields: Object.fromEntries(fields.map(name => [name, edit.elements[name].value])) }));
+          fields: values() }));
         if (status) status.textContent = copy.browser;
       } else if (!edit.hasAttribute('data-org-current-data')) {
         const local = JSON.parse(sessionStorage.getItem(key) || '{}');
         if (local.fields && local.source === edit.dataset.sourceVersion) {
-          for (const name of fields) if (typeof local.fields[name] === 'string') edit.elements[name].value = local.fields[name];
+          for (const name of editFields) if (typeof local.fields[name] === 'string') edit.elements[name].value = local.fields[name];
           if (status) status.textContent = copy.browser;
         }
       }
     } catch (_) { /* private storage unavailable */ }
 
-    const values = () => Object.fromEntries(fields.map(name => [name, edit.elements[name].value]));
     const saveDraft = async () => {
       if (inFlight || conflicted) return;
       inFlight = true;

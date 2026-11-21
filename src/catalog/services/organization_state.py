@@ -9,6 +9,7 @@ organization is approved.
 from dataclasses import dataclass, field
 import re
 
+from django.db import IntegrityError, transaction
 from django.db.models import F, Q
 from django.urls import NoReverseMatch, reverse
 
@@ -79,8 +80,17 @@ def assign_public_slug(org):
     from catalog.models import Organization
     if org.slug:
         return org.slug
-    slug = build_slug(org)
-    Organization.objects.filter(pk=org.pk, slug__isnull=True).update(slug=slug)
+    while True:
+        slug = build_slug(org)
+        try:
+            # A namesake may reserve this slug while its own approval commits.
+            # Keep the conflicting write inside a savepoint so approval can retry.
+            with transaction.atomic():
+                Organization.objects.filter(pk=org.pk, slug__isnull=True).update(slug=slug)
+            break
+        except IntegrityError:
+            if not Organization.objects.filter(slug=slug).exclude(pk=org.pk).exists():
+                raise
     org.slug = Organization.objects.filter(pk=org.pk).values_list('slug', flat=True).first()
     return org.slug
 

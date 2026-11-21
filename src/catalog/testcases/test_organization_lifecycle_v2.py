@@ -4,13 +4,17 @@ import io
 import json
 import shutil
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
+from django.db import connections, transaction
 from django.db.models import F
-from django.test import TestCase, override_settings
+from django.test import TestCase, TransactionTestCase, override_settings, skipUnlessDBFeature
 from django.urls import reverse
 from django.utils import timezone
 from PIL import Image
@@ -123,6 +127,33 @@ class SlugTests(OrganizationV2Base):
         publication.unpublish(actor=self.staff, target_type='organization', target_id=self.org.pk,
                               expected_version=self.org.content_version)
         self.assertEqual(self.client.get('/organizations/gunes-akademiyasi/').status_code, 404)
+
+
+class ConcurrentOrganizationSlugTests(TransactionTestCase):
+    @skipUnlessDBFeature('has_select_for_update')
+    def test_namesakes_can_reserve_slugs_in_overlapping_publications(self):
+        organizations = [Organization.objects.create(name_az='Same Name') for _ in range(2)]
+        simultaneous = Barrier(2)
+        build_slug = organization_state.build_slug
+
+        def choose_slug(org):
+            candidate = build_slug(org)
+            if candidate == 'same-name':
+                simultaneous.wait(timeout=10)
+            return candidate
+
+        def publish(org):
+            try:
+                with transaction.atomic():
+                    locked = Organization.objects.select_for_update().get(pk=org.pk)
+                    return organization_state.assign_public_slug(locked)
+            finally:
+                connections.close_all()
+
+        with patch.object(organization_state, 'build_slug', choose_slug), ThreadPoolExecutor(max_workers=2) as pool:
+            slugs = list(pool.map(publish, organizations))
+        self.assertCountEqual(slugs, ['same-name', 'same-name-2'])
+        self.assertCountEqual(Organization.objects.values_list('slug', flat=True), slugs)
 
 
 class BranchHealthTests(OrganizationV2Base):
