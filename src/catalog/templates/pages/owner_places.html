@@ -320,7 +320,7 @@
           <h2>
             <span class="material-symbols-rounded" style="color: #136F38; font-size: 20px;">check_circle</span>
             <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmuş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Published places{% else %}Опубликованные места{% endif %}</span>
-            <span class="account-badge-counter">{{ published_places|length }}</span>
+            <span class="account-badge-counter">{{ owner_stats.published_places }}</span>
           </h2>
           {% if published_places and can_create_more_places %}
             <a href="{% url 'owner_place_create' %}?fresh=1" class="account-link-all">
@@ -427,6 +427,17 @@
               </div>
             {% endfor %}
           </div>
+          {% if published_places_page.has_other_pages %}
+            <nav class="account-review-pages" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Dərc olunmuş məkanlar{% elif CURRENT_LANGUAGE == 'en' %}Published places{% else %}Опубликованные места{% endif %}">
+              {% if published_places_page.has_previous %}
+                <a rel="prev" href="{% querystring published_page=published_places_page.previous_page_number %}#owner-places-list">{% translate 'Предыдущая страница' %}</a>
+              {% endif %}
+              <span>{{ published_places_page.number }} / {{ published_places_page.paginator.num_pages }}</span>
+              {% if published_places_page.has_next %}
+                <a rel="next" href="{% querystring published_page=published_places_page.next_page_number %}#owner-places-list">{% translate 'Следующая страница' %}</a>
+              {% endif %}
+            </nav>
+          {% endif %}
         {% else %}
           <div class="account-empty-first-card">
             <div class="empty-card-icon">

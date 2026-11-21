@@ -107,11 +107,11 @@
 {% if working_drafts_page.has_other_pages %}
 <nav class="account-pagination" aria-label="{% translate 'Черновики' %}">
   {% if working_drafts_page.has_previous %}
-    <a class="account-btn-sm" aria-label="{% translate 'Предыдущая страница' %}" href="?draft_page={{ working_drafts_page.previous_page_number }}#owner-working-drafts">←</a>
+    <a class="account-btn-sm" aria-label="{% translate 'Предыдущая страница' %}" href="{% querystring draft_page=working_drafts_page.previous_page_number %}#owner-working-drafts">←</a>
   {% endif %}
   <span class="account-pagination__info">{{ working_drafts_page.number }} / {{ working_drafts_page.paginator.num_pages }}</span>
   {% if working_drafts_page.has_next %}
-    <a class="account-btn-sm" aria-label="{% translate 'Следующая страница' %}" href="?draft_page={{ working_drafts_page.next_page_number }}#owner-working-drafts">→</a>
+    <a class="account-btn-sm" aria-label="{% translate 'Следующая страница' %}" href="{% querystring draft_page=working_drafts_page.next_page_number %}#owner-working-drafts">→</a>
   {% endif %}
 </nav>
 {% endif %}

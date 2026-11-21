@@ -26,7 +26,8 @@ from ..controllers.tracking_controller import TrackingController
 from ..models import Place
 from ..services.reactions import ensure_session_key
 from ..services.auth_redirects import resolve_safe_next_url
-from ..services.place_access import PLACE_PERMISSION_EDIT, has_place_permission
+from ..services.business_team import accessible_place_actions
+from ..services.place_access import PLACE_PERMISSION_EDIT, PLACE_PERMISSION_VIEW
 
 
 home_controller = HomeController.build_default()
@@ -165,8 +166,9 @@ def _redirect_to_login(request):
     return redirect(f"{reverse('account_login')}?{query}")
 
 def _build_managed_places_summary(user) -> dict:
-    from catalog.services.business_team import accessible_place_ids
-    managed_places = list(Place.objects.filter(pk__in=accessible_place_ids(user=user)).order_by("-updated_at"))
+    actions = accessible_place_actions(user=user)
+    visible_ids = [pk for pk, permissions in actions.items() if PLACE_PERMISSION_VIEW in permissions]
+    managed_places = list(Place.objects.filter(pk__in=visible_ids).order_by("-updated_at"))
     active_managed_places_count = sum(
         1 for place in managed_places if place.status == Place.STATUS_PUBLISHED and place.is_active
     )
@@ -180,10 +182,7 @@ def _build_managed_places_summary(user) -> dict:
         for place in managed_places
         if place.status in {Place.STATUS_DRAFT, Place.STATUS_REJECTED} or not place.is_active
     ]
-    can_edit_managed_places = any(
-        has_place_permission(user=user, place=place, permission_code=PLACE_PERMISSION_EDIT)
-        for place in managed_places
-    )
+    can_edit_managed_places = any(PLACE_PERMISSION_EDIT in actions[place.pk] for place in managed_places)
     return {
         "managed_places": managed_places,
         "managed_places_count": len(managed_places),

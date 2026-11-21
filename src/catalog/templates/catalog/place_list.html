@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static catalog_i18n l10n %}
+{% load i18n static catalog_i18n l10n kidsmap_map %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
@@ -1177,7 +1177,7 @@
 
   {% if not is_new_page %}
     {# Map points come after the cards so the list streams and paints first. #}
-    {{ catalog_map_places|json_script:"catalog-map-data" }}
+    {{ catalog_map_places|map_points_json:"catalog-map-data" }}
     </div>
     </div>
     </div>

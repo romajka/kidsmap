@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 from ..legal_content import get_legal_page_content
 from ..models import Category, Event, Place, PlaceReview, SiteReview
 from ..models import FunnelEvent
+from ..models.site import reuse_site_settings_for_render
 from ..services.content_quality import approved_review_queryset, public_place_queryset, public_review_queryset
 from ..services.pricing_plans import public_pricing_plans
 from ..services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
@@ -122,6 +123,7 @@ def catalog_search_suggestions(request):
         "places": places_data,
     })
 
+@reuse_site_settings_for_render()
 def home(request):
     context = home_controller.build_context(
         request=request,
@@ -153,6 +155,7 @@ def events_landing(request):
     context = place_controller.build_events_landing_context(request)
     return render(request, "catalog/events_landing.html", context)
 
+@reuse_site_settings_for_render()
 def _render_place_list(request, force_new_only=False, created_after=None):
     if request.GET.getlist("view"):
         normalized_query = place_controller.build_normalized_list_query(

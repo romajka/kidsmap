@@ -44,9 +44,8 @@ from catalog.services.owner_place_use_cases import (
 )
 from catalog.services.place_access import (
     PLACE_PERMISSION_EDIT,
-    PLACE_PERMISSION_MANAGE_TEAM,
-    PLACE_PERMISSION_MODERATE_REVIEWS,
     PLACE_PERMISSION_PUBLISH,
+    PLACE_PERMISSION_VIEW,
     PLACE_PERMISSION_VIEW_STATS,
     has_place_permission,
     staff_has_place_permission,
@@ -421,11 +420,26 @@ class OwnerPlacesController:
         if not access.ok:
             return {}, access
 
-        managed_places = list(self.owner_place_repository.managed_queryset(user=request.user)
+        from catalog.services.business_team import accessible_place_actions
+        from catalog.services.owner_place_dashboard import owner_dashboard_summary, project_owner_place
+        from catalog.services.pricing_plans import prefetch_place_pricing_records
+        actions_by_id = {
+            pk: actions for pk, actions in accessible_place_actions(user=request.user).items()
+            if PLACE_PERMISSION_VIEW in actions
+        }
+        managed_queryset = Place.objects.filter(pk__in=actions_by_id, deleted_at__isnull=True).order_by('-updated_at', '-pk')
+        # The cabinet-wide totals only use these scalar fields. Galleries, candidate payloads,
+        # tariffs and editor readiness are loaded for the cards actually rendered.
+        summaries = list(managed_queryset.only(
+            'status', 'is_active', 'deleted_at', 'lat', 'lng', 'rating_count', 'rating_avg', 'likes_count',
+        ))
+        published_ids = [place.pk for place in summaries if place.is_public]
+        published_page = Paginator(published_ids, 12).get_page(request.GET.get('published_page'))
+        card_ids = set(published_page.object_list)
+        card_ids.update(place.pk for place in summaries if not place.is_public)
+        managed_places = list(managed_queryset.filter(pk__in=card_ids)
                               .select_related('volunteer_revision', 'category', 'subcategory')
                               .prefetch_related('gallery', 'pricing_plan_records'))
-        from catalog.services.pricing_plans import prefetch_place_pricing_records
-        from catalog.services.owner_place_dashboard import project_owner_place
         prefetch_place_pricing_records(managed_places)
         working_drafts = []
         managed_by_id = {place.pk: place for place in managed_places}
@@ -473,7 +487,7 @@ class OwnerPlacesController:
                 working_drafts.append(row)
         latest_request_by_place: dict[int, PlaceOwnershipRequest] = {}
         latest_publication_request_by_place: dict[int, PlaceOwnershipRequest] = {}
-        for ownership_request in self.ownership_repository.list_for_user(user=request.user):
+        for ownership_request in self.ownership_repository.list_for_user(user=request.user).select_related(None):
             latest_request_by_place.setdefault(ownership_request.place_id, ownership_request)
             if ownership_request.request_kind == PlaceOwnershipRequest.KIND_PUBLICATION:
                 latest_publication_request_by_place.setdefault(ownership_request.place_id, ownership_request)
@@ -492,14 +506,9 @@ class OwnerPlacesController:
         draft_places = [place for place in managed_places if place.status != Place.STATUS_PUBLISHED or not place.is_active]
         editable_draft_places = [place for place in draft_places if place.owner_can_edit and not place.owner_workflow['pending']]
         can_create_more, managed_count = self._has_place_capacity(user=request.user)
-        pending_place_ids = {
-            place.id for place in managed_places if place.owner_workflow['pending']
-        } | {
-            ownership_request.place_id
-            for ownership_request in latest_publication_request_by_place.values()
-            if ownership_request.status == PlaceOwnershipRequest.STATUS_PENDING
-            and ownership_request.request_kind == PlaceOwnershipRequest.KIND_PUBLICATION
-            and ownership_request.place_id not in managed_by_id
+        other_editable_published = {
+            place.pk: place for place in summaries
+            if place.pk not in card_ids and PLACE_PERMISSION_EDIT in actions_by_id[place.pk]
         }
 
         context = {
@@ -509,27 +518,18 @@ class OwnerPlacesController:
             "working_drafts_page": draft_page,
             'place_moderation_sla_message': submission_message('place'),
             "published_places": published_places,
+            "published_places_page": published_page,
             "draft_places": draft_places,
             "editable_draft_places": editable_draft_places,
             "latest_editable_place": editable_draft_places[0] if editable_draft_places else None,
-            "pending_moderation_count": len(pending_place_ids),
-            "owner_stats": build_owner_places_stats(places=managed_places),
+            "owner_stats": build_owner_places_stats(places=summaries),
             "max_managed_places": None,
             "remaining_place_slots": None,
             "can_create_more_places": can_create_more,
-            "can_edit_places": any(place.owner_can_edit for place in managed_places),
             "can_publish_places": False,
-            "can_view_stats": any(
-                self._has_permission(user=request.user, place=place, permission_code=PLACE_PERMISSION_VIEW_STATS)
-                for place in managed_places
-            ),
-            "can_moderate_reviews": any(
-                self._has_permission(user=request.user, place=place, permission_code=PLACE_PERMISSION_MODERATE_REVIEWS)
-                for place in managed_places
-            ),
-            "can_manage_team": any(
-                self._has_permission(user=request.user, place=place, permission_code=PLACE_PERMISSION_MANAGE_TEAM)
-                for place in managed_places
+            **owner_dashboard_summary(
+                user=request.user, cards=managed_places, managed_ids=actions_by_id,
+                other_editable_published=other_editable_published, latest_requests=latest_publication_request_by_place,
             ),
             "owner_permissions": [],
         }

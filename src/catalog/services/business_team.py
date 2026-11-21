@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import validate_email
 from django.db import transaction
-from django.db.models import Q, F
+from django.db.models import Exists, F, FilteredRelation, OuterRef, Q
 from django.utils import timezone
 from catalog.models import Place, Organization, Program, Activity, OfferingGroup, OwnerTeamMembership, OwnerTeamInvitation, OrganizationGrant, OrganizationTeamInvitation
 from catalog.models.business_team import invitation_expiry
@@ -27,9 +27,12 @@ class TeamConflict(ValidationError):
 
 def _fresh(user):
     try:
-        return _actor(user)
+        actor = _actor(user)
     except PermissionDenied:
         return None
+    # _actor has just excluded volunteers on this freshly loaded instance.
+    actor._kidsmap_volunteer_role = False
+    return actor
 
 
 def _business_link(place, org):
@@ -69,31 +72,13 @@ def has_action(*, user, target, action):
             return False
         target = Organization.objects.filter(pk=current.organization_id).first()
     if isinstance(target, Place):
-        place = Place.objects.filter(pk=target.pk, deleted_at__isnull=True).first()
-        if place is None:
-            return False
         if action in ('place.publish', 'place.reviews.moderate'):
-            return platform_has_action(user=user, action=action)
+            return (Place.objects.filter(pk=target.pk, deleted_at__isnull=True).exists()
+                    and platform_has_action(user=user, action=action))
         if action not in PLACE_BUSINESS_ACTIONS | {'place.team.manage','ownership.transfer'}:
             return False
-        if action in direct_place_permissions(user=user, place=place) or (action == 'ownership.transfer' and place.owner_id == user.pk):
-            return True
-        if action not in PLACE_BUSINESS_ACTIONS:
-            return False
-        for grant in OwnerTeamMembership.objects.filter(place=place, member=user, is_active=True):
-            if _place_grant_current(grant, place) and action in grant.get_permissions():
-                return True
-        org = Organization.objects.filter(pk=place.organization_id, archived_at__isnull=True).first()
-        if org is None or not _business_link(place, org):
-            return False
-        if org.owner_id == user.pk:
-            return True
-        for grant in OrganizationGrant.objects.filter(organization=org, member=user, is_active=True):
-            if not _grant_current(grant, org) or action not in validated_business_actions(grant.actions):
-                continue
-            if grant.scope == 'all_network' or (grant.scope == 'selected_places' and grant.selected_places.filter(pk=place.pk).exists()):
-                return True
-        return False
+        place = _place_action_rows(user).filter(pk=target.pk).first()
+        return place is not None and action in _effective_place_actions(user, place)
     if isinstance(target, Organization):
         org = Organization.objects.filter(pk=target.pk, archived_at__isnull=True).first()
         if org is None or action not in ORGANIZATION_BUSINESS_ACTIONS | {'organization.team.manage','ownership.transfer'}:
@@ -108,18 +93,77 @@ def has_action(*, user, target, action):
 
 def place_access_candidates(user):
     """Possible direct or team access. The action resolver decides each candidate."""
-    return Place.objects.filter(
+    # A concrete place or organization has at most one grant per member.
+    return Place.objects.alias(
+        actor_membership=FilteredRelation(
+            'team_memberships',
+            condition=Q(team_memberships__member=user, team_memberships__is_active=True),
+        ),
+        actor_org_grant=FilteredRelation(
+            'organization__team_grants',
+            condition=Q(organization__team_grants__member=user, organization__team_grants__is_active=True),
+        ),
+    ).filter(
         Q(owner=user) | Q(owner__isnull=True, created_by=user) |
-        Q(team_memberships__member=user, team_memberships__is_active=True) |
-        Q(organization__owner=user) | Q(organization__team_grants__member=user, organization__team_grants__is_active=True),
-        deleted_at__isnull=True).distinct()
+        Q(actor_membership__isnull=False) | Q(organization__owner=user) | Q(actor_org_grant__isnull=False),
+        deleted_at__isnull=True,
+    )
+
+
+def _place_action_rows(user):
+    selected = OrganizationGrant.selected_places.through.objects.filter(
+        organizationgrant_id=OuterRef('actor_org_grant__pk'), place_id=OuterRef('pk'),
+    )
+    return place_access_candidates(user).select_related(
+        'organization', 'actor_membership', 'actor_org_grant',
+    ).only(
+        'owner_id', 'created_by_id', 'deleted_at', 'ownership_version', 'organization_relationship_kind',
+        'organization_join_place_ownership_version', 'organization_join_org_ownership_version',
+        'organization__owner_id', 'organization__archived_at', 'organization__ownership_version',
+    ).annotate(selected_by_grant=Exists(selected))
+
+
+def _effective_place_actions(user, place):
+    actions = direct_place_permissions(user=user, place=place)
+    if place.owner_id == user.pk:
+        actions.add('ownership.transfer')
+    # Django attaches a filtered reverse relation only when the join matched.
+    membership = getattr(place, 'actor_membership', None)
+    if membership is not None and _place_grant_current(membership, place):
+        actions.update(membership.get_permissions())
+    org = place.organization
+    if org is None or not _business_link(place, org):
+        return actions
+    if org.owner_id == user.pk:
+        return actions | PLACE_BUSINESS_ACTIONS
+    grant = getattr(place, 'actor_org_grant', None)
+    if grant is not None and _grant_current(grant, org):
+        if grant.scope == 'all_network' or (grant.scope == 'selected_places' and place.selected_by_grant):
+            actions.update(PLACE_BUSINESS_ACTIONS.intersection(validated_business_actions(grant.actions)))
+    return actions
+
+
+def accessible_place_actions(*, user):
+    """Fresh per-place business actions, including grants without view permission."""
+    user = _fresh(user)
+    if user is None:
+        return {}
+    result = {}
+    for place in _place_action_rows(user):
+        actions = _effective_place_actions(user, place)
+        if actions:
+            result[place.pk] = actions
+    return result
 
 
 def accessible_place_ids(*, user, action='place.view'):
-    user = _fresh(user)
-    if user is None:
+    if not isinstance(action, str):
         return []
-    return [p.pk for p in place_access_candidates(user) if has_action(user=user, target=p, action=action)]
+    if action in ('place.publish', 'place.reviews.moderate'):
+        if platform_has_action(user=user, action=action):
+            return list(place_access_candidates(user).values_list('pk', flat=True))
+        return []
+    return [pk for pk, actions in accessible_place_actions(user=user).items() if action in actions]
 
 
 def _owner(actor, parent):
