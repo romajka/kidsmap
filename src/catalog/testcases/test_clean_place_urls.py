@@ -301,21 +301,24 @@ class CleanPlaceUrlMigrationTests(TransactionTestCase):
                     for status in (Place.STATUS_PUBLISHED, Place.STATUS_DRAFT)]
             executor = MigrationExecutor(connection)
             executor.migrate(after)
-            for row in rows:
-                place = Place.objects.get(pk=row.pk)
-                self.assertFalse(place.uses_slug_only_urls)
-                self.assertIsNone(place.public_slug_en)
-                place.status = Place.STATUS_PUBLISHED
-                place.save(update_fields={'status'})
-                with override('en'):
-                    self.assertEqual(place.get_absolute_url(), f'/en/place/{row.pk}-old-{row.status}/')
             # The old historical model omits the new columns in INSERT; its
             # database default must preserve rollback/rolling-release safety.
             old_insert = OldPlace.objects.create(name='Old image', slug='old-image', category_id='EDU')
-            self.assertFalse(Place.objects.get(pk=old_insert.pk).uses_slug_only_urls)
-            new = Place.objects.create(name='New Museum', name_en='New Museum',
-                                       category='EDU', status=Place.STATUS_PUBLISHED)
-            with override('en'):
-                self.assertEqual(new.get_absolute_url(), '/en/place/new-museum/')
+            MigratedPlace = executor.loader.project_state(after).apps.get_model('catalog', 'Place')
+            for row in [*rows, old_insert]:
+                place = MigratedPlace.objects.get(pk=row.pk)
+                self.assertFalse(place.uses_slug_only_urls)
+                self.assertIsNone(place.public_slug_en)
         finally:
             MigrationExecutor(connection).migrate(latest)
+
+        for row in rows:
+            place = Place.objects.get(pk=row.pk)
+            place.status = Place.STATUS_PUBLISHED
+            place.save(update_fields={'status'})
+            with override('en'):
+                self.assertEqual(place.get_absolute_url(), f'/en/place/{row.pk}-old-{row.status}/')
+        new = Place.objects.create(name='New Museum', name_en='New Museum',
+                                   category='EDU', status=Place.STATUS_PUBLISHED)
+        with override('en'):
+            self.assertEqual(new.get_absolute_url(), '/en/place/new-museum/')
