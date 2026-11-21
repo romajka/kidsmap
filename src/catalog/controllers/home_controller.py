@@ -46,14 +46,13 @@ class HomeController:
         site_settings = self.settings_repository.get_site_settings()
 
         from catalog.services.public_presentation import prepare_cards
-        popular_places = prepare_cards(self.place_repository.top_popular(limit=4), language_code)
-        home_rail_places = prepare_cards(
-            self.place_repository.top_popular(limit=site_settings.home_recommendations_limit), language_code
+        rail_limit = site_settings.home_recommendations_limit
+        recommendations = prepare_cards(
+            self.place_repository.top_popular(limit=max(4, rail_limit)), language_code
         )
-        mark_liked_flags(
-            list({place.pk: place for place in [*popular_places, *home_rail_places]}.values()),
-            liked_ids,
-        )
+        mark_liked_flags(recommendations, liked_ids)
+        popular_places = recommendations[:4]
+        home_rail_places = recommendations[:rail_limit]
         upcoming_events = []
         events_quick_stats = None
         home_map_events = []
@@ -61,7 +60,7 @@ class HomeController:
             # Same public reader as /events/, so home counters match the afisha.
             from catalog.services.event_afisha import build_event_quick_stats, upcoming_events_for_home
             from catalog.services.event_afisha import event_map_points
-            upcoming_events = upcoming_events_for_home(limit=4)
+            upcoming_events = upcoming_events_for_home(limit=8)
             events_quick_stats = build_event_quick_stats()
             home_map_events = event_map_points(language_code=language_code)
 

@@ -27,7 +27,7 @@ class EventAdminEfficiencyTests(TestCase):
                       description_az='Synthetic description', organizer_organization=self.org,
                       event_format='online', status='draft', price_mode='unknown', start_datetime=start,
                       end_datetime=start + timedelta(hours=1), phone='+994501234567',
-                      photo='events/synthetic.jpg')
+                      photo='events/synthetic.jpg', languages='az')
         values.update(changes)
         return Event.objects.create(**values)
 

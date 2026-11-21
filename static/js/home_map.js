@@ -1204,6 +1204,30 @@
     mapEl.dispatchEvent(new CustomEvent("kidsmap:map-mounted", {detail: detail}));
   }
 
+  // Afisha venue markers join the place clusterer, so places and events never
+  // stack as two separate cluster layers. The layer decides which are visible.
+  // placeMarkers: the place markers about to be shown. An afisha venue that
+  // sits on one of them is merged into that place pin instead of a second pin.
+  function homeEventMarkers(mapEl, placeMarkers) {
+    const layer = mapEl.__kmEventLayer;
+    return layer && typeof layer.visibleMarkers === "function" ? layer.visibleMarkers(placeMarkers || []) : [];
+  }
+  // Co-located markers that include afisha open the venue sheet (events and
+  // places at that point together); places alone keep the place chooser.
+  function homeRouteChoice(mapEl, markers, anchor, fallback) {
+    const layer = mapEl.__kmEventLayer;
+    const events = [];
+    markers.forEach(marker => {
+      if (marker && marker.__kmEvents) events.push(marker);
+      else if (marker && marker.__kmAttached) events.push(marker.__kmAttached);
+    });
+    if (layer && events.length) {
+      layer.openVenue(events, markers.filter(marker => marker && !marker.__kmEvents), anchor);
+      return;
+    }
+    fallback(markers);
+  }
+
   function mountGoogleMap(sharedState) {
     if (!window.google || !window.google.maps || !sharedState) return false;
 
@@ -1336,7 +1360,7 @@
         },
         onClusterClick: function (event, cluster) {
           closePlace(); choice.close(false);
-          motion.expand(cluster, markers => choice.show(markers, cluster.marker));
+          motion.expand(cluster, markers => homeRouteChoice(mapEl, markers, cluster.marker, list => choice.show(list, cluster.marker)));
         },
       });
     }
@@ -1375,6 +1399,11 @@
       marker.__kidsMapPlace = place;
       marker.__kidsMapPointKey = place.key;
       marker.addListener("click", function () {
+        if (marker.__kmAttached && mapEl.__kmEventLayer) {
+          closePlace(); motion.cancel(); choice.close(false);
+          mapEl.__kmEventLayer.openVenue([marker.__kmAttached], [marker]);
+          return;
+        }
         const peers = markerItems.filter(item => visibleMarkers.has(item.marker) && item.position.lat === place.lat && item.position.lng === place.lng).map(item => item.marker);
         if (peers.length > 1 || (Array.isArray(place.members) && place.members.length > 1)) {
           closePlace();
@@ -1398,6 +1427,7 @@
     rebuildMarkers(places);
     sharedState.applyPage = points => { closePlace(); motion.cancel(); choice.close(false); rebuildMarkers(points); _doSync(); };
     mapEl.addEventListener("kidsmap:layers-change", () => { if (mapEl.dataset.kmPlaces === "off") closePlace(); syncVisibleMarkers(); });
+    mapEl.addEventListener("kidsmap:events-ready", () => syncVisibleMarkers());
 
     // ── Core sync ───────────────────────────────────────────────────────────
     function syncVisibleMarkers() {
@@ -1414,7 +1444,9 @@
     function _doSync() {
       const filters = getFilterState();
       const placesHidden = mapEl.dataset.kmPlaces === "off";
-      const activeMarkers = placesHidden ? [] : markerItems.map(item => item.marker);
+      const placeMarkers = placesHidden ? [] : markerItems.map(item => item.marker);
+      mapEl.__kmPlaceMarkerList = placeMarkers;
+      const activeMarkers = placeMarkers.concat(homeEventMarkers(mapEl, placeMarkers));
       const next = new Set(activeMarkers);
       if (selectedMarker && !next.has(selectedMarker)) closePlace();
       if (updateMembership) updateMembership(activeMarkers);
@@ -1634,6 +1666,17 @@
       },
 
       iconCreateFunction: function (cluster) {
+        const children = cluster.getAllChildMarkers();
+        if (window.KidsMapPins && children.some(marker => marker.__kmEvents)) {
+          // Mixed or afisha-only cluster: same visual as on Google maps.
+          const visual = window.KidsMapPins.cluster(children);
+          return L.divIcon({
+            className: "km-cluster-host",
+            html: visual.element,
+            iconSize: [visual.size, visual.size],
+            iconAnchor: [visual.size / 2, visual.size / 2],
+          });
+        }
         const count = cluster.getChildCount();
         return L.divIcon({
           className: "kidsmap-map-cluster",
@@ -1643,11 +1686,9 @@
         });
       }
     });
-    if (mapEl.dataset.kmPlaces !== "off") map.addLayer(markerClusterGroup);
-    mapEl.addEventListener("kidsmap:layers-change", () => {
-      if (mapEl.dataset.kmPlaces === "off") { map.closePopup(); map.removeLayer(markerClusterGroup); }
-      else if (!map.hasLayer(markerClusterGroup)) map.addLayer(markerClusterGroup);
-    });
+    map.addLayer(markerClusterGroup);
+    mapEl.addEventListener("kidsmap:layers-change", () => { map.closePopup(); syncVisibleMarkers(); });
+    mapEl.addEventListener("kidsmap:events-ready", () => syncVisibleMarkers());
     announceHomeMap(mapEl, {engine: "leaflet", map: map});
 
     function handleHomeClusterClick(event) {
@@ -1666,6 +1707,10 @@
         }
       }
 
+      if (allSameCoords && childMarkers.some(marker => marker.__kmEvents)) {
+        homeRouteChoice(mapEl, childMarkers, null, () => {});
+        return;
+      }
       if (allSameCoords && childMarkers.length > 0) {
         map.setView(childMarkers[0].getLatLng(), 18, { animate: !reducedMotion });
         event.layer.spiderfy();
@@ -1744,6 +1789,7 @@
         from: mapEl.dataset.ageFromLabel || "{from}+",
         to: mapEl.dataset.ageToLabel || "0–{to}",
       }), homeLeafletPopupOptions(mapEl));
+      marker.__kidsMapPlace = place; // cluster ring colours (kidsmap_map_pins.js)
       markerItems.push({ marker: marker, place: place, position: position });
     });
 
@@ -1791,11 +1837,13 @@
       // Atomic clear + add (no chunkedLoading → no race condition)
       markerClusterGroup.clearLayers();
 
-      markerItems.forEach(function (item) {
+      if (mapEl.dataset.kmPlaces !== "off") markerItems.forEach(function (item) {
         if (!hasValidCoordinates(item.place)) return;
         layersToAdd.push(item.marker);
         visibleItems.push(item);
       });
+      mapEl.__kmPlaceMarkerList = visibleItems.map(item => item.marker);
+      homeEventMarkers(mapEl, mapEl.__kmPlaceMarkerList).forEach(marker => layersToAdd.push(marker));
 
       if (layersToAdd.length) {
         markerClusterGroup.addLayers(layersToAdd);
@@ -1807,6 +1855,10 @@
 
       // No results
       updateLiveCount(businessCount(visibleItems.map(item => item.place)));
+      if (!visibleItems.length && mapEl.dataset.kmPlaces === "off") {
+        setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", true);
+        return;
+      }
       if (!visibleItems.length) {
         if (!userInteracted) map.setView([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng], DEFAULT_ZOOM, { animate: false });
         setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", false);

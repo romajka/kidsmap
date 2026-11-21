@@ -38,7 +38,7 @@ class EventEfficiencyBackendTests(TestCase):
             start_datetime=timezone.now()+timedelta(days=3),
             end_datetime=timezone.now()+timedelta(days=3, hours=1),
             description_az='Synthetic description', phone='+994501234567',
-            price_text='Ödənişsiz / Бесплатно', photo='events/synthetic-shared.jpg')
+            price_text='Ödənişsiz / Бесплатно', photo='events/synthetic-shared.jpg', languages='az')
         values.update(extra)
         return event_domain.create_event(actor=self.owner, values=values)
 
@@ -144,7 +144,8 @@ class EventEfficiencyBackendTests(TestCase):
         source = event_domain.cancel_event(actor=self.owner,event_id=source.pk,expected_updated_at=source.updated_at.isoformat(),reason='Synthetic cancellation')
         self.assertFalse(query_public_events().filter(pk=source.pk).exists())
         self.assertEqual(self.client.get(source.get_absolute_url()).status_code,200)
-        self.assertTrue(query_public_events({'date':source.start_datetime.date().isoformat()}).filter(pk=source.pk).exists())
+        selected_day = timezone.localdate(source.start_datetime).isoformat()
+        self.assertTrue(query_public_events({'date': selected_day}).filter(pk=source.pk).exists())
 
     def test_exact_child_age_accepts_one_sided_bounds_and_excludes_unknown(self):
         suitable = self.event(age_from=6)

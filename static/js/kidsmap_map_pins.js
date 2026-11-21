@@ -114,10 +114,16 @@
   }
 
   // Counts places (not location points) per category colour for the ring.
+  var EVENT_INK = '#e8533f';
   function clusterSummary(markers) {
     var byColor = new Map();
     var total = 0;
+    var events = 0;
     (markers || []).forEach(function (marker) {
+      // Afisha venue markers (map_event_layer.js) share the place clusterer.
+      if (marker && marker.__kmEvents) { events += marker.__kmEvents.length; return; }
+      // A place pin that also hosts afisha counts both.
+      if (marker && marker.__kmAttached) events += (marker.__kmAttached.__kmEvents || []).length;
       members(marker && marker.__kidsMapPlace).forEach(function (place) {
         var root = marker.__kidsMapPlace || {};
         var color = safeColor(place.category_color_text || root.category_color_text, DEFAULT_INK);
@@ -125,13 +131,14 @@
         total += 1;
       });
     });
-    if (!total) total = (markers || []).length;
+    if (!total && !events) total = (markers || []).length;
     var parts = Array.from(byColor.entries()).sort(function (a, b) { return b[1] - a[1]; });
     if (parts.length > 4) {
       var rest = parts.slice(3).reduce(function (sum, part) { return sum + part[1]; }, 0);
       parts = parts.slice(0, 3).concat([[DEFAULT_INK, rest]]);
     }
-    return {total: total, parts: parts};
+    if (events) parts.push([EVENT_INK, events]);
+    return {total: total + events, places: total, events: events, parts: parts};
   }
 
   function ringGradient(parts, total) {
@@ -162,6 +169,19 @@
     value.textContent = summary.total > 99 ? '99+' : String(summary.total);
     core.append(value);
     root.append(ring, core);
+    if (summary.events) {
+      // Afisha share: coral ticket tab with its own count; an events-only
+      // cluster turns coral as a whole.
+      root.classList.add(summary.places ? 'km-cluster--mixed' : 'km-cluster--events');
+      var tab = document.createElement('span');
+      tab.className = 'km-cluster__events';
+      tab.setAttribute('aria-hidden', 'true');
+      var icon = document.createElement('span');
+      icon.className = 'material-symbols-rounded';
+      icon.textContent = 'confirmation_number';
+      tab.append(icon, document.createTextNode(summary.events > 99 ? '99+' : String(summary.events)));
+      if (summary.places) root.append(tab);
+    }
     return {element: root, size: tier.size, total: summary.total};
   }
 

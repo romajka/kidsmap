@@ -24,7 +24,7 @@ class EventAdminReadinessTests(TestCase):
         values = dict(name='Synthetic event', name_az='Synthetic event', category_id='EDU',
                       description_az='Synthetic description', organizer_organization=self.org,
                       event_format='online', status='draft', price_mode='unknown', start_datetime=start,
-                      end_datetime=start+timedelta(hours=1), phone='+994501234567', photo='events/synthetic.jpg')
+                      end_datetime=start+timedelta(hours=1), phone='+994501234567', photo='events/synthetic.jpg', languages='az')
         values.update(changes)
         return Event.objects.create(**values)
 
@@ -82,6 +82,22 @@ class EventAdminReadinessTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['adminform'].form.errors)
         event.refresh_from_db(); self.assertEqual(event.status, 'draft')
+
+    def test_published_add_without_language_shows_field_error(self):
+        from catalog.testcases.utils import main_photo_upload
+
+        self.client.force_login(self.actor)
+        data = legacy_admin.TestAdminOwnershipModerationUX._admin_event_change_payload(self, self.event())
+        data.pop('expected_updated_at')
+        data.pop('languages', None)
+        data.update(status=Event.STATUS_PUBLISHED, _publish_event='1', photo=main_photo_upload())
+
+        response = self.client.post('/admin/catalog/event/add/', data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(set(response.context['adminform'].form.errors), {'languages'})
+        self.assertNotContains(response, 'class="km-media-main__view"')
+        self.assertEqual(Event.objects.count(), 1)
 
     def test_contact_fields_are_rendered_for_add_and_edit(self):
         self.client.force_login(self.actor)

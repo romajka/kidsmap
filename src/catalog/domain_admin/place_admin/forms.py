@@ -602,6 +602,14 @@ class EventAdminForm(forms.ModelForm):
             for name in ("price_mode", "price_currency", "registration_method"):
                 if name not in data:
                     data[name] = getattr(instance, name, None) or Event._meta.get_field(name).get_default()
+            if "languages" not in data and getattr(instance, "languages", ""):
+                # Unchecked boxes send nothing; a stored language is never dropped silently.
+                from catalog.services.event_languages import split as split_languages
+                codes = split_languages(instance.languages)
+                if hasattr(data, "setlist"):
+                    data.setlist("languages", codes)
+                else:
+                    data["languages"] = codes
             if args:
                 args = (data,) + args[1:]
             else:

@@ -51,9 +51,11 @@
   </p>
 
   {% if home_map_events %}
-  <fieldset class="km-layers" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show on map{% else %}Показать на карте{% endif %}">
-    <label class="km-layer km-layer--places"><input type="checkbox" data-km-layer="places" checked><span class="km-layer__box" aria-hidden="true"><span class="material-symbols-rounded">check</span></span><span class="km-layer__dot" aria-hidden="true"></span><span>{% if request.LANGUAGE_CODE == 'az' %}Məkanlar{% elif request.LANGUAGE_CODE == 'en' %}Places{% else %}Места{% endif %}</span><b>{{ map_business_count }}</b></label>
-    <label class="km-layer km-layer--events"><input type="checkbox" data-km-layer="events" checked><span class="km-layer__box" aria-hidden="true"><span class="material-symbols-rounded">check</span></span><span class="km-layer__dot" aria-hidden="true"></span><span>{% if request.LANGUAGE_CODE == 'az' %}Afişa{% elif request.LANGUAGE_CODE == 'en' %}Events{% else %}Афиша{% endif %}</span><b>{{ home_map_events|length }}</b></label>
+  <fieldset class="km-modes" data-km-modes data-mode="all" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show on map{% else %}Показать на карте{% endif %}">
+    <span class="km-modes__thumb" aria-hidden="true"></span>
+    <label class="km-mode km-mode--all"><input type="radio" name="km-map-mode" value="all" data-km-mode checked><span class="km-mode__dots" aria-hidden="true"><i></i><i></i></span><span>{% if request.LANGUAGE_CODE == 'az' %}Hamısı{% elif request.LANGUAGE_CODE == 'en' %}All{% else %}Всё{% endif %}</span></label>
+    <label class="km-mode km-mode--places"><input type="radio" name="km-map-mode" value="places" data-km-mode><span class="km-mode__icon material-symbols-rounded" aria-hidden="true">location_on</span><span>{% if request.LANGUAGE_CODE == 'az' %}Məkanlar{% elif request.LANGUAGE_CODE == 'en' %}Places{% else %}Места{% endif %}</span><b>{{ map_business_count }}</b></label>
+    <label class="km-mode km-mode--events"><input type="radio" name="km-map-mode" value="events" data-km-mode><span class="km-mode__icon material-symbols-rounded" aria-hidden="true">confirmation_number</span><span>{% if request.LANGUAGE_CODE == 'az' %}Afişa{% elif request.LANGUAGE_CODE == 'en' %}Events{% else %}Афиша{% endif %}</span><b>{{ home_map_events|length }}</b></label>
   </fieldset>
   {% endif %}
 

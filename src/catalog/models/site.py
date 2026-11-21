@@ -1,5 +1,8 @@
 import re
 import uuid
+from contextlib import contextmanager
+from contextvars import ContextVar
+from functools import cache
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -16,6 +19,19 @@ from django.dispatch import receiver
 
 from .place import Place
 from catalog.homepage_copy import HOME_COPY_DEFAULTS
+
+
+_public_settings_reader = ContextVar("kidsmap_public_settings_reader", default=None)
+
+
+@contextmanager
+def reuse_site_settings_for_render():
+    """Share one lazy settings read across the controller and its rendered template."""
+    token = _public_settings_reader.set(cache(_get_solo_site_settings))
+    try:
+        yield
+    finally:
+        _public_settings_reader.reset(token)
 
 
 def _get_solo_site_settings():
@@ -63,6 +79,9 @@ def _get_solo_catalog_content_settings():
 
 
 def clear_singleton_caches() -> None:
+    reader = _public_settings_reader.get()
+    if reader is not None:
+        reader.cache_clear()
     if hasattr(_get_solo_site_settings, "cache_clear"):
         _get_solo_site_settings.cache_clear()
     if hasattr(_get_solo_catalog_content_settings, "cache_clear"):
@@ -430,7 +449,8 @@ class SiteSettings(models.Model):
 
     @classmethod
     def get_solo(cls):
-        return _get_solo_site_settings()
+        reader = _public_settings_reader.get()
+        return reader() if reader is not None else _get_solo_site_settings()
 
     def save(self, *args, **kwargs):
         result = super().save(*args, **kwargs)
