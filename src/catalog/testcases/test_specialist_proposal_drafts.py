@@ -92,7 +92,8 @@ class SpecialistProposalDraftTests(TestCase):
         with patch('catalog.services.features.is_specialists_section_enabled',return_value=True):
             self.client.force_login(self.actor)
             response=self.client.get(url);self.assertEqual(response.status_code,200);self.assertEqual(response['Cache-Control'],'private, no-store')
-            response.close()
+            with draft.photo.open('rb') as stored:
+                self.assertEqual(b''.join(response.streaming_content), stored.read())
             self.client.force_login(self.other);self.assertEqual(self.client.get(url).status_code,404)
         spec=SpecialistSpecialization.objects.create(code='proposal-photo-qa',name_ru='QA',name_az='QA',name_en='QA')
         sent=self.save(self.data(name='QA Photo person',consultation_format='online',bio_ru='QA Bio',phone='+994500000000',

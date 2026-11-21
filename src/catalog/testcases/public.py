@@ -994,7 +994,7 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "css/components/header.css?v=2", html=False)
-        self.assertContains(response, "js/place_phone_reveal.js?v=20261111_contact_analytics_r1", html=False)
+        self.assertContains(response, "js/place_phone_reveal.js?v=20261121_administration", html=False)
 
     @override_settings(
         DEBUG=False,

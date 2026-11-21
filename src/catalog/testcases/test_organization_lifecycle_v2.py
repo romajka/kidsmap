@@ -2,7 +2,6 @@
 socials, diagnostics and the owner/admin cockpits. Positive and negative."""
 import io
 import json
-import shutil
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
@@ -23,21 +22,18 @@ from catalog.models import Organization, Place, VolunteerPlaceRevision
 from catalog.services import organization_ownership, organization_state, publication
 from catalog.testcases.utils import create_quality_place, ensure_quality_subcategory
 
-MEDIA = tempfile.mkdtemp(prefix='km-org-v2-')
-
-
 def image_upload(name='logo.png', size=(256, 256), fmt='PNG', content_type='image/png'):
     buffer = io.BytesIO()
     Image.new('RGB', size, (19, 111, 56)).save(buffer, fmt)
     return SimpleUploadedFile(name, buffer.getvalue(), content_type=content_type)
 
 
-@override_settings(MEDIA_ROOT=MEDIA)
 class OrganizationV2Base(TestCase):
     @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-        shutil.rmtree(MEDIA, ignore_errors=True)
+    def setUpClass(cls):
+        media = cls.enterClassContext(tempfile.TemporaryDirectory(prefix='km-org-v2-'))
+        cls.enterClassContext(override_settings(MEDIA_ROOT=media))
+        super().setUpClass()
 
     def setUp(self):
         ensure_quality_subcategory('EDU')
