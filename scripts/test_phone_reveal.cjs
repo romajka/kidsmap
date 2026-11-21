@@ -107,6 +107,45 @@ test('disabled WhatsApp never falls back to the first call number', async () => 
   assert.equal(document.querySelectorAll('[data-phone-whatsapp],a[href^="https://wa.me/"]').length,0);
   dom.window.close();
 });
+const administrationPhone = {number: '+13104564918', href: 'tel:+13104564918', display: '+1 310-456-4918'};
+function addAdministrationButton(document) {
+  const section = document.createElement('section');
+  section.innerHTML = '<p id="administration-contact">Контакт администрации</p><button class="detail-contacts__secondary-link" data-phone-reveal="7" data-phone-administration="1" aria-describedby="administration-contact">Показать номер</button>';
+  document.body.append(section);
+  return section;
+}
+test('an administration-only response reveals one labelled number and no place contact', async () => {
+  const dom = setup(async () => ({ok: true, json: async () => ({phones: [], whatsapp: '', administration_phone: administrationPhone})}));
+  const document = dom.window.document;
+  const section = addAdministrationButton(document);
+  const button = section.querySelector('button');
+  button.focus(); button.click(); await settle();
+  assert.equal(document.querySelectorAll('a').length, 1);
+  const link = section.querySelector('a');
+  assert.equal(link.getAttribute('href'), administrationPhone.href);
+  assert.equal(link.getAttribute('aria-describedby'), 'administration-contact');
+  assert.equal(document.activeElement, link);
+  dom.window.close();
+});
+test('place and administration numbers remain distinct after the same reveal', async () => {
+  const dom = setup(async () => ({ok: true, json: async () => ({...contacts, administration_phone: administrationPhone})}));
+  const document = dom.window.document;
+  const section = addAdministrationButton(document);
+  document.querySelector('button').click(); await settle();
+  assert.equal(document.querySelector('a').getAttribute('href'), contacts.phones[0].href);
+  assert.equal(section.querySelector('a')?.getAttribute('href'), administrationPhone.href);
+  dom.window.close();
+});
+test('a malformed administration phone cannot create callable links', async () => {
+  const malformed = {...administrationPhone, href: contacts.phones[0].href};
+  const dom = setup(async () => ({ok: true, json: async () => ({...contacts, administration_phone: malformed})}));
+  const document = dom.window.document;
+  const section = addAdministrationButton(document);
+  section.querySelector('button').click(); await settle();
+  assert.equal(document.querySelector('a'), null);
+  assert.ok(section.querySelector('.km-phone-error'));
+  dom.window.close();
+});
 test('unsafe response URL is rejected without actionable links', async () => {
   const dom = setup(async () => ({ok: true, json: async () => ({phones: contacts.phones, whatsapp: 'https://evil.example/13104564918'})}));
   const document=dom.window.document,button=document.querySelector('button');

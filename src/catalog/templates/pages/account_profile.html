@@ -375,7 +375,7 @@
                   {% if account_deletion_staff_blocked %}
                     {% if CURRENT_LANGUAGE == "az" %}Xidməti hesabın silinməsi üçün səlahiyyətli administratora müraciət edin.{% elif CURRENT_LANGUAGE == "en" %}Contact an authorized administrator to offboard a staff account.{% else %}Для отключения служебного аккаунта обратитесь к уполномоченному администратору.{% endif %}
                   {% else %}
-                    {% if CURRENT_LANGUAGE == "az" %}Funksiya məlumatların saxlanması siyasəti təsdiqlənənədək deaktivdir.{% elif CURRENT_LANGUAGE == "en" %}This action is disabled until the data-retention policy is approved.{% else %}Действие отключено до утверждения политики хранения данных.{% endif %}
+                    {% include "pages/includes/account_deletion_support.html" %}
                   {% endif %}
                 </p>
               {% endif %}

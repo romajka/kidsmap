@@ -22118,3 +22118,343 @@ msgstr "Промпт скопирован."
 #: src/catalog/templates/admin/catalog/event/prompt_panel.html
 msgid "Текст выделен. Скопируйте его через меню браузера или сочетанием клавиш."
 msgstr "Текст выделен. Скопируйте его через меню браузера или сочетанием клавиш."
+
+#: src/catalog/models/place.py
+msgid "Ответственная организация"
+msgstr "Ответственная организация"
+
+#: src/catalog/models/place.py
+msgid "Официальный телефон организации"
+msgstr "Официальный телефон организации"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "KidsMap · Контроль регламента"
+msgstr "KidsMap · Контроль регламента"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "О сроках SLA"
+msgstr "О сроках SLA"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Контроль регламентных сроков рассмотрения (Service Level Agreement)"
+msgstr "Контроль регламентных сроков рассмотрения (Service Level Agreement)"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Доработка"
+msgstr "Доработка"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "таймер ставится на паузу"
+msgstr "таймер ставится на паузу"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Очереди материалов"
+msgstr "Очереди материалов"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Статистика SLA"
+msgstr "Статистика SLA"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Срок истёк (Breached)"
+msgstr "Срок истёк (Breached)"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Критично (Critical)"
+msgstr "Критично (Critical)"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Близок срок (Warning)"
+msgstr "Близок срок (Warning)"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "В норме (Fresh)"
+msgstr "В норме (Fresh)"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "На паузе (Paused)"
+msgstr "На паузе (Paused)"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Параметры фильтрации очереди"
+msgstr "Параметры фильтрации очереди"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Фильтры SLA"
+msgstr "Фильтры SLA"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Укажите понятную причину для автора..."
+msgstr "Укажите понятную причину для автора..."
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Срок превышен"
+msgstr "Срок превышен"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Справка по SLA"
+msgstr "Справка по SLA"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Как рассчитываются сроки модерации"
+msgstr "Как рассчитываются сроки модерации"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Время ожидания"
+msgstr "Время ожидания"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Считается от момента отправки заявки автором до первого решения модератора (одобрение или возврат на доработку)."
+msgstr "Считается от момента отправки заявки автором до первого решения модератора (одобрение или возврат на доработку)."
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Пауза при доработке"
+msgstr "Пауза при доработке"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Если карточка возвращена автору на исправление ошибок, таймер SLA останавливается до повторной отправки."
+msgstr "Если карточка возвращена автору на исправление ошибок, таймер SLA останавливается до повторной отправки."
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Приоритет в очереди"
+msgstr "Приоритет в очереди"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Материалы со статусом SLA breached и SLA critical должны проверяться модераторами в первую очередь."
+msgstr "Материалы со статусом SLA breached и SLA critical должны проверяться модераторами в первую очередь."
+
+#: src/catalog/models/specialist.py
+msgid "Тип занятия"
+msgstr "Тип занятия"
+
+#: src/catalog/models/specialist.py
+msgid "Цена одного занятия (AZN)"
+msgstr "Цена одного занятия (AZN)"
+
+#: src/catalog/models/specialist.py
+msgid "Дополнительные тарифы"
+msgstr "Дополнительные тарифы"
+
+#: src/catalog/models/specialist.py
+msgid "Индивидуальное занятие"
+msgstr "Индивидуальное занятие"
+
+#: src/catalog/models/specialist.py
+msgid "Парное занятие"
+msgstr "Парное занятие"
+
+#: src/catalog/models/specialist.py
+msgid "Групповое занятие"
+msgstr "Групповое занятие"
+
+#: src/catalog/models/specialist.py
+msgid "Консультация"
+msgstr "Консультация"
+
+#: src/catalog/forms_specialist_pricing.py
+msgid "Проверьте дополнительные тарифы."
+msgstr "Проверьте дополнительные тарифы."
+
+#: src/catalog/forms_specialist_pricing.py
+#, python-format
+msgid "Тариф %(row)s: выберите месяц или пакет занятий."
+msgstr "Тариф %(row)s: выберите месяц или пакет занятий."
+
+#: src/catalog/forms_specialist_pricing.py
+#, python-format
+msgid "Тариф %(row)s: укажите полную стоимость больше 0 ₼ (можно с гяпиками)."
+msgstr "Тариф %(row)s: укажите полную стоимость больше 0 ₼ (можно с гяпиками)."
+
+#: src/catalog/forms_specialist_pricing.py
+#, python-format
+msgid "Тариф %(row)s: укажите целое число занятий от одного."
+msgstr "Тариф %(row)s: укажите целое число занятий от одного."
+
+#: src/catalog/forms_specialist_pricing.py
+msgid "Выберите тип занятия."
+msgstr "Выберите тип занятия."
+
+#: src/catalog/forms_specialist_pricing.py
+msgid "Укажите цену одного занятия."
+msgstr "Укажите цену одного занятия."
+
+#: src/catalog/forms_specialist_pricing.py
+#, python-format
+msgid "Можно добавить не больше %(count)s тарифов."
+msgstr "Можно добавить не больше %(count)s тарифов."
+
+#: organizations v2
+msgid "Адрес головного офиса"
+msgstr "Адрес головного офиса"
+
+#: organizations v2
+msgid "Адрес страницы"
+msgstr "Адрес страницы"
+
+#: organizations v2
+msgid "Без филиалов"
+msgstr "Без филиалов"
+
+#: organizations v2
+msgid "В архиве с"
+msgstr "В архиве с"
+
+#: organizations v2
+msgid "Версия данных"
+msgstr "Версия данных"
+
+#: organizations v2
+msgid "Возвращено на доработку"
+msgstr "Возвращено на доработку"
+
+#: organizations v2
+msgid "Готовность профиля"
+msgstr "Готовность профиля"
+
+#: organizations v2
+msgid "Есть неактуальные связи"
+msgstr "Есть неактуальные связи"
+
+#: organizations v2
+msgid "Есть филиалы"
+msgstr "Есть филиалы"
+
+#: organizations v2
+msgid "Загрузите JPG, PNG или WebP."
+msgstr "Загрузите JPG, PNG или WebP."
+
+#: organizations v2
+msgid "Заявок на проверку не было."
+msgstr "Заявок на проверку не было."
+
+#: organizations v2
+msgid "Изображение слишком маленькое: нужно от %(w)s×%(h)s px."
+msgstr "Изображение слишком маленькое: нужно от %(w)s×%(h)s px."
+
+#: organizations v2
+msgid "Информационная"
+msgstr "Информационная"
+
+#: organizations v2
+msgid "Квадрат от 120 px, JPG/PNG/WebP, до 5 МБ."
+msgstr "Квадрат от 120 px, JPG/PNG/WebP, до 5 МБ."
+
+#: organizations v2
+msgid "Медиа"
+msgstr "Медиа"
+
+#: organizations v2
+msgid "Напишите, что нужно исправить."
+msgstr "Напишите, что нужно исправить."
+
+#: organizations v2
+msgid "Например: добавьте описание на русском и логотип без водяных знаков."
+msgstr "Например: добавьте описание на русском и логотип без водяных знаков."
+
+#: organizations v2
+msgid "Неактуальна"
+msgstr "Неактуальна"
+
+#: organizations v2
+msgid "Неактуальные связи"
+msgstr "Неактуальные связи"
+
+#: organizations v2
+msgid "Нет заявки на проверке."
+msgstr "Нет заявки на проверке."
+
+#: organizations v2
+msgid "Новая организация"
+msgstr "Новая организация"
+
+#: organizations v2
+msgid "Обложка"
+msgstr "Обложка"
+
+#: organizations v2
+msgid "От 800×300 px, JPG/PNG/WebP, до 8 МБ."
+msgstr "От 800×300 px, JPG/PNG/WebP, до 8 МБ."
+
+#: organizations v2
+msgid "Открыть на сайте"
+msgstr "Открыть на сайте"
+
+#: organizations v2
+msgid "Очередь модерации"
+msgstr "Очередь модерации"
+
+#: organizations v2
+msgid "Подтверждают владельцы"
+msgstr "Подтверждают владельцы"
+
+#: organizations v2
+msgid "Подтверждённые филиалы"
+msgstr "Подтверждённые филиалы"
+
+#: organizations v2
+msgid "Решить по заявке"
+msgstr "Решить по заявке"
+
+#: organizations v2
+msgid "Сводка организации"
+msgstr "Сводка организации"
+
+#: organizations v2
+msgid "Связи ждут повторного подтверждения"
+msgstr "Связи ждут повторного подтверждения"
+
+#: organizations v2
+msgid "Создать заявку на связь"
+msgstr "Создать заявку на связь"
+
+#: organizations v2
+msgid "Ссылка на профиль или @имя аккаунта."
+msgstr "Ссылка на профиль или @имя аккаунта."
+
+#: organizations v2
+msgid "Старая запись: отмечена опубликованной без одобрения. Попросите владельца отправить сведения на проверку или используйте команду diagnose_organizations."
+msgstr "Старая запись: отмечена опубликованной без одобрения. Попросите владельца отправить сведения на проверку или используйте команду diagnose_organizations."
+
+#: organizations v2
+msgid "Требуют решения"
+msgstr "Требуют решения"
+
+#: organizations v2
+msgid "Укажите ссылку или @имя аккаунта."
+msgstr "Укажите ссылку или @имя аккаунта."
+
+#: organizations v2
+msgid "Укажите ссылку на профиль или @имя аккаунта."
+msgstr "Укажите ссылку на профиль или @имя аккаунта."
+
+#: organizations v2
+msgid "Файл больше %(mb)s МБ."
+msgstr "Файл больше %(mb)s МБ."
+
+#: organizations v2
+msgid "Филиалов пока нет."
+msgstr "Филиалов пока нет."
+
+#: organizations v2
+msgid "Что исправить (увидит владелец)"
+msgstr "Что исправить (увидит владелец)"
+
+#: organizations v2
+msgid "ждут подтверждения"
+msgstr "ждут подтверждения"
+
+#: organizations v2
+msgid "заявки"
+msgstr "заявки"
+
+#: organizations v2
+msgid "подтверждены"
+msgstr "подтверждены"
+
+#: src/catalog/specialist_forms.py
+msgid "Добавьте фотографию профиля."
+msgstr "Добавьте фотографию профиля."
+
+#: src/catalog/controllers/specialist_workspace.py
+msgid "Фотография добавлена в анкету."
+msgstr "Фотография добавлена в анкету."

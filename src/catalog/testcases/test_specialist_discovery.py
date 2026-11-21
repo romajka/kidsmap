@@ -1,8 +1,11 @@
+import re
 from html.parser import HTMLParser
 from urllib.parse import parse_qs, urlsplit
+from django.contrib.auth import get_user_model
 from django.db import connection
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
+from django.utils.translation import override
 from catalog.models import SiteSettings, Specialist, SpecialistSpecialization
 
 class DiscoveryParser(HTMLParser):
@@ -24,6 +27,36 @@ class DiscoveryParser(HTMLParser):
         if tag == 'details': self.details.pop()
 
 class SpecialistDiscoveryTests(TestCase):
+    def test_admin_keeps_numerology_icon_inside_the_correct_checkbox_label(self):
+        spec = SpecialistSpecialization.objects.create(
+            code='child_numerology', name='Child numerology', name_ru='Детская нумерология',
+        )
+        person = self.person('Numerology example', spec.code)
+        staff = get_user_model().objects.create_superuser(username='icon-reviewer')
+        self.client.force_login(staff)
+        page = self.client.get(f'/admin/catalog/specialist/{person.pk}/change/')
+        self.assertEqual(page.status_code, 200)
+        labels = re.findall(r'<label\b[^>]*>(.*?)</label>', page.content.decode(), flags=re.DOTALL)
+        icon_labels = [label for label in labels if 'data-specialization-icon="child_numerology"' in label]
+        self.assertEqual(len(icon_labels), 1)
+        self.assertIn(f'value="{spec.pk}"', icon_labels[0])
+        self.assertIn('checked', icon_labels[0])
+
+    def test_child_numerology_icon_follows_specialization_into_directory_and_profile(self):
+        spec = SpecialistSpecialization.objects.create(
+            code='child_numerology', name='Child numerology', name_ru='Детская нумерология',
+            name_az='Uşaq numerologiyası', name_en='Child numerology',
+        )
+        person = self.person('Numerology example', spec.code)
+        for language in ('ru', 'az', 'en'):
+            with self.subTest(language=language):
+                prefix = '' if language == 'az' else '/' + language
+                listing = self.client.get(prefix + '/specialists/', {'specialization': spec.code})
+                self.assertContains(listing, 'data-specialization-icon="child_numerology"')
+                with override(language):
+                    profile = self.client.get(person.get_absolute_url())
+                self.assertContains(profile, 'data-specialization-icon="child_numerology"')
+
     @classmethod
     def setUpTestData(cls):
         site = SiteSettings.get_solo(); site.specialists_section_enabled = True; site.save()

@@ -6,6 +6,7 @@
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=20261020_release_r1">
   <link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}?v=20261026_org_flow_v1">
+  <link rel="stylesheet" href="{% static 'css/pages/organization_cockpit.css' %}?v=20261121_org_v2">
 {% endblock %}
 {% block content %}
 <div class="account-page-wrapper org-workspace" data-workspace="{{ workspace_mode }}" data-user-id="{{ request.user.pk }}" {% if organization %}data-org-id="{{ organization.pk }}"{% endif %}>
@@ -52,12 +53,14 @@
           {% if organizations %}
             <div class="org-list">
               {% for item in organizations %}
-                <a class="org-row" href="{% url 'organization_workspace_detail' item.pk %}">
-                  <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
+                <a class="org-row orgx-org-row" href="{% url 'organization_workspace_detail' item.pk %}" style="--i:{{ forloop.counter0 }}">
+                  {% if item.logo %}<img class="orgx-row-logo" src="{{ item.logo.url }}" alt="" width="44" height="44">{% else %}<span class="orgx-row-logo orgx-row-logo--mono" aria-hidden="true">{{ item.name_az|default:'K'|slice:':1'|upper }}</span>{% endif %}
                   <span>
                     <strong>{% if CURRENT_LANGUAGE == 'ru' and item.name_ru %}{{ item.name_ru }}{% elif CURRENT_LANGUAGE == 'en' and item.name_en %}{{ item.name_en }}{% else %}{{ item.name_az }}{% endif %}</strong>
                     <small>
-                      <span class="org-status-chip org-status-chip--{% if item.directory_published %}published{% else %}draft{% endif %}">{% if item.directory_published %}{% translate "Опубликовано" %}{% else %}{% translate "Не опубликовано" %}{% endif %}</span>
+                      <span class="org-status-chip org-status-chip--{% if item.directory_published %}published{% else %}draft{% endif %} orgx-state orgx-state--{{ item.state.tone }}" data-org-state="{{ item.state.code }}"><span class="orgx-state__dot" aria-hidden="true"></span>{{ item.state.label }}</span>
+                      <span class="orgx-row-meta"><span class="material-symbols-rounded" aria-hidden="true">store</span>{% if CURRENT_LANGUAGE == 'az' %}Filiallar{% elif CURRENT_LANGUAGE == 'en' %}Branches{% else %}Филиалы{% endif %}: {{ item.branch_current }}</span>
+                      {% if item.branch_stale %}<span class="orgx-row-meta orgx-row-meta--warn"><span class="material-symbols-rounded" aria-hidden="true">sync_problem</span>{{ item.branch_stale }} {% if CURRENT_LANGUAGE == 'az' %}təsdiq gözləyir{% elif CURRENT_LANGUAGE == 'en' %}to re-confirm{% else %}ждут подтверждения{% endif %}</span>{% endif %}
                     </small>
                   </span>
                   <span class="material-symbols-rounded org-row__arrow" aria-hidden="true">arrow_forward</span>
@@ -121,53 +124,7 @@
           </a>
         </nav>
 
-        <header class="org-hero org-hero--detail">
-          <div>
-            <p class="org-eyebrow">KidsMap · {% if CURRENT_LANGUAGE == 'az' %}Təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Organization{% else %}Организация{% endif %}</p>
-            <h1>{% if CURRENT_LANGUAGE == 'ru' and organization.name_ru %}{{ organization.name_ru }}{% elif CURRENT_LANGUAGE == 'en' and organization.name_en %}{{ organization.name_en }}{% else %}{{ organization.name_az|default:'—' }}{% endif %}</h1>
-            <div class="org-chips">
-              <!-- Публичный статус -->
-              {% if organization_is_public %}
-                <span class="org-status org-status--published" title="{% if CURRENT_LANGUAGE == 'az' %}Təşkilat KidsMap kataloqunda dərc olunub{% elif CURRENT_LANGUAGE == 'en' %}Published in directory{% else %}Опубликовано в каталоге{% endif %}">
-                  <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
-                  {% if CURRENT_LANGUAGE == 'az' %}Dərc olunub{% elif CURRENT_LANGUAGE == 'en' %}Published{% else %}Опубликовано на сайте{% endif %}
-                </span>
-              {% else %}
-                <span class="org-status org-status--draft" title="{% if CURRENT_LANGUAGE == 'az' %}Qaralama rejimində{% elif CURRENT_LANGUAGE == 'en' %}In draft mode{% else %}В режиме черновика{% endif %}">
-                  <span class="material-symbols-rounded" aria-hidden="true">edit_note</span>
-                  {% if CURRENT_LANGUAGE == 'az' %}Qaralama{% elif CURRENT_LANGUAGE == 'en' %}Draft{% else %}Черновик сети{% endif %}
-                </span>
-              {% endif %}
-
-              <!-- Статус модерации -->
-              {% if revision and revision.status == 'pending' %}
-                <span class="org-status org-status--candidate" title="{% if CURRENT_LANGUAGE == 'az' %}Dəyişikliklər moderator yoxlamasındadır{% elif CURRENT_LANGUAGE == 'en' %}Changes under review{% else %}Изменения проверяются модератором{% endif %}">
-                  <span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>
-                  {% if CURRENT_LANGUAGE == 'az' %}Yoxlamada (v{{ revision.version }}){% elif CURRENT_LANGUAGE == 'en' %}In review (v{{ revision.version }}){% else %}Изменения на модерации{% endif %}
-                </span>
-              {% elif revision and revision.status == 'rejected' %}
-                <span class="org-status org-status--rejected" title="{% if CURRENT_LANGUAGE == 'az' %}Düzəliş lazımdır{% elif CURRENT_LANGUAGE == 'en' %}Changes requested{% else %}Нужны исправления{% endif %}">
-                  <span class="material-symbols-rounded" aria-hidden="true">error</span>
-                  {% if CURRENT_LANGUAGE == 'az' %}Düzəliş tələb olunur{% elif CURRENT_LANGUAGE == 'en' %}Changes requested{% else %}Нужны исправления{% endif %}
-                </span>
-              {% endif %}
-
-              <!-- Серверный черновик -->
-              {% if server_draft %}
-                <span class="org-status org-status--server-draft" title="{% if CURRENT_LANGUAGE == 'az' %}Daxil edilmiş məlumat server qaralamasında saxlanılıb{% elif CURRENT_LANGUAGE == 'en' %}Draft saved on server{% else %}Черновик сохранен на сервере{% endif %}">
-                  <span class="material-symbols-rounded" aria-hidden="true">cloud_done</span>
-                  {% if CURRENT_LANGUAGE == 'az' %}Server qaralaması{% elif CURRENT_LANGUAGE == 'en' %}Server draft{% else %}Черновик на сервере{% endif %}
-                </span>
-              {% endif %}
-            </div>
-          </div>
-          {% if can_create_branch %}
-            <a class="account-btn-action" href="#org-branches">
-              <span class="material-symbols-rounded" aria-hidden="true">add_location_alt</span>
-              <span>{% if CURRENT_LANGUAGE == 'az' %}Filial əlavə et{% elif CURRENT_LANGUAGE == 'en' %}Add branch{% else %}Добавить филиал{% endif %}</span>
-            </a>
-          {% endif %}
-        </header>
+        {% include 'pages/includes/organization_cockpit.html' %}
 
         {% if action_error %}
           <div class="org-alert org-alert--error" role="alert">
@@ -180,16 +137,8 @@
           </div>
         {% endif %}
 
-        <section class="org-launch" aria-label="{% translate 'Следующие шаги' %}">
-          <ol class="org-launch__steps">
-            <li><strong>{% translate 'Профиль создан' %}</strong></li>
-            <li><a href="#org-branches">{% translate 'Добавьте филиал или продолжите позже' %}</a></li>
-            <li><a href="#org-about">{% if revision.status == 'pending' %}{% translate 'Сведения на проверке' %}{% elif organization_is_public %}{% translate 'Организация опубликована' %}{% else %}{% translate 'Проверьте сведения и отправьте на модерацию' %}{% endif %}</a></li>
-          </ol>
-          <p class="org-muted">{% translate 'Публикация организации и каждого филиала проверяется отдельно. Сотрудники и программы необязательны.' %}</p>
-        </section>
         <nav class="org-tabs" data-org-tabs aria-label="{% translate 'Разделы организации' %}">
-          <a id="org-tab-branches" href="#org-branches" data-org-tab="org-branches">{% translate 'Филиалы' %} ({{ branches|length }})</a>
+          <a id="org-tab-branches" href="#org-branches" data-org-tab="org-branches">{% translate 'Филиалы' %} <span class="orgx-tab-count">{{ org_health.current_count }}</span>{% if org_health.stale_count %}<span class="orgx-tab-count orgx-tab-count--warn" title="{% if CURRENT_LANGUAGE == 'az' %}Təsdiq gözləyir{% elif CURRENT_LANGUAGE == 'en' %}Need re-confirmation{% else %}Ждут подтверждения{% endif %}">{{ org_health.stale_count }}</span>{% endif %}</a>
           <a id="org-tab-about" href="#org-about" data-org-tab="org-about">{% translate 'Профиль' %}</a>
           <a id="org-tab-extra" href="#org-extra" data-org-tab="org-extra">{% translate 'Дополнительно' %}</a>
         </nav>
@@ -215,12 +164,17 @@
             <!-- Список филиалов с пагинацией -->
             <div class="org-list" data-branch-list>
               {% for place in branches %}
-                <article class="org-row" data-branch-item data-name="{{ place.name_i18n }} {{ place.address }}" data-status="{{ place.get_status_display }}">
+                <article class="org-row orgx-branch orgx-branch--{{ place.link_state }}" data-branch-item data-name="{{ place.name_i18n }} {{ place.address }}" data-status="{{ place.get_status_display }}" style="--i:{{ forloop.counter0 }}">
                   <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
                   <span>
                     <strong>{{ place.name_i18n }}</strong>
                     <small>{{ place.address }}</small>
-                    {% if not place.affiliation_is_current %}<small>{% translate "Связь неактуальна: доступ сети не действует" %}</small>{% endif %}
+                    {% if not place.affiliation_is_current %}
+                      <span class="orgx-link-alert" role="status">
+                        <span class="material-symbols-rounded" aria-hidden="true">link_off</span>
+                        <span>{% translate "Связь неактуальна: доступ сети не действует" %} · {{ place.link_stale_reason }}</span>
+                      </span>
+                    {% endif %}
                     <small>
                       <span class="org-status-chip org-status-chip--{{ place.status }}">{{ place.get_status_display }}</span> · 
                       {% if place.organization_relationship_kind == "informational" %}
@@ -236,6 +190,12 @@
                     </small>
                   </span>
                   <div class="org-row__actions">
+                    {% if not place.affiliation_is_current and is_owner and place.owner_id %}
+                      <form method="post" action="{% url 'organization_workspace_join' organization.pk %}" class="orgx-inline-form">
+                        {% csrf_token %}<input type="hidden" name="place_id" value="{{ place.pk }}">
+                        <button type="submit" class="orgx-btn-reconfirm"><span class="material-symbols-rounded" aria-hidden="true">sync</span>{% if CURRENT_LANGUAGE == 'az' %}Yenidən təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm again{% else %}Подтвердить заново{% endif %}</button>
+                      </form>
+                    {% endif %}
                     <a href="{% url 'organization_workspace_branch' organization.pk place.pk %}" class="org-row__btn-open">{% if CURRENT_LANGUAGE == 'az' %}Aç{% elif CURRENT_LANGUAGE == 'en' %}Open{% else %}Открыть{% endif %}</a>
                     {% if is_owner %}
                       <a href="{% url 'organization_detach_preview' organization.pk place.pk %}" class="org-text-action org-text-action--danger">{% translate 'Отсоединить: посмотреть последствия' %}</a>
@@ -253,6 +213,33 @@
               <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
               <h3>{% if CURRENT_LANGUAGE == 'az' %}Hələ filial yoxdur{% elif CURRENT_LANGUAGE == 'en' %}No branches yet{% else %}Филиалов пока нет{% endif %}</h3>
               <p>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat filial olmadan mövcud ola bilər. İstədiyiniz vaxt yeni filial yarada və ya öz məkanınızı qoşa bilərsiniz.{% elif CURRENT_LANGUAGE == 'en' %}An organization can exist without a branch. You can create a new branch or link an existing place anytime.{% else %}Организация может существовать без филиала. Вы можете создать новый филиал или связать уже имеющееся место.{% endif %}</p>
+            </div>
+          {% endif %}
+
+          {% if stale_hidden_branches %}
+            <div class="orgx-stale-panel" id="org-branches-stale" role="region" aria-labelledby="org-stale-title">
+              <div class="orgx-stale-panel__head">
+                <span class="material-symbols-rounded" aria-hidden="true">sync_problem</span>
+                <div>
+                  <h3 id="org-stale-title">{% if CURRENT_LANGUAGE == 'az' %}Təsdiq gözləyən filiallar{% elif CURRENT_LANGUAGE == 'en' %}Branches waiting for re-confirmation{% else %}Филиалы ждут повторного подтверждения{% endif %} <span class="orgx-tab-count orgx-tab-count--warn">{{ stale_hidden_branches|length }}</span></h3>
+                  <p>{% if CURRENT_LANGUAGE == 'az' %}Sahib dəyişdiyi üçün bu məkanlar saytda şəbəkənin filialı kimi göstərilmir. Yenidən təsdiq ikinci sahibə sorğu göndərir.{% elif CURRENT_LANGUAGE == 'en' %}After an ownership change these places are not shown as your branches. Confirming again sends a request to the other owner.{% else %}После смены владельца эти места не показываются на сайте как филиалы сети. Повторное подтверждение отправит запрос второму владельцу.{% endif %}</p>
+                </div>
+              </div>
+              <ul class="orgx-stale-list">
+                {% for place in stale_hidden_branches %}
+                  <li style="--i:{{ forloop.counter0 }}">
+                    <span class="orgx-stale-list__name"><strong>{{ place.name_i18n }}</strong><small>{{ place.link_stale_reason }}</small></span>
+                    {% if place.owner_id %}
+                    <form method="post" action="{% url 'organization_workspace_join' organization.pk %}" class="orgx-inline-form">
+                      {% csrf_token %}<input type="hidden" name="place_id" value="{{ place.pk }}">
+                      <button type="submit" class="orgx-btn-reconfirm"><span class="material-symbols-rounded" aria-hidden="true">sync</span>{% if CURRENT_LANGUAGE == 'az' %}Yenidən təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm again{% else %}Подтвердить заново{% endif %}</button>
+                    </form>
+                    {% else %}
+                    <span class="orgx-row-meta"><span class="material-symbols-rounded" aria-hidden="true">shield_person</span>{% if CURRENT_LANGUAGE == 'az' %}Əlaqəni KidsMap moderatoru təsdiqləyir{% elif CURRENT_LANGUAGE == 'en' %}A KidsMap moderator confirms this link{% else %}Связь подтверждает модератор KidsMap{% endif %}</span>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
             </div>
           {% endif %}
 
@@ -498,7 +485,7 @@
           {% endif %}
 
           {% if can_edit %}
-            <form method="post" action="{% url 'organization_workspace_save' organization.pk %}" data-org-edit-form {% if candidate_form.errors %}data-org-server-errors{% endif %} {% if show_current_data %}data-org-current-data{% endif %} data-draft-url="{% url 'server_draft_collection' %}" data-source-version="{{ organization.content_version }}" data-schema-version="{{ schema_version }}" data-draft-id="{% if server_draft %}{{ server_draft.pk }}{% endif %}" data-draft-version="{% if server_draft %}{{ server_draft.version }}{% else %}0{% endif %}">
+            <form method="post" action="{% url 'organization_workspace_save' organization.pk %}" enctype="multipart/form-data" data-org-edit-form {% if candidate_form.errors %}data-org-server-errors{% endif %} {% if show_current_data %}data-org-current-data{% endif %} data-draft-url="{% url 'server_draft_collection' %}" data-source-version="{{ organization.content_version }}" data-schema-version="{{ schema_version }}" data-draft-id="{% if server_draft %}{{ server_draft.pk }}{% endif %}" data-draft-version="{% if server_draft %}{{ server_draft.version }}{% else %}0{% endif %}">
               {% csrf_token %}
               {% if candidate_form.errors %}
               <div class="org-alert org-alert--error org-editor-errors" id="org-editor-errors" role="alert" tabindex="-1" aria-labelledby="org-editor-errors-title" data-org-error-summary>
@@ -544,13 +531,74 @@
                   {{ candidate_form.website }}
                 </label>
                   {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.website %}</div>
+                <div class="org-editor-field org-editor-field--wide{% if candidate_form.address.errors %} has-error{% endif %}"><label>
+                  {% if CURRENT_LANGUAGE == 'az' %}Baş ofisin ünvanı{% elif CURRENT_LANGUAGE == 'en' %}Head office address{% else %}Адрес головного офиса{% endif %}
+                  {{ candidate_form.address }}
+                </label>
+                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.address %}</div>
               </div>
+
+              <fieldset class="orgx-socials">
+                <legend>{% if CURRENT_LANGUAGE == 'az' %}Sosial şəbəkələr{% elif CURRENT_LANGUAGE == 'en' %}Social links{% else %}Соцсети{% endif %}</legend>
+                <p class="org-control-hint">{% if CURRENT_LANGUAGE == 'az' %}Profil linki və ya @ad.{% elif CURRENT_LANGUAGE == 'en' %}Profile link or @handle.{% else %}Ссылка на профиль или @имя.{% endif %}</p>
+                <div class="orgx-socials__grid">
+                  {% for field in candidate_form %}{% if field.name == 'instagram' or field.name == 'facebook' or field.name == 'tiktok' %}
+                    <div class="org-editor-field orgx-social orgx-social--{{ field.name }}{% if field.errors %} has-error{% endif %}">
+                      <label><span class="orgx-social__badge" aria-hidden="true">{% if field.name == 'instagram' %}IG{% elif field.name == 'facebook' %}f{% else %}TT{% endif %}</span>{{ field.label }}
+                        {{ field }}
+                      </label>
+                      {% include 'pages/includes/organization_field_errors.html' with field=field %}
+                    </div>
+                  {% endif %}{% endfor %}
+                </div>
+              </fieldset>
 
               <div class="org-editor-field{% if candidate_form.description_az.errors %} has-error{% endif %}"><label class="org-wide">
                 {% if CURRENT_LANGUAGE == 'az' %}Təsvir (AZ){% elif CURRENT_LANGUAGE == 'en' %}Description (AZ){% else %}Описание сети (AZ){% endif %}
                 {{ candidate_form.description_az }}
               </label>
                   {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.description_az %}</div>
+
+              <details class="orgx-translations"{% if candidate_form.description_ru.value or candidate_form.description_en.value or candidate_form.description_ru.errors or candidate_form.description_en.errors %} open{% endif %}>
+                <summary><span class="material-symbols-rounded" aria-hidden="true">translate</span>{% if CURRENT_LANGUAGE == 'az' %}Təsvirin tərcümələri (RU, EN){% elif CURRENT_LANGUAGE == 'en' %}Description translations (RU, EN){% else %}Переводы описания (RU, EN){% endif %}</summary>
+                <div class="org-editor-field{% if candidate_form.description_ru.errors %} has-error{% endif %}"><label class="org-wide">
+                  {% if CURRENT_LANGUAGE == 'az' %}Təsvir (RU){% elif CURRENT_LANGUAGE == 'en' %}Description (RU){% else %}Описание сети (RU){% endif %}
+                  {{ candidate_form.description_ru }}
+                </label>{% include 'pages/includes/organization_field_errors.html' with field=candidate_form.description_ru %}</div>
+                <div class="org-editor-field{% if candidate_form.description_en.errors %} has-error{% endif %}"><label class="org-wide">
+                  {% if CURRENT_LANGUAGE == 'az' %}Təsvir (EN){% elif CURRENT_LANGUAGE == 'en' %}Description (EN){% else %}Описание сети (EN){% endif %}
+                  {{ candidate_form.description_en }}
+                </label>{% include 'pages/includes/organization_field_errors.html' with field=candidate_form.description_en %}</div>
+              </details>
+
+              <section class="orgx-media" id="org-media" aria-labelledby="org-media-title" tabindex="-1">
+                <h3 id="org-media-title">{% if CURRENT_LANGUAGE == 'az' %}Loqo və örtük{% elif CURRENT_LANGUAGE == 'en' %}Logo and cover{% else %}Логотип и обложка{% endif %}</h3>
+                <div class="orgx-media__grid">
+                  <div class="orgx-drop orgx-drop--logo{% if org_media_urls.logo %} has-file{% endif %}{% if candidate_form.logo.errors %} has-error{% endif %}" data-org-drop>
+                    <div class="orgx-drop__preview" data-org-drop-preview>{% if org_media_urls.logo %}<img src="{{ org_media_urls.logo }}" alt="">{% else %}<span class="material-symbols-rounded" aria-hidden="true">add_photo_alternate</span>{% endif %}</div>
+                    <label class="orgx-drop__label" for="{{ candidate_form.logo.id_for_label }}">
+                      <strong>{% if CURRENT_LANGUAGE == 'az' %}Loqo{% elif CURRENT_LANGUAGE == 'en' %}Logo{% else %}Логотип{% endif %}</strong>
+                      <span>{% if CURRENT_LANGUAGE == 'az' %}Kvadrat, 120 px-dən, 5 MB-a qədər{% elif CURRENT_LANGUAGE == 'en' %}Square, 120 px+, up to 5 MB{% else %}Квадрат от 120 px, до 5 МБ{% endif %} · JPG, PNG, WebP</span>
+                    </label>
+                    <input type="file" name="logo" id="{{ candidate_form.logo.id_for_label }}" accept="image/jpeg,image/png,image/webp" class="orgx-drop__input" data-org-drop-input data-max-mb="5" data-min-w="120" data-min-h="120">
+                    {% if org_media_urls.logo %}<label class="orgx-drop__clear"><input type="checkbox" name="logo_clear" value="1" data-org-drop-clear> {% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}Удалить{% endif %}</label>{% endif %}
+                    <p class="orgx-drop__msg" data-org-drop-msg role="status" aria-live="polite"></p>
+                    {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.logo %}
+                  </div>
+                  <div class="orgx-drop orgx-drop--cover{% if org_media_urls.cover_photo %} has-file{% endif %}{% if candidate_form.cover_photo.errors %} has-error{% endif %}" data-org-drop>
+                    <div class="orgx-drop__preview" data-org-drop-preview>{% if org_media_urls.cover_photo %}<img src="{{ org_media_urls.cover_photo }}" alt="">{% else %}<span class="material-symbols-rounded" aria-hidden="true">panorama</span>{% endif %}</div>
+                    <label class="orgx-drop__label" for="{{ candidate_form.cover_photo.id_for_label }}">
+                      <strong>{% if CURRENT_LANGUAGE == 'az' %}Örtük şəkli{% elif CURRENT_LANGUAGE == 'en' %}Cover image{% else %}Обложка{% endif %}</strong>
+                      <span>{% if CURRENT_LANGUAGE == 'az' %}800×300 px-dən, 8 MB-a qədər{% elif CURRENT_LANGUAGE == 'en' %}800×300 px+, up to 8 MB{% else %}От 800×300 px, до 8 МБ{% endif %} · JPG, PNG, WebP</span>
+                    </label>
+                    <input type="file" name="cover_photo" id="{{ candidate_form.cover_photo.id_for_label }}" accept="image/jpeg,image/png,image/webp" class="orgx-drop__input" data-org-drop-input data-max-mb="8" data-min-w="800" data-min-h="300">
+                    {% if org_media_urls.cover_photo %}<label class="orgx-drop__clear"><input type="checkbox" name="cover_photo_clear" value="1" data-org-drop-clear> {% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}Удалить{% endif %}</label>{% endif %}
+                    <p class="orgx-drop__msg" data-org-drop-msg role="status" aria-live="polite"></p>
+                    {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.cover_photo %}
+                  </div>
+                </div>
+                <p class="org-control-hint">{% if CURRENT_LANGUAGE == 'az' %}Şəkillər də moderasiyadan keçir və təsdiqdən sonra saytda görünür.{% elif CURRENT_LANGUAGE == 'en' %}Images are reviewed too and appear on the site after approval.{% else %}Изображения тоже проходят проверку и появятся на сайте после одобрения.{% endif %}</p>
+              </section>
 
               <div class="org-form-actions">
                 <button class="account-btn-action" type="submit" name="submit" value="1">
@@ -569,5 +617,6 @@
   </div>
 </div>
 {% if organization_create_confirmation %}{{ organization_create_confirmation|json_script:"org-create-confirmation" }}{% endif %}
-<script src="{% static 'js/organization_workspace.js' %}?v=20261026_org_flow_v1" defer></script>
+<script src="{% static 'js/organization_workspace.js' %}?v=20261121_org_v2" defer></script>
+<script src="{% static 'js/organization_cockpit.js' %}?v=20261121_org_v2" defer></script>
 {% endblock %}

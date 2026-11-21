@@ -1,0 +1,27 @@
+{# Single lesson first, then optional plans; numbers come pre-formatted from specialist_presentation. #}
+<ul class="sp-tariffs">
+  {% if single %}
+    <li class="sp-tariff sp-tariff--single">
+      <div class="sp-tariff__main">
+        <strong class="sp-tariff__title">{{ single.title }}</strong>
+        {% if single.details %}<span class="sp-tariff__meta">{{ single.details }}</span>{% endif %}
+      </div>
+      <div class="sp-tariff__price">
+        <strong class="sp-tariff__total{% if single.is_free %} is-free{% endif %}">{{ single.total }}</strong>
+      </div>
+    </li>
+  {% endif %}
+  {% for package in packages %}
+    <li class="sp-tariff" data-tariff-period="{{ package.period }}">
+      <div class="sp-tariff__main">
+        <strong class="sp-tariff__title">{{ package.title }}</strong>
+        <span class="sp-tariff__meta">{{ package.sessions_label }}</span>
+      </div>
+      <div class="sp-tariff__price">
+        <strong class="sp-tariff__total">{{ package.total }} ₼</strong>
+        {% if package.unit_price %}<span class="sp-tariff__unit">{{ package.unit_price }}</span>{% endif %}
+        {% if package.saving_label %}<span class="sp-tariff__saving">{{ package.saving_label }}</span>{% endif %}
+      </div>
+    </li>
+  {% endfor %}
+</ul>

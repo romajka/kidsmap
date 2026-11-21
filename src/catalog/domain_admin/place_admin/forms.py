@@ -315,7 +315,8 @@ class PlaceAdminForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceScheduleE
         if kwargs.get("instance") is not None and (kwargs.get("data") is not None or (args and args[0] is not None)) and kwargs["instance"].pk:
             from catalog.services.publication_forms import candidate_for_edit
             candidate = candidate_for_edit(kwargs["instance"])
-            contact_names = ("phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number")
+            contact_names = ("phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number",
+                             "administration_name", "administration_phone")
             kwargs["initial"] = {**{name: getattr(candidate, name) for name in contact_names}, **(kwargs.get("initial") or {})}
         super().__init__(*args, **kwargs)
         if self.is_bound and self.instance.pk:

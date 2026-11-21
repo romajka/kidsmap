@@ -25,6 +25,8 @@ from legalconsent.forms import AgreementCheckbox, LegalAgreementMixin
 from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.models import CatalogContentSettings, Event, Place, UserProfile, Category, Subcategory, Specialist, SpecialistSpecialization, Region, District, MetroStation
 from catalog.services.event_languages import EventLanguagesField
+from catalog.forms_specialist_pricing import SpecialistPricingFormMixin
+from catalog.specialist_forms import SpecialistPhotoField
 from catalog.services.place_schedule import (
     build_default_schedule_payload,
     dump_schedule_payload,
@@ -1078,6 +1080,8 @@ class OwnerPlaceEditForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceSched
             "phone1",
             "phone2",
             "phone3",
+            "administration_name",
+            "administration_phone",
             "phone_country",
             "whatsapp_mode",
             "whatsapp_number",
@@ -2248,7 +2252,32 @@ class OwnerTeamRoleUpdateForm(forms.Form):
 from catalog.services.specialist_formats import SpecialistFormatsFormMixin
 
 
-class OwnerSpecialistForm(SpecialistFormatsFormMixin, forms.ModelForm):
+def clean_specialist_profile_details(form, cleaned):
+    if not any(cleaned.get(f'bio_{lang}') for lang in ('az', 'ru', 'en')):
+        language = (get_language() or 'az').split('-')[0]
+        field = 'bio_' + (language if language in ('az', 'ru', 'en') else 'az')
+        form.add_error(field, _("Добавьте описание профиля хотя бы на одном языке."))
+    if not any(cleaned.get(f'language_{lang}') for lang in ('az', 'ru', 'en')):
+        form.add_error('language_az', _("Выберите хотя бы один язык работы."))
+    if not (cleaned.get('phone') or cleaned.get('whatsapp')):
+        form.add_error('phone', _("Укажите телефон или WhatsApp для связи."))
+    for field_name in ('phone', 'whatsapp'):
+        value = cleaned.get(field_name)
+        if value:
+            try:
+                value = _validate_phone(value)
+            except ValidationError as exc:
+                form.add_error(field_name, exc)
+            else:
+                from catalog.services.phone_numbers import safe_phone
+                cleaned[field_name] = safe_phone(value) or value
+    low, high = cleaned.get('age_from'), cleaned.get('age_to')
+    if low is not None and high is not None and low > high:
+        form.add_error('age_to', _("Возраст «до» не может быть меньше возраста «от»."))
+
+
+class OwnerSpecialistForm(SpecialistPricingFormMixin, SpecialistFormatsFormMixin, forms.ModelForm):
+    photo = SpecialistPhotoField(required=False, label=_('Фотография профиля'))
     draft_save_only = False
 
     @property
@@ -2327,6 +2356,9 @@ class OwnerSpecialistForm(SpecialistFormatsFormMixin, forms.ModelForm):
             "language_az",
             "language_ru",
             "language_en",
+            "lesson_type",
+            "lesson_price",
+            "pricing_packages",
             "price_from",
             "price_to",
             "duration_minutes",
@@ -2337,7 +2369,6 @@ class OwnerSpecialistForm(SpecialistFormatsFormMixin, forms.ModelForm):
         )
         widgets = {
             "name": forms.TextInput(attrs={"class": "field", "placeholder": _("Имя и фамилия")}),
-            "photo": ImagePreviewFileInput(attrs={"class": "field owner-file-uploader-input", "accept": "image/*,.heic,.heif,.hif"}),
             "bio_az": forms.Textarea(attrs={"class": "field", "rows": 3, "placeholder": _("О себе на азербайджанском")}),
             "bio_ru": forms.Textarea(attrs={"class": "field", "rows": 3, "placeholder": _("О себе на русском")}),
             "bio_en": forms.Textarea(attrs={"class": "field", "rows": 3, "placeholder": _("О себе на английском")}),
@@ -2361,9 +2392,11 @@ class OwnerSpecialistForm(SpecialistFormatsFormMixin, forms.ModelForm):
         self.locations = kwargs.pop("locations",None)
         super().__init__(*args, **kwargs)
         self._init_format_fields()
+        for name in ('lesson_type', 'lesson_price'):
+            self.fields[name].widget.attrs['aria-required'] = 'true'
         # Numeric hints read as examples, not as values already filled in.
         example_prefix = {'az': 'məs. ', 'en': 'e.g. ', 'ru': 'напр. '}.get((get_language() or 'az').split('-')[0], 'məs. ')
-        for name in ('experience_years', 'age_from', 'age_to', 'price_from', 'price_to', 'duration_minutes'):
+        for name in ('experience_years', 'age_from', 'age_to', 'price_from', 'price_to', 'duration_minutes', 'lesson_price'):
             field = self.fields.get(name)
             hint = field.widget.attrs.get('placeholder', '') if field else ''
             if hint[:1].isdigit():
@@ -2381,7 +2414,6 @@ class OwnerSpecialistForm(SpecialistFormatsFormMixin, forms.ModelForm):
             # specialist is never asked for an address because of a preselected default.
             self.fields['consultation_format'].choices = [('', _('Выберите формат'))] + list(Specialist.FORMAT_CHOICES)
             self.initial['consultation_format'] = (kwargs.get('initial') or {}).get('consultation_format', '')
-        self.fields["photo"].help_text = _("JPG, PNG или WEBP. Максимум 2 МБ.")
         self.fields["specializations"].widget = forms.CheckboxSelectMultiple()
         self.fields["specializations"].queryset = SpecialistSpecialization.objects.filter(is_active=True).order_by("order", "name_ru")
         self.fields["specializations"].required = False
@@ -2405,9 +2437,20 @@ class OwnerSpecialistForm(SpecialistFormatsFormMixin, forms.ModelForm):
             for field_name, field in self.fields.items():
                 field.required = field_name in required
 
+    def clean_photo(self):
+        photo = self.cleaned_data['photo']
+        if not photo and not self.draft_save_only:
+            raise ValidationError(self.fields['photo'].error_messages['required'], code='required')
+        return photo
+
     def clean(self):
-        from django.db.models.fields.files import FieldFile
         cleaned = super().clean()
+        self.clean_specialist_pricing(cleaned, require=not self.draft_save_only)
+        # The current editor no longer posts legacy ranges. Keep existing
+        # values on a round trip, including upper-only and zero-price profiles.
+        for name in ('price_from', 'price_to'):
+            if self.instance.pk and name not in self.data:
+                cleaned[name] = getattr(self.instance, name)
         self.clean_format_fields(cleaned, require=not self.draft_save_only, allow_incomplete=self.draft_save_only)
         if self.locations is not None:
             self.locations.instance.consultation_format = self.instance.consultation_format
@@ -2415,12 +2458,6 @@ class OwnerSpecialistForm(SpecialistFormatsFormMixin, forms.ModelForm):
             self.locations.require_active=not self.draft_save_only
             if not self.locations.is_valid():self.add_error(None,_('Проверьте места приёма.'))
         if self.draft_save_only:
-            photo = cleaned.get("photo")
-            if photo and not (isinstance(photo, FieldFile) and photo._committed):
-                try:
-                    cleaned["photo"] = _validate_uploaded_image(photo)
-                except ValidationError as exc:
-                    self.add_error("photo", exc)
             return cleaned
 
         cleaned["requested_specialization"] = " ".join((cleaned.get("requested_specialization") or "").split())[:120]
@@ -2432,26 +2469,7 @@ class OwnerSpecialistForm(SpecialistFormatsFormMixin, forms.ModelForm):
             if subject_required(cleaned['specializations']):
                 self.add_error('specializations', subject_error())
 
-        if not any((cleaned.get("bio_az"), cleaned.get("bio_ru"), cleaned.get("bio_en"))):
-            msg = _("Добавьте описание профиля хотя бы на одном языке.")
-            language = (get_language() or 'az').split('-')[0]
-            self.add_error('bio_' + (language if language in ('az', 'ru', 'en') else 'az'), msg)
-
-        if not (cleaned.get("phone") or cleaned.get("whatsapp")):
-            msg = _("Укажите телефон или WhatsApp для связи.")
-            self.add_error("phone", msg)
-        for field_name in ('phone', 'whatsapp'):
-            value = cleaned.get(field_name)
-            if value:
-                try:
-                    cleaned[field_name] = _validate_phone(value)
-                except ValidationError as exc:
-                    self.add_error(field_name, exc)
-                else:
-                    # Store one canonical form (+994501234567); keep the checked value if the
-                    # number is valid by pattern but unknown to the numbering plan.
-                    from catalog.services.phone_numbers import safe_phone
-                    cleaned[field_name] = safe_phone(cleaned[field_name]) or cleaned[field_name]
+        clean_specialist_profile_details(self, cleaned)
 
         # Enforce that if format is offline or both, location fields are required and validated
         if self.locations is None and self.instance.offers_office:
@@ -2466,33 +2484,11 @@ class OwnerSpecialistForm(SpecialistFormatsFormMixin, forms.ModelForm):
             if not loc_region:
                 self.add_error("location_region", _("Выберите город / регион для очной работы."))
 
-        # Enforce at least one language
-        lang_az = cleaned.get("language_az")
-        lang_ru = cleaned.get("language_ru")
-        lang_en = cleaned.get("language_en")
-        if not (lang_az or lang_ru or lang_en):
-            msg = _("Выберите хотя бы один язык работы.")
-            self.add_error("language_az", msg)
-
-        # Validate ages
-        age_from = cleaned.get("age_from")
-        age_to = cleaned.get("age_to")
-        if age_from is not None and age_to is not None and age_from > age_to:
-            self.add_error("age_to", _("Возраст «до» не может быть меньше возраста «от»."))
-
         # Validate prices
         price_from = cleaned.get("price_from")
         price_to = cleaned.get("price_to")
         if price_from is not None and price_to is not None and price_from > price_to:
             self.add_error("price_to", _("Максимальная стоимость не может быть меньше минимальной."))
-
-        # Validate photo size
-        photo = cleaned.get("photo")
-        if photo and not (isinstance(photo, FieldFile) and photo._committed):
-            try:
-                cleaned["photo"] = _validate_uploaded_image(photo)
-            except ValidationError as exc:
-                self.add_error("photo", exc)
 
         return cleaned
 

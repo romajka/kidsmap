@@ -303,7 +303,7 @@
       });
     });
   });
-  form.querySelectorAll("[data-qual-rows], [data-practice-rows]").forEach(function (rows) {
+  form.querySelectorAll("[data-qual-rows], [data-practice-rows], [data-package-rows]").forEach(function (rows) {
     addedFields.observe(rows, {childList: true});
   });
 

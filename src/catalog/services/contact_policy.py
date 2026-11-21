@@ -1,5 +1,8 @@
 """Contact exemptions by exact taxonomy, separate from approved place nature."""
 
+# This historical KidsMap footer number is documented in migration 0033.
+LEGACY_DIRECTORY_PHONE = '+994505406639'
+
 OPTIONAL_CONTACT_TAXONOMY = {
     'parks-playgrounds': ('parks-boulevards', 'playgrounds'),
     'PARK': ('public-parks',),
@@ -28,11 +31,14 @@ def contact_optional_q():
 
 
 def contact_optional_for_place(place):
+    if getattr(place, 'nature', '') == 'public_space':
+        return True
+    if getattr(place, 'category_id', '') not in OPTIONAL_CONTACT_TAXONOMY:
+        return False
     sub = place.subcategory if getattr(place, 'subcategory_id', None) else None
     return contact_optional(category_code=getattr(place, 'category_id', '') or '',
                             subcategory_code=getattr(sub, 'code', '') or '',
-                            subcategory_category_code=getattr(sub, 'category_id', '') or '',
-                            nature=getattr(place, 'nature', '') or '')
+                            subcategory_category_code=getattr(sub, 'category_id', '') or '')
 
 
 def contact_client_config(instance, *, original_taxonomy=None, approved_nature=None):

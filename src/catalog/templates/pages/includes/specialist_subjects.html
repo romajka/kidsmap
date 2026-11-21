@@ -2,7 +2,7 @@
 {% if form.subject_options %}
 {{ form.subject_rules|json_script:"specialist-subject-rules" }}
 <fieldset class="km-subject-picker" data-subject-picker aria-describedby="subject-help{% if form.specializations.errors %} specialization-errors{% endif %}">
-  <legend><span class="material-symbols-rounded" aria-hidden="true">menu_book</span> {% if CURRENT_LANGUAGE == 'az' %}Hansı fənləri tədris edirsiniz?{% elif CURRENT_LANGUAGE == 'en' %}Which subjects do you teach?{% else %}Какие предметы вы преподаёте?{% endif %} <span class="km-subject-required-mark" data-subject-required-mark hidden>*</span></legend>
+  <legend><span class="material-symbols-rounded" aria-hidden="true">menu_book</span> {% if CURRENT_LANGUAGE == 'az' %}Hansı fənləri tədris edirsiniz?{% elif CURRENT_LANGUAGE == 'en' %}Which subjects do you teach?{% else %}Какие предметы вы преподаёте?{% endif %} <span data-subject-required-mark hidden>{% include "pages/includes/specialist_field_badge.html" %}</span></legend>
   <p id="subject-help" class="km-subject-help">{% if CURRENT_LANGUAGE == 'az' %}Repetitor və imtahana hazırlıq üçün fənn seçmək vacibdir. Bir neçə fənn seçə bilərsiniz. Dərsin dilini aşağıda ayrıca göstərin.{% elif CURRENT_LANGUAGE == 'en' %}A subject is required for tutoring and exam preparation. You can choose several. Select the language of lessons separately below.{% else %}Для репетитора и подготовки к экзаменам предмет обязателен. Можно выбрать несколько. Язык занятий укажите отдельно ниже.{% endif %}</p>
   <div class="km-subject-options">
     {% for item in form.subject_options %}

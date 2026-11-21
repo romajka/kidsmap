@@ -11,6 +11,7 @@ async function setup({locale = 'ru', formats = ['online'], phone = '+99450123456
     <form class="km-specialist-owner-form km-unified-form">
       <details class="km-section-navigation" open><summary>Sections</summary><a href="#km-sec-basic" data-toc-target="km-sec-basic">Personal</a></details><section id="km-sec-basic" class="km-unified-section"></section>
       <input id="id_name" value="Test specialist"><label class="owner-specialist-chip"><input name="specializations" type="checkbox" checked><span class="chip-title">Speech therapist</span></label>
+      <div data-portrait data-saved-photo="true"><input id="id_photo" name="photo" type="file"><input type="checkbox" name="photo-clear"></div>
       <label class="owner-specialist-chip"><input id="id_language_ru" name="language_ru" type="checkbox" checked><span class="chip-title">Russian</span></label>
       <div data-owner-selected-specs><span data-selected-count></span><div data-selected-chips></div><button type="button" data-clear-specs>Clear specializations</button></div>
       ${['online','office','visit'].map(code => `<input type="checkbox" name="session_formats" value="${code}" ${formats.includes(code) ? 'checked' : ''}>`).join('')}
@@ -24,6 +25,8 @@ async function setup({locale = 'ru', formats = ['online'], phone = '+99450123456
         <label><input type="checkbox" name="visit_districts" value="yasamal" data-region="baku">Yasamal</label></div>
       </fieldset>
       <input id="id_phone" value="${phone}" pattern="[+0-9 ()-]{7,25}"><input id="id_whatsapp">
+      <select name="lesson_type"><option value=""></option><option value="individual" selected>Individual</option></select>
+      <input name="lesson_price" type="number" min="0" step="0.01" value="25"><span data-sec-status="km-sec-pricing-contacts"></span>
       <div data-req-progress-fill></div><span data-req-badge></span><span data-req-invalid hidden>Correct the values</span><span data-req-status-text data-all-done="Filled"></span>
       <div data-owner-spec-dropdown><button type="button" data-owner-spec-dropdown-trigger aria-expanded="false"><span data-owner-spec-placeholder>Choose</span><span data-selected-count-badge></span></button>
         <div data-owner-spec-dropdown-panel hidden><input data-spec-search></div></div>
@@ -35,6 +38,7 @@ async function setup({locale = 'ru', formats = ['online'], phone = '+99450123456
   w.matchMedia = () => ({matches: desktop, addEventListener() {}});
   w.HTMLElement.prototype.scrollIntoView = function () {};
   Object.defineProperty(w.document, 'readyState', {value:'complete'});
+  w.eval(fs.readFileSync(path.join(__dirname, '../../static/js/specialist_pricing.js'), 'utf8'));
   w.eval(fs.readFileSync(path.join(__dirname, '../../static/js/specialist_visit_area.js'), 'utf8'));
   w.eval(source); w.eval(accessibility);
   w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
@@ -42,6 +46,113 @@ async function setup({locale = 'ru', formats = ['online'], phone = '+99450123456
   return {dom, w, doc:w.document, form:w.document.querySelector('form')};
 }
 const locationRow = (fields='') => `<article data-practice-row><input name="locations-0-is_active" type="checkbox" checked><input name="locations-0-DELETE" type="checkbox">${fields}</article>`;
+test('a saved portrait counts toward readiness, clearing it requires a replacement', async () => {
+  const t = await setup();
+  const complete = () => t.doc.querySelector('[data-req-progress-fill]').classList.contains('is-complete');
+  assert.equal(complete(), true);
+  const clear = t.form.elements['photo-clear'];
+  clear.checked = true;
+  clear.dispatchEvent(new t.w.Event('change', {bubbles: true}));
+  assert.equal(complete(), false);
+  t.w.close();
+});
+test('opening a saved portrait and undoing removal both show the original image URL', () => {
+  const dom = new JSDOM(`<div data-portrait><input type="file"><input type="checkbox" name="photo-clear">
+    <img data-portrait-preview src="/private/portrait/"><span data-portrait-filename></span>
+    <span class="sp-portrait__action"><span data-portrait-choose></span><span data-portrait-replace></span></span>
+    </div>`, {runScripts: 'outside-only'});
+  const {window} = dom;
+  window.eval(fs.readFileSync(path.join(__dirname, '../../static/js/specialist_portrait.js'), 'utf8'));
+  const preview = window.document.querySelector('img');
+  const clear = window.document.querySelector('[name="photo-clear"]');
+  assert.equal(preview.getAttribute('src'), '/private/portrait/');
+  clear.click();
+  assert.equal(preview.hidden, true);
+  clear.click();
+  assert.equal(preview.getAttribute('src'), '/private/portrait/');
+  dom.window.close();
+});
+const tariffRow = `<div data-package-row><select name="package_period"><option value=""></option><option value="month">Month</option><option value="package">Package</option></select>
+  <input name="package_amount" type="number" min="0" step="0.01"><input name="package_sessions" type="number" min="1" step="1">
+  <output data-package-unit></output><button type="button" data-package-remove>Remove</button></div>`;
+const tariffEditor = `<div data-pricing-packages data-unit-label="AZN per lesson"><div data-package-rows>${tariffRow}</div><template>${tariffRow}</template><button type="button" data-package-add>Add</button></div>`;
+test('pricing and contacts become complete only with a lesson type, valid individual price and contact', async () => {
+  const t = await setup();
+  const complete = () => t.form.querySelector('[data-sec-status="km-sec-pricing-contacts"]').classList.contains('is-done');
+  const change = (field, value) => { field.value = value; field.dispatchEvent(new t.w.Event('input', {bubbles:true})); };
+  assert.equal(complete(), true);
+  change(t.form.elements.lesson_type, ''); assert.equal(complete(), false);
+  change(t.form.elements.lesson_type, 'individual');
+  for (const value of ['', '-1', '3.141']) { change(t.form.elements.lesson_price, value); assert.equal(complete(), false); }
+  change(t.form.elements.lesson_price, '0'); assert.equal(complete(), true);
+  change(t.doc.getElementById('id_phone'), ''); assert.equal(complete(), false);
+  t.w.close();
+});
+test('optional package rows calculate independent unit amounts, require complete rows and support removal', async () => {
+  const t = await setup({locale:'en', row:tariffEditor});
+  const rows = () => [...t.form.querySelectorAll('[data-package-row]')];
+  const complete = () => t.form.querySelector('[data-req-progress-fill]').classList.contains('is-complete');
+  const change = (name,value) => { const f=rows()[0].querySelector('[name='+name+']'); f.value=value; f.dispatchEvent(new t.w.Event('input',{bubbles:true})); };
+  t.form.querySelector('[data-package-add]').click();
+  assert.equal(rows().length,1);
+  assert.equal(t.doc.activeElement,rows()[0].querySelector('select'));
+  change('package_period','month'); assert.equal(complete(),false);
+  assert.equal(rows()[0].hasAttribute('data-package-started'),true);
+  change('package_amount','100'); change('package_sessions','6');
+  assert.equal(complete(),true); assert.match(rows()[0].querySelector('output').textContent,/16\.67/);
+  t.form.querySelector('[data-package-add]').click(); assert.equal(rows().length,2);
+  assert.equal(rows()[1].querySelector('[name=package_amount]').value,'');
+  rows()[0].querySelector('[data-package-remove]').click(); assert.equal(rows().length,1);
+  assert.equal(rows()[0].querySelector('output').textContent,'');
+  t.w.close();
+});
+test('package rows compare their lesson price with the single lesson and label the count by plan type', async () => {
+  const row = `<div data-package-row><strong data-package-title></strong><span data-package-hint hidden></span>
+    <select name="package_period"><option value=""></option><option value="month">Month</option><option value="package">Package</option></select>
+    <input name="package_amount" type="number" min="0.01" step="0.01">
+    <span data-sessions-label data-label-month="Per month" data-label-package="In package">Lessons</span><input name="package_sessions" type="number" min="1" step="1">
+    <output data-package-unit></output><button type="button" data-package-remove>Remove</button></div>`;
+  const editor = `<div data-pricing-packages data-unit-label="AZN per lesson" data-row-title="Plan {n}" data-saving="{value}% cheaper" data-same="same price" data-pricier="pricier" data-limit="2"><div data-package-rows>${row}</div><template>${row}</template><button type="button" data-package-add hidden>Add</button></div>`;
+  const t = await setup({locale:'en', row:editor});
+  const rows = () => [...t.form.querySelectorAll('[data-package-row]')];
+  const add = t.form.querySelector('[data-package-add]');
+  const set = (index, name, value) => { const f=rows()[index].querySelector('[name='+name+']'); f.value=value; f.dispatchEvent(new t.w.Event('input',{bubbles:true})); };
+  assert.equal(rows()[0].querySelector('[data-package-title]').textContent, 'Plan 1');
+  assert.equal(add.hidden, true, 'an empty row is already available');
+  set(0,'package_period','month');
+  assert.equal(rows()[0].querySelector('[data-sessions-label]').textContent, 'Per month');
+  assert.equal(rows()[0].querySelector('[data-package-hint]').hidden, false);
+  set(0,'package_amount','200'); set(0,'package_sessions','10');
+  const out = () => rows()[0].querySelector('output');
+  assert.match(out().textContent, /20 AZN per lesson/);
+  assert.match(out().textContent, /20% cheaper/);
+  assert.equal(rows()[0].querySelector('[data-package-hint]').hidden, true);
+  set(0,'package_amount','250'); assert.match(out().textContent, /same price/);
+  set(0,'package_amount','300'); assert.match(out().textContent, /pricier/);
+  assert.ok(out().classList.contains('is-pricier'));
+  assert.equal(add.hidden, false);
+  add.click(); assert.equal(rows().length, 2);
+  assert.equal(rows()[1].querySelector('[data-package-title]').textContent, 'Plan 2');
+  set(1,'package_period','package');
+  assert.equal(rows()[1].querySelector('[data-sessions-label]').textContent, 'In package');
+  assert.equal(add.hidden, true, 'the limit of two plans is reached');
+  t.w.close();
+});
+test('browser recovery preserves distinct repeated tariff rows and removes obsolete server rows', async () => {
+  const t = await setup({row:tariffEditor+'<section data-specialist-recovery hidden><p data-recovery-description data-same="Saved"></p><ul data-recovery-diff></ul><button type="button" data-recovery-restore>Restore</button><button type="button" data-recovery-discard>Discard</button></section>'});
+  Object.assign(t.form.dataset,{recoveryActor:'10',recoveryEntity:'new',recoveryVersion:'0',recoveryServerVersion:'0'});
+  const key='specialist-entry-v1:10:new:0';
+  const saved={lesson_type:['individual'],lesson_price:['19.50'],package_period:['month','package'],package_amount:['90','45'],package_sessions:['6','2']};
+  t.w.sessionStorage.setItem(key,JSON.stringify({version:'0',values:saved}));
+  t.w.eval(fs.readFileSync(path.join(__dirname,'../../static/js/specialist_recovery.js'),'utf8'));
+  t.form.querySelector('[data-recovery-restore]').click();
+  const values=new t.w.FormData(t.form);
+  for (const [name, expected] of Object.entries(saved)) assert.deepEqual(values.getAll(name),expected);
+  t.form.querySelector('[data-package-remove]').click();
+  const copy=JSON.parse(t.w.sessionStorage.getItem(key)).values;
+  assert.deepEqual(copy.package_amount,['45']); assert.deepEqual(copy.package_sessions,['2']);
+  t.w.close();
+});
 test('tutor subject selection controls readiness and reveals only the relevant subject picker', async () => {
   const t = await setup({row: `<script id="specialist-subject-rules" type="application/json">{"requires":["on"],"subjects":["subject-id"]}</script><p data-bio-general-hint>Practice</p><p data-bio-teacher-hint hidden>Grades</p>
     <fieldset data-subject-picker><label class="owner-specialist-chip"><input type="checkbox" name="specializations" value="subject-id"><strong class="chip-title">Mathematics</strong></label><p data-subject-required hidden>Choose a subject</p></fieldset>`});
@@ -51,13 +162,13 @@ test('tutor subject selection controls readiness and reveals only the relevant s
   const complete = () => t.doc.querySelector('[data-req-progress-fill]').classList.contains('is-complete');
   const change = (input, checked) => {input.checked = checked; input.dispatchEvent(new t.w.Event('change', {bubbles:true}));};
   assert.equal(complete(), false);
-  assert.equal(t.doc.querySelector('[data-req-badge]').textContent, '6 / 7');
+  assert.equal(t.doc.querySelector('[data-req-badge]').textContent, '9 / 10');
   assert.equal(picker.hidden, false);
   assert.equal(t.doc.querySelector('[data-bio-teacher-hint]').hidden, false);
   assert.equal(t.form.querySelector('[data-subject-required]').hidden, false);
   change(subject, true);
   assert.equal(complete(), true);
-  assert.equal(t.doc.querySelector('[data-req-badge]').textContent, '✓ 7 / 7');
+  assert.equal(t.doc.querySelector('[data-req-badge]').textContent, '✓ 10 / 10');
   assert.equal(t.doc.querySelector('[data-selected-count]').textContent, '2');
   assert.equal(t.doc.querySelector('[data-selected-count-badge]').textContent, '1');
   change(category, false);

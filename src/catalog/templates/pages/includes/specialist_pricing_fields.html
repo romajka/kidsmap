@@ -1,0 +1,55 @@
+{% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
+<div class="km-lesson-pricing">
+  {% if form.instance.lesson_price == None %}
+    {% if form.instance.price_from != None or form.instance.price_to != None %}
+      <p class="km-legacy-price">
+        {% if CURRENT_LANGUAGE == 'az' %}Əvvəlki profildə qiymət{% elif CURRENT_LANGUAGE == 'en' %}Previous profile price{% else %}Цена в прежней анкете{% endif %}
+        {% if form.instance.price_from != None %}{% if CURRENT_LANGUAGE == 'az' %}minimum{% elif CURRENT_LANGUAGE == 'en' %}from{% else %}от{% endif %} {{ form.instance.price_from }} ₼{% endif %}
+        {% if form.instance.price_to != None %}{% if CURRENT_LANGUAGE == 'az' %}maksimum{% elif CURRENT_LANGUAGE == 'en' %}up to{% else %}до{% endif %} {{ form.instance.price_to }} ₼{% endif %}.
+        {% if CURRENT_LANGUAGE == 'az' %}Bir dərsin dəqiq qiymətini göstərin.{% elif CURRENT_LANGUAGE == 'en' %}Enter the exact price of one lesson.{% else %}Укажите точную цену разового занятия.{% endif %}
+      </p>
+    {% endif %}
+  {% endif %}
+  <div class="km-lesson-fields">
+    <div>
+      <label for="{{ form.lesson_type.id_for_label }}">{% if CURRENT_LANGUAGE == 'az' %}Dərsin növü{% elif CURRENT_LANGUAGE == 'en' %}Lesson type{% else %}Тип занятия{% endif %} {% include "pages/includes/specialist_field_badge.html" %}</label>
+      {{ form.lesson_type }}
+      {{ form.lesson_type.errors }}
+    </div>
+    <div>
+      <label for="{{ form.lesson_price.id_for_label }}">{% if CURRENT_LANGUAGE == 'az' %}Bir dərsin qiyməti, ₼{% elif CURRENT_LANGUAGE == 'en' %}Price per lesson, ₼{% else %}Цена за занятие, ₼{% endif %} {% include "pages/includes/specialist_field_badge.html" %}</label>
+      {{ form.lesson_price }}
+      <small class="km-lesson-hint">{% if CURRENT_LANGUAGE == 'az' %}Dərs pulsuzdursa, 0 yazın.{% elif CURRENT_LANGUAGE == 'en' %}Enter 0 if the lesson is free.{% else %}Если занятие бесплатное, укажите 0.{% endif %}</small>
+      {{ form.lesson_price.errors }}
+    </div>
+    {% if show_duration %}
+      <div>
+        <label for="{{ form.duration_minutes.id_for_label }}">{% if CURRENT_LANGUAGE == 'az' %}Müddət, dəq.{% elif CURRENT_LANGUAGE == 'en' %}Duration, min{% else %}Длительность, мин{% endif %} {% include "pages/includes/specialist_field_badge.html" with recommended=True %}</label>
+        {{ form.duration_minutes }}
+        {{ form.duration_minutes.errors }}
+      </div>
+    {% endif %}
+  </div>
+
+  <fieldset class="km-lesson-packages" id="id_pricing_packages" data-pricing-packages
+            data-unit-label="{% if CURRENT_LANGUAGE == 'az' %}₼ / dərs{% elif CURRENT_LANGUAGE == 'en' %}₼ per lesson{% else %}₼ за занятие{% endif %}"
+            data-row-title="{% if CURRENT_LANGUAGE == 'az' %}Tarif {n}{% elif CURRENT_LANGUAGE == 'en' %}Plan {n}{% else %}Тариф {n}{% endif %}"
+            data-saving="{% if CURRENT_LANGUAGE == 'az' %}birdəfəlik dərsdən {value}% ucuz{% elif CURRENT_LANGUAGE == 'en' %}{value}% cheaper than a single lesson{% else %}на {value}% дешевле разового занятия{% endif %}"
+            data-same="{% if CURRENT_LANGUAGE == 'az' %}birdəfəlik dərslə eyni qiymət{% elif CURRENT_LANGUAGE == 'en' %}same as a single lesson{% else %}как разовое занятие{% endif %}"
+            data-pricier="{% if CURRENT_LANGUAGE == 'az' %}birdəfəlik dərsdən baha — qiyməti yoxlayın{% elif CURRENT_LANGUAGE == 'en' %}more than a single lesson — check the price{% else %}дороже разового занятия — проверьте цену{% endif %}"
+            data-limit="10">
+    <legend>{% if CURRENT_LANGUAGE == 'az' %}Abunəliklər və paketlər{% elif CURRENT_LANGUAGE == 'en' %}Subscriptions and packages{% else %}Абонементы и пакеты{% endif %} {% include "pages/includes/specialist_field_badge.html" with recommended=True %}</legend>
+    <p>{% if CURRENT_LANGUAGE == 'az' %}Aylıq abunəlik və ya dərs paketi təklif edirsinizsə, əlavə edin: ümumi qiyməti və dərs sayını yazın, bir dərsin qiymətini özümüz hesablayacağıq. Lazım deyilsə, boş saxlayın.{% elif CURRENT_LANGUAGE == 'en' %}Offer a monthly subscription or a lesson package? Add it with the total price and number of lessons — we work out the price per lesson. Leave empty if you don't need it.{% else %}Если есть месячный абонемент или пакет занятий, добавьте его: укажите полную стоимость и число занятий, цену одного занятия посчитаем сами. Не нужно — оставьте пустым.{% endif %}</p>
+    <div data-package-rows>
+      {% for row in form.pricing_package_rows %}
+        {% include "pages/includes/specialist_pricing_row.html" %}
+      {% empty %}
+        {% include "pages/includes/specialist_pricing_row.html" %}
+      {% endfor %}
+    </div>
+    {{ form.pricing_packages.errors }}
+    <template>{% include "pages/includes/specialist_pricing_row.html" with row=None %}</template>
+    <button type="button" class="km-package-add" data-package-add hidden><svg class="km-package-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>{% if CURRENT_LANGUAGE == 'az' %}Daha bir tarif əlavə et{% elif CURRENT_LANGUAGE == 'en' %}Add another plan{% else %}Добавить ещё тариф{% endif %}</span></button>
+  </fieldset>
+</div>

@@ -487,6 +487,12 @@
         var nameField = form.querySelector("#id_name");
         var hasName = Boolean(nameField && nameField.value.trim().length > 0);
 
+        var portrait = form.querySelector("[data-portrait]");
+        var photo = form.elements.namedItem("photo");
+        var clearPhoto = form.elements.namedItem("photo-clear");
+        var hasPhoto = Boolean((photo && photo.files.length) ||
+          (portrait && portrait.dataset.savedPhoto === "true" && !(clearPhoto && clearPhoto.checked)));
+
         var specChecked = form.querySelectorAll('input[name="specializations"]:checked');
         var hasSpecs = specChecked.length > 0;
         var needsSubject = false, hasSubject = false;
@@ -531,20 +537,28 @@
         var hasContacts = (contactValid(phoneField) || contactValid(waField)) &&
           (!fieldHasValue(phoneField) || contactValid(phoneField)) &&
           (!fieldHasValue(waField) || contactValid(waField));
+        var lessonType = form.elements.namedItem("lesson_type");
+        var lessonPrice = form.elements.namedItem("lesson_price");
+        var hasLessonType = fieldHasValue(lessonType) && lessonType.validity.valid;
+        var hasLessonPrice = fieldHasValue(lessonPrice) && lessonPrice.validity.valid;
+        var packagesValid = !form.querySelector("[data-package-row] :invalid");
 
         var hasBio = ["az", "ru", "en"].some(function (l) {
           var el = form.querySelector("#id_bio_" + l);
           return Boolean(el && el.value.trim().length > 0);
         });
 
-        var totalReq = 6 + Number(needsLocation) + Number(needsVisit) + Number(needsSubject);
+        var totalReq = 9 + Number(needsLocation) + Number(needsVisit) + Number(needsSubject);
         var doneCount = 0;
         if (hasName) doneCount++;
+        if (hasPhoto) doneCount++;
         if (hasSpecs) doneCount++;
         if (needsSubject && hasSubject) doneCount++;
         if (hasLangs) doneCount++;
         if (hasFmt) doneCount++;
         if (hasContacts) doneCount++;
+        if (hasLessonType) doneCount++;
+        if (hasLessonPrice) doneCount++;
         if (hasBio) doneCount++;
         if (needsLocation && hasLocation) doneCount++;
         if (needsVisit && hasVisitArea) doneCount++;
@@ -565,8 +579,8 @@
 
         // Visual field highlight
         if (nameField) nameField.classList.toggle("is-field-filled", hasName);
-        if (phoneField) phoneField.classList.toggle("is-field-filled", Boolean(phoneField.value.trim().length > 0));
-        if (waField) waField.classList.toggle("is-field-filled", Boolean(waField.value.trim().length > 0));
+        if (phoneField) phoneField.classList.toggle("is-field-filled", contactValid(phoneField));
+        if (waField) waField.classList.toggle("is-field-filled", contactValid(waField));
 
         // Top Card Elements
         var topFill = form.querySelector("[data-req-progress-fill]");
@@ -641,15 +655,17 @@
           var statEl = form.querySelector('[data-sec-status="' + secId + '"]');
           if (!statEl) return;
           statEl.classList.toggle("is-done", isDone);
+          statEl.setAttribute("role", "img");
+          statEl.setAttribute("aria-label", isDone ? form.dataset.completeLabel : form.dataset.requiredLabel);
           statEl.innerHTML = isDone
             ? '<span class="material-symbols-rounded toc-done-icon" aria-hidden="true">check_circle</span>'
             : '<span class="toc-req-dot" aria-hidden="true">*</span>';
         }
 
-        setTocStatus("km-sec-basic", hasName);
+        setTocStatus("km-sec-basic", hasName && hasPhoto);
         setTocStatus("km-sec-directions", hasSpecs && hasLangs && (!needsSubject || hasSubject));
         setTocStatus("km-sec-format-places", hasFmt && hasLocation && hasVisitArea);
-        setTocStatus("km-sec-pricing-contacts", hasContacts);
+        setTocStatus("km-sec-pricing-contacts", hasContacts && hasLessonType && hasLessonPrice && packagesValid);
         setTocStatus("km-sec-bio-experience", hasBio);
       }
 
@@ -1022,6 +1038,7 @@
     function closePicker() { if (dropdownDoneBtn) dropdownDoneBtn.click(); }
     if (dropdownPanel) {
       var syncSheet = function () {
+        if (!dropdownPanel.isConnected) return;
         var open = !dropdownPanel.hidden;
         if (backdrop) backdrop.hidden = !open;
         document.documentElement.classList.toggle("km-sheet-open", open && !!(phoneQuery && phoneQuery.matches));
@@ -1131,7 +1148,6 @@
       if (target.id === 'id_session_formats' || target.id === 'id_visit_districts') {
         target = target.querySelector('input:checked:not(:disabled), input:not(:disabled)') || target;
       }
-      if (target.id === 'id_photo') target = form.querySelector('[data-specialist-photo-choose]') || target;
       var panel = target.closest('[data-owner-lang-panel]');
       if (panel) {
         var tab = form.querySelector('[data-owner-lang-tab="' + panel.dataset.ownerLangPanel + '"]');
@@ -1157,71 +1173,6 @@
       if (textarea) textarea.addEventListener("input", updateBioIndicators);
     });
     updateBioIndicators();
-
-    // Photo preview and Dropzone
-    var photoInput = form.querySelector("#id_photo");
-    var photoPreview = form.querySelector("[data-owner-photo-preview]");
-    var photoChoose = form.querySelector('[data-specialist-photo-choose]');
-    var photoDropzone = form.querySelector('[data-owner-photo-dropzone]');
-
-    if (photoChoose && photoInput) {
-      photoChoose.addEventListener('click', function(e) {
-        e.stopPropagation();
-        photoInput.click();
-      });
-    }
-
-    if (photoDropzone && photoInput) {
-      photoDropzone.addEventListener('click', function(e) {
-        if (e.target.closest('[data-specialist-photo-choose]')) return;
-        photoInput.click();
-      });
-
-      photoDropzone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        photoDropzone.classList.add('is-dragover');
-      });
-
-      photoDropzone.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        photoDropzone.classList.remove('is-dragover');
-      });
-
-      photoDropzone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        photoDropzone.classList.remove('is-dragover');
-        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
-          var file = e.dataTransfer.files[0];
-          if (file && file.type && file.type.indexOf('image/') === 0) {
-            photoInput.files = e.dataTransfer.files;
-            photoInput.dispatchEvent(new Event('change', { bubbles: true }));
-          }
-        }
-      });
-    }
-
-    var widgetError = form.querySelector('.km-file-input-hidden [data-upload-error]'), visiblePhotoError = form.querySelector('[data-specialist-photo-error]');
-    if (widgetError && visiblePhotoError) {
-      new MutationObserver(function() {
-        visiblePhotoError.textContent = widgetError.textContent;
-        visiblePhotoError.hidden = widgetError.hidden;
-      }).observe(widgetError, { attributes: true, childList: true, subtree: true });
-    }
-
-    if (photoInput && photoPreview) {
-      photoInput.addEventListener("change", function () {
-        var file = photoInput.files && photoInput.files[0];
-        if (!file || !file.type || file.type.indexOf("image/") !== 0) return;
-        var reader = new FileReader();
-        reader.onload = function (event) {
-          photoPreview.innerHTML = '<img src="' + event.target.result + '" alt="Avatar preview">';
-        };
-        reader.readAsDataURL(file);
-      });
-    }
 
     // Step 4: WhatsApp copy & auto-sync
     var phoneInput = form.querySelector("#id_phone");

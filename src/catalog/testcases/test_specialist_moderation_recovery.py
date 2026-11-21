@@ -10,6 +10,7 @@ from django.http import QueryDict
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
+from catalog.testcases.specialist_document_fixtures import portrait_upload
 from catalog.models import (Region, SiteSettings, Specialist, SpecialistClaim,
                             SpecialistDocument, SpecialistProposalDraft, SpecialistSpecialization)
 from catalog.proxy_apps.catalog_moderation.models import ModerationSpecialist
@@ -33,6 +34,7 @@ class SpecialistModerationRecoveryTests(TestCase):
     def payload(self, **extra):
         data = QueryDict('', mutable=True)
         data.update({'profile_subject':'self', 'name':'Revision applicant', 'bio_ru':'Original biography',
+                     'lesson_type': 'consultation', 'lesson_price': '30',
                      'consultation_format':'offline', 'phone':'+994501234567', 'language_ru':'on',
                      'specializations':str(self.spec.pk), 'locations-TOTAL_FORMS':'1',
                      'locations-INITIAL_FORMS':'0', 'locations-MIN_NUM_FORMS':'0', 'locations-MAX_NUM_FORMS':'30',
@@ -43,7 +45,7 @@ class SpecialistModerationRecoveryTests(TestCase):
 
     def submit(self, **extra):
         return save_proposal(actor=self.author, draft_id=uuid4(), expected_version='0',
-                             data=self.payload(**extra), files={}, submit=True)
+                             data=self.payload(**extra), files={'photo': portrait_upload()}, submit=True)
 
     def action(self, route, action, person, actor=None):
         self.client.force_login(actor or self.reviewer)
@@ -174,7 +176,7 @@ class SpecialistModerationRecoveryTests(TestCase):
             save_proposal(actor=self.author, draft_id=draft.pk, expected_version=str(draft.version),
                           data=proposal_data(draft.payload), files={}, submit=True)
 
-    def test_returned_application_photo_clear_survives_draft_reload_and_submit(self):
+    def test_returned_application_photo_clear_survives_reload_and_requires_replacement_to_send(self):
         draft = self.submit()
         person = draft.submitted_specialist
         person.photo = 'specialists/photos/previous-synthetic.jpg'
@@ -192,6 +194,10 @@ class SpecialistModerationRecoveryTests(TestCase):
         self.assertFalse(page.context['form']['photo'].value())
         data = proposal_data(saved.payload)
         data.pop('photo-clear')  # Cleared preview no longer contains the original file checkbox.
+        with self.assertRaises(ValidationError) as caught:
+            save_proposal(actor=self.author, draft_id=saved.pk, expected_version=str(saved.version),
+                          data=data, files={}, submit=True)
+        self.assertIn('photo', caught.exception.form.errors)
         sent = save_proposal(actor=self.author, draft_id=saved.pk, expected_version=str(saved.version),
-                             data=data, files={}, submit=True)
-        self.assertFalse(sent.submitted_specialist.photo)
+                             data=data, files={'photo': portrait_upload()}, submit=True)
+        self.assertTrue(sent.submitted_specialist.photo)

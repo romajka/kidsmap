@@ -2,7 +2,7 @@
 from pathlib import PurePosixPath
 from urllib.parse import urlsplit
 from django.core.exceptions import SuspiciousFileOperation
-from catalog.models import Place,PlacePhoto
+from catalog.models import Organization,Place,PlacePhoto
 
 RASTER_SUFFIXES=frozenset({'.jpg','.jpeg','.png','.webp','.gif','.avif','.bmp','.heic','.heif','.tif','.tiff'})
 
@@ -10,7 +10,7 @@ def _image(name,storage,caption=''):
     item={'url':'','caption':caption if isinstance(caption,str) else ''}
     if not isinstance(name,str) or not name:return item
     path=PurePosixPath(name)
-    if (name!=path.as_posix() or path.is_absolute() or len(path.parts)<2 or path.parts[0]!='places'
+    if (name!=path.as_posix() or path.is_absolute() or len(path.parts)<2 or path.parts[0] not in ('places','organizations')
         or '..' in path.parts or any(c in name for c in ('\\','%',':','?','#'))
         or path.suffix.lower() not in RASTER_SUFFIXES):return item
     try:
@@ -23,10 +23,11 @@ def _image(name,storage,caption=''):
     return {**item,'url':url}
 
 
-def _images(value,field):
+def _images(value,field,kind='place'):
     if field!='gallery':
         if value in (None,''):return []
-        return [_image(value,Place._meta.get_field(field).storage)]
+        model=Organization if kind=='organization' else Place
+        return [_image(value,model._meta.get_field(field).storage)]
     if value in (None,[]):return []
     if not isinstance(value,list) or len(value)>10:return [{'url':'','caption':''}]
     entries=[]
@@ -48,9 +49,9 @@ def comparison_rows(row):
     result=[]
     for index,(label,before,after) in enumerate(row['changes']):
         key=keys[index] if index<len(keys) else ''
-        media=row['kind']=='place' and key in {'photo','cover_photo','gallery'}
+        media=(row['kind']=='place' and key in {'photo','cover_photo','gallery'}) or (row['kind']=='organization' and key in {'logo','cover_photo'})
         result.append({**describe_change(key, before, after, target), 'anchor': f'moderation-change-{index + 1}',
             'label':_('Галерея') if key=='gallery' else label,'before':before,'after':after,
-            'media':media,'before_images':_images(before,key) if media else [],
-            'after_images':_images(after,key) if media else []})
+            'media':media,'before_images':_images(before,key,row['kind']) if media else [],
+            'after_images':_images(after,key,row['kind']) if media else []})
     return result

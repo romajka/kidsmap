@@ -14,7 +14,7 @@ from catalog.models import (
 )
 
 User = get_user_model()
-from catalog.testcases.specialist_document_fixtures import pdf_document_bytes
+from catalog.testcases.specialist_document_fixtures import portrait_upload, pdf_document_bytes
 
 class TestSpecialistFlows(TestCase):
     def setUp(self):
@@ -252,11 +252,14 @@ class TestOwnerSpecialistManagement(TestCase):
         payload = {
             "name": "Анна Петрова",
             "bio_ru": "Помогаю детям с математикой и подготовкой к школе.",
+            "lesson_type": "individual",
+            "lesson_price": "25",
             "specializations": [str(self.spec.pk), str(self.subject.pk)],
             "consultation_format": Specialist.FORMAT_ONLINE,
             "language_ru": "on",
             "phone": "+994 50 123 45 67",
             "form_action": "submit",
+            "photo": portrait_upload(),
         }
         payload.update(overrides)
         return payload

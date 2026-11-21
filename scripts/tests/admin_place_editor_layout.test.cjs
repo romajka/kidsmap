@@ -17,3 +17,30 @@ test('admin verification remains readable and photo entry matches the shared edi
  assert.equal(await p.locator('[data-pf-section-select]').inputValue(),section,'mobile navigation follows the visible section when the old field is offscreen');
  }finally{await c.close();await b.close();}
 });
+
+test('saved place schedule fits the open admin navigation', {skip: !fixturePath, timeout: 90000}, async () => {
+ const H = require('../e2e/place_addition/helpers.cjs');
+ const fixture = JSON.parse(H.fs.readFileSync(fixturePath));
+ assert.equal(fixture.synthetic, true);
+ assert.equal(fixture.database, 'qa_stage04');
+ const browser = await H.launch();
+ const context = await H.context(browser, fixture.origin);
+ try {
+  const page = await H.login(context, fixture, 'admin');
+  const response = await page.goto(fixture.origin + `/admin/catalog/place/${fixture.fixtures.direct.id}/change/`);
+  assert.equal(response.status(), 200);
+  await page.locator('[data-place-accordion-expand-all]').click();
+  for (const width of [1024, 1366, 1440, 1600, 1920]) {
+   await page.setViewportSize({width, height: 768});
+   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+   const schedule = await page.locator('[data-pf-group="schedule"] .km-schedule-editor__table').evaluate(table => ({
+    actual: table.scrollWidth, available: table.clientWidth,
+   }));
+   assert(schedule.available > 0, 'The schedule is visible');
+   assert(schedule.actual <= schedule.available + 2, `Schedule fits at ${width}px`);
+  }
+ } finally {
+  await context.close();
+  await browser.close();
+ }
+});

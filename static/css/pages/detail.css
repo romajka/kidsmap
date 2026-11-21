@@ -3573,3 +3573,78 @@ html:has(.detail-page) {
 @media (min-width: 768px) and (max-width: 1100px) {
   .detail-nearby__rail { grid-auto-columns: calc((100% - 16px) / 2.2); }
 }
+
+/* ── Nearby places, 2026-11-21: route chips, controls, reveal ─────────── */
+.detail-nearby { --nb-ease: cubic-bezier(0.22, 1, 0.36, 1); --nb-spring: cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; overflow: hidden; }
+.detail-nearby::before {
+  content: ""; position: absolute; inset: -40% -10% auto auto; width: 320px; height: 320px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(168, 213, 155, 0.35), transparent); pointer-events: none;
+}
+.detail-nearby__head { position: relative; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.detail-nearby__heading { display: grid; gap: 4px; min-width: 0; }
+.detail-nearby__icon { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: var(--tint-turf-100, #e8f3e5); color: var(--brand-turf, #136f38); font-size: 20px !important; }
+.detail-nearby.is-in .detail-nearby__icon { animation: detail-nearby-pop 0.6s var(--nb-spring) both; }
+.detail-nearby__sub { margin: 0 0 0 44px; color: var(--ink-muted, #5d6b64); font-size: 14px; font-weight: 600; }
+.detail-nearby__controls { display: flex; align-items: center; gap: 8px; }
+.detail-nearby__arrow {
+  display: none; place-items: center; width: 40px; height: 40px; padding: 0; border: 1.5px solid var(--tint-turf-200, #cde7c5); border-radius: 50%;
+  background: #fff; color: var(--brand-turf, #136f38); cursor: pointer;
+  transition: transform 0.25s var(--nb-spring), background 0.2s, opacity 0.2s, box-shadow 0.2s;
+}
+.detail-nearby.is-scrollable .detail-nearby__arrow { display: grid; }
+.detail-nearby__arrow:hover:not(:disabled) { transform: translateY(-2px); background: var(--tint-turf-100, #e8f3e5); box-shadow: 0 10px 18px -12px rgba(13, 73, 36, 0.6); }
+.detail-nearby__arrow:active:not(:disabled) { transform: scale(0.94); }
+.detail-nearby__arrow:disabled { opacity: 0.35; cursor: default; }
+.detail-nearby__arrow:focus-visible { outline: 3px solid var(--brand-jungle, #4caf50); outline-offset: 2px; }
+.detail-nearby__all {
+  padding: 0 14px; border-radius: 999px; background: var(--brand-turf, #136f38); color: #fff !important; min-height: 40px;
+  box-shadow: 0 10px 18px -12px rgba(13, 73, 36, 0.8); transition: transform 0.25s var(--nb-spring), box-shadow 0.2s;
+}
+.detail-nearby__all:hover { transform: translateY(-2px); box-shadow: 0 14px 22px -12px rgba(13, 73, 36, 0.8); }
+/* soft edges where more cards wait */
+.detail-nearby__viewport { position: relative; }
+.detail-nearby.is-scrollable:not(.is-at-end) .detail-nearby__viewport::after,
+.detail-nearby.is-scrollable:not(.is-at-start) .detail-nearby__viewport::before {
+  content: ""; position: absolute; z-index: 2; top: 0; bottom: 8px; width: 48px; pointer-events: none;
+}
+.detail-nearby.is-scrollable:not(.is-at-end) .detail-nearby__viewport::after { right: 0; background: linear-gradient(90deg, transparent, #fff); }
+.detail-nearby.is-scrollable:not(.is-at-start) .detail-nearby__viewport::before { left: 0; background: linear-gradient(270deg, transparent, #fff); }
+.detail-nearby__rail { scroll-behavior: smooth; scrollbar-width: none; }
+.detail-nearby__rail::-webkit-scrollbar { display: none; }
+/* reveal on scroll (replaces the load-time animation) */
+.detail-nearby__item { animation: none; opacity: 0; transform: translateY(16px); }
+.detail-nearby.is-in .detail-nearby__item { animation: detail-nearby-in 0.55s var(--nb-ease) both; animation-delay: calc(min(var(--n, 0), 6) * 70ms); }
+.detail-nearby__item > .card { transition: transform 0.35s var(--nb-spring), box-shadow 0.3s; }
+.detail-nearby__item:hover > .card { transform: translateY(-4px); }
+/* distance as a little route chip */
+.detail-nearby__distance { position: relative; gap: 6px; padding: 5px 12px 5px 8px; background: #fff; border: 1.5px solid var(--tint-turf-200, #cde7c5); box-shadow: 0 6px 14px -10px rgba(13, 73, 36, 0.5); white-space: nowrap; }
+.detail-nearby__distance b { font-weight: 800; }
+.detail-nearby__time { color: var(--ink-muted, #5d6b64); font-weight: 600; }
+.detail-nearby__distance.is-closest { border-color: transparent; background: linear-gradient(135deg, #1f9450, var(--brand-turf, #136f38)); color: #fff; }
+.detail-nearby__distance.is-closest .detail-nearby__time { color: rgba(255, 255, 255, 0.85); }
+.detail-nearby__badge { margin-left: 2px; padding: 1px 7px; border-radius: 999px; background: #ffd23f; color: #3d2c00; font-size: 11px; font-weight: 800; }
+.detail-nearby__route { display: none; }
+.detail-nearby.is-in .detail-nearby__distance .material-symbols-rounded { animation: detail-nearby-walk 1.2s ease-in-out 0.6s 2; }
+.detail-nearby__dots { display: none; justify-content: center; gap: 6px; margin-top: 6px; }
+.detail-nearby.is-scrollable .detail-nearby__dots { display: flex; }
+.detail-nearby__dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: var(--tint-turf-200, #cde7c5); cursor: pointer; transition: width 0.35s var(--nb-spring), background 0.25s; }
+.detail-nearby__dots button.is-active { width: 26px; background: var(--brand-turf, #136f38); }
+@keyframes detail-nearby-pop { 0% { transform: scale(0.5) rotate(-30deg); } 100% { transform: none; } }
+@keyframes detail-nearby-walk { 0%, 100% { transform: none; } 25% { transform: translateX(2px) rotate(-6deg); } 75% { transform: translateX(-1px) rotate(5deg); } }
+@media (max-width: 767px) {
+  .detail-nearby__sub { margin-left: 44px; font-size: 13px; }
+  .detail-nearby__arrow { display: none !important; }
+  .detail-nearby__viewport::before, .detail-nearby__viewport::after { display: none; }
+  .detail-nearby__all { padding: 0 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .detail-nearby__item { opacity: 1; transform: none; animation: none !important; }
+  .detail-nearby__icon, .detail-nearby__distance .material-symbols-rounded { animation: none !important; }
+  .detail-nearby__item > .card, .detail-nearby__arrow, .detail-nearby__all, .detail-nearby__dots button { transition: none; }
+  .detail-nearby__rail { scroll-behavior: auto; }
+}
+.detail-nearby__item { padding-top: 6px; }
+.detail-nearby__distance { max-width: 100%; box-sizing: border-box; overflow: visible; }
+.detail-nearby__distance > b, .detail-nearby__time { overflow: hidden; text-overflow: ellipsis; }
+.detail-nearby__badge { position: absolute; top: -9px; right: -8px; margin: 0; transform: rotate(4deg); box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.35); }
+.detail-nearby.is-in .detail-nearby__badge { animation: detail-nearby-pop 0.6s var(--nb-spring) 0.5s both; }

@@ -145,12 +145,15 @@ var doneBtn=page.querySelector('[data-dropdown-done]');
 var placeholder=page.querySelector('[data-dropdown-placeholder]');
 var countBadge=page.querySelector('[data-dropdown-trigger-count]');
 var tagsContainer=page.querySelector('[data-spec-selected-tags]');
+var triggerIcon=page.querySelector('.km-spec-dropdown-trigger__icon');
+var defaultIcon=triggerIcon && triggerIcon.firstElementChild;
 var specOptions=Array.from(page.querySelectorAll('#id_specializations > div'));
 
 function updateSpecTags(){
   if(!tagsContainer)return;
   tagsContainer.innerHTML='';
   var selectedCount=0;
+  var selectedIcon=null;
 
   specOptions.forEach(function(row){
     var cb=row.querySelector('input[type=checkbox]');
@@ -162,6 +165,8 @@ function updateSpecTags(){
       lbl.classList.add('is-selected');
       var chip=document.createElement('span');
       chip.className='km-spec-tag-chip';
+      selectedIcon=lbl.querySelector('[data-specialization-icon]');
+      if(selectedIcon)chip.appendChild(selectedIcon.cloneNode(true));
       var textNode=document.createTextNode(lbl.textContent.trim()+' ');
       chip.appendChild(textNode);
       var removeBtn=document.createElement('button');
@@ -187,6 +192,10 @@ function updateSpecTags(){
     }
   });
 
+  if(defaultIcon){
+    var icon=selectedCount===1 && selectedIcon ? selectedIcon : defaultIcon;
+    triggerIcon.replaceChildren(icon.cloneNode(true));
+  }
   tagsContainer.style.display=selectedCount>0?'flex':'none';
   if(countBadge){
     countBadge.textContent=selectedCount;
@@ -308,7 +317,7 @@ if(ageOpenEnded&&ageTo){
   }
 
   // Initial check: if ageFrom has value but ageTo is empty, mark open-ended
-  if(ageFrom&&ageFrom.value&&(!ageTo.value||ageTo.value==='0')){
+  if(ageFrom && ageFrom.value !== '' && ageTo.value === ''){
     ageOpenEnded.checked=true;
     syncAgeOpenEnded();
   }
@@ -492,6 +501,29 @@ var readinessFill=page.querySelector('[data-readiness-fill]');
 var readinessSummary=page.querySelector('[data-readiness-summary]');
 var readinessMissing=page.querySelector('[data-readiness-missing]');
 
+function hasAgeRange() {
+  if (!ageFrom || !ageTo || !ageFrom.validity.valid || !ageTo.validity.valid) return false;
+  if (ageFrom.value === '') return ageTo.value !== '';
+  return ageTo.value === '' || ageFrom.valueAsNumber <= ageTo.valueAsNumber;
+}
+
+function hasEducationOrExperience() {
+  var years = form.querySelector('#id_experience_years');
+  if (years && !years.validity.valid) return false;
+  return Boolean(years && years.value !== '') ||
+    Array.from(form.querySelectorAll('#km-sec-9 textarea')).some(function(field) {
+      return field.value.trim() !== '';
+    });
+}
+
+function hasModerationDecision() {
+  var statusField = form.querySelector('#id_status');
+  if (!statusField) return false;
+  var reason = form.querySelector('#id_rejection_reason');
+  return statusField.value === 'published' ||
+    (statusField.value === 'rejected' && reason && reason.value.trim() !== '');
+}
+
 function updateReadiness(){
   if(!readinessBar||!readinessBar.dataset.summary)return;
 
@@ -547,6 +579,13 @@ function updateReadiness(){
     {id:'contacts',label:readinessBar.dataset.contacts,section:'#km-sec-11',done:hasContact},
     {id:'bio',label:readinessBar.dataset.bio,section:'#km-sec-2',done:hasBio}
   ];
+  var lessonType = form.querySelector('#id_lesson_type');
+  var lessonPrice = form.querySelector('#id_lesson_price');
+  var hasPricing = Boolean(lessonType && lessonType.value && lessonPrice &&
+    lessonPrice.value.trim() !== '' && lessonPrice.validity.valid);
+  if (lessonType && lessonPrice) {
+    rules.push({id:'pricing', label:readinessBar.dataset.pricing, section:'#km-sec-7', done:hasPricing});
+  }
 
   if (formatSelected('visit') && visitArea) {
     rules.push({id:'visit', label:visitArea.querySelector('legend').textContent, section:'#km-sec-6', done:validVisit});
@@ -565,18 +604,18 @@ function updateReadiness(){
   if(readinessFill)readinessFill.style.width=pct+'%';
   if(readinessSummary)readinessSummary.textContent=readinessBar.dataset.summary.replace('{completed}',completed).replace('{total}',total);
 
-  // Nav checkmarks
+  // Optional sections have their own checks and do not count towards basic readiness.
+  var sectionDone = new Map([
+    ['#km-sec-4', hasAgeRange()],
+    ['#km-sec-9', hasEducationOrExperience()],
+    ['#km-sec-10', Boolean(form.querySelector('[data-qualification-document]'))],
+    ['#km-sec-12', hasModerationDecision()]
+  ]);
+  rules.forEach(function(rule) {
+    sectionDone.set(rule.section, sectionDone.get(rule.section) !== false && Boolean(rule.done));
+  });
   page.querySelectorAll('.km-nav-check').forEach(function(check){
-    var secId=check.dataset.navCheck;
-    var isDone=false;
-    if(secId==='km-sec-1')isDone=hasName;
-    else if(secId==='km-sec-2')isDone=hasBio;
-    else if(secId==='km-sec-3')isDone=hasSpecs&&(!needsSubject||hasSubject);
-    else if(secId==='km-sec-5')isDone=hasLang;
-    else if(secId==='km-sec-6')isDone=hasFormat && (!formatSelected('visit') || validVisit);
-    else if(secId==='km-sec-8')isDone=validOffice;
-    else if(secId==='km-sec-11')isDone=hasContact;
-    check.classList.toggle('is-done',isDone);
+    check.classList.toggle('is-done', sectionDone.get('#' + check.dataset.navCheck) === true);
   });
 
   if(readinessMissing){

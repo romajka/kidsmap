@@ -3,6 +3,10 @@
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 {% block title %}{% if workspace_mode == 'index' and claims and not my_specialist %}{% trans 'Мои заявки' %}{% elif workspace_mode == 'index' and not my_specialist %}{% trans 'Анкеты специалистов' %}{% elif workspace_mode == 'claims' %}{% trans 'Подтверждение личности' %}{% elif workspace_mode == 'review' %}{% trans 'Проверка KidsMap' %}{% elif workspace_mode == 'organization' %}{% trans 'Специалисты организации' %}{% else %}{% trans 'Кабинет специалиста' %}{% endif %}{% endblock %}
 {% block extra_head %}<script src="{% static 'js/specialist_recovery.js' %}?v=20261020_release_r1" defer></script>{{ block.super }}<meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}?v=20261120_application_waiting">
+  {% if workspace_mode == 'add_photo' %}
+    <link rel="stylesheet" href="{% static 'css/components/specialist_portrait.css' %}?v=1">
+    <script src="{% static 'js/specialist_portrait.js' %}?v=1" defer></script>
+  {% endif %}
   {% if workspace_mode == 'claims' or workspace_mode == 'index' or workspace_mode == 'review' %}
     <link rel="stylesheet" href="{% static 'css/components/specialist_review_state.css' %}?v=20261120_wait1">
     <script src="{% static 'js/specialist_wait_time.js' %}?v=20261120_wait1" defer></script>
@@ -15,7 +19,7 @@
 {% get_current_language as language %}
 <section class="sw-workspace account-specialist-workspace"{% if workspace_mode == 'index' %} id="specialist-applications"{% endif %}>
   <header class="sw-heading account-section-title-wrap">
-    <h1>{% if workspace_mode == 'organization' %}{% trans 'Специалисты организации' %}{% elif workspace_mode == 'claims' %}{% trans 'Подтверждение личности' %}{% elif workspace_mode == 'certificates' %}{% trans 'Дипломы и сертификаты' %}{% elif workspace_mode == 'review' %}{% trans 'Проверка KidsMap' %}{% elif workspace_mode == 'invitations' %}{% trans 'Сотрудничество' %}{% elif workspace_mode == 'index' and claims and not my_specialist %}{% trans 'Мои заявки' %}{% elif workspace_mode == 'index' and not my_specialist %}{% trans 'Анкеты специалистов' %}{% else %}{% trans 'Кабинет специалиста' %}{% endif %}</h1>
+    <h1>{% if workspace_mode == 'add_photo' %}{% trans 'Добавить фото' %}{% elif workspace_mode == 'organization' %}{% trans 'Специалисты организации' %}{% elif workspace_mode == 'claims' %}{% trans 'Подтверждение личности' %}{% elif workspace_mode == 'certificates' %}{% trans 'Дипломы и сертификаты' %}{% elif workspace_mode == 'review' %}{% trans 'Проверка KidsMap' %}{% elif workspace_mode == 'invitations' %}{% trans 'Сотрудничество' %}{% elif workspace_mode == 'index' and claims and not my_specialist %}{% trans 'Мои заявки' %}{% elif workspace_mode == 'index' and not my_specialist %}{% trans 'Анкеты специалистов' %}{% else %}{% trans 'Кабинет специалиста' %}{% endif %}</h1>
     {% if specialist %}<p class="sw-lede">{{ specialist.name }}</p>{% elif organization %}<p class="sw-lede">{% if language == 'ru' %}{{ organization.name_ru|default:organization.name_az }}{% elif language == 'en' %}{{ organization.name_en|default:organization.name_az }}{% else %}{{ organization.name_az }}{% endif %}</p>{% endif %}
   </header>
     {% if workspace_mode != 'index' %}
@@ -40,7 +44,8 @@
             {% include 'pages/includes/specialist_application_status.html' with person=my_specialist grouped=True %}
             {% include 'pages/includes/specialist_application_documents.html' with names=my_specialist.pending_qualifications only %}
             <div class="sw-actions">
-            <a class="sw-button sw-primary" href="{% url 'specialist_workspace_profile' my_specialist.pk %}">{% trans 'Редактировать профиль' %}</a>
+            {% if my_specialist.pk in missing_photo_ids %}<a class="sw-button sw-primary" href="{% url 'specialist_workspace_add_photo' my_specialist.pk %}">{% trans 'Добавить фото' %}</a>{% endif %}
+            <a class="sw-button{% if my_specialist.pk not in missing_photo_ids %} sw-primary{% endif %}" href="{% url 'specialist_workspace_profile' my_specialist.pk %}">{% trans 'Редактировать профиль' %}</a>
             {% if my_specialist.status == 'published' and my_specialist.is_active %}{% include "pages/includes/specialist_inbox_link.html" with person=my_specialist css_class="sw-button" only %}<a class="sw-button" href="{{ my_specialist.get_absolute_url }}">{% trans 'Открыть профиль на сайте' %}</a>{% endif %}
             </div>
           </section>
@@ -66,6 +71,7 @@
                 </a>
                 {% include 'pages/includes/specialist_application_documents.html' with names=claim.staged_qualifications waiting_for_identity=True only %}
                 {% if claim.reason %}<p class="sw-claim-reason">{{ claim.reason }}</p>{% endif %}
+                {% if claim.specialist_id in missing_photo_ids %}<div class="sw-actions"><a class="sw-button sw-primary" href="{% url 'specialist_workspace_add_photo' claim.specialist_id %}">{% trans 'Добавить фото' %}</a></div>{% endif %}
                 {% if claim.specialist_id in reopen_ids %}
                   <form class="sw-actions" method="post" action="{% url 'specialist_workspace_reopen' claim.specialist_id %}">{% csrf_token %}<button type="submit" class="sw-button sw-primary">{% trans 'Исправить и отправить снова' %}</button></form>
                 {% elif claim.specialist.status == 'published' and claim.specialist.is_active %}
@@ -88,6 +94,18 @@
         {% endif %}
         {% if owned_organizations %}<section class="sw-card"><h2>{% trans 'Специалисты организации' %}</h2><ul class="sw-rows">{% for org in owned_organizations %}<li><a href="{% url 'organization_specialists' org.pk %}">{% if language == 'ru' %}{{ org.name_ru|default:org.name_az }}{% elif language == 'en' %}{{ org.name_en|default:org.name_az }}{% else %}{{ org.name_az }}{% endif %}</a></li>{% endfor %}</ul></section>{% endif %}
         {% if review_profiles %}<section class="sw-card"><h2>{% trans 'Проверка KidsMap' %}</h2><ul class="sw-rows">{% for profile in review_profiles %}<li><a href="{% url 'specialist_workspace_review' profile.pk %}">{{ profile.name }}</a></li>{% endfor %}</ul></section>{% endif %}
+      {% endif %}
+      {% if workspace_mode == 'add_photo' %}
+        <form class="sw-card" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="profile_status" value="{{ specialist.status }}">
+          {{ form.non_field_errors }}
+          {% include 'pages/includes/specialist_portrait.html' %}
+          {% if specialist.status == 'published' %}
+            <p>{% if language == 'az' %}Foto göndərildikdən sonra profil yenidən yoxlanılacaq. Təsdiqlənəndə kataloqda görünəcək.{% elif language == 'en' %}Sending a photo returns your profile to review. It will appear in the catalog again after approval.{% else %}После отправки фото профиль вернётся на проверку. Он снова появится в каталоге после одобрения.{% endif %}</p>
+          {% endif %}
+          <div class="sw-actions"><button class="sw-button sw-primary" type="submit">{% trans 'Загрузить фото' %}</button><a class="sw-button" href="{% url 'specialist_workspace_index' %}">{% trans 'Отмена' %}</a></div>
+        </form>
       {% endif %}
       {% if workspace_mode == 'claims' %}
         {% include 'pages/includes/specialist_identity_requests.html' %}

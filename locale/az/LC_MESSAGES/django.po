@@ -24671,3 +24671,343 @@ msgstr "Tapşırıq kopyalandı."
 #: src/catalog/templates/admin/catalog/event/prompt_panel.html
 msgid "Текст выделен. Скопируйте его через меню браузера или сочетанием клавиш."
 msgstr "Mətn seçildi. Brauzer menyusu və ya klaviatura qısayolu ilə kopyalayın."
+
+#: src/catalog/models/place.py
+msgid "Ответственная организация"
+msgstr "Məsul təşkilat"
+
+#: src/catalog/models/place.py
+msgid "Официальный телефон организации"
+msgstr "Təşkilatın rəsmi telefonu"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "KidsMap · Контроль регламента"
+msgstr "KidsMap · Moderasiya"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "О сроках SLA"
+msgstr "Baxılma müddətləri haqqında"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Контроль регламентных сроков рассмотрения (Service Level Agreement)"
+msgstr "Baxılma müddətləri"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Доработка"
+msgstr "Düzəliş tələb olunur"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "таймер ставится на паузу"
+msgstr "vaxtın hesablanması dayandırılır"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Очереди материалов"
+msgstr "Material növbələri"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Статистика SLA"
+msgstr "Baxılma müddətlərinin statistikası"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Срок истёк (Breached)"
+msgstr "Müddət keçib"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Критично (Critical)"
+msgstr "Kritik"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Близок срок (Warning)"
+msgstr "Son müddət yaxınlaşır"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "В норме (Fresh)"
+msgstr "Vaxtında"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "На паузе (Paused)"
+msgstr "Dayandırılıb"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Параметры фильтрации очереди"
+msgstr "Növbəni filtrlə"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Фильтры SLA"
+msgstr "Müddət filtrləri"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Укажите понятную причину для автора..."
+msgstr "Müəllifin nəyi düzəltməli olduğunu izah edin…"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Срок превышен"
+msgstr "Müddət keçib"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Справка по SLA"
+msgstr "Moderasiya müddətləri haqqında"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Как рассчитываются сроки модерации"
+msgstr "Moderasiya müddəti necə hesablanır"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Время ожидания"
+msgstr "Baxılma vaxtı"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Считается от момента отправки заявки автором до первого решения модератора (одобрение или возврат на доработку)."
+msgstr "Müddət müraciət göndəriləndən moderatorun ilk qərarınadək hesablanır."
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Пауза при доработке"
+msgstr "Düzəliş gözlənilir"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Если карточка возвращена автору на исправление ошибок, таймер SLA останавливается до повторной отправки."
+msgstr "Kart düzəliş üçün müəllifə qaytarıldıqda vaxtın hesablanması təkrar təqdimata qədər dayandırılır."
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Приоритет в очереди"
+msgstr "Növbədə prioritet"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Материалы со статусом SLA breached и SLA critical должны проверяться модераторами в первую очередь."
+msgstr "Əvvəlcə müddəti keçmiş və kritik müraciətlərə baxın."
+
+#: src/catalog/models/specialist.py
+msgid "Тип занятия"
+msgstr "Dərsin növü"
+
+#: src/catalog/models/specialist.py
+msgid "Цена одного занятия (AZN)"
+msgstr "Bir dərsin qiyməti (AZN)"
+
+#: src/catalog/models/specialist.py
+msgid "Дополнительные тарифы"
+msgstr "Əlavə tariflər"
+
+#: src/catalog/models/specialist.py
+msgid "Индивидуальное занятие"
+msgstr "Fərdi dərs"
+
+#: src/catalog/models/specialist.py
+msgid "Парное занятие"
+msgstr "İki nəfərlik dərs"
+
+#: src/catalog/models/specialist.py
+msgid "Групповое занятие"
+msgstr "Qrup dərsi"
+
+#: src/catalog/models/specialist.py
+msgid "Консультация"
+msgstr "Konsultasiya"
+
+#: src/catalog/forms_specialist_pricing.py
+msgid "Проверьте дополнительные тарифы."
+msgstr "Əlavə tarifləri yoxlayın."
+
+#: src/catalog/forms_specialist_pricing.py
+#, python-format
+msgid "Тариф %(row)s: выберите месяц или пакет занятий."
+msgstr "%(row)s nömrəli tarif üçün aylıq abunə və ya dərs paketi seçin."
+
+#: src/catalog/forms_specialist_pricing.py
+#, python-format
+msgid "Тариф %(row)s: укажите полную стоимость больше 0 ₼ (можно с гяпиками)."
+msgstr "%(row)s nömrəli tarifin ümumi qiymətini 0 ₼-dan çox göstərin (qəpiklə də olar)."
+
+#: src/catalog/forms_specialist_pricing.py
+#, python-format
+msgid "Тариф %(row)s: укажите целое число занятий от одного."
+msgstr "%(row)s nömrəli tarifdə dərs sayını ən azı bir olmaqla tam ədədlə göstərin."
+
+#: src/catalog/forms_specialist_pricing.py
+msgid "Выберите тип занятия."
+msgstr "Dərsin növünü seçin."
+
+#: src/catalog/forms_specialist_pricing.py
+msgid "Укажите цену одного занятия."
+msgstr "Bir dərsin qiymətini göstərin."
+
+#: src/catalog/forms_specialist_pricing.py
+#, python-format
+msgid "Можно добавить не больше %(count)s тарифов."
+msgstr "Ən çox %(count)s tarif əlavə etmək olar."
+
+#: organizations v2
+msgid "Адрес головного офиса"
+msgstr "Baş ofisin ünvanı"
+
+#: organizations v2
+msgid "Адрес страницы"
+msgstr "Səhifə ünvanı"
+
+#: organizations v2
+msgid "Без филиалов"
+msgstr "Filialsız"
+
+#: organizations v2
+msgid "В архиве с"
+msgstr "Arxivdə"
+
+#: organizations v2
+msgid "Версия данных"
+msgstr "Məlumat versiyası"
+
+#: organizations v2
+msgid "Возвращено на доработку"
+msgstr "Düzəlişə qaytarılıb"
+
+#: organizations v2
+msgid "Готовность профиля"
+msgstr "Profilin hazırlığı"
+
+#: organizations v2
+msgid "Есть неактуальные связи"
+msgstr "Qeyri-aktual əlaqələr var"
+
+#: organizations v2
+msgid "Есть филиалы"
+msgstr "Filialları var"
+
+#: organizations v2
+msgid "Загрузите JPG, PNG или WebP."
+msgstr "JPG, PNG və ya WebP yükləyin."
+
+#: organizations v2
+msgid "Заявок на проверку не было."
+msgstr "Yoxlama sorğusu olmayıb."
+
+#: organizations v2
+msgid "Изображение слишком маленькое: нужно от %(w)s×%(h)s px."
+msgstr "Şəkil çox kiçikdir: ən azı %(w)s×%(h)s px lazımdır."
+
+#: organizations v2
+msgid "Информационная"
+msgstr "Məlumat"
+
+#: organizations v2
+msgid "Квадрат от 120 px, JPG/PNG/WebP, до 5 МБ."
+msgstr "Kvadrat, 120 px-dən, JPG/PNG/WebP, 5 MB-a qədər."
+
+#: organizations v2
+msgid "Медиа"
+msgstr "Media"
+
+#: organizations v2
+msgid "Напишите, что нужно исправить."
+msgstr "Nəyin düzəldilməli olduğunu yazın."
+
+#: organizations v2
+msgid "Например: добавьте описание на русском и логотип без водяных знаков."
+msgstr "Məsələn: rus dilində təsvir və su nişanı olmayan loqo əlavə edin."
+
+#: organizations v2
+msgid "Неактуальна"
+msgstr "Qeyri-aktual"
+
+#: organizations v2
+msgid "Неактуальные связи"
+msgstr "Qeyri-aktual əlaqələr"
+
+#: organizations v2
+msgid "Нет заявки на проверке."
+msgstr "Yoxlamada sorğu yoxdur."
+
+#: organizations v2
+msgid "Новая организация"
+msgstr "Yeni təşkilat"
+
+#: organizations v2
+msgid "Обложка"
+msgstr "Örtük şəkli"
+
+#: organizations v2
+msgid "От 800×300 px, JPG/PNG/WebP, до 8 МБ."
+msgstr "800×300 px-dən, JPG/PNG/WebP, 8 MB-a qədər."
+
+#: organizations v2
+msgid "Открыть на сайте"
+msgstr "Saytda aç"
+
+#: organizations v2
+msgid "Очередь модерации"
+msgstr "Moderasiya növbəsi"
+
+#: organizations v2
+msgid "Подтверждают владельцы"
+msgstr "Sahiblər təsdiqləyir"
+
+#: organizations v2
+msgid "Подтверждённые филиалы"
+msgstr "Təsdiqlənmiş filiallar"
+
+#: organizations v2
+msgid "Решить по заявке"
+msgstr "Sorğu üzrə qərar ver"
+
+#: organizations v2
+msgid "Сводка организации"
+msgstr "Təşkilatın xülasəsi"
+
+#: organizations v2
+msgid "Связи ждут повторного подтверждения"
+msgstr "Əlaqələr yenidən təsdiq gözləyir"
+
+#: organizations v2
+msgid "Создать заявку на связь"
+msgstr "Əlaqə sorğusu yarat"
+
+#: organizations v2
+msgid "Ссылка на профиль или @имя аккаунта."
+msgstr "Profil linki və ya @hesab adı."
+
+#: organizations v2
+msgid "Старая запись: отмечена опубликованной без одобрения. Попросите владельца отправить сведения на проверку или используйте команду diagnose_organizations."
+msgstr "Köhnə qeyd: təsdiqsiz dərc kimi qeyd olunub. Sahibdən məlumatları yoxlamaya göndərməyi xahiş edin və ya diagnose_organizations əmrindən istifadə edin."
+
+#: organizations v2
+msgid "Требуют решения"
+msgstr "Qərar tələb edir"
+
+#: organizations v2
+msgid "Укажите ссылку или @имя аккаунта."
+msgstr "Link və ya @hesab adı göstərin."
+
+#: organizations v2
+msgid "Укажите ссылку на профиль или @имя аккаунта."
+msgstr "Profil linkini və ya @hesab adını göstərin."
+
+#: organizations v2
+msgid "Файл больше %(mb)s МБ."
+msgstr "Fayl %(mb)s MB-dan böyükdür."
+
+#: organizations v2
+msgid "Филиалов пока нет."
+msgstr "Hələ filial yoxdur."
+
+#: organizations v2
+msgid "Что исправить (увидит владелец)"
+msgstr "Nə düzəldilməlidir (sahib görəcək)"
+
+#: organizations v2
+msgid "ждут подтверждения"
+msgstr "təsdiq gözləyir"
+
+#: organizations v2
+msgid "заявки"
+msgstr "sorğular"
+
+#: organizations v2
+msgid "подтверждены"
+msgstr "təsdiqlənib"
+
+#: src/catalog/specialist_forms.py
+msgid "Добавьте фотографию профиля."
+msgstr "Profil fotosunu əlavə edin."
+
+#: src/catalog/controllers/specialist_workspace.py
+msgid "Фотография добавлена в анкету."
+msgstr "Foto anketə əlavə edildi."

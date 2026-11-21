@@ -262,7 +262,7 @@
   {% endif %}
 
   <!-- Выпадающая панель фильтров (1f) -->
-  <div class="km-filters-drawer place-admin-dashboard__extra-filters" id="km-filters-drawer" hidden>
+  <div class="km-filters-drawer place-admin-dashboard__extra-filters" id="km-filters-drawer"{% if cl.opts.model_name == "place" %} data-apply-filters-together{% endif %} hidden>
     <div class="km-filters-drawer__grid">
       {% for group in drawer_filters.groups %}
         <div class="km-filter-group">

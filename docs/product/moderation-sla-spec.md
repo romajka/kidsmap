@@ -37,6 +37,15 @@ User copy must say that KidsMap will review the material within the configured p
 
 ## Required policy decisions
 
+On 2026-11-21 the product owner confirmed the following calendar-time limits for KidsMap.
+
+| Submission | Maximum time to a decision | Warning | Critical | Breached |
+|---|---:|---:|---:|---:|
+| Place | 72 hours | 50% | 80% | 100% |
+| Review | 24 hours | 50% | 80% | 100% |
+
+These thresholds apply from the instant each boundary is reached. A pending edit to a published review enters the queue at the submission time of the edit. Review coverage includes reviews of activities and events.
+
 No SLA policy may be activated until an authorized product owner records all of these values:
 
 1. Maximum Place decision time.

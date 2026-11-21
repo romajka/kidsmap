@@ -2,7 +2,7 @@
 {{ inline_admin_formset.formset.management_form }}
 {{ inline_admin_formset.formset.non_form_errors }}
 {% for document in inline_admin_formset %}
-  <section class="inline-related" id="{{ document.form.prefix }}" aria-labelledby="{{ document.form.prefix }}-heading">
+  <section class="inline-related" id="{{ document.form.prefix }}" aria-labelledby="{{ document.form.prefix }}-heading"{% if document.original.document_type == 'diploma' or document.original.document_type == 'certificate' %} data-qualification-document{% endif %}>
     <h3 id="{{ document.form.prefix }}-heading">{{ document.original }}</h3>
     {{ document.form.non_field_errors }}
     {% for hidden in document.form.hidden_fields %}{{ hidden }}{{ hidden.errors }}{% endfor %}

@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils.translation import override
 
+from catalog.testcases.specialist_document_fixtures import portrait_upload
 from catalog.forms import OwnerSpecialistForm
 from catalog.models import SiteSettings, Specialist, SpecialistClaim, SpecialistProposalDraft, SpecialistSpecialization
 
@@ -19,9 +20,10 @@ class SpecialistOnboardingInputTests(TestCase):
 
     def form(self, **changes):
         data = dict(name='Synthetic specialist', bio_ru='Biography', consultation_format='online',
+                    lesson_type='individual', lesson_price='25',
                     phone='+994 50 123 45 67', language_ru='on', specializations=[self.spec.pk])
         data.update(changes)
-        return OwnerSpecialistForm(data)
+        return OwnerSpecialistForm(data, files={'photo': portrait_upload()})
 
     def test_anonymous_entry_preserves_destination_through_login(self):
         user = get_user_model().objects.create_user('onboarding-login', password='SyntheticLogin2026!')

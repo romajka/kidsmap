@@ -30,9 +30,9 @@
     <p class="detail-note">{{ photo_credits|urlize|linebreaksbr }}</p>
   </details>
 {% endif %}
-{% if pricing_summary.has_price or pricing_summary.plans %}
+{% if pricing_summary.show_price_disclaimer %}
   <p class="detail-note detail-note--muted detail-pricing-disclaimer" data-price-disclaimer>
     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-    <span>{% if pricing_note_language == "az" %}Ziyarətdən əvvəl qiymətləri təşkilatdan dəqiqləşdirin.{% elif pricing_note_language == "en" %}Confirm prices with the organization before your visit.{% else %}Уточняйте цены у организации перед визитом.{% endif %}</span>
+    <span>{% include "catalog/includes/price_disclaimer_text.html" %}</span>
   </p>
 {% endif %}

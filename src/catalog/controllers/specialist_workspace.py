@@ -14,6 +14,7 @@ from django.db import transaction
 from django.db.models import Max, Q
 from django.http import Http404, HttpResponseNotAllowed, HttpResponseNotFound, FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_safe
@@ -25,7 +26,7 @@ from catalog.models.specialist_domain import SpecialistClaim, SpecialistEmployme
 from catalog.services import specialist_documents, specialist_domain
 from catalog.services.features import require_specialists_section_enabled
 from catalog.services.owner_specialist_use_cases import save_owner_specialist_profile
-from catalog.specialist_forms import EmploymentProposalForm, SpecialistDocumentUploadForm
+from catalog.specialist_forms import EmploymentProposalForm, SpecialistDocumentUploadForm, SpecialistPhotoForm
 
 
 SPECIALIZATION_GROUPS = [
@@ -253,10 +254,20 @@ def _context(request, *, mode, specialist=None, organization=None, **extra):
             .select_related('place', 'region').order_by('pk'))
     context.update(extra)
     if mode == 'profile':
+        draft = extra.get('proposal_draft')
+        saved_photo = extra['form'].initial.get('photo')
+        context['clear_portrait'] = bool(extra['form'].data.get('photo-clear'))
+        if draft and draft.photo:
+            context['portrait_url'] = reverse('specialist_proposal_photo', args=[draft.pk])
+        elif saved_photo and not (draft and draft.payload.get('photo-clear')):
+            context['portrait_url'] = saved_photo.url
         from catalog.forms import _PHONE_RE
         from catalog.forms_specialist_locations import BasePracticeLocationFormSet
+        from catalog.forms_specialist_pricing import PACKAGE_PERIODS
         from catalog.services.specialist_formats import legacy_format_codes
         context['specialist_readiness_rules'] = {
+            'lesson_types': [code for code, _label in Specialist.LESSON_TYPE_CHOICES],
+            'package_periods': list(PACKAGE_PERIODS),
             'location_required_formats': list(BasePracticeLocationFormSet.location_required_formats),
             'visit_required_format': 'visit',
             'legacy_session_formats': {value: list(legacy_format_codes(value)) for value in (*dict(Specialist.FORMAT_CHOICES), 'in_person')},
@@ -297,6 +308,47 @@ def _employment_cards(items, actor, side):
         else:
             item.temporal_state = 'current'
     return result
+
+
+def _profiles_missing_photo_for(actor):
+    self_applications = SpecialistProposalDraft.objects.filter(
+        actor=actor, submitted_at__isnull=False, payload__profile_subject__0='self',
+    ).values('submitted_specialist_id')
+    confirmed = Q(verified_person_user=actor, person_verified_at__isnull=False,
+                  status__in=[Specialist.STATUS_PENDING, Specialist.STATUS_PUBLISHED])
+    waiting = Q(pk__in=self_applications, created_by=actor, verified_person_user__isnull=True,
+                status=Specialist.STATUS_PENDING, person_claims__applicant=actor,
+                person_claims__status=SpecialistClaim.PENDING)
+    return Specialist.objects.filter(Q(photo='') | Q(photo__isnull=True)).filter(confirmed | waiting)
+
+
+@workspace
+def specialist_workspace_add_photo(request, pk):
+    actor = request.specialist_actor
+    form = SpecialistPhotoForm(request.POST if request.method == 'POST' else None,
+                              request.FILES if request.method == 'POST' else None)
+    status = 200
+    if request.method == 'POST':
+        with transaction.atomic():
+            specialist_domain.lock_actor(actor)
+            person = get_object_or_404(Specialist.objects.select_for_update(), pk=pk)
+            if not _profiles_missing_photo_for(actor).filter(pk=pk).exists():
+                raise Http404
+            if request.POST.get('profile_status') != person.status:
+                form.add_error(None, _('Запись изменилась. Обновите страницу.'))
+                status = 409
+            elif form.is_valid():
+                person.photo = form.cleaned_data['photo']
+                person.status = Specialist.STATUS_PENDING
+                person.save(update_fields=['photo', 'status', 'updated_at'])
+                messages.success(request, _('Фотография добавлена в анкету.'))
+                return redirect('specialist_workspace_index')
+            else:
+                status = 400
+    else:
+        person = get_object_or_404(_profiles_missing_photo_for(actor).distinct(), pk=pk)
+    return render(request, 'pages/specialist_workspace.html', _context(
+        request, mode='add_photo', specialist=person, form=form), status=status)
 
 
 @workspace
@@ -360,6 +412,7 @@ def specialist_workspace_index(request):
         submitted_specialist__created_by=actor).values_list('submitted_specialist_id', flat=True))
     return render(request, 'pages/specialist_workspace.html', _context(request, mode='index',
         working_proposals=working_proposals, my_specialist=my_specialist,
+        missing_photo_ids=set(_profiles_missing_photo_for(actor).values_list('pk', flat=True)),
         proposals=proposals, claims=claims, reopen_ids=reopen_ids,
         review_profiles=Specialist.objects.filter(pk__in=review_ids).only('pk', 'name').order_by('pk'),
         owned_organizations=Organization.objects.filter(owner=actor, archived_at__isnull=True).order_by('pk')))

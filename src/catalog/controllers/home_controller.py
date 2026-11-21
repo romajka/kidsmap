@@ -148,6 +148,7 @@ class HomeController:
         from catalog.models import Specialist, SpecialistSpecialization
         from catalog.services.features import is_specialists_section_enabled
         from catalog.services.specialist_formats import public_format_label
+        from catalog.services.specialist_presentation import specialist_card_price
 
         if not is_specialists_section_enabled():
             return None
@@ -186,6 +187,7 @@ class HomeController:
                 "rating_count": person.rating_count,
                 "format_label": public_format_label(person, language_code),
                 "price_from": person.price_from,
+                "price_label": specialist_card_price(person, language_code) if person.lesson_price is not None else "",
             })
         # The band keeps at least three round faces; icons stand in for missing photos.
         fillers = ["person", "book", "heart"][: max(0, 3 - len(people))] if mode == "teaser" else []

@@ -4,6 +4,7 @@
   class="{{ phone_class }} km-phone-control{% if compact or 'card-contact-toggle' in phone_class %} km-phone-control--card{% endif %}"
   data-phone-reveal="{{ place.pk }}"
   data-phone-index="{{ phone_index|default:0 }}"
+  {% if administration %}data-phone-administration="1" aria-describedby="administration-contact-label administration-contact-name"{% endif %}
   {% if compact or 'card-contact-toggle' in phone_class %}data-phone-card="1"{% endif %}
   {% if whatsapp %} data-phone-whatsapp="1"{% endif %}
   aria-label="{% if whatsapp %}WhatsApp{% elif compact or 'card-contact-toggle' in phone_class %}{% if phone_language == 'ru' %}Позвонить{% elif phone_language == 'en' %}Call{% else %}Zəng et{% endif %}{% elif phone_language == 'ru' %}Показать номер{% elif phone_language == 'en' %}Show number{% else %}Nömrəni göstər{% endif %}"

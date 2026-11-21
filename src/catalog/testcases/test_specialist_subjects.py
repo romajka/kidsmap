@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.utils.translation import override
 
+from catalog.testcases.specialist_document_fixtures import portrait_upload
 from catalog.forms import OwnerSpecialistForm
 from catalog.models import SiteSettings, Specialist, SpecialistSpecialization
 from catalog.services.specialist_proposal_drafts import proposal_forms, _payload
@@ -109,8 +110,9 @@ class SpecialistSubjectTests(TestCase):
 
     def form(self, codes, **kwargs):
         data = dict(name='Tutor', bio_ru='Teaching', consultation_format='online',
+                    lesson_type='individual', lesson_price='25',
                     phone='+994501234567', language_ru='on', specializations=[self.specs[c].pk for c in codes])
-        return OwnerSpecialistForm(data, **kwargs)
+        return OwnerSpecialistForm(data, files={'photo': portrait_upload()}, **kwargs)
 
     def test_general_tutor_and_exam_prep_require_subject_on_submission(self):
         for code in ('tutor', 'exam_prep_tutor'):
@@ -144,6 +146,7 @@ class SpecialistSubjectTests(TestCase):
         for status in ('draft', 'pending', 'published'):
             form = SpecialistAdminForm(data={
                 'name': 'Admin tutor', 'status': status, 'consultation_format': 'online',
+                'lesson_type': 'individual', 'lesson_price': '25',
                 'specializations': [self.specs['tutor'].pk],
             })
             self.assertEqual(form.is_valid(), status == 'draft', form.errors)
@@ -211,8 +214,9 @@ class SpecialistSubjectTests(TestCase):
         from django.contrib import admin
         from django.test import RequestFactory
         from catalog.domain_admin.specialist import SpecialistAdmin
-        broken = self.person('Incomplete tutor', ['tutor'], status='draft')
-        valid = self.person('Complete tutor', ['tutor', 'math_tutor'], status='draft')
+        prices = {'lesson_type': 'individual', 'lesson_price': 25}
+        broken = self.person('Incomplete tutor', ['tutor'], status='draft', **prices)
+        valid = self.person('Complete tutor', ['tutor', 'math_tutor'], status='draft', **prices)
         model_admin = SpecialistAdmin(Specialist, admin.site)
         request = RequestFactory().post('/')
         from django.contrib.auth import get_user_model
@@ -233,6 +237,7 @@ class SpecialistSubjectTests(TestCase):
         url = f'/admin/catalog/specialist/{person.pk}/change/'
         page = self.client.get(url)
         data = {'name': person.name, 'status': 'published', 'is_active': 'on',
+                'lesson_type': 'individual', 'lesson_price': '25',
                 'consultation_format': 'online', 'expected_updated_at': person.updated_at.isoformat(),
                 'specializations': [self.specs['tutor'].pk]}
         for inline in page.context['inline_admin_formsets']:

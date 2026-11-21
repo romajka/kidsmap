@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 
 from django.core.exceptions import ValidationError
@@ -136,6 +136,27 @@ PRICING_STORAGE_FIELDS = (
     "conditions_az", "conditions_ru", "conditions_en", "is_required", "is_trial", "is_active", "sort_order",
     "verified_at", "source_url",
 )
+
+PRICE_PROOF_FIELDS = frozenset(PRICING_STORAGE_FIELDS) - {
+    "title_az", "title_ru", "title_en", "sort_order", "is_active", "verified_at",
+}
+
+
+def _expire_changed_price_proof(instance, raw):
+    if not instance.verified_at or not (instance.source_url or raw.get("source_url")):
+        return
+    previous = serialize_pricing_plan(instance)
+    if not any(raw.get(field, previous[field]) != previous[field] for field in PRICE_PROOF_FIELDS):
+        return
+    submitted_at = raw.get("verified_at")
+    if submitted_at:
+        submitted_at = datetime.fromisoformat(submitted_at)
+        if timezone.is_naive(submitted_at):
+            submitted_at = timezone.make_aware(submitted_at, timezone.get_default_timezone())
+        if submitted_at > instance.verified_at:
+            return
+    # Evidence for an old amount, time window or source cannot verify new terms.
+    raw["verified_at"] = None
 
 
 def validate_pricing_import_keys(plans, *, path="pricing_plans"):
@@ -322,7 +343,7 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_p
             for field in PRICING_STORAGE_FIELDS:
                 # Owners may edit tariff contents, but an omitted verification
                 # marker must leave the staff-owned value untouched.
-                if field == "verified_at" and not allow_verified:
+                if field == "verified_at" and (not allow_verified or field not in raw):
                     continue
                 val = getattr(candidate, field)
                 if isinstance(val, Decimal):
@@ -410,6 +431,8 @@ def replace_target_pricing_plans(target, value, *, allow_verified=False):
             instance = next((candidate for candidate in candidates if candidate.pk not in keep), None)
         if instance is None:
             instance = PricingPlan(**target_kwargs)
+        else:
+            _expire_changed_price_proof(instance, raw)
         for field in PRICING_STORAGE_FIELDS:
             if field in raw:
                 setattr(instance, field, raw[field])
@@ -1258,6 +1281,14 @@ def build_pricing_summary(place, lang="ru"):
     group_by_plan = {record.pk: record.offering_group for record in records if record.offering_group_id}
     starting_price = get_starting_price(place, plans, lang)
     has_price = starting_price["amount"] is not None
+    now = timezone.now()
+    verified_ids = {
+        record.pk for record in records
+        if record.source_url.strip() and record.verified_at and record.verified_at <= now
+    }
+    show_price_disclaimer = (
+        any(plan.get("id") not in verified_ids for plan in plans) if plans else has_price
+    )
 
     selected_plan = next(
         (
@@ -1475,6 +1506,7 @@ def build_pricing_summary(place, lang="ru"):
 
     return {
         "has_price": has_price,
+        "show_price_disclaimer": show_price_disclaimer,
         "amount": starting_price["amount"],
         "max_amount": starting_price["max_amount"],
         "payment_type": starting_price["payment_type"],

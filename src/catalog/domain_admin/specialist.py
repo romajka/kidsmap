@@ -15,7 +15,9 @@ from django.utils.translation import ngettext
 from django.urls import reverse
 from .queue_sorting import QueueSortingAdminMixin, QueueSortParameter
 from .moderation_actor import ModerationActorAdminMixin
+from catalog.forms import clean_specialist_profile_details
 from catalog.forms_specialist_locations import BasePracticeLocationFormSet
+from catalog.forms_specialist_pricing import SpecialistPricingFormMixin, specialist_pricing_errors
 from catalog.services.specialist_formats import (
     SpecialistFormatsFormMixin, format_choices, format_labels, format_q,
     has_office, missing_office_message, profile_format_errors, public_format_label,
@@ -33,7 +35,20 @@ from catalog.models import (
     Place,
 )
 
-class SpecialistAdminForm(SpecialistFormatsFormMixin, forms.ModelForm):
+
+def specialist_editor_decisions(person):
+    if person and person.status == Specialist.STATUS_PENDING:
+        return ('publish', 'revise', 'reject')
+    if person and person.status == Specialist.STATUS_PUBLISHED and person.is_active:
+        return ('unpublish',)
+    return ('publish',)
+
+
+class SpecialistSpecializationCheckboxes(forms.CheckboxSelectMultiple):
+    option_template_name = "admin/catalog/specialist/specialization_option.html"
+
+
+class SpecialistAdminForm(SpecialistPricingFormMixin, SpecialistFormatsFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if 'session_formats' in self.fields:
@@ -47,26 +62,44 @@ class SpecialistAdminForm(SpecialistFormatsFormMixin, forms.ModelForm):
     class Meta:
         model = Specialist
         exclude = ('consultation_format', 'offers_online', 'offers_office', 'offers_visits')
-        widgets = {"specializations": forms.CheckboxSelectMultiple()}
+        widgets = {"specializations": SpecialistSpecializationCheckboxes()}
 
     def clean(self):
         data = super().clean()
         from catalog.services.specialist_subjects import subject_required, subject_error
+        saved = None
+        if self.instance.pk:
+            # The admin wraps the parent and all inline saves in one transaction.
+            saved = Specialist.objects.select_for_update().get(pk=self.instance.pk)
+            if self.data.get('expected_updated_at', '') != saved.updated_at.isoformat():
+                raise forms.ValidationError(_('Запись изменилась. Обновите страницу.'), code='stale_version')
+        self.previous_status = saved.status if saved else None
+        decision = self.data.get('_specialist_decision')
+        if decision is not None:
+            if decision not in specialist_editor_decisions(saved):
+                raise forms.ValidationError(_('Запись изменилась. Обновите страницу.'), code='invalid_decision')
+            if decision == 'publish':
+                data.update(status=Specialist.STATUS_PUBLISHED, is_active=True, rejection_reason='')
+                clean_specialist_profile_details(self, data)
+            else:
+                data['status'] = Specialist.STATUS_REJECTED if decision == 'reject' else Specialist.STATUS_DRAFT
+                data['is_active'] = False
+                if decision == 'unpublish':
+                    data['rejection_reason'] = ''
+            # The admin history must reflect the decision, even when the dropdown was untouched.
+            decision_fields = ('status', 'is_active', 'rejection_reason')
+            self.changed_data = [name for name in self.changed_data if name not in decision_fields]
+            self.changed_data.extend(name for name in decision_fields if self.initial.get(name) != data.get(name))
         require = data.get('status') in (Specialist.STATUS_PENDING, Specialist.STATUS_PUBLISHED)
         self.clean_format_fields(data, require=require, allow_incomplete=not require)
+        self.clean_specialist_pricing(data, require=require)
         self.instance._admin_requires_office = require
         if require:
             if subject_required(data.get('specializations') or []):
                 self.add_error('specializations', subject_error())
-        if (data.get('status') == Specialist.STATUS_REJECTED and 'rejection_reason' in self.fields
+        if ((data.get('status') == Specialist.STATUS_REJECTED or decision == 'revise') and 'rejection_reason' in self.fields
                 and not (data.get('rejection_reason') or '').strip()):
             self.add_error('rejection_reason', _('Укажите причину: автор увидит её в кабинете и в уведомлении.'))
-        if self.instance.pk:
-            # Admin changeform POST is already atomic. Lock the parent before
-            # writing profile/inlines; document decisions advance this epoch too.
-            locked=Specialist.objects.select_for_update().get(pk=self.instance.pk)
-            if self.data.get('expected_updated_at','')!=locked.updated_at.isoformat():
-                raise forms.ValidationError(_('Запись изменилась. Обновите страницу.'),code='stale_version')
         # An editable inline validates the submitted rows. Other editors can rely
         # only on locations already saved for this profile.
         office_selected = 'office' in (data.get('session_formats') or ())
@@ -556,6 +589,15 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         # Bound ModelForms mutate the instance even when validation fails.
         # The header describes the saved profile, not an unsuccessful POST.
         saved_state = Specialist.objects.prefetch_related('practice_locations').filter(pk=original.pk).first() if original else None
+        if self._can_moderate(request.user):
+            context['specialist_editor_decisions'] = specialist_editor_decisions(saved_state)
+        if saved_state and not self.has_change_permission(request, original):
+            from catalog.services.public_presentation import language_code
+            from catalog.services.specialist_presentation import public_lesson_packages, specialist_card_price
+            lang = language_code()
+            context['tariff_language'] = lang
+            context['specialist_lesson_price'] = specialist_card_price(saved_state, lang)
+            context['specialist_tariff_packages'] = public_lesson_packages(saved_state, lang)
         from catalog.services import specialist_domain
         try:
             specialist_domain._reviewer(request.user)
@@ -870,14 +912,23 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         }
         return super().changelist_view(request, extra_context=extra_context)
 
+    @staticmethod
+    def _can_moderate(actor):
+        from catalog.services.staff_roles import is_volunteer
+        return actor.is_active and actor.is_staff and not is_volunteer(actor) and actor.has_perm('catalog.change_specialist')
+
     def _require_moderation_permission(self, request):
         # Refresh permissions even if the request user has a cached permission set.
         from catalog.services import specialist_domain
-        from catalog.services.staff_roles import is_volunteer
         actor = specialist_domain.require_actor(request.user)
-        if not actor.is_staff or is_volunteer(actor) or not actor.has_perm('catalog.change_specialist'):
+        if not self._can_moderate(actor):
             raise PermissionDenied
         return actor
+
+    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+        if request.method == 'POST' and '_specialist_decision' in request.POST:
+            self._require_moderation_permission(request)
+        return super().changeform_view(request, object_id, form_url, extra_context)
 
     def _with_required_subjects(self, request, queryset):
         from catalog.services.specialist_subjects import SUBJECTS, REQUIRES_SUBJECT, subject_error
@@ -896,6 +947,8 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         allowed = []
         for person in candidates:
             errors = profile_format_errors(person)
+            pricing = specialist_pricing_errors(person.lesson_type, person.lesson_price, person.pricing_packages)
+            errors.extend(str(error) for error in pricing.values())
             if errors:
                 self.message_user(request, f"{person.name} — {' '.join(errors)}", level=messages.WARNING)
             else:
@@ -1007,17 +1060,31 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
 
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
-        if not form.instance.offers_office:
-            form.instance.practice_locations.filter(is_active=True).update(is_active=False, is_primary=False)
-
-    @transaction.atomic
-    def save_model(self, request, obj, form, change):
-        previous_status = (Specialist.objects.select_for_update().filter(pk=obj.pk).values_list("status", flat=True).first()
-                           if change and obj.pk else None)
-        super().save_model(request, obj, form, change)
-        if previous_status != obj.status and (previous_status is not None or obj.status == Specialist.STATUS_REJECTED):
+        person = form.instance
+        if not person.offers_office:
+            person.practice_locations.filter(is_active=True).update(is_active=False, is_primary=False)
+        if form.previous_status != person.status and (change or person.status == Specialist.STATUS_REJECTED):
             from catalog.services import specialist_moderation
-            specialist_moderation.after_admin_status_change(obj, previous_status, actor=request.user)
+            # A returned draft must contain the M2M and office edits saved above.
+            person.refresh_from_db()
+            specialist_moderation.after_admin_status_change(person, form.previous_status, actor=request.user)
+
+    def response_change(self, request, obj):
+        decision_messages = {
+            'publish': _('Опубликовано'), 'unpublish': _('Снято с публикации'),
+            'revise': _('Возвращено на доработку.'), 'reject': _('Отклонено'),
+        }
+        decision = request.POST.get('_specialist_decision')
+        if decision in decision_messages:
+            self.message_user(request, decision_messages[decision], level=messages.SUCCESS)
+            return self.response_post_save_change(request, obj)
+        return super().response_change(request, obj)
+
+    def response_add(self, request, obj, post_url_continue=None):
+        if request.POST.get('_specialist_decision') == 'publish':
+            self.message_user(request, _('Опубликовано'), level=messages.SUCCESS)
+            return self.response_post_save_add(request, obj)
+        return super().response_add(request, obj, post_url_continue)
 
     @admin.display(description=_("Профиль"), ordering="name")
     def profile_column(self, obj):
@@ -1314,7 +1381,8 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             _("7. Стоимость и продолжительность"),
             {
                 "fields": (
-                    ("price_from", "price_to"),
+                    ("lesson_type", "lesson_price"),
+                    "pricing_packages",
                     "duration_minutes",
                 )
             },

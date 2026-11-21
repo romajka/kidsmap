@@ -1,0 +1,91 @@
+/* Public "Lesson prices" card on the specialist profile.
+   Specificity matches specialists_refresh.css, which guards its card rules the same way. */
+html body .sp-detail .sp-tariffs:not(#ksp-a):not(#ksp-b) {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+html body .sp-detail .sp-tariff:not(#ksp-a):not(#ksp-b) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--ksp-line, #e3ebe6);
+  border-radius: 16px;
+  background: #fff;
+}
+
+html body .sp-detail .sp-tariff--single:not(#ksp-a):not(#ksp-b) {
+  border-color: transparent;
+  background: var(--ksp-mint, #e9f6ee);
+}
+
+.sp-detail .sp-tariff__main,
+.sp-detail .sp-tariff__price {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sp-detail .sp-tariff__price {
+  flex: none;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.sp-detail .sp-tariff__title {
+  color: var(--ksp-ink, #15231b);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.sp-detail .sp-tariff__meta,
+.sp-detail .sp-tariff__unit {
+  color: var(--ksp-muted, #677a6e);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.sp-detail .sp-tariff__total {
+  color: var(--ksp-green-deep, #0e5f30);
+  font-family: var(--ksp-display, inherit);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sp-detail .sp-tariff__unit { white-space: nowrap; }
+
+.sp-detail .sp-tariff__saving {
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--ksp-mint, #e9f6ee);
+  color: var(--ksp-green-deep, #0e5f30);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  html body .sp-detail .sp-tariff:not(#ksp-a):not(#ksp-b) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sp-detail .sp-tariff__price {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    text-align: left;
+  }
+  .sp-detail .sp-tariff__saving { margin-top: 0; }
+}

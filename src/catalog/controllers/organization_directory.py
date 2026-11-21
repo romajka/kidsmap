@@ -8,6 +8,7 @@ from catalog.models import Organization, Place
 from catalog.services.content_quality import published_place_queryset
 from catalog.services.locations import get_all_districts_flat_choices
 from catalog.services.public_presentation import language_code, public_url, translated
+from catalog.services.organization_state import social_links
 
 
 COPY = {
@@ -72,7 +73,9 @@ def organization_list(request):
             fallback=name_lang != lang or bool(description and description_lang != lang), url=public_url(org, lang),
             branch_count=totals.get(org.pk, 0), districts=districts_list,
             districts_preview=districts_list[:3], districts_extra_count=max(0, len(districts_list) - 3),
-            photos=pictures.get(org.pk, [])))
+            photos=([{'url': org.cover_photo.url, 'name': name}] if org.cover_photo else []) + pictures.get(org.pk, [])[:2 if org.cover_photo else 3],
+            logo=org.logo.url if org.logo else '', monogram=(name or 'K')[:1].upper(),
+            socials=social_links(org)))
     params = {key: value for key, value in [('q', query), ('district', district)] if value}
     def page_url(number):
         return '?' + urlencode({**params, 'page': number})

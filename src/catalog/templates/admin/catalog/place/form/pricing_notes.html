@@ -1,6 +1,7 @@
 {% load i18n %}
+{% get_current_language as price_language %}
 <div class="km-pf-divider" role="presentation"></div>
-<details class="km-pf-disclosure km-pf-disclosure--conditions"{% if adminform.form.extra_conditions_az.value or adminform.form.extra_conditions_ru.value or adminform.form.extra_conditions_en.value or adminform.form.additional_info_az.value or adminform.form.additional_info_ru.value or adminform.form.additional_info_en.value %} open{% endif %}>
+<details class="km-pf-disclosure km-pf-disclosure--conditions"{% if form.extra_conditions_az.value or form.extra_conditions_ru.value or form.extra_conditions_en.value or form.additional_info_az.value or form.additional_info_ru.value or form.additional_info_en.value or form.extra_conditions.value or form.additional_info.value %} open{% endif %}>
   <summary class="km-pf-disclosure__summary">
     <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
     <div class="km-pf-disclosure__header-copy">
@@ -55,8 +56,14 @@
       <div class="km-pf-price-callout__content">
         <strong class="km-pf-price-callout__title">{% translate "Автоматическое предупреждение о ценах" %}</strong>
         <p class="km-pf-price-callout__text">
-          {% translate "При наличии тарифов на публичной странице места автоматически отображается дисклеймер:" %}
-          <span class="km-pf-price-callout__quote">«{% translate "Цены собраны из открытых источников — уточняйте их у организации перед визитом." %}»</span>
+          {% if price_language == "az" %}
+            Açıq tariflərdən hər hansı birinin mənbə linki və ya əməkdaşın təsdiq tarixi yoxdursa, yaxud yalnız köhnə qiymət göstərilirsə, bu xəbərdarlıq görünür.
+          {% elif price_language == "en" %}
+            This notice appears when any public tariff lacks a source link or a staff verification date, or when only a legacy price is shown.
+          {% else %}
+            Предупреждение видно, если у любого публичного тарифа отсутствует ссылка на источник или дата подтверждения сотрудником либо показывается только старая цена.
+          {% endif %}
+          <span class="km-pf-price-callout__quote">{% include "catalog/includes/price_disclaimer_text.html" %}</span>
         </p>
       </div>
     </div>

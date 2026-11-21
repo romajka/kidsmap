@@ -31,6 +31,7 @@ CONTENT_FIELDS = (
     "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",
     "additional_info_az", "additional_info_ru", "additional_info_en",
     "custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en",
+    "administration_name", "administration_phone",
 )
 
 
@@ -227,7 +228,7 @@ class VolunteerPlaceForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceSched
             (_("Основное"), ("name_az", "category", "subcategory", "description_az"), False),
             (_("Переводы (необязательно)"), ("name_ru", "name_en", "description_ru", "description_en"), True),
             (_("Возраст"), CONTENT_FIELDS[8:12], False),
-            (_("Адрес и контакты"), ("region",) + CONTENT_FIELDS[12:22], False),
+            (_("Адрес и контакты"), ("region",) + CONTENT_FIELDS[12:22] + ("administration_name", "administration_phone"), False),
             (_("Фотографии"), ("photo", "cover_photo"), False),
             (_("Дополнительно"), CONTENT_FIELDS[30:40], True),
         )

@@ -1,0 +1,118 @@
+/* Organizations — public v2: cover + logo hero, facts, social buttons,
+   and directory cards with brand logos and staged entrance motion. */
+@keyframes orgp-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes orgp-zoom { from { transform: scale(1.06); } to { transform: scale(1); } }
+
+/* ── Detail hero ─────────────────────────────────────────────────────────── */
+.public-org-hero-card { animation: orgp-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.public-org-hero-card.has-cover { padding: 0 0 24px; overflow: hidden; }
+.public-org-cover {
+  height: clamp(150px, 22vw, 250px);
+  background: linear-gradient(180deg, rgba(13, 73, 36, 0) 40%, rgba(13, 73, 36, 0.35)), var(--org-cover) center / cover no-repeat;
+  animation: orgp-zoom 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.public-org-hero-card.has-cover .public-org-header-main { padding: 0 28px; }
+.public-org-hero-card.has-cover .public-org-media-wrapper {
+  margin-top: -62px;
+  border: 5px solid #fff;
+  border-radius: 26px;
+  box-shadow: 0 14px 30px -16px rgba(13, 73, 36, 0.55);
+  position: relative;
+  z-index: 1;
+}
+.public-org-hero-card.has-cover .public-org-content-col { padding-top: 18px; }
+.public-org-media-wrapper--logo { background: #fff; }
+.public-org-media-wrapper--logo .public-org-media-img { object-fit: cover; }
+
+.public-org-facts { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 14px; padding: 0; }
+.public-org-fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 9px;
+  border-radius: 999px;
+  background: #f3f8f4;
+  border: 1px solid #dfece3;
+  color: #32503f;
+  font-size: 13px;
+  font-weight: 600;
+  animation: orgp-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.public-org-fact:nth-child(2) { animation-delay: 60ms; }
+.public-org-fact:nth-child(3) { animation-delay: 120ms; }
+.public-org-fact:nth-child(4) { animation-delay: 180ms; }
+.public-org-fact .material-symbols-rounded { font-size: 17px; color: #2f8a52; }
+.public-org-fact--verified { background: #e6f5ea; border-color: #c4e6cd; color: #0f6b35; }
+.public-org-fact--verified .material-symbols-rounded { color: #0f6b35; }
+
+.public-contact--social { gap: 8px; }
+.public-contact--social svg { flex: none; }
+.public-contact--instagram:hover { color: #c13584 !important; border-color: #f0c2dd !important; }
+.public-contact--facebook:hover { color: #1877f2 !important; border-color: #c9dcfb !important; }
+.public-contact--tiktok:hover { color: #111 !important; border-color: #cfcfcf !important; }
+
+/* ── Directory cards ────────────────────────────────────────────────────── */
+.org-card--v2 { animation: orgp-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(min(var(--i, 0), 8) * 70ms); }
+.org-card--v2 .org-card-body { position: relative; padding-top: 34px; }
+.org-card-logo {
+  position: absolute;
+  top: -30px;
+  left: 16px;
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  border: 4px solid #fff;
+  background: linear-gradient(135deg, #e8f3e5, #fff);
+  box-shadow: 0 10px 22px -12px rgba(13, 73, 36, 0.55);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.org-card-logo img { width: 100%; height: 100%; object-fit: cover; }
+.org-card-logo span { font-weight: 800; font-size: 24px; color: #136f38; }
+.org-card--v2:hover .org-card-logo { transform: translateY(-3px) rotate(-3deg); }
+.org-card--v2 .org-card-topline { padding-left: 64px; min-height: 20px; margin-top: -26px; margin-bottom: 4px; }
+.org-card-socials { display: flex; gap: 6px; margin-top: 2px; }
+.org-social {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: #3a5547;
+  background: #f3f8f4;
+  border: 1px solid #dfece3;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), color 0.2s, background 0.2s;
+}
+.org-social:hover { transform: translateY(-2px); background: #fff; }
+.org-social--instagram:hover { color: #c13584; }
+.org-social--facebook:hover { color: #1877f2; }
+.org-social--tiktok:hover { color: #111; }
+.org-social:focus-visible { outline: 3px solid #86c79a; outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  .public-org-hero-card.has-cover .public-org-header-main { padding: 0 16px; }
+  .public-org-hero-card.has-cover .public-org-media-wrapper { margin-top: -48px; width: 96px; height: 96px; border-radius: 22px; }
+  .public-org-facts { gap: 6px; }
+  .public-org-fact { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-org-hero-card, .public-org-cover, .public-org-fact, .org-card--v2 { animation: none !important; }
+}
+
+.public-contact.public-contact--social {
+  background: #fff !important;
+  color: #1f3a2c !important;
+  border: 1.5px solid #d6e5db !important;
+  box-shadow: none !important;
+}
+.public-contact.public-contact--social:hover { transform: translateY(-1px); background: #f7fbf8 !important; }
+.org-card--v2 .org-photo-caption { left: auto; right: 12px; }
+@media (max-width: 640px) {
+  .public-org-actions-bar .public-actions--row { display: flex !important; flex-direction: row !important; flex-wrap: wrap !important; gap: 8px !important; }
+  .public-org-actions-bar .public-actions--row > .public-contact { flex: 1 1 100%; }
+  .public-org-actions-bar .public-actions--row > .public-contact--social { flex: 1 1 0; min-width: 0; padding-left: 8px !important; padding-right: 8px !important; }
+  .public-org-actions-bar .public-actions--row > .public-contact--social span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+}

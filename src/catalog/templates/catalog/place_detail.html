@@ -773,10 +773,6 @@
                       <span>Google Maps</span>
                       <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </a>
-                    <a class="detail-map__app-chip" href="https://2gis.az/baku/search/{{ place.lat|unlocalize }}%2C{{ place.lng|unlocalize }}" target="_blank" rel="noopener noreferrer">
-                      <span>2GIS</span>
-                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                    </a>
                     <a class="detail-map__app-chip" href="https://yandex.com/maps/?ll={{ place.lng|unlocalize }}%2C{{ place.lat|unlocalize }}&z=16" target="_blank" rel="noopener noreferrer">
                       <span>Яндекс Карты</span>
                       <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -801,10 +797,6 @@
                       <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
                       <span>Google Maps</span>
                     </a>
-                    <a class="km-map-btn" href="https://2gis.az/baku/search/{{ place.address|urlencode }}" target="_blank" rel="noopener noreferrer">
-                      <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
-                      <span>2GIS</span>
-                    </a>
                   {% endif %}
                 </div>
               </div>
@@ -812,36 +804,59 @@
           {% endif %}
 
           {% if nearby_places %}
-            <section id="nearby" class="detail-card detail-nearby" aria-labelledby="detail-nearby-title">
-              <div class="detail-card__head">
-                <h2 class="detail-card__title" id="detail-nearby-title">
-                  <span class="material-symbols-rounded" aria-hidden="true">near_me</span>
-                  <span>{% if language == 'az' %}Yaxınlıqda daha nə var{% elif language == 'en' %}More places nearby{% else %}Что ещё рядом{% endif %}</span>
-                </h2>
-                {% if place.category_code %}
-                  <a class="detail-nearby__all" href="{% url 'place_list' %}?category={{ place.category_code|urlencode }}">
-                    {% if language == 'az' %}Hamısı{% elif language == 'en' %}See all{% else %}Все{% endif %}
-                    <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
-                  </a>
-                {% endif %}
-              </div>
-              <p class="detail-section-subtitle">
-                {% if language == 'az' %}Bu məkana yaxın və oxşar yerlər — bir gündə bir neçəsini birləşdirmək olar{% elif language == 'en' %}Similar places close to this one — easy to combine in one outing{% else %}Похожие места неподалёку — легко совместить в одной прогулке{% endif %}
-              </p>
-              <div class="detail-nearby__rail" role="list">
-                {% for place in nearby_places %}
-                  <div class="detail-nearby__item" role="listitem">
-                    {% if place.nearby_km is not None %}
-                      <span class="detail-nearby__distance">
-                        <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
-                        {% if place.nearby_km < 1 %}{% if language == 'az' %}1 km-dən az{% elif language == 'en' %}under 1 km{% else %}меньше 1 км{% endif %}{% else %}{{ place.nearby_km|floatformat:"-1" }} {% if language == 'en' %}km{% elif language == 'az' %}km{% else %}км{% endif %}{% endif %}
-                      </span>
+            {% with first=nearby_places.0 last=nearby_places|last %}
+            <section id="nearby" class="detail-card detail-nearby{% if first.nearby_km is None %} detail-nearby--category{% endif %}" aria-labelledby="detail-nearby-title" data-nearby>
+              <div class="detail-card__head detail-nearby__head">
+                <div class="detail-nearby__heading">
+                  <h2 class="detail-card__title" id="detail-nearby-title">
+                    <span class="detail-nearby__icon material-symbols-rounded" aria-hidden="true">{% if first.nearby_km is None %}category{% else %}near_me{% endif %}</span>
+                    {% if first.nearby_km is None %}
+                      <span>{% if language == 'az' %}Eyni kateqoriyadan digər məkanlar{% elif language == 'en' %}Other places in this category{% else %}Другие места той же категории{% endif %}</span>
+                    {% else %}
+                      <span>{% if language == 'az' %}Yaxınlıqda daha nə var{% elif language == 'en' %}More places nearby{% else %}Что ещё рядом{% endif %}</span>
                     {% endif %}
-                    {% include "catalog/includes/place_card.html" with place=place %}
-                  </div>
-                {% endfor %}
+                  </h2>
+                  {% if first.nearby_km is not None and last.nearby_km is not None %}
+                    <p class="detail-nearby__sub">
+                      {% if language == 'az' %}{{ nearby_places|length }} məkan · {% if last.nearby_km < 1 %}{% widthratio last.nearby_km 1 1000 %} m{% else %}{{ last.nearby_km|floatformat:"-1" }} km{% endif %} radiusda
+                      {% elif language == 'en' %}{{ nearby_places|length }} places within {% if last.nearby_km < 1 %}{% widthratio last.nearby_km 1 1000 %} m{% else %}{{ last.nearby_km|floatformat:"-1" }} km{% endif %}
+                      {% else %}{{ nearby_places|length }} {% if nearby_places|length == 1 %}место{% elif nearby_places|length < 5 %}места{% else %}мест{% endif %} в радиусе {% if last.nearby_km < 1 %}{% widthratio last.nearby_km 1 1000 %} м{% else %}{{ last.nearby_km|floatformat:"-1" }} км{% endif %}{% endif %}
+                    </p>
+                  {% endif %}
+                </div>
+                <div class="detail-nearby__controls">
+                  <button type="button" class="detail-nearby__arrow" data-nearby-prev aria-label="{% if language == 'az' %}Əvvəlki{% elif language == 'en' %}Previous{% else %}Назад{% endif %}" disabled><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button>
+                  <button type="button" class="detail-nearby__arrow" data-nearby-next aria-label="{% if language == 'az' %}Növbəti{% elif language == 'en' %}Next{% else %}Вперёд{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
+                  {% if place.category_code %}
+                    <a class="detail-nearby__all" href="{% url 'place_list' %}?category={{ place.category_code|urlencode }}">
+                      {% if language == 'az' %}Hamısı{% elif language == 'en' %}See all{% else %}Все{% endif %}
+                      <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+                    </a>
+                  {% endif %}
+                </div>
               </div>
+              <div class="detail-nearby__viewport">
+                <div class="detail-nearby__rail" role="list" data-nearby-rail>
+                  {% for place in nearby_places %}
+                    <div class="detail-nearby__item" role="listitem" style="--n:{{ forloop.counter0 }}">
+                      {% if place.nearby_km is not None %}
+                        <span class="detail-nearby__distance{% if forloop.first %} is-closest{% endif %}">
+                          <span class="detail-nearby__route" aria-hidden="true"><i></i></span>
+                          <span class="material-symbols-rounded" aria-hidden="true">{% if place.nearby_km < 2.5 %}directions_walk{% else %}directions_car{% endif %}</span>
+                          <b>{% if place.nearby_km < 1 %}{% widthratio place.nearby_km 1 1000 %} {% if language == 'ru' %}м{% else %}m{% endif %}{% else %}{{ place.nearby_km|floatformat:"-1" }} {% if language == 'ru' %}км{% else %}km{% endif %}{% endif %}</b>
+                          {% if place.nearby_km < 2.5 %}<span class="detail-nearby__time">· {% widthratio place.nearby_km 1 12 as walk %}{% if walk == '0' %}1{% else %}{{ walk }}{% endif %} {% if language == 'az' %}dəq piyada{% elif language == 'en' %}min walk{% else %}мин пешком{% endif %}</span>{% endif %}
+                          {% if forloop.first %}<span class="detail-nearby__badge">{% if language == 'az' %}Ən yaxın{% elif language == 'en' %}Closest{% else %}Ближе всех{% endif %}</span>{% endif %}
+                        </span>
+                      {% endif %}
+                      {% include "catalog/includes/place_card.html" with place=place %}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="detail-nearby__dots" data-nearby-dots aria-hidden="true"></div>
             </section>
+            {% endwith %}
+            <script src="{% static 'js/place_nearby.js' %}?v=20261121" defer></script>
           {% endif %}
         </div>
 
@@ -1104,6 +1119,22 @@
               {% endfor %}
             </div>
           </div>
+
+          {% if presentation.contacts.administration_name %}
+            <section class="detail-contacts__secondary" data-administration-contact aria-labelledby="administration-contact-label administration-contact-name">
+              <span class="detail-contacts__secondary-label" id="administration-contact-label">
+                {% if presentation.contacts.has_administration_phone %}
+                  {% if language == 'ru' %}Контакт администрации{% elif language == 'en' %}Administration contact{% else %}Administrasiya ilə əlaqə{% endif %}
+                {% else %}
+                  {% if language == 'ru' %}Ответственная организация{% elif language == 'en' %}Responsible organization{% else %}Məsul təşkilat{% endif %}
+                {% endif %}
+              </span>
+              <strong id="administration-contact-name">{{ presentation.contacts.administration_name }}</strong>
+              {% if presentation.contacts.has_administration_phone %}
+                {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__secondary-link" administration=True %}
+              {% endif %}
+            </section>
+          {% endif %}
 
           {% if presentation.organization %}
             <div class="detail-org-banner">

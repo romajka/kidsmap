@@ -92,6 +92,7 @@ class PlaceAdminLayoutMixin:
         "custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en",
         "region", "district", "metro", "address", "lat", "lng", "location_override_reason",
         "phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number", "instagram", "website", "public_links",
+        "administration_name", "administration_phone",
         "schedule", "schedule_mode", "structured_schedule",
         "schedule_note_az", "schedule_note_ru", "schedule_note_en",
         "extra_conditions", "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",
@@ -162,6 +163,7 @@ class PlaceAdminLayoutMixin:
                     "phone_country",
                     ("phone1", "phone2", "phone3"),
                     ("whatsapp_mode", "whatsapp_number"),
+                    ("administration_name", "administration_phone"),
                     ("instagram", "website"),
                     "public_links",
                     "schedule",
@@ -518,6 +520,8 @@ class PlaceAdminLayoutMixin:
             "metro": "#location",
             "address": "#location",
             "phone1": "#location",
+            "administration_name": "#location",
+            "administration_phone": "#location",
             "photo": "#media",
         })
         # Where a click should land, when that is not the field's own input.

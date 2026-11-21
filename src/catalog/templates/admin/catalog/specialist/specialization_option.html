@@ -1,0 +1,3 @@
+{% if widget.wrap_label %}<label{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %}>{% endif %}
+{% include "django/forms/widgets/input.html" %}
+{% if widget.wrap_label %}{% include "catalog/includes/specialization_icon.html" with code=widget.value.instance.code only %}{{ widget.label }}</label>{% endif %}

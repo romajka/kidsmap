@@ -270,6 +270,9 @@ class PlaceAdmin(PlaceAdminLayoutMixin, PlaceAdminChangelistMixin, PlaceAdminOpe
         "phone3",
         "owner__username",
         "owner__email",
+        "organization__name_az",
+        "organization__name_ru",
+        "organization__name_en",
     )
     search_help_text = _("Ищет по названию места на AZ, RU или EN. Можно также искать по адресу, телефону или владельцу.")
 
@@ -415,6 +418,7 @@ class PlaceAdmin(PlaceAdminLayoutMixin, PlaceAdminChangelistMixin, PlaceAdminOpe
                     "phone_country",
                     ("phone1", "phone2", "phone3"),
                     ("whatsapp_mode", "whatsapp_number"),
+                    ("administration_name", "administration_phone"),
                     ("instagram", "website"),
                     "public_links",
                     "schedule",

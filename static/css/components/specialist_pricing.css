@@ -1,0 +1,212 @@
+.km-lesson-pricing {
+  display: grid;
+  gap: 1.25rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.km-lesson-fields,
+.km-package-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));
+  gap: .75rem;
+  align-items: start;
+}
+
+.km-lesson-fields > div,
+.km-package-fields > label {
+  min-width: 0;
+}
+
+@supports (grid-template-rows: subgrid) {
+  @media (min-width: 40rem) {
+  .km-lesson-fields > div {
+    display: grid;
+    grid-row: span 4;
+    grid-template-rows: subgrid;
+    row-gap: .35rem;
+  }
+  .km-lesson-fields > div > label { margin-bottom: 0; align-self: end; }
+  }
+}
+
+.km-lesson-pricing label {
+  display: block;
+  width: auto;
+  margin: 0;
+  font-weight: 600;
+  color: var(--ink, #23362b);
+}
+
+.km-lesson-fields label,
+.km-package-fields label > span {
+  display: block;
+  margin: 0 0 .375rem;
+}
+
+.km-lesson-pricing :is(input, select) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: .5rem .625rem;
+}
+
+.km-lesson-pricing .km-package-fields .field {
+  border: 1px solid var(--form-border, #cad7ce);
+  border-radius: var(--radius-md, 12px);
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  font-weight: 400;
+  min-height: 48px;
+}
+
+.km-lesson-hint {
+  display: block;
+  margin-top: .35rem;
+  color: var(--muted, #4b6255);
+  font-size: .8125rem;
+  font-weight: 400;
+}
+
+.km-lesson-packages {
+  display: grid;
+  gap: .75rem;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 1rem 0 0;
+  border: 0;
+  border-top: 1px dashed var(--form-border, #d8e2da);
+}
+
+.km-lesson-packages legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 .25rem;
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.km-lesson-packages legend + * { clear: both; }
+
+.km-lesson-packages > p,
+.km-legacy-price {
+  margin: 0;
+  color: var(--muted, #4b6255);
+  font-size: .875rem;
+  line-height: 1.45;
+}
+
+.km-legacy-price {
+  padding: .625rem .75rem;
+  border-radius: var(--radius-md, 12px);
+  background: #fff8e6;
+  color: #6b4a00;
+}
+
+[data-package-rows] {
+  display: grid;
+  gap: .75rem;
+}
+
+.km-package-row {
+  display: grid;
+  gap: .625rem;
+  padding: .875rem 1rem 1rem;
+  border: 1px solid var(--form-border, #d8e2da);
+  border-radius: var(--radius-lg, 16px);
+  background: #f8fbf9;
+}
+
+.km-package-row:not([data-package-started]) { border-style: dashed; background: transparent; }
+
+.km-package-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .25rem .75rem;
+  min-height: 32px;
+}
+
+.km-package-title { font-size: .9375rem; color: var(--ink, #23362b); }
+.km-package-hint { order: 3; flex-basis: 100%; color: #765000; font-size: .8125rem; }
+
+.km-package-remove,
+.km-package-add {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  min-height: 36px;
+  padding: .25rem .75rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: .875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.km-package-remove {
+  margin-left: auto;
+  color: #9d2626;
+}
+.km-package-remove:hover { background: #fff0ef; }
+.km-package-icon { flex: none; }
+
+.km-package-add {
+  justify-self: start;
+  border-color: var(--brand-turf, #136f38);
+  color: var(--brand-turf, #136f38);
+}
+.km-package-add:hover { background: #eef7f1; }
+.km-package-remove:focus-visible,
+.km-package-add:focus-visible { outline: 2px solid var(--brand-turf, #136f38); outline-offset: 2px; }
+
+.km-package-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .25rem .625rem;
+  font-size: .875rem;
+}
+.km-package-summary:empty { display: none; }
+.km-package-summary strong { color: var(--ink, #23362b); font-weight: 700; font-variant-numeric: tabular-nums; }
+.km-package-summary span { color: var(--muted, #4b6255); }
+.km-package-summary.is-saving span { color: var(--brand-turf, #136f38); font-weight: 600; }
+.km-package-summary.is-pricier span { color: #8a5a00; font-weight: 600; }
+
+.km-lesson-pricing [hidden] { display: none !important; }
+
+/* The owner page also uses the shared controls stylesheet for its field badges. */
+:is(.km-specialist-workspace, .km-lesson-pricing) .km-req-badge:not(#kmc-a) {
+  color: #9d2626;
+  background: #fff0ef;
+  border: 1px solid #e9bab6;
+}
+
+:is(.km-specialist-workspace, .km-lesson-pricing) .km-required:not(#kmc-a) { color: #9d2626; }
+:is(.km-specialist-workspace, .km-lesson-pricing) .km-rec-badge:not(#kmc-a) {
+  color: #765000;
+  background: #fff4d6;
+  border-color: #efd28b;
+}
+
+.km-lesson-pricing :is(.km-req-badge, .km-rec-badge) {
+  display: inline-block;
+  font-size: .75rem;
+  line-height: 1.5;
+  padding: 1px 6px;
+  border: 1px solid;
+  border-radius: 999px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.km-specialist-workspace .km-nav-completion strong { color: inherit; }
+.km-specialist-workspace .km-nav-completion strong.is-complete { color: var(--brand-turf, #136f38); }
+.km-specialist-workspace .km-owner-toc-link .toc-status--opt small { color: #765000; }
+.km-specialist-workspace .km-owner-toc-link .toc-req-dot { color: #a52525; font-size: .875rem; }
+.km-specialist-workspace [data-practice-row]:not(:has([name$="-is_active"]:checked)) .km-active-location-required { display: none; }

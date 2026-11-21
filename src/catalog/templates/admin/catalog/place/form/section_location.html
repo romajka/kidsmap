@@ -200,6 +200,18 @@
           {% include "admin/catalog/place/form/_field.html" with field=form.whatsapp_mode %}
           {% include "admin/catalog/place/form/_field.html" with field=form.whatsapp_number hint=form.whatsapp_number.help_text %}
         </div>
+        {% if form.administration_name %}
+          <details class="km-pf-disclosure"{% if form.administration_name.value or form.administration_phone.value or form.administration_name.errors or form.administration_phone.errors %} open{% endif %}>
+            <summary class="km-pf-disclosure__summary">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+              <span class="km-pf-disclosure__title">{{ form.administration_name.label }}</span>
+            </summary>
+            <div class="km-pf-disclosure__body">
+              {% include "admin/catalog/place/form/_field.html" with field=form.administration_name hint=form.administration_name.help_text optional=True %}
+              {% include "admin/catalog/place/form/_field.html" with field=form.administration_phone hint=form.administration_phone.help_text optional=True %}
+            </div>
+          </details>
+        {% endif %}
         <details class="km-pf-disclosure km-pf-contact-socials"{% if form.instagram.value or form.website.value or form.instagram.errors or form.website.errors or form.public_links.errors or form.public_links.value and form.public_links.value != '[]' %} open{% endif %}>
           <summary class="km-pf-disclosure__summary">
             <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>

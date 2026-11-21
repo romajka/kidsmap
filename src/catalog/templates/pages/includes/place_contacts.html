@@ -16,6 +16,15 @@
     <button type="button" class="pw-add pc-add-phone" data-km-phone-add>＋ {{ ui.add_phone }}</button>
   </div>
 </section>
+{% if form.administration_name %}
+  <details class="pw-details"{% if form.administration_name.value or form.administration_phone.value or form.administration_name.errors or form.administration_phone.errors %} open{% endif %}>
+    <summary>{{ form.administration_name.label }}</summary>
+    <div class="pw-fields">
+      {% include 'pages/includes/permanent_place_field.html' with field=form.administration_name %}
+      {% include 'pages/includes/permanent_place_field.html' with field=form.administration_phone %}
+    </div>
+  </details>
+{% endif %}
 <section class="pc-socials" aria-labelledby="pc-socials-title">
   <h3 id="pc-socials-title">{{ ui.socials_title }}</h3>
   <p class="pw-help">{{ ui.socials_hint }}</p>

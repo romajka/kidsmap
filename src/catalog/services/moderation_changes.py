@@ -45,9 +45,13 @@ def review_hint(key):
         return t('Сверьте адрес, район и точку на карте.', 'Ünvanı, rayonu və xəritədəki nöqtəni yoxlayın.', 'Check the address, district and map pin.')
     if key.startswith(('price', 'custom_price')) or key in {'pricing_plans', 'nested_pricing', 'payment_type'}:
         return t('Проверьте сумму, период оплаты и условия тарифа.', 'Məbləği, ödəniş dövrünü və tarif şərtlərini yoxlayın.', 'Check the amount, billing period and pricing conditions.')
+    if key in {'administration_name', 'administration_phone'}:
+        return t('Сверьте название и телефон администрации с официальным источником.',
+                 'İdarənin adını və telefonunu rəsmi mənbədən yoxlayın.',
+                 'Check the administration name and phone number against an official source.')
     if key.startswith('phone') or key in {'website', 'instagram', 'whatsapp_number', 'contact_email'}:
         return t('Проверьте, что контакт принадлежит этому месту и работает.', 'Əlaqənin bu məkana aid olduğunu və işlədiyini yoxlayın.', 'Check that the contact works and belongs to this place.')
-    if key in {'photo', 'cover_photo', 'gallery'}:
+    if key in {'photo', 'cover_photo', 'gallery', 'logo'}:
         return t('Сверьте место на фото, качество и права на использование.', 'Şəkildəki məkanı, keyfiyyəti və istifadə hüquqlarını yoxlayın.', 'Check the location shown, image quality and usage rights.')
     if 'schedule' in key or key in {'start_datetime', 'end_datetime'}:
         return t('Проверьте дни, время и исключения в расписании.', 'Günləri, saatları və cədvəldəki istisnaları yoxlayın.', 'Check the days, times and schedule exceptions.')

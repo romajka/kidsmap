@@ -1,9 +1,35 @@
 """Workspace inputs: domain services remain the final authority."""
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models.fields.files import FieldFile
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Specialist, SpecialistDocument
+from catalog.services.image_uploads import normalize_uploaded_image
+
+
+class SpecialistPhotoInput(forms.ClearableFileInput):
+    # The profile editor renders the saved portrait and its controls together.
+    template_name = 'django/forms/widgets/input.html'
+
+    def __init__(self):
+        super().__init__({'accept': 'image/jpeg,image/png,image/webp,.heic,.heif,.hif',
+                          'aria-describedby': 'specialist-photo-help id_photo_error', 'aria-required': 'true'})
+
+
+class SpecialistPhotoField(forms.FileField):
+    widget = SpecialistPhotoInput
+    default_error_messages = {'required': _('Добавьте фотографию профиля.')}
+
+    def clean(self, data, initial=None):
+        photo = super().clean(data, initial)
+        if not photo or isinstance(photo, FieldFile) and photo._committed:
+            return photo
+        return normalize_uploaded_image(photo)
+
+
+class SpecialistPhotoForm(forms.Form):
+    photo = SpecialistPhotoField(label=_('Фотография профиля'))
 
 
 class EmploymentProposalForm(forms.Form):

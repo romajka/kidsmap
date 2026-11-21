@@ -193,6 +193,35 @@
       var applyBtn = document.getElementById('km-apply-filters-btn');
       if (applyBtn) {
         applyBtn.addEventListener('click', function () {
+          if (filtersDrawer.hasAttribute('data-apply-filters-together')) {
+            var destination = new URL(window.location.href);
+            var changed = false;
+            filtersDrawer.querySelectorAll('select[data-filter-select]').forEach(function (select) {
+              var original = Array.from(select.options).find(function (option) { return option.defaultSelected; });
+              var originalValue = original ? original.value : select.options[0].value;
+              if (originalValue === select.value) return;
+              var before = new URL(originalValue, destination).searchParams;
+              var after = new URL(select.value, destination).searchParams;
+              new Set([...before.keys(), ...after.keys()]).forEach(function (key) {
+                var oldValues = before.getAll(key);
+                var newValues = after.getAll(key);
+                if (oldValues.length === newValues.length && oldValues.every(function (value, i) {
+                  return value === newValues[i];
+                })) return;
+                changed = true;
+                destination.searchParams.delete(key);
+                newValues.forEach(function (value) { destination.searchParams.append(key, value); });
+              });
+            });
+            if (changed) {
+              destination.searchParams.delete('p');
+              showTableSkeleton();
+              window.location.href = destination.href;
+            } else {
+              toggleFiltersBtn.click();
+            }
+            return;
+          }
           var activeSelect = filtersDrawer.querySelector('select[data-filter-select]');
           if (activeSelect && activeSelect.value) {
             showTableSkeleton();
@@ -208,6 +237,7 @@
 
     // Auto submit on select change inside filter drawer
     Array.prototype.slice.call(document.querySelectorAll('[data-filter-select]')).forEach(function (select) {
+      if (select.closest('[data-apply-filters-together]')) return;
       select.addEventListener('change', function () {
         if (select.value) {
           showTableSkeleton();

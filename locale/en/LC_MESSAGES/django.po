@@ -24535,3 +24535,343 @@ msgstr "Prompt copied."
 #: src/catalog/templates/admin/catalog/event/prompt_panel.html
 msgid "Текст выделен. Скопируйте его через меню браузера или сочетанием клавиш."
 msgstr "Text selected. Use the browser menu or keyboard shortcut to copy it."
+
+#: src/catalog/models/place.py
+msgid "Ответственная организация"
+msgstr "Responsible organization"
+
+#: src/catalog/models/place.py
+msgid "Официальный телефон организации"
+msgstr "Official organization phone"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "KidsMap · Контроль регламента"
+msgstr "KidsMap · Moderation"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "О сроках SLA"
+msgstr "About review deadlines"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Контроль регламентных сроков рассмотрения (Service Level Agreement)"
+msgstr "Review deadlines"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Доработка"
+msgstr "Changes requested"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "таймер ставится на паузу"
+msgstr "the clock pauses"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Очереди материалов"
+msgstr "Submission queues"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Статистика SLA"
+msgstr "Deadline statistics"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Срок истёк (Breached)"
+msgstr "Overdue"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Критично (Critical)"
+msgstr "Critical"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Близок срок (Warning)"
+msgstr "Approaching deadline"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "В норме (Fresh)"
+msgstr "On time"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "На паузе (Paused)"
+msgstr "Paused"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Параметры фильтрации очереди"
+msgstr "Filter the queue"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Фильтры SLA"
+msgstr "Deadline filters"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Укажите понятную причину для автора..."
+msgstr "Explain what the author needs to change…"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Срок превышен"
+msgstr "Overdue"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Справка по SLA"
+msgstr "About moderation deadlines"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Как рассчитываются сроки модерации"
+msgstr "How review deadlines work"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Время ожидания"
+msgstr "Time in review"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Считается от момента отправки заявки автором до первого решения модератора (одобрение или возврат на доработку)."
+msgstr "Time runs from submission to the first moderation decision."
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Пауза при доработке"
+msgstr "Waiting for changes"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Если карточка возвращена автору на исправление ошибок, таймер SLA останавливается до повторной отправки."
+msgstr "When changes are requested, the clock pauses until the author resubmits."
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Приоритет в очереди"
+msgstr "Queue priority"
+
+#: src/catalog/templates/admin/moderation_sla.html
+msgid "Материалы со статусом SLA breached и SLA critical должны проверяться модераторами в первую очередь."
+msgstr "Review overdue and critical submissions first."
+
+#: src/catalog/models/specialist.py
+msgid "Тип занятия"
+msgstr "Lesson type"
+
+#: src/catalog/models/specialist.py
+msgid "Цена одного занятия (AZN)"
+msgstr "Price per lesson (AZN)"
+
+#: src/catalog/models/specialist.py
+msgid "Дополнительные тарифы"
+msgstr "Additional plans"
+
+#: src/catalog/models/specialist.py
+msgid "Индивидуальное занятие"
+msgstr "Individual lesson"
+
+#: src/catalog/models/specialist.py
+msgid "Парное занятие"
+msgstr "Paired lesson"
+
+#: src/catalog/models/specialist.py
+msgid "Групповое занятие"
+msgstr "Group lesson"
+
+#: src/catalog/models/specialist.py
+msgid "Консультация"
+msgstr "Consultation"
+
+#: src/catalog/forms_specialist_pricing.py
+msgid "Проверьте дополнительные тарифы."
+msgstr "Check the additional plans."
+
+#: src/catalog/forms_specialist_pricing.py
+#, python-format
+msgid "Тариф %(row)s: выберите месяц или пакет занятий."
+msgstr "Plan %(row)s: choose a monthly plan or a lesson package."
+
+#: src/catalog/forms_specialist_pricing.py
+#, python-format
+msgid "Тариф %(row)s: укажите полную стоимость больше 0 ₼ (можно с гяпиками)."
+msgstr "Plan %(row)s: enter a total above 0 ₼ (up to two decimal places)."
+
+#: src/catalog/forms_specialist_pricing.py
+#, python-format
+msgid "Тариф %(row)s: укажите целое число занятий от одного."
+msgstr "Plan %(row)s: enter a whole number of lessons, at least one."
+
+#: src/catalog/forms_specialist_pricing.py
+msgid "Выберите тип занятия."
+msgstr "Choose a lesson type."
+
+#: src/catalog/forms_specialist_pricing.py
+msgid "Укажите цену одного занятия."
+msgstr "Enter the price of one lesson."
+
+#: src/catalog/forms_specialist_pricing.py
+#, python-format
+msgid "Можно добавить не больше %(count)s тарифов."
+msgstr "You can add up to %(count)s plans."
+
+#: organizations v2
+msgid "Адрес головного офиса"
+msgstr "Head office address"
+
+#: organizations v2
+msgid "Адрес страницы"
+msgstr "Page address"
+
+#: organizations v2
+msgid "Без филиалов"
+msgstr "Without branches"
+
+#: organizations v2
+msgid "В архиве с"
+msgstr "Archived since"
+
+#: organizations v2
+msgid "Версия данных"
+msgstr "Data version"
+
+#: organizations v2
+msgid "Возвращено на доработку"
+msgstr "Returned for changes"
+
+#: organizations v2
+msgid "Готовность профиля"
+msgstr "Profile readiness"
+
+#: organizations v2
+msgid "Есть неактуальные связи"
+msgstr "Has stale links"
+
+#: organizations v2
+msgid "Есть филиалы"
+msgstr "Has branches"
+
+#: organizations v2
+msgid "Загрузите JPG, PNG или WebP."
+msgstr "Upload a JPG, PNG or WebP."
+
+#: organizations v2
+msgid "Заявок на проверку не было."
+msgstr "No review requests yet."
+
+#: organizations v2
+msgid "Изображение слишком маленькое: нужно от %(w)s×%(h)s px."
+msgstr "The image is too small: %(w)s×%(h)s px or more is required."
+
+#: organizations v2
+msgid "Информационная"
+msgstr "Informational"
+
+#: organizations v2
+msgid "Квадрат от 120 px, JPG/PNG/WebP, до 5 МБ."
+msgstr "Square, 120 px+, JPG/PNG/WebP, up to 5 MB."
+
+#: organizations v2
+msgid "Медиа"
+msgstr "Media"
+
+#: organizations v2
+msgid "Напишите, что нужно исправить."
+msgstr "Write what needs to be fixed."
+
+#: organizations v2
+msgid "Например: добавьте описание на русском и логотип без водяных знаков."
+msgstr "For example: add a Russian description and a logo without watermarks."
+
+#: organizations v2
+msgid "Неактуальна"
+msgstr "Stale"
+
+#: organizations v2
+msgid "Неактуальные связи"
+msgstr "Stale links"
+
+#: organizations v2
+msgid "Нет заявки на проверке."
+msgstr "There is no request in review."
+
+#: organizations v2
+msgid "Новая организация"
+msgstr "New organization"
+
+#: organizations v2
+msgid "Обложка"
+msgstr "Cover image"
+
+#: organizations v2
+msgid "От 800×300 px, JPG/PNG/WebP, до 8 МБ."
+msgstr "800×300 px+, JPG/PNG/WebP, up to 8 MB."
+
+#: organizations v2
+msgid "Открыть на сайте"
+msgstr "Open on site"
+
+#: organizations v2
+msgid "Очередь модерации"
+msgstr "Moderation queue"
+
+#: organizations v2
+msgid "Подтверждают владельцы"
+msgstr "Owners confirm"
+
+#: organizations v2
+msgid "Подтверждённые филиалы"
+msgstr "Confirmed branches"
+
+#: organizations v2
+msgid "Решить по заявке"
+msgstr "Decide on the request"
+
+#: organizations v2
+msgid "Сводка организации"
+msgstr "Organization summary"
+
+#: organizations v2
+msgid "Связи ждут повторного подтверждения"
+msgstr "Links await re-confirmation"
+
+#: organizations v2
+msgid "Создать заявку на связь"
+msgstr "Create a link request"
+
+#: organizations v2
+msgid "Ссылка на профиль или @имя аккаунта."
+msgstr "Profile link or @account name."
+
+#: organizations v2
+msgid "Старая запись: отмечена опубликованной без одобрения. Попросите владельца отправить сведения на проверку или используйте команду diagnose_organizations."
+msgstr "Legacy record: marked published without approval. Ask the owner to submit it for review or use the diagnose_organizations command."
+
+#: organizations v2
+msgid "Требуют решения"
+msgstr "Need a decision"
+
+#: organizations v2
+msgid "Укажите ссылку или @имя аккаунта."
+msgstr "Enter a link or @account name."
+
+#: organizations v2
+msgid "Укажите ссылку на профиль или @имя аккаунта."
+msgstr "Enter a profile link or @account name."
+
+#: organizations v2
+msgid "Файл больше %(mb)s МБ."
+msgstr "The file is larger than %(mb)s MB."
+
+#: organizations v2
+msgid "Филиалов пока нет."
+msgstr "No branches yet."
+
+#: organizations v2
+msgid "Что исправить (увидит владелец)"
+msgstr "What to fix (the owner will see this)"
+
+#: organizations v2
+msgid "ждут подтверждения"
+msgstr "await confirmation"
+
+#: organizations v2
+msgid "заявки"
+msgstr "requests"
+
+#: organizations v2
+msgid "подтверждены"
+msgstr "confirmed"
+
+#: src/catalog/specialist_forms.py
+msgid "Добавьте фотографию профиля."
+msgstr "Add a profile photo."
+
+#: src/catalog/controllers/specialist_workspace.py
+msgid "Фотография добавлена в анкету."
+msgstr "Your photo has been added to the profile."

@@ -1,0 +1,34 @@
+{% load i18n %}{% get_current_language as CURRENT_LANGUAGE %}
+<div class="sp-portrait" id="specialist-portrait" data-portrait data-saved-photo="{{ portrait_url|yesno:'true,false' }}">
+  <div class="sp-portrait__preview" aria-hidden="true">
+    <span class="material-symbols-rounded">person</span>
+    <img data-portrait-preview {% if portrait_url %}src="{{ portrait_url }}"{% else %}hidden{% endif %} alt="">
+  </div>
+  <div class="sp-portrait__body">
+    <div class="sp-portrait__heading">
+      <label for="{{ form.photo.id_for_label }}">{% trans 'Фотография профиля' %}</label>
+      {% include 'pages/includes/specialist_field_badge.html' %}
+    </div>
+    <p id="specialist-photo-help">{% if CURRENT_LANGUAGE == 'az' %}Üzünüzün aydın göründüyü bir portret seçin.{% elif CURRENT_LANGUAGE == 'en' %}Choose a portrait that shows your face clearly.{% else %}Выберите портрет, на котором хорошо видно лицо.{% endif %}
+      <span>JPG, PNG, WEBP, HEIC/HEIF · {% if CURRENT_LANGUAGE == 'az' %}15 MB-dək{% elif CURRENT_LANGUAGE == 'en' %}up to 15 MB{% else %}до 15 МБ{% endif %}</span>
+    </p>
+    <span class="sp-portrait__pick">
+      <span class="sp-portrait__action" aria-hidden="true" hidden>
+        <span class="material-symbols-rounded">add_a_photo</span>
+        <span data-portrait-choose {% if portrait_url %}hidden{% endif %}>{% trans 'Добавить фото' %}</span>
+        <span data-portrait-replace {% if not portrait_url %}hidden{% endif %}>{% trans 'Заменить фото' %}</span>
+      </span>
+      {{ form.photo }}
+    </span>
+    <span class="sp-portrait__filename" data-portrait-filename role="status"></span>
+    {% if request.FILES.photo and not form.photo.errors %}
+      <small class="sp-portrait__filename">{% if CURRENT_LANGUAGE == 'az' %}Xətaları düzəltdikdən sonra fotonu yenidən seçin.{% elif CURRENT_LANGUAGE == 'en' %}Choose the photo again after correcting the form.{% else %}После исправления полей выберите фото ещё раз.{% endif %}</small>
+    {% endif %}
+    {% if portrait_url %}
+      <label class="sp-portrait__clear"><input type="checkbox" name="photo-clear"{% if clear_portrait %} checked{% endif %}>
+        {% if CURRENT_LANGUAGE == 'az' %}Qaralamadan fotonu sil{% elif CURRENT_LANGUAGE == 'en' %}Remove photo from draft{% else %}Убрать фото из черновика{% endif %}
+      </label>
+    {% endif %}
+    <div id="id_photo_error">{% for error in form.photo.errors %}<small class="auth-field-error" role="alert">{{ error }}</small>{% endfor %}</div>
+  </div>
+</div>

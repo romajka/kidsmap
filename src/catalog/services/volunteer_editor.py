@@ -1,4 +1,6 @@
 """Admin presentation for the existing restricted proposal form; no write policy."""
+from django.utils.translation import gettext as _
+
 from catalog.services.permanent_place_rules import copy as t
 from catalog.services.place_readiness import evaluate_form_readiness
 from catalog.volunteer_forms import CONTENT_FIELDS
@@ -27,13 +29,15 @@ def editor_context(form):
     for number, (key, title, icon, hint) in enumerate(definitions, 1):
         items = readiness.items if key == 'verification' else [item for item in readiness.items if item.requirement.section == key]
         done = sum(item.is_complete for item in items)
+        missing = [str(item.requirement.label) for item in items if not item.is_complete and key != 'verification']
+        missing_message = _("Не заполнено: %(items)s") % {"items": ", ".join(missing)} if missing else ""
         field_names = ('region',) + CONTENT_FIELDS if key == 'location' else CONTENT_FIELDS
         fields = [form[name] for name in field_names if (key == 'pricing' and name in pricing_names) or (key == 'location' and name not in special) or (key == 'media' and name in {'photo','cover_photo'}) or (key == 'basics' and name in basics)]
         invalid = any(field.errors for field in fields)
         state = 'error' if invalid else 'done' if items and done == len(items) else 'partial' if done else 'empty'
         sections.append(dict(id=key, title=title, icon=icon, description=hint, step=f'{number:02}', fields=[field for field in fields if not field.name.startswith(('custom_price_badge_', 'extra_conditions', 'additional_info'))],
             optional=[field for field in fields if field.name.startswith(('custom_price_badge_', 'extra_conditions', 'additional_info'))],
-            state=dict(state=state, icon={'error':'error','done':'check_circle','partial':'radio_button_checked','empty':'radio_button_unchecked'}[state], label=f'{done} / {len(items)}' if items else '')))
+            state=dict(state=state, icon={'error':'error','done':'check_circle','partial':'radio_button_checked','empty':'radio_button_unchecked'}[state], label=f'{done} / {len(items)}' if items else '', missing_message=missing_message)))
     return dict(volunteer_sections=sections, editor_readiness=readiness, editor_issues=issues, editor_gallery=gallery,
         km_place_required_fields={item.requirement.field for item in readiness.items},
         km_place_language_tabs=[dict(code=lang, label=lang.upper(), optional=lang != 'az', name_field=form[f'name_{lang}'], description_field=form[f'description_{lang}']) for lang in ('az','ru','en')],

@@ -127,6 +127,8 @@ class Place(models.Model):
     phone1 = models.CharField(_("Телефон 1"), max_length=50, blank=True)
     phone2 = models.CharField(_("Дополнительный телефон"), max_length=50, blank=True, default="")
     phone3 = models.CharField(_("Ещё один телефон"), max_length=50, blank=True, default="")
+    administration_name = models.CharField(_("Ответственная организация"), max_length=255, blank=True, default="", db_default="")
+    administration_phone = models.CharField(_("Официальный телефон организации"), max_length=50, blank=True, default="", db_default="")
     phone_country = models.CharField(_("Страна номера"), max_length=2, default="AZ", db_default="AZ")
     whatsapp_mode = models.CharField(
         _("WhatsApp"), max_length=10, default="legacy", db_default="legacy",

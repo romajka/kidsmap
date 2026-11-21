@@ -32,6 +32,59 @@ class PhonePublicContractTests(SimpleTestCase):
         self.assertTrue(data['has_whatsapp'])
         self.assertEqual(data['sources']['whatsapp'], 'place')
 
+    def test_public_space_does_not_advertise_an_affiliated_organizations_numbers(self):
+        org = SimpleNamespace(phone='+90 532 123 45 67', whatsapp='+1 310 456 4918', website='')
+        for mode in ('legacy', 'same', 'none', 'separate'):
+            with self.subTest(mode=mode):
+                park = self.place(nature='public_space', phone1='', whatsapp_mode=mode,
+                                  whatsapp_number='+13104564918')
+                contacts = self.contacts(park, org)
+                self.assertFalse(contacts['has_contact'])
+                self.assertFalse(contacts['has_phone'])
+                self.assertFalse(contacts['has_whatsapp'])
+
+    def test_administration_contact_is_independent_of_direct_numbers(self):
+        from catalog.services.public_presentation import revealed_contacts
+        park = self.place(nature='public_space', phone1='', administration_name='Park office',
+                          administration_phone='+1 310 456 4918')
+        data = self.contacts(park)
+        self.assertFalse(data['has_contact'])
+        self.assertTrue(data['has_administration_phone'])
+        self.assertEqual(data['administration_name'], 'Park office')
+        payload = revealed_contacts(data)
+        self.assertEqual(payload['phones'], [])
+        self.assertEqual(payload['whatsapp'], '')
+        self.assertEqual(payload['administration_phone']['href'], 'tel:+13104564918')
+        park.phone1 = '+994504274393'
+        park.whatsapp_mode = 'same'
+        both = revealed_contacts(self.contacts(park))
+        self.assertEqual(both['phones'][0]['number'], '+994504274393')
+        self.assertEqual(both['administration_phone'], payload['administration_phone'])
+
+    def test_unattributed_or_invalid_administration_number_is_never_exposed(self):
+        from catalog.services.public_presentation import revealed_contacts
+        for name, phone in (('', '+13104564918'), ('Park office', 'not a number')):
+            data = self.contacts(self.place(phone1='', administration_name=name, administration_phone=phone))
+            self.assertFalse(data['has_administration_phone'])
+            self.assertNotIn('administration_phone', revealed_contacts(data))
+
+    def test_legacy_directory_number_is_not_a_park_contact(self):
+        from catalog.services.public_presentation import revealed_contacts
+        park = self.place(nature='public_space', phone1='050 540 66 39',
+                          phone2='+13104564918', whatsapp_mode='separate',
+                          whatsapp_number='https://wa.me/994505406639',
+                          administration_name='Park office', administration_phone='+994 50 540 66 39')
+        payload = revealed_contacts(self.contacts(park))
+        self.assertEqual([entry['number'] for entry in payload['phones']], ['+13104564918'])
+        self.assertEqual(payload['whatsapp'], '')
+        self.assertNotIn('administration_phone', payload)
+        self.assertEqual(park.phone1, '050 540 66 39')
+
+    def test_legacy_mode_does_not_guess_whatsapp_for_second_park_number(self):
+        park = self.place(nature='public_space', phone1='050 540 66 39',
+                          phone2='+13104564918', whatsapp_mode='legacy')
+        self.assertFalse(self.contacts(park)['has_whatsapp'])
+
     def test_whatsapp_without_calling_number(self):
         data = self.contacts(self.place(phone1='', whatsapp_mode='separate', whatsapp_number='+13104564918'))
         self.assertEqual(data['phones'], [])
@@ -106,6 +159,30 @@ class PhonePublicEndpointTests(TestCase):
         self.assertIn('no-store', response.headers['Cache-Control'])
         self.assertEqual(self.client.get(self.endpoint).status_code, 405)
         self.assertEqual(Client(enforce_csrf_checks=True).post(self.endpoint).status_code, 403)
+
+    def test_park_with_an_old_directory_phone_only_reveals_its_separate_office(self):
+        from catalog.models import Category, Subcategory
+        from catalog.services.map_payload import serialize_map_places
+        category, _ = Category.objects.get_or_create(code='parks-playgrounds', defaults={'name': 'Parks'})
+        park, _ = Subcategory.objects.get_or_create(category=category, code='parks-boulevards',
+                                                   defaults={'name': 'Public park'})
+        Place.objects.filter(pk=self.place.pk).update(
+            category=category, subcategory=park, phone1='050 540 66 39', phone2='', whatsapp_mode='same',
+            administration_name='Park office', administration_phone='+13104564918')
+        response = self.client.post(self.endpoint)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['phones'], [])
+        self.assertEqual(data['whatsapp'], '')
+        self.assertEqual(data['administration_phone']['href'], 'tel:+13104564918')
+        member = serialize_map_places(Place.objects.filter(pk=self.place.pk), 'ru')[0]['members'][0]
+        self.assertFalse(member['has_phone'])
+        self.assertFalse(member['has_whatsapp'])
+        self.assertNotIn('administration_phone', member)
+        html = self.client.get(self.place.get_absolute_url()).content.decode()
+        self.assertIn('data-phone-administration="1"', html)
+        self.assertNotIn('994505406639', html)
+        self.assertNotIn('13104564918', html)
 
     def test_no_whatsapp_fallback_when_explicitly_disabled(self):
         Place.objects.filter(pk=self.place.pk).update(whatsapp_mode='none')

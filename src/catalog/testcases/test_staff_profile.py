@@ -112,6 +112,37 @@ class StaffProfileTests(TestCase):
         self.assertNotContains(response, 'name="_continue"')
         self.assertEqual(self.client.post(self.url, {'first_name': 'forged'}).status_code, 403)
 
+    def test_staff_profile_sends_only_the_selected_draft_to_deleted_places(self):
+        first = create_ready_place(
+            created_by=self.volunteer, name_az='Same place', status=Place.STATUS_DRAFT,
+        )
+        duplicate = create_ready_place(
+            created_by=self.volunteer, name_az='Same place', status=Place.STATUS_DRAFT,
+        )
+        url = reverse('admin:catalog_place_delete', args=[duplicate.pk])
+        self.assertContains(self.client.get(self.url), f'href="{url}"')
+        self.assertEqual(self.client.get(url).status_code, 200)
+        duplicate.refresh_from_db()
+        self.assertIsNone(duplicate.deleted_at)
+        self.assertEqual(self.client.post(url, {'post': 'yes'}).status_code, 302)
+        duplicate.refresh_from_db()
+        first.refresh_from_db()
+        self.assertIsNotNone(duplicate.deleted_at)
+        self.assertIsNone(first.deleted_at)
+        self.assertTrue(User.objects.filter(pk=self.volunteer.pk).exists())
+        self.assertNotContains(self.client.get(self.url), f'href="{url}"')
+
+    def test_staff_profile_respects_place_delete_permission(self):
+        editor = User.objects.create_user('place_viewer', is_staff=True)
+        editor.user_permissions.add(*Permission.objects.filter(
+            content_type__app_label='catalog', codename__in=['view_staffaccessuser', 'view_place'],
+        ))
+        place = create_ready_place(created_by=self.volunteer, status=Place.STATUS_DRAFT)
+        url = reverse('admin:catalog_place_delete', args=[place.pk])
+        self.client.force_login(editor)
+        self.assertNotContains(self.client.get(self.url), f'href="{url}"')
+        self.assertEqual(self.client.post(url, {'post': 'yes'}).status_code, 403)
+
     def test_non_superuser_cannot_change_superuser_or_password(self):
         editor = User.objects.create_user('editor', is_staff=True)
         editor.user_permissions.add(Permission.objects.get(codename='change_staffaccessuser'))

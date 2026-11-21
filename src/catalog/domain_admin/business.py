@@ -70,16 +70,62 @@ class OrganizationForm(ContactPhoneFormMixin, CandidateForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['name_az'].required = True
+        # View-only admin (a moderator who is not the owner) builds the form
+        # without editable fields; it must still open, not crash.
+        if 'name_az' in self.fields:
+            self.fields['name_az'].required = True
+
+    def _clean_media(self, name):
+        from catalog.controllers.organization_workspace import MEDIA_RULES, MEDIA_FORMATS
+        upload = self.cleaned_data.get(name)
+        if not upload or getattr(upload, '_committed', True) and not hasattr(upload, 'image'):
+            return upload
+        limit, min_w, min_h = MEDIA_RULES[name]
+        if upload.size > limit:
+            raise ValidationError(_('Файл больше %(mb)s МБ.') % {'mb': limit // (1024 * 1024)})
+        image = getattr(upload, 'image', None)
+        if getattr(image, 'format', None) not in MEDIA_FORMATS:
+            raise ValidationError(_('Загрузите JPG, PNG или WebP.'))
+        width, height = getattr(image, 'size', (0, 0))
+        if width < min_w or height < min_h:
+            raise ValidationError(_('Изображение слишком маленькое: нужно от %(w)s×%(h)s px.') % {'w': min_w, 'h': min_h})
+        return upload
+
+    def clean_logo(self):
+        return self._clean_media('logo')
+
+    def clean_cover_photo(self):
+        return self._clean_media('cover_photo')
+
+    def _clean_social(self, name):
+        from catalog.services.organization_state import normalize_social
+        try:
+            return normalize_social(name, self.cleaned_data.get(name))
+        except ValueError:
+            raise ValidationError(_('Укажите ссылку на профиль или @имя аккаунта.'))
+
+    def clean_instagram(self):
+        return self._clean_social('instagram')
+
+    def clean_facebook(self):
+        return self._clean_social('facebook')
+
+    def clean_tiktok(self):
+        return self._clean_social('tiktok')
 
     class Meta:
         model = Organization
-        fields = ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'phone', 'whatsapp', 'whatsapp_same_as_phone', 'website')
+        fields = ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'phone', 'whatsapp', 'whatsapp_same_as_phone', 'website',
+                  'address', 'instagram', 'facebook', 'tiktok', 'logo', 'cover_photo')
         labels = {**{f'name_{lang}':_format_label(_('Название организации (%(language)s)'), {'language':lang.upper()}) for lang in ('az','ru','en')},
             **{f'description_{lang}':_format_label(_('Описание организации (%(language)s)'), {'language':lang.upper()}) for lang in ('az','ru','en')},
-            'phone':_('Общий телефон организации'),'whatsapp':_('Общий WhatsApp организации'),'website':_('Сайт организации')}
+            'phone':_('Общий телефон организации'),'whatsapp':_('Общий WhatsApp организации'),'website':_('Сайт организации'),
+            'address':_('Адрес головного офиса'),'logo':_('Логотип'),'cover_photo':_('Обложка')}
         help_texts = {'phone':_('Используется в филиале, если там не указан собственный телефон.'),
-            'website':_('Используется в филиале, если там не указан собственный сайт.')}
+            'website':_('Используется в филиале, если там не указан собственный сайт.'),
+            'instagram':_('Ссылка на профиль или @имя аккаунта.'),'facebook':_('Ссылка на профиль или @имя аккаунта.'),
+            'tiktok':_('Ссылка на профиль или @имя аккаунта.'),
+            'logo':_('Квадрат от 120 px, JPG/PNG/WebP, до 5 МБ.'),'cover_photo':_('От 800×300 px, JPG/PNG/WebP, до 8 МБ.')}
 
 
 class ProgramForm(CandidateForm):
@@ -127,11 +173,17 @@ def organization_status_filter(value):
     if value == 'published':
         return Q(status='published', approved_at__isnull=False, archived_at__isnull=True)
     if value == 'draft':
-        return (Q(status='draft') | Q(status='published', approved_at__isnull=True)) & ~pending
+        return Q(status='draft') & ~pending
+    if value == 'inconsistent':
+        # Legacy rows: marked published but never approved, so never public.
+        return Q(status='published', approved_at__isnull=True, archived_at__isnull=True) & ~pending
     return Q(status=value)
 
 
 class OrganizationPublicationStatusFilter(PublicationStatusFilter):
+    def lookups(self, request, model_admin):
+        return (*super().lookups(request, model_admin), ('inconsistent', _('Требуют решения')))
+
     def queryset(self, request, queryset):
         return queryset.filter(organization_status_filter(self.value())) if self.value() else queryset
 
@@ -144,9 +196,15 @@ class OrganizationHasBranchesFilter(admin.SimpleListFilter):
         return (
             ('yes', _('Есть филиалы')),
             ('no', _('Без филиалов')),
+            ('stale', _('Есть неактуальные связи')),
         )
 
     def queryset(self, request, queryset):
+        if self.value() == 'stale':
+            from catalog.models import Place
+            from catalog.services.organization_state import current_branch_q
+            stale = Place.objects.filter(organization__isnull=False, deleted_at__isnull=True).exclude(current_branch_q())
+            return queryset.filter(pk__in=stale.values('organization_id'))
         if self.value() == 'yes':
             return queryset.filter(places__isnull=False, places__deleted_at__isnull=True).distinct()
         if self.value() == 'no':
@@ -214,7 +272,7 @@ class BusinessEditor(admin.ModelAdmin):
     @property
     def publication_kind(self):
         return 'offering_group' if self.opts.model_name == 'offeringgroup' else self.opts.model_name
-    readonly_fields = ('publication_badge', 'ownership_badge', 'verified_badge', 'content_version', 'archived_at')
+    readonly_fields = ('publication_badge', 'ownership_badge', 'verified_badge', 'data_version', 'archived_since')
     list_display = ('display_name', 'publication_badge', 'display_content_version', 'display_updated_at')
     search_fields = ('name_az', 'name_ru', 'name_en')
     list_filter = (PublicationStatusFilter,)
@@ -276,6 +334,15 @@ class BusinessEditor(admin.ModelAdmin):
     def display_content_version(self, obj):
         return obj.content_version
 
+    @admin.display(description=_('Версия данных'))
+    def data_version(self, obj):
+        return obj.content_version
+
+    @admin.display(description=_('В архиве с'))
+    def archived_since(self, obj):
+        from django.utils import timezone
+        return timezone.localtime(obj.archived_at).strftime('%d.%m.%Y %H:%M') if obj.archived_at else '—'
+
     @admin.display(description=_('Обновлено'), ordering='-updated_at')
     def display_updated_at(self, obj):
         from django.utils import timezone
@@ -289,7 +356,7 @@ class BusinessEditor(admin.ModelAdmin):
         fields = list(self.form._meta.fields)
         if obj is not None:
             fields = [name for name in fields if name not in self.structural_fields]
-        return ['publication_badge', 'ownership_badge', 'verified_badge', *fields, 'source_version', 'candidate_version', 'content_version', 'archived_at'] if obj else [*fields, 'source_version', 'candidate_version']
+        return ['publication_badge', 'ownership_badge', 'verified_badge', *fields, 'source_version', 'candidate_version', 'data_version', 'archived_since'] if obj else [*fields, 'source_version', 'candidate_version']
 
     def get_fieldsets(self, request, obj=None):
         available = set(self.get_fields(request, obj))
@@ -303,7 +370,7 @@ class BusinessEditor(admin.ModelAdmin):
         if badges:
             sections.insert(0, (_('Состояние'), {'fields': badges, 'classes': ('km-business-section',)}))
             available.difference_update(badges)
-        versions = tuple(name for name in ('source_version', 'candidate_version', 'content_version', 'archived_at') if name in available)
+        versions = tuple(name for name in ('source_version', 'candidate_version', 'data_version', 'archived_since') if name in available)
         available.difference_update(versions)
         if available:
             sections.append((None, {'fields': tuple(sorted(available))}))
@@ -466,6 +533,13 @@ class BusinessEditor(admin.ModelAdmin):
             obj.pk = target.pk
             obj._state.adding = False
             obj._state.db = target._state.db
+        # Uploaded files must exist in storage before the candidate names them.
+        from django.db.models import FileField
+        for model_field in obj._meta.fields:
+            if isinstance(model_field, FileField):
+                value = getattr(obj, model_field.attname)
+                if value and not getattr(value, '_committed', True):
+                    value.save(value.name, value.file, save=False)
         patch = publication.snapshot(obj, self.publication_kind)
         patch = {key: value for key, value in patch.items() if key in publication.fields_for(self.publication_kind)}
         if isinstance(target,Activity) and target.program_id:
@@ -506,6 +580,19 @@ class BusinessEditor(admin.ModelAdmin):
             elif action == 'unpublish' and not isinstance(obj, OfferingGroup):
                 publication.unpublish(actor=request.user, target_type=self.publication_kind,
                                       target_id=obj.pk, expected_version=int(request.POST.get('source_version', '-1')))
+            elif action == 'return':
+                revision = VolunteerPlaceRevision.objects.filter(**{self.publication_kind: obj}).first()
+                if revision is None or revision.status != 'pending':
+                    raise ValidationError(_('Нет заявки на проверке.'))
+                note = (request.POST.get('review_note') or '').strip()
+                if not note:
+                    raise ValidationError(_('Напишите, что нужно исправить.'))
+                publication.review(actor=request.user, revision_id=revision.pk,
+                                   version=int(request.POST.get('revision_version', '-1')), approve=False, note=note)
+            elif action == 'relink' and isinstance(obj, Organization):
+                from catalog.services.organization_ownership import request_join
+                request_join(actor=request.user, place_id=int(request.POST.get('place_id', '-1')),
+                             organization_id=obj.pk, relationship_kind='informational')
             elif action == 'invite' and isinstance(obj, Organization):
                 from catalog.services.business_team import invite
                 invite(actor=request.user, target_type='organization', target_id=obj.pk,
@@ -524,8 +611,9 @@ class BusinessEditor(admin.ModelAdmin):
 @admin.register(Organization)
 class OrganizationAdmin(BusinessEditor):
     change_list_template = "admin/catalog/organization/change_list.html"
-    editor_sections = (( _('Названия'), ('name_az', 'name_ru', 'name_en')), (_('Описание'), ('description_az', 'description_ru', 'description_en')), (_('Контакты'), ('phone', 'whatsapp', 'whatsapp_same_as_phone', 'website')))
+    editor_sections = (( _('Названия'), ('name_az', 'name_ru', 'name_en')), (_('Описание'), ('description_az', 'description_ru', 'description_en')), (_('Контакты'), ('phone', 'whatsapp', 'whatsapp_same_as_phone', 'website', 'address')), (_('Медиа'), ('logo', 'cover_photo')), (_('Соцсети'), ('instagram', 'facebook', 'tiktok')))
     form = OrganizationForm
+    change_form_template = 'admin/catalog/organization/change_form.html'
     structural_fields = frozenset()
     list_display = ('display_name', 'publication_badge', 'ownership_badge', 'places_count_badge', 'programs_count_badge', 'display_phone', 'display_updated_at')
     list_filter = (OrganizationPublicationStatusFilter, OrganizationHasBranchesFilter)
@@ -537,11 +625,22 @@ class OrganizationAdmin(BusinessEditor):
 
     @admin.display(description=_('Филиалы'))
     def places_count_badge(self, obj):
-        count = obj.places.filter(deleted_at__isnull=True).count()
+        from catalog.services.organization_state import branch_counts_by_org
+        current, stale = getattr(self, '_branch_counts', {}).get(obj.pk) or branch_counts_by_org([obj.pk])[obj.pk]
         url = reverse('admin:catalog_place_changelist') + f'?organization__id__exact={obj.pk}'
-        if count > 0:
-            return format_html('<a href="{}" class="km-org-count-badge km-org-count-badge--branches" title="{}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-place"></use></svg>{}</a>', url, _('Смотреть филиалы'), count)
-        return mark_safe('<span class="text-muted" style="font-size: 13px;">—</span>')
+        if not current and not stale:
+            return mark_safe('<span class="text-muted" style="font-size: 13px;">—</span>')
+        html = format_html('<a href="{}" class="km-org-count-badge km-org-count-badge--branches" title="{}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-place"></use></svg>{}</a>', url, _('Подтверждённые филиалы'), current)
+        if stale:
+            html += format_html(' <a href="{}" class="km-org-count-badge km-org-count-badge--stale" title="{}">⚠ {}</a>',
+                                reverse('admin:catalog_organization_change', args=[obj.pk]) + '#km-org-branches', _('Связи ждут повторного подтверждения'), stale)
+        return html
+
+    def get_changelist_instance(self, request):
+        cl = super().get_changelist_instance(request)
+        from catalog.services.organization_state import branch_counts_by_org
+        self._branch_counts = branch_counts_by_org([obj.pk for obj in cl.result_list])
+        return cl
 
     @admin.display(description=_('Программы'))
     def programs_count_badge(self, obj):
@@ -558,24 +657,65 @@ class OrganizationAdmin(BusinessEditor):
         return mark_safe('<span class="text-muted" style="font-size: 13px;">—</span>')
 
     def _dashboard_counts(self):
+        from catalog.models import Place
+        from catalog.services.organization_state import current_branch_q
+        counts = self._organization_counts()
+        stale = Place.objects.filter(organization__isnull=False, deleted_at__isnull=True,
+                                     organization__archived_at__isnull=True).exclude(current_branch_q())
+        counts['stale_links'] = stale.values('organization_id').distinct().count()
+        return counts
+
+    def _organization_counts(self):
         return Organization.objects.aggregate(
             total=Count('pk', distinct=True),
             published=Count('pk', filter=organization_status_filter('published'), distinct=True),
             pending=Count('pk', filter=organization_status_filter('pending'), distinct=True),
             draft=Count('pk', filter=organization_status_filter('draft'), distinct=True),
+            inconsistent=Count('pk', filter=organization_status_filter('inconsistent'), distinct=True),
             with_places=Count('pk', filter=Q(places__isnull=False, places__deleted_at__isnull=True), distinct=True),
         )
 
     @admin.display(description=_('Публикация и изменения'))
     def publication_badge(self, obj):
+        from catalog.services.organization_state import lifecycle
         published = obj.status == 'published' and obj.approved_at and not obj.archived_at
         status = 'published' if published else 'draft'
         label = _('Опубликовано') if published else _('Не опубликовано')
         badge = format_html('<span class="km-status-badge km-status-{}">{}</span>', status, label)
         revision = getattr(obj, 'content_revision', None)
+        state = lifecycle(obj, revision)
+        if state.code == 'inconsistent':
+            badge = format_html('<span class="km-status-badge km-status-draft">{}</span> <span class="km-status-badge km-org-state--danger" title="{}">{}</span>',
+                                label, state.hint, state.label)
         if revision and revision.status == 'pending':
             return format_html('{} <span class="km-status-badge km-status-pending">{}</span>', badge, _('Изменения на модерации'))
+        if revision and revision.status == 'rejected':
+            return format_html('{} <span class="km-status-badge km-org-state--warn">{}</span>', badge, _('Возвращено на доработку'))
         return badge
+
+    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+        from catalog.models import Place
+        from catalog.services import organization_state as state_service
+        context = dict(extra_context or {})
+        obj = self.get_object(request, object_id) if object_id else None
+        if obj is None:
+            context.setdefault('title', _('Новая организация'))
+        else:
+            revision = VolunteerPlaceRevision.objects.filter(organization=obj).first()
+            places = list(Place.objects.filter(organization=obj, deleted_at__isnull=True).select_related('owner').order_by('pk'))
+            health = state_service.branch_health(obj, places=places)
+            data = dict(revision.payload) if revision and revision.status in ('draft', 'pending', 'rejected') else None
+            context.update({
+                'km_org_state': state_service.lifecycle(obj, revision),
+                'km_org_health': health,
+                'km_org_ready': state_service.readiness(obj, data=data, health=health),
+                'km_org_public_url': state_service.public_path(obj) if obj.is_public else '',
+                'km_org_revision': revision,
+            })
+        return super().changeform_view(request, object_id, form_url, context)
+
+    def view_on_site(self, obj):
+        return obj.get_absolute_url() if obj.is_public else None
 
     def _dashboard_stats(self, request, counts: dict):
         from catalog.models.catalog_structure import PublicationState
@@ -604,6 +744,12 @@ class OrganizationAdmin(BusinessEditor):
                 "url": f"?status={PublicationState.DRAFT}",
                 "tone": "muted",
             },
+            *(({
+                "label": _("Требуют решения"),
+                "count": counts["inconsistent"],
+                "url": "?status=inconsistent",
+                "tone": "danger",
+            },) if counts.get("inconsistent") else ()),
             {
                 "label": _("С филиалами"),
                 "count": counts["with_places"],
@@ -652,6 +798,20 @@ class OrganizationAdmin(BusinessEditor):
                 "url": "?has_branches=yes",
                 "active": current_branches == "yes",
             },
+            *(({
+                "key": "inconsistent",
+                "label": _("Требуют решения"),
+                "count": counts.get("inconsistent", 0),
+                "url": "?status=inconsistent",
+                "active": current_status == "inconsistent",
+            },) if counts.get("inconsistent") or current_status == "inconsistent" else ()),
+            *(({
+                "key": "stale",
+                "label": _("Неактуальные связи"),
+                "count": counts.get("stale_links", 0),
+                "url": "?has_branches=stale",
+                "active": current_branches == "stale",
+            },) if counts.get("stale_links") or current_branches == "stale" else ()),
         ]
 
     def _bulk_actions(self):

@@ -30,7 +30,7 @@
       <a href="{{ person.url }}" class="home-sp-card__link">
         <span class="home-sp-card__photo" data-initials="{{ person.initials }}">
           <img src="{{ person.photo }}" alt="" loading="lazy" decoding="async" onerror="this.remove()">
-          {% if person.price_from %}<span class="home-sp-card__price">{% if hl == 'az' %}{{ person.price_from }} ₼-dan{% elif hl == 'en' %}From {{ person.price_from }} ₼{% else %}От {{ person.price_from }} ₼{% endif %}</span>{% endif %}
+          {% if person.price_label %}<span class="home-sp-card__price">{{ person.price_label }}</span>{% elif person.price_from != None %}<span class="home-sp-card__price">{% if hl == 'az' %}{{ person.price_from }} ₼-dan{% elif hl == 'en' %}From {{ person.price_from }} ₼{% else %}От {{ person.price_from }} ₼{% endif %}</span>{% endif %}
         </span>
         <span class="home-sp-card__body">
           <strong class="home-sp-card__name">{{ person.name }}</strong>

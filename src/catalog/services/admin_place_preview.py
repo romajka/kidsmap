@@ -153,7 +153,7 @@ def _review_summary(data, live, readiness, photos):
             label, target = sections[key]
         else:
             label = Place._meta.get_field(key).verbose_name
-            target = ('preview-location' if key in {'address','district','metro','lat','lng','phone1','phone2','phone3','phone_country','whatsapp_mode','whatsapp_number','instagram','website'}
+            target = ('preview-location' if key in {'address','district','metro','lat','lng','phone1','phone2','phone3','phone_country','whatsapp_mode','whatsapp_number','administration_name','administration_phone','instagram','website'}
                 else 'preview-schedule' if key.startswith('schedule')
                 else 'preview-prices' if key.startswith(('price','custom_price'))
                 else 'preview-conditions' if key.startswith(('extra_conditions','additional_info'))
@@ -261,7 +261,7 @@ def _build_preview(place, *, item=None, language='ru', current=False, revision_c
         if name == 'city': location[index]['label'] = _('Город')
         if (place.city if name == 'city' else data.get(name)):
             location[index]['value'] = get_location_translation(place.city if name == 'city' else data[name], language)
-    contacts = _field_rows(Place, data, ('phone1','phone2','phone3','phone_country','whatsapp_mode','whatsapp_number','instagram','website'))
+    contacts = _field_rows(Place, data, ('phone1','phone2','phone3','phone_country','whatsapp_mode','whatsapp_number','administration_name','administration_phone','instagram','website'))
     contacts.extend({'label':link['label'],'value':link['url'],'url':external_link(link['url'])} for link in candidate.safe_public_links)
     instagram = external_link(candidate.instagram_url()) if candidate.instagram else ''
     if instagram:

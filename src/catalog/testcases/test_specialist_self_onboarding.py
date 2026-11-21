@@ -7,6 +7,7 @@ from django.http import QueryDict
 from django.test import TestCase
 from django.utils import timezone
 
+from catalog.testcases.specialist_document_fixtures import portrait_upload
 from catalog.models import SiteSettings, Specialist, SpecialistClaim, SpecialistSpecialization, UserProfile
 from catalog.services import specialist_domain
 from catalog.services.specialist_proposal_drafts import save_proposal
@@ -25,6 +26,7 @@ class SpecialistSelfOnboardingTests(TestCase):
         data = QueryDict('', mutable=True)
         data.update({'profile_subject': subject, 'name': 'Synthetic applicant',
                      'consultation_format': 'online', 'bio_ru': 'Synthetic biography',
+                     'lesson_type': 'individual', 'lesson_price': '25',
                      'phone': '+994500000000', 'language_ru': 'on', 'specializations': str(self.spec.pk),
                      'locations-TOTAL_FORMS': '0', 'locations-INITIAL_FORMS': '0',
                      'locations-MIN_NUM_FORMS': '0', 'locations-MAX_NUM_FORMS': '30'})
@@ -33,7 +35,7 @@ class SpecialistSelfOnboardingTests(TestCase):
 
     def save(self, data, *, key=None, version=0, submit=False):
         return save_proposal(actor=self.actor, draft_id=key or uuid4(), expected_version=str(version),
-                             data=data, files={}, submit=submit)
+                             data=data, files={'photo': portrait_upload()} if submit else {}, submit=submit)
 
     def test_empty_account_has_add_action_and_no_empty_specialist_workspace(self):
         page = self.client.get('/ru/account/')

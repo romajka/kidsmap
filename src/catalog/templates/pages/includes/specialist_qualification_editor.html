@@ -12,7 +12,7 @@
     <div class="km-section-title-wrap">
       <span class="km-section-num-pill">6</span>
       <h2 id="km-qualification-title"><span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span> {% if lang == 'az' %}Diplomlar və sertifikatlar{% elif lang == 'en' %}Diplomas and certificates{% else %}Дипломы и сертификаты{% endif %}</h2>
-      <span class="km-section-opt-pill">{% if lang == 'az' %}İstəyə görə{% elif lang == 'en' %}Optional{% else %}По желанию{% endif %}</span>
+      {% include "pages/includes/specialist_field_badge.html" with recommended=True CURRENT_LANGUAGE=lang %}
     </div>
   </div>
   {{ qualification_formset.management_form }}

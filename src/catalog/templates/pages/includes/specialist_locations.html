@@ -144,6 +144,7 @@
             <label for="{{ row.region.id_for_label }}" class="km-practice-field-label">
               <span class="material-symbols-rounded" aria-hidden="true">location_city</span>
               <span>{{ row.region.label }}</span>
+              <span class="km-active-location-required">{% include "pages/includes/specialist_field_badge.html" %}</span>
             </label>
             <div class="km-custom-select-wrap">
               <span class="km-select-affix" aria-hidden="true">
@@ -194,7 +195,8 @@
     <div class="km-practice-details-card">
       <div class="km-practice-details-head">
         <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
-        <span>{% trans 'Условия и расписание в этом филиале (необязательно)' %}</span>
+        <span>{% if CURRENT_LANGUAGE == 'az' %}Bu filialda qəbul şərtləri və cədvəli{% elif CURRENT_LANGUAGE == 'en' %}Terms and schedule at this location{% else %}Условия и расписание в этом филиале{% endif %}</span>
+        {% include "pages/includes/specialist_field_badge.html" with recommended=True %}
       </div>
 
       <div class="spec-practice-field km-field--schedule">

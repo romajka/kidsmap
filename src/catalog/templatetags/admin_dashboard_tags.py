@@ -28,6 +28,8 @@ def km_drawer_filters(cl):
     """Render only filters already exposed by the current admin changelist."""
     entity_specific = cl.opts.model_name in {'event', 'specialist'}
     legacy_fields = {'created_by', 'created_date', 'category', 'district', 'is_verified'}
+    if cl.opts.model_name == 'place':
+        legacy_fields.add('organization')
     navigation_fields = {'sort', 'deleted_at__isnull'}
     available = []
     for spec in getattr(cl, 'filter_specs', []):
@@ -38,7 +40,12 @@ def km_drawer_filters(cl):
             continue
         choices = list(spec.choices(cl))
         if choices:
-            available.append({'field': field, 'title': spec.title, 'choices': choices})
+            title = spec.title
+            if field == 'organization':
+                # The model field has no translated verbose name; keep the drawer in the admin language.
+                from django.utils.translation import gettext
+                title = gettext('Организация')
+            available.append({'field': field, 'title': title, 'choices': choices})
     if entity_specific:
         primary = tuple(getattr(cl.model_admin, 'km_primary_filters', ()))
         positions = {field: index for index, field in enumerate(primary)}
@@ -230,7 +237,7 @@ def km_search_hidden_params(cl):
 
 @register.simple_tag
 def cl_sort_url(cl, sort_key):
-    return cl.get_query_string({'sort': sort_key}, [PAGE_VAR, 'o', 'ot'])
+    return cl.get_query_string({'sort': sort_key, PAGE_VAR: None, 'o': None, 'ot': None})
 
 
 @register.simple_tag

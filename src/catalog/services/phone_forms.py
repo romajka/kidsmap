@@ -5,7 +5,7 @@ from django.core.validators import MaxLengthValidator
 from django.utils.translation import get_language
 import phonenumbers
 
-from catalog.services.phone_numbers import format_phone, normalize_phone, normalize_whatsapp
+from catalog.services.phone_numbers import format_phone, normalize_phone, normalize_whatsapp, require_administration_name
 
 
 def text(ru, az, en):
@@ -16,7 +16,7 @@ def configure_contact_form(form):
     compact = getattr(form, 'compact_contact_fields', False)
     form._original_contact_values = {}
     region = form.initial.get('phone_country') or getattr(getattr(form, 'instance', None), 'phone_country', 'AZ') or 'AZ'
-    for name in ('phone1', 'phone2', 'phone3', 'phone', 'whatsapp_number', 'whatsapp'):
+    for name in ('phone1', 'phone2', 'phone3', 'phone', 'whatsapp_number', 'whatsapp', 'administration_phone'):
         if name not in form.fields:
             continue
         field = form.fields[name]
@@ -36,6 +36,14 @@ def configure_contact_form(form):
         if name in ('whatsapp_number', 'whatsapp'):
             field.help_text = text('Номер с кодом страны или ссылка https://wa.me/номер. Наличие аккаунта не проверяется.', 'Ölkə kodu ilə nömrə və ya https://wa.me/nömrə keçidi. Hesabın mövcudluğu yoxlanılmır.', 'Number with country code or https://wa.me/number. Account existence is not verified.')
             field.label = 'WhatsApp' if name == 'whatsapp' else text('Отдельный номер WhatsApp', 'Ayrıca WhatsApp nömrəsi', 'Separate WhatsApp number')
+    if 'administration_name' in form.fields:
+        form.fields['administration_name'].label = text('Ответственная организация', 'Məsul təşkilat', 'Responsible organization')
+    if 'administration_phone' in form.fields:
+        field = form.fields['administration_phone']
+        field.label = text('Официальный телефон организации', 'Təşkilatın rəsmi telefonu', 'Official organization phone')
+        field.help_text = text('Укажите номер из официального источника организации.',
+                               'Nömrəni təşkilatın rəsmi mənbəsindən götürün.',
+                               'Use the number published by the organization.')
     if 'phone_country' in form.fields:
         original = form.initial.get('phone_country') or getattr(form.instance, 'phone_country', 'AZ') or 'AZ'
         form.fields['phone_country'] = forms.ChoiceField(required=True, label=text('Страна местного номера', 'Yerli nömrənin ölkəsi', 'Country for local numbers'), choices=[(r, f'{r} (+{phonenumbers.country_code_for_region(r)})') for r in sorted(phonenumbers.SUPPORTED_REGIONS)], widget=forms.Select(attrs={'class': 'field'}))
@@ -57,7 +65,7 @@ def configure_contact_form(form):
     if form.is_bound:
         # Old clients and partial candidate saves must not clear newly added fields.
         data = form.data.copy()
-        for name in ('phone_country', 'whatsapp_mode', 'whatsapp_number'):
+        for name in ('phone_country', 'whatsapp_mode', 'whatsapp_number', 'administration_name', 'administration_phone'):
             if name in form.fields and form.add_prefix(name) not in data:
                 data[form.add_prefix(name)] = form.initial.get(name, '')
         form.data = data
@@ -99,6 +107,11 @@ def clean_contact_form(form, cleaned):
                 cleaned[name] = original
             else:
                 form.add_error(name, _contact_error(form, exc))
+    if 'administration_name' in cleaned:
+        try:
+            require_administration_name(cleaned['administration_name'], cleaned.get('administration_phone'))
+        except ValidationError as exc:
+            form.add_error('administration_name', exc)
     if cleaned.get('whatsapp_mode') == 'separate' and not cleaned.get('whatsapp_number') and 'whatsapp_number' not in form.errors:
         form.add_error('whatsapp_number', text('Укажите отдельный номер WhatsApp.', 'Ayrıca WhatsApp nömrəsini daxil edin.', 'Enter the separate WhatsApp number.'))
     return cleaned

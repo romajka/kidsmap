@@ -187,6 +187,9 @@
         <p>{{ editor_copy.update_hint }}</p>
         {% if admin_working_revision %}
           <button type="submit" name="action" value="admin_save" class="km-pf-btn km-pf-btn--primary km-pf-btn--block" {% if conflict %}disabled{% endif %}>{% translate "Сохранить рабочую версию" %}</button>
+          {% if request.user.is_superuser and revision.status == 'pending' %}
+            <a class="km-pf-btn km-pf-btn--ghost km-pf-btn--block" data-admin-review-link href="{{ card.detail_url }}">{% translate "Перейти к проверке" %}</a>
+          {% endif %}
         {% else %}
           <button type="submit" name="action" value="draft" class="km-pf-btn km-pf-btn--primary km-pf-btn--block" {% if conflict %}disabled{% endif %}>{{ ui.draft }}</button>
           <button type="submit" name="action" value="submit" class="km-pf-btn km-pf-btn--ghost km-pf-btn--block" {% if conflict %}disabled{% endif %}>{{ ui.submit }}</button>

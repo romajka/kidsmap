@@ -14,6 +14,7 @@ from django.core.management.base import CommandError
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import override
 
 from catalog.models import (
     AccountDeletionAudit,
@@ -518,6 +519,30 @@ class AccountDeletionWebTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Hesabı sil")
         self.assertContains(response, reverse("account_deletion_request"))
+
+    @override_settings(ACCOUNT_DELETION_RETENTION_POLICY={})
+    def test_settings_shows_a_support_link_when_self_service_is_unavailable(self):
+        messages = {
+            "az": "Hesabı özünüz silmək hazırda mümkün deyil.",
+            "ru": "Самостоятельное удаление аккаунта пока недоступно.",
+            "en": "Self-service account deletion is currently unavailable.",
+        }
+        for language, message in messages.items():
+            with self.subTest(language=language), override(language):
+                contacts_url = reverse("contacts")
+                deletion_url = reverse("account_deletion_request")
+                response = self.client.get(reverse("account_settings"))
+                self.assertContains(response, 'class="account-danger-zone__support"')
+                self.assertContains(response, message)
+                self.assertContains(response, f'href="{contacts_url}"')
+                self.assertNotContains(response, f'href="{deletion_url}"')
+
+    @override_settings(ACCOUNT_DELETION_RETENTION_POLICY={})
+    def test_disabled_direct_deletion_page_offers_a_support_path(self):
+        response = self.client.get(reverse("account_deletion_request"))
+        self.assertContains(response, 'class="account-danger-zone__support"')
+        self.assertContains(response, f'href="{reverse("contacts")}"')
+        self.assertNotContains(response, 'name="form_action" value="request"')
 
     def test_request_and_double_confirmation_sign_out_to_private_status(self):
         with patch("catalog.services.account_deletion._generate_code", return_value="123456"):

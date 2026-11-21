@@ -4,6 +4,7 @@
 {% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/organization_connections.css' %}"><script src="{% static 'js/organization_connections.js' %}" defer></script>{% endblock %}
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/organization_connections.css' %}"><script src="{% static 'js/organization_connections.js' %}" defer></script>{% endblock %}
 {% block content %}
+{% get_current_language as relationship_language %}
 <div class="org-connect" id="organization-connection-main">
   <a href="{{ back_url|default:'' }}{% if not back_url %}{% url 'organization_workspace_index' %}{% endif %}">{% translate 'К организациям' %}</a>
   <header><p class="org-connect__eyebrow">KidsMap · {% translate 'Организация и филиалы' %}</p>
@@ -16,7 +17,9 @@
     <li {% if review %}aria-current="step"{% endif %}>{% translate 'Проверка и подтверждение' %}</li>
     <li {% if result.status == 'completed' %}aria-current="step"{% endif %}>{% translate 'Результат' %}</li>
   </ol>
-  {% if connection_error %}<div class="org-connect__error" role="alert" tabindex="-1" data-error-summary>{{ connection_error }}</div>{% endif %}
+  {% if connection_kind_required %}
+    <div class="org-connect__error" role="alert" tabindex="-1" data-error-summary>{% if relationship_language == 'az' %}Əlaqə növünü seçin və yenidən yoxlayın.{% elif relationship_language == 'en' %}Choose a relationship type and run the preview again.{% else %}Выберите тип связи и повторите предварительную проверку.{% endif %}</div>
+  {% elif connection_error %}<div class="org-connect__error" role="alert" tabindex="-1" data-error-summary>{{ connection_error }}</div>{% endif %}
   {% if target_select %}
     <form method="get" class="org-connect__panel">
       {% for pk in selected %}<input type="hidden" name="place_ids" value="{{ pk }}">{% endfor %}
@@ -30,10 +33,19 @@
       <input type="hidden" name="selection" value="{{ selection }}">
       <p>{% translate 'Выбрано мест' %}: {{ selected_count }}</p>
       <label for="org-target">{% translate 'Организация' %}</label>
-      <select id="org-target" name="organization_id" required>{% for target in targets %}<option value="{{ target.pk }}">{{ target.connection_display_name }}</option>{% endfor %}</select>
+      <select id="org-target" name="organization_id" required>{% for target in targets %}<option value="{{ target.pk }}"{% if target.pk|stringformat:"s" == selected_organization_id %} selected{% endif %}>{{ target.connection_display_name }}</option>{% endfor %}</select>
       <label for="org-kind">{% translate 'Тип связи' %}</label>
-      <select id="org-kind" name="relationship_kind"><option value="business">{% translate 'Бизнес-связь: согласие владельцев' %}</option>{% if can_information %}<option value="informational">{% translate 'Информационная связь: без доступа сотрудников' %}</option>{% endif %}</select>
-      <p>{% translate 'Административная роль не заменяет согласие владельцев бизнес-связи.' %}</p>
+      <select id="org-kind" name="relationship_kind" required aria-describedby="org-kind-help">
+        {% if can_information %}<option value="" disabled selected>{% if relationship_language == 'az' %}Əlaqə növünü seçin{% elif relationship_language == 'en' %}Choose a relationship type{% else %}Выберите тип связи{% endif %}</option>{% endif %}
+        <option value="business">{% translate 'Бизнес-связь: согласие владельцев' %}</option>
+        {% if can_information %}<option value="informational">{% translate 'Информационная связь: без доступа сотрудников' %}</option>{% endif %}
+      </select>
+      <div id="org-kind-help">
+        <p>{% translate 'Административная роль не заменяет согласие владельцев бизнес-связи.' %}</p>
+        {% if can_information %}
+          <p>{% if relationship_language == 'az' %}Məkanı məlumat üçün göstərmək istəyirsinizsə, informasiya əlaqəsini seçin. Bu seçim idarəetmə hüququ vermir.{% elif relationship_language == 'en' %}Choose an informational link to list the place without granting management access.{% else %}Выберите информационную связь, чтобы указать принадлежность места к организации без передачи прав управления.{% endif %}</p>
+        {% endif %}
+      </div>
       <button type="submit" name="action" value="preview">{% translate 'Посмотреть список и конфликты' %}</button>
     </form>
   {% elif search %}

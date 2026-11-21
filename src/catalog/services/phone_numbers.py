@@ -84,6 +84,14 @@ def normalize_whatsapp(value, *, default_region='AZ'):
     return normalize_phone(raw, default_region=default_region)
 
 
+def require_administration_name(name, phone):
+    if phone and not (isinstance(name, str) and name.strip()):
+        raise ValidationError(contact_copy(
+            'Укажите организацию, которой принадлежит этот телефон.',
+            'Bu telefon nömrəsinin aid olduğu təşkilatı göstərin.',
+            'Enter the organization that owns this phone number.'), code='missing_administration_name')
+
+
 def normalize_contact_patch(target, patch, *, pending=None):
     """Validate contact intent at the publication boundary, including partial edits."""
     result = dict(patch)
@@ -93,7 +101,7 @@ def normalize_contact_patch(target, patch, *, pending=None):
     region = merged('phone_country', 'AZ')
     if region not in phonenumbers.SUPPORTED_REGIONS:
         raise phone_error()
-    names = ('phone1', 'phone2', 'phone3', 'phone', 'whatsapp_number', 'whatsapp')
+    names = ('phone1', 'phone2', 'phone3', 'phone', 'whatsapp_number', 'whatsapp', 'administration_phone')
     for name in names:
         if name not in result:
             continue
@@ -105,6 +113,8 @@ def normalize_contact_patch(target, patch, *, pending=None):
             # Do not force historical junk through a lossy repair on unrelated edits.
             if not isinstance(value, str) or value != previous.get(name, getattr(target, name, '')):
                 raise
+    if 'administration_name' in result or 'administration_phone' in result:
+        require_administration_name(merged('administration_name'), merged('administration_phone'))
     if ('whatsapp_mode' in result or 'whatsapp_number' in result) and merged('whatsapp_mode') == 'separate':
         if not normalize_whatsapp(merged('whatsapp_number'), default_region=region):
             raise phone_error()

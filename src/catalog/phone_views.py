@@ -43,6 +43,6 @@ def reveal_place_phones(request, pk):
     place = get_object_or_404(published_place_queryset(Place.objects.all()), pk=pk)
     from catalog.services.public_presentation import contact_data, revealed_contacts
     contacts = contact_data(place)
-    if not contacts['has_contact']:
+    if not (contacts['has_contact'] or contacts['has_administration_phone']):
         return JsonResponse({'error': 'no_phone'}, status=404)
     return JsonResponse(revealed_contacts(contacts))

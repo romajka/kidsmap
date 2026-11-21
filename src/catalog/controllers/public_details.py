@@ -1,12 +1,13 @@
 """Public approved Organization and concrete Place Activity pages."""
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_safe
 from catalog.models import Organization, Activity, PlaceReview, ActivityReview
 from catalog.services.content_quality import published_place_queryset, public_review_queryset
 from catalog.services.public_presentation import present, prepare_cards, translated
 from catalog.services.tracking import track_subject_view
 from catalog.services.seo import build_public_entity_seo_payload
+from catalog.services.organization_state import social_links
 
 
 def _language(request):
@@ -14,13 +15,23 @@ def _language(request):
 
 
 @require_safe
-def organization_detail(request, public_id):
+def organization_detail(request, public_id=None, slug=None):
     from catalog.services.features import require_organizations_section_enabled
+    from catalog.services.organization_state import is_public, public_path
     require_organizations_section_enabled()
-    entity = get_object_or_404(Organization, public_id=public_id)
+    if slug is not None:
+        entity = get_object_or_404(Organization, slug=slug)
+    else:
+        entity = get_object_or_404(Organization, public_id=public_id)
+        if entity.slug and is_public(entity):
+            # The UUID address stays valid forever; the readable one is canonical.
+            target = public_path(entity)
+            if request.META.get('QUERY_STRING'):
+                target += '?' + request.META['QUERY_STRING']
+            return redirect(target, permanent=True)
     lang = _language(request)
     data = present(entity, lang)
-    if not data['visible']:
+    if not data['visible'] or not is_public(entity):
         raise Http404
     request._seo_entity = entity
     branch_objects = [p for p in prepare_cards(published_place_queryset(entity.places.all()), lang)
@@ -73,7 +84,7 @@ def organization_detail(request, public_id):
     # Top directions summary for compact hero block
     top_directions = [a['name'] for a in activities_filter[:4] if a.get('name')]
     # Suitable photo: entity photo or first published branch photo
-    hero_image_url = data.get('image_url') or next((b['image_url'] for b in branches if b.get('image_url')), '')
+    hero_image_url = (entity.cover_photo.url if entity.cover_photo else '') or data.get('image_url') or next((b['image_url'] for b in branches if b.get('image_url')), '')
 
     from catalog.services.features import is_specialists_section_enabled, is_events_section_enabled
     from django.utils import timezone
@@ -163,6 +174,11 @@ def organization_detail(request, public_id):
         'activities_filter':activities_filter,
         'top_directions':top_directions,
         'hero_image_url':hero_image_url,
+        'org_logo_url': entity.logo.url if entity.logo else '',
+        'org_cover_url': entity.cover_photo.url if entity.cover_photo else '',
+        'org_social': social_links(entity),
+        'org_address': entity.address,
+        'districts_count': len(districts_filter),
         'org_specialists':org_specialists,
         'org_events':org_events,
         'specialists_section_enabled':specialists_enabled,

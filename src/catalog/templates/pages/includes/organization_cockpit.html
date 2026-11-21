@@ -1,0 +1,127 @@
+{% load i18n %}{% get_current_language as CURRENT_LANGUAGE %}
+{# Owner cockpit: one status, one journey, one checklist and honest branch numbers. #}
+<header class="orgx-cockpit" data-org-cockpit data-state="{{ org_state.code }}">
+  <div class="orgx-cover{% if org_media_urls.cover_photo %} has-image{% endif %}"{% if org_media_urls.cover_photo %} style="--orgx-cover:url('{{ org_media_urls.cover_photo }}')"{% endif %} aria-hidden="true">
+    <span class="orgx-cover__glow"></span>
+  </div>
+  <div class="orgx-cockpit__body">
+    <div class="orgx-logo{% if org_media_urls.logo %} has-image{% endif %}">
+      {% if org_media_urls.logo %}<img src="{{ org_media_urls.logo }}" alt="" width="96" height="96" decoding="async">{% else %}<span aria-hidden="true">{{ organization.name_az|default:'K'|slice:':1'|upper }}</span>{% endif %}
+    </div>
+    <div class="orgx-cockpit__title">
+      <p class="org-eyebrow">KidsMap · {% if CURRENT_LANGUAGE == 'az' %}Təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Organization{% else %}Организация{% endif %}</p>
+      <h1>{% if CURRENT_LANGUAGE == 'ru' and organization.name_ru %}{{ organization.name_ru }}{% elif CURRENT_LANGUAGE == 'en' and organization.name_en %}{{ organization.name_en }}{% else %}{{ organization.name_az|default:'—' }}{% endif %}</h1>
+      <div class="org-chips">
+        <span class="orgx-state orgx-state--{{ org_state.tone }}" data-org-state="{{ org_state.code }}">
+          <span class="orgx-state__dot" aria-hidden="true"></span>
+          <span class="material-symbols-rounded" aria-hidden="true">{{ org_state.icon }}</span>
+          {{ org_state.label }}
+        </span>
+        {% if server_draft %}
+          <span class="org-status org-status--server-draft">
+            <span class="material-symbols-rounded" aria-hidden="true">cloud_done</span>
+            {% if CURRENT_LANGUAGE == 'az' %}Server qaralaması{% elif CURRENT_LANGUAGE == 'en' %}Server draft{% else %}Черновик на сервере{% endif %}
+          </span>
+        {% endif %}
+      </div>
+      <p class="orgx-cockpit__hint">{{ org_state.hint }}</p>
+    </div>
+    <div class="orgx-cockpit__actions">
+      {% if org_public_url %}
+        <a class="account-btn-sm account-btn-sm--secondary" href="{{ org_public_url }}" target="_blank" rel="noopener">
+          <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
+          <span>{% if CURRENT_LANGUAGE == 'az' %}Saytda bax{% elif CURRENT_LANGUAGE == 'en' %}View on site{% else %}Открыть на сайте{% endif %}</span>
+        </a>
+      {% endif %}
+      {% if can_create_branch %}
+        <a class="account-btn-action" href="#org-branches">
+          <span class="material-symbols-rounded" aria-hidden="true">add_location_alt</span>
+          <span>{% if CURRENT_LANGUAGE == 'az' %}Filial əlavə et{% elif CURRENT_LANGUAGE == 'en' %}Add branch{% else %}Добавить филиал{% endif %}</span>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <ol class="orgx-stepper" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Dərcə qədər addımlar{% elif CURRENT_LANGUAGE == 'en' %}Steps to publication{% else %}Шаги до публикации{% endif %}" style="--orgx-progress:{{ org_steps.progress }}%">
+    {% for step in org_steps.items %}
+      <li class="orgx-step{% if step.done %} is-done{% endif %}{% if step.current %} is-current{% endif %}" style="--i:{{ forloop.counter0 }}"{% if step.current %} aria-current="step"{% endif %}>
+        {% if step.href %}<a href="{{ step.href }}">{% else %}<span>{% endif %}
+          <span class="orgx-step__dot" aria-hidden="true">{% if step.done %}<span class="material-symbols-rounded">check</span>{% else %}{{ step.index }}{% endif %}</span>
+          <span class="orgx-step__label">{{ step.label }}</span>
+          {% if step.done %}<span class="visually-hidden">— {% if CURRENT_LANGUAGE == 'az' %}hazırdır{% elif CURRENT_LANGUAGE == 'en' %}done{% else %}готово{% endif %}</span>{% endif %}
+        {% if step.href %}</a>{% else %}</span>{% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+</header>
+
+{% if org_state.needs_changes and org_state.review_note %}
+  <div class="orgx-banner orgx-banner--warn" role="status">
+    <span class="material-symbols-rounded" aria-hidden="true">rate_review</span>
+    <div>
+      <strong>{% if CURRENT_LANGUAGE == 'az' %}Moderatorun qeydi{% elif CURRENT_LANGUAGE == 'en' %}Moderator note{% else %}Комментарий модератора{% endif %}</strong>
+      <p>{{ org_state.review_note }}</p>
+    </div>
+    <a class="account-btn-sm account-btn-sm--secondary" href="#org-about">{% if CURRENT_LANGUAGE == 'az' %}Düzəlt{% elif CURRENT_LANGUAGE == 'en' %}Fix now{% else %}Исправить{% endif %}</a>
+  </div>
+{% endif %}
+
+<section class="orgx-overview" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Vəziyyət{% elif CURRENT_LANGUAGE == 'en' %}Overview{% else %}Сводка{% endif %}">
+  <article class="orgx-card orgx-card--ready" style="--i:0">
+    <div class="orgx-ring" style="--p:{{ org_ready.percent }}" role="img" aria-label="{{ org_ready.percent }}%">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle class="orgx-ring__track" cx="32" cy="32" r="27"/><circle class="orgx-ring__bar" cx="32" cy="32" r="27" pathLength="100"/></svg>
+      <span class="orgx-ring__value"><strong data-count-to="{{ org_ready.percent }}">{{ org_ready.percent }}</strong><small>%</small></span>
+    </div>
+    <div class="orgx-card__body">
+      <h2>{% if CURRENT_LANGUAGE == 'az' %}Profilin hazırlığı{% elif CURRENT_LANGUAGE == 'en' %}Profile readiness{% else %}Готовность профиля{% endif %}</h2>
+      <ul class="orgx-checklist">
+        {% for item in org_ready.items %}
+          <li class="{% if item.done %}is-done{% elif item.required %}is-required{% endif %}">
+            <span class="material-symbols-rounded" aria-hidden="true">{% if item.done %}check_circle{% elif item.required %}error{% else %}radio_button_unchecked{% endif %}</span>
+            {% if item.done %}<span>{{ item.label }}</span>{% else %}<a href="#{{ item.anchor }}">{{ item.label }}</a>{% if item.required %}<em>{% if CURRENT_LANGUAGE == 'az' %}vacib{% elif CURRENT_LANGUAGE == 'en' %}required{% else %}обязательно{% endif %}</em>{% endif %}{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </article>
+
+  <article class="orgx-card orgx-card--branches" style="--i:1">
+    <h2>{% if CURRENT_LANGUAGE == 'az' %}Filiallar{% elif CURRENT_LANGUAGE == 'en' %}Branches{% else %}Филиалы{% endif %}</h2>
+    <div class="orgx-metrics">
+      <a class="orgx-metric orgx-metric--good" href="#org-branches">
+        <strong data-count-to="{{ org_health.current_count }}">{{ org_health.current_count }}</strong>
+        <span>{% if CURRENT_LANGUAGE == 'az' %}təsdiqlənib{% elif CURRENT_LANGUAGE == 'en' %}confirmed{% else %}подтверждены{% endif %}</span>
+      </a>
+      <a class="orgx-metric{% if org_health.stale_count %} orgx-metric--warn{% endif %}" href="#org-branches-stale">
+        <strong data-count-to="{{ org_health.stale_count }}">{{ org_health.stale_count }}</strong>
+        <span>{% if CURRENT_LANGUAGE == 'az' %}təsdiq gözləyir{% elif CURRENT_LANGUAGE == 'en' %}need re-confirmation{% else %}ждут подтверждения{% endif %}</span>
+      </a>
+      <a class="orgx-metric{% if org_health.pending_requests %} orgx-metric--info{% endif %}" href="#org-branches">
+        <strong data-count-to="{{ org_health.pending_requests }}">{{ org_health.pending_requests }}</strong>
+        <span>{% if CURRENT_LANGUAGE == 'az' %}sorğu{% elif CURRENT_LANGUAGE == 'en' %}open requests{% else %}заявки{% endif %}</span>
+      </a>
+    </div>
+    {% if org_health.stale_count %}
+      <p class="orgx-card__note orgx-card__note--warn">{% if CURRENT_LANGUAGE == 'az' %}Sahib dəyişəndə əlaqə avtomatik dayandırılır. Yenidən təsdiqləyin.{% elif CURRENT_LANGUAGE == 'en' %}A change of owner pauses the link. Confirm it again.{% else %}При смене владельца связь приостанавливается. Подтвердите её заново.{% endif %}</p>
+    {% elif not org_health.total %}
+      <p class="orgx-card__note">{% if CURRENT_LANGUAGE == 'az' %}Filial olmadan da dərc etmək olar.{% elif CURRENT_LANGUAGE == 'en' %}You can publish without branches too.{% else %}Опубликовать можно и без филиалов.{% endif %}</p>
+    {% endif %}
+  </article>
+
+  <article class="orgx-card orgx-card--review orgx-card--{{ org_state.tone }}" style="--i:2">
+    <h2>{% if CURRENT_LANGUAGE == 'az' %}Moderasiya{% elif CURRENT_LANGUAGE == 'en' %}Moderation{% else %}Модерация{% endif %}</h2>
+    <p class="orgx-review-state"><span class="material-symbols-rounded" aria-hidden="true">{{ org_state.icon }}</span>{{ org_state.label }}</p>
+    {% if org_state.review_pending %}
+      <p class="orgx-card__note">{% if CURRENT_LANGUAGE == 'az' %}Göndərilib: {% elif CURRENT_LANGUAGE == 'en' %}Submitted: {% else %}Отправлено: {% endif %}{{ revision.submitted_at|default:revision.updated_at|date:"d.m.Y H:i" }}</p>
+    {% elif org_ready.can_submit and not org_state.public %}
+      <a class="account-btn-action orgx-submit-cta" href="#org-about">
+        <span class="material-symbols-rounded" aria-hidden="true">send</span>
+        <span>{% if CURRENT_LANGUAGE == 'az' %}Yoxlamaya göndər{% elif CURRENT_LANGUAGE == 'en' %}Submit for review{% else %}Отправить на проверку{% endif %}</span>
+      </a>
+    {% elif not org_ready.can_submit %}
+      <p class="orgx-card__note orgx-card__note--warn">{% if CURRENT_LANGUAGE == 'az' %}Göndərmək üçün vacib bəndləri tamamlayın.{% elif CURRENT_LANGUAGE == 'en' %}Complete the required items to submit.{% else %}Чтобы отправить, заполните обязательные пункты.{% endif %}</p>
+    {% else %}
+      <p class="orgx-card__note">{% if CURRENT_LANGUAGE == 'az' %}Dəyişikliklər yenidən yoxlanılacaq.{% elif CURRENT_LANGUAGE == 'en' %}Any change goes through review again.{% else %}Любые правки снова пройдут проверку.{% endif %}</p>
+    {% endif %}
+  </article>
+</section>

@@ -777,37 +777,49 @@ class PlaceController:
 
     @staticmethod
     def _nearby_places(place, language_code: str, liked_ids, limit: int = 6) -> list:
-        """Places to continue with after this one: nearest first, same category
-        slightly preferred. Without coordinates: newest in the same category."""
-        from math import cos, radians, sqrt
+        """Rank public map points, or use the category when the origin has no point."""
+        from math import cos, radians
+        from django.db.models import Case, F, FloatField, Value, When
+        from django.db.models.functions import ASin, Coalesce, Cos, Least, Power, Radians, Sin, Sqrt
+        from catalog.services.map_payload import map_identity
+        from catalog.services.public_map_page import coordinate_queryset
         from catalog.services.public_presentation import prepare_cards
 
         base = public_place_queryset(Place.objects.exclude(pk=place.pk))
-        if place.lat is None or place.lng is None:
+        origin = map_identity(place)
+        if origin is None:
             if not place.category_id:
                 return []
-            picked = list(base.filter(category_id=place.category_id).order_by("-published_at", "-pk")[:limit])
-            distances = {}
+            ranked = base.filter(category_id=place.category_id).annotate(
+                distance_km=Value(None, output_field=FloatField()),
+            ).order_by(Coalesce("published_at", "created_at").desc(), "-pk")
         else:
-            lat0, lng0 = float(place.lat), float(place.lng)
-            k = cos(radians(lat0))
-            scored = []
-            rows = base.filter(lat__isnull=False, lng__isnull=False).values_list("pk", "lat", "lng", "category_id")[:2000]
-            for pk, lat, lng, category_id in rows:
-                km = sqrt((float(lat) - lat0) ** 2 + ((float(lng) - lng0) * k) ** 2) * 111.32
-                # A same-category place is treated as ~1.5 km closer.
-                scored.append((km - (1.5 if category_id and category_id == place.category_id else 0), km, pk))
-            scored.sort()
-            top = scored[:limit]
-            distances = {pk: km for _, km, pk in top}
-            by_pk = {item.pk: item for item in base.filter(pk__in=distances).select_related("category")}
-            picked = [by_pk[pk] for _, _, pk in top if pk in by_pk]
-        cards = prepare_cards(picked, language_code)
-        for card in cards:
-            card.is_liked = card.pk in liked_ids
-            km = distances.get(card.pk)
+            latitude, longitude = origin[1]
+            lat, lng = F("km_map_lat"), F("km_map_lng")
+            # Great-circle distance in km; rounding near antipodes can put the
+            # haversine just above 1, outside the inverse sine's domain.
+            haversine = (
+                Power(Sin(Radians(lat - latitude) / 2.0), 2.0)
+                + cos(radians(latitude)) * Cos(Radians(lat))
+                * Power(Sin(Radians(lng - longitude) / 2.0), 2.0)
+            )
+            category_bonus = Case(When(category_id=place.category_id, then=Value(1.5)), default=Value(0.0))
+            ranked = coordinate_queryset(base).annotate(
+                distance_km=2.0 * 6371.0088 * ASin(Sqrt(Least(haversine, 1.0))),
+            ).order_by(F("distance_km") - category_bonus, "distance_km", "pk")
+
+        distances = dict(ranked.values_list("pk", "distance_km")[:limit])
+        cards = prepare_cards(base.filter(pk__in=distances), language_code)
+        by_pk = {card.pk: card for card in cards}
+        suggestions = []
+        for pk, km in distances.items():
+            if pk not in by_pk:
+                continue  # The card may have become hidden between the two queries.
+            card = by_pk[pk]
+            card.is_liked = pk in liked_ids
             card.nearby_km = round(km, 1) if km is not None else None
-        return cards
+            suggestions.append(card)
+        return suggestions
 
     @staticmethod
     def _build_review_histogram(reviews) -> list[dict[str, object]]:

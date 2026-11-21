@@ -116,7 +116,7 @@
     window.addEventListener('hashchange', () => activate(location.hash.slice(1)));
   }
 
-  const fields = ['name_az', 'name_ru', 'name_en', 'description_az', 'phone', 'whatsapp', 'website'];
+  const fields = ['name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'phone', 'whatsapp', 'website', 'address', 'instagram', 'facebook', 'tiktok'];
   const cookie = document.cookie.split('; ').find(x => x.startsWith('csrftoken='));
   const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || (cookie ? decodeURIComponent(cookie.slice(10)) : '');
 

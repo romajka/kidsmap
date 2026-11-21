@@ -531,9 +531,11 @@ class PlaceAdminOperationsMixin:
                 if (isinstance(supplied_candidate, bool) or not isinstance(supplied_candidate, int)
                         or supplied_candidate != (revision.version if revision else 0)):
                     return JsonResponse({"ok": False, "error": str(_("Рабочая версия карточки изменилась. Получите свежий экспорт."))}, status=409)
-        contact_fields = {"phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number"}
+        contact_fields = {"phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number",
+                          "administration_name", "administration_phone"}
         try:
             from catalog.services.phone_numbers import normalize_contact_patch
+            from catalog.services.publication_forms import candidate_for_edit
             contacts = {name: payload[name] for name in contact_fields if name in payload}
             # The AI instruction uses null for an unconfirmed WhatsApp mode.
             # Unknown does not claim same/none, and must not overwrite a saved mode.
@@ -541,7 +543,8 @@ class PlaceAdminOperationsMixin:
                 contacts.pop('whatsapp_mode', None)
             if "whatsapp_mode" in contacts and contacts["whatsapp_mode"] not in {"legacy", "same", "separate", "none"}:
                 raise ValidationError(_("Проверьте настройку WhatsApp."))
-            contacts = normalize_contact_patch(current or Place(), contacts)
+            contact_source = candidate_for_edit(current) if current is not None else Place()
+            contacts = normalize_contact_patch(contact_source, contacts)
         except ValidationError as exc:
             return JsonResponse({"ok": False, "error": exc.messages[0]}, status=400)
         warnings = []
@@ -627,6 +630,7 @@ class PlaceAdminOperationsMixin:
             "region": "baku" if obj.district.startswith("baku_") else obj.district,
             "lat": obj.lat, "lng": obj.lng,
             "phone1": obj.phone1, "phone2": obj.phone2, "phone3": obj.phone3,
+            "administration_name": obj.administration_name, "administration_phone": obj.administration_phone,
             "phone_country": obj.phone_country, "whatsapp_mode": obj.whatsapp_mode, "whatsapp_number": obj.whatsapp_number,
             "instagram": obj.instagram, "website": obj.website,
             "public_links": obj.public_links,

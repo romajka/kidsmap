@@ -1,0 +1,2 @@
+{% if CURRENT_LANGUAGE == "az" %}Hesabı özünüz silmək hazırda mümkün deyil.{% elif CURRENT_LANGUAGE == "en" %}Self-service account deletion is currently unavailable.{% else %}Самостоятельное удаление аккаунта пока недоступно.{% endif %}
+<a href="{% url 'contacts' %}" class="account-danger-zone__support">{% if CURRENT_LANGUAGE == "az" %}Dəstək xidməti ilə əlaqə saxlayın{% elif CURRENT_LANGUAGE == "en" %}Contact support{% else %}Обратиться в поддержку{% endif %}</a>

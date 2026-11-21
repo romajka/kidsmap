@@ -121,7 +121,8 @@ def validate_place_card(place) -> PlaceCardValidationResult:
 
     has_phone = any((phone or "").strip() for phone in (place.phone1, place.phone2, place.phone3))
     from .place_readiness import effective_contact
-    if not has_phone and not effective_contact(place) and not (place.instagram or "").strip() and not (place.website or "").strip():
+    from .contact_policy import contact_optional_for_place
+    if not contact_optional_for_place(place) and not has_phone and not effective_contact(place) and not (place.instagram or "").strip() and not (place.website or "").strip():
         error(PlaceCardIssue("MISSING_CONTACT", "phone1", "Укажите хотя бы один контакт."))
 
     prices = _active_primary_prices(place)

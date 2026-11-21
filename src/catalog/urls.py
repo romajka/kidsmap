@@ -16,7 +16,7 @@ from .controllers.typed_reviews import target_reviews, review_action
 from .controllers.specialist_workspace import (specialist_workspace_index, specialist_workspace_profile,
     specialist_workspace_claims, specialist_workspace_invitations, specialist_workspace_certificates,
     specialist_workspace_review, organization_specialists, specialist_workspace_proposal,
-    specialist_proposal_photo, specialist_proposal_document, specialist_workspace_reopen)
+    specialist_proposal_photo, specialist_proposal_document, specialist_workspace_reopen, specialist_workspace_add_photo)
 from django.contrib.auth import views as auth_views
 from django.urls import include, path, re_path, reverse_lazy
 
@@ -108,9 +108,11 @@ urlpatterns = [
     path('account/specialists/<int:pk>/certificates/', specialist_workspace_certificates, name='specialist_workspace_certificates'),
     path('account/specialists/<int:pk>/review/', specialist_workspace_review, name='specialist_workspace_review'),
     path('account/specialists/<int:pk>/reopen/', specialist_workspace_reopen, name='specialist_workspace_reopen'),
+    path('account/specialists/<int:pk>/add-photo/', specialist_workspace_add_photo, name='specialist_workspace_add_photo'),
     path('account/organizations/<int:org_id>/specialists/', organization_specialists, name='organization_specialists'),
     path("organizations/", organization_list, name="organization_list"),
     path("organizations/<uuid:public_id>/", public_organization_detail, name="organization_detail"),
+    path("organizations/<slug:slug>/", public_organization_detail, name="organization_detail_slug"),
     path("activities/<int:pk>/", activity_detail, name="activity_detail"),
     path('account/appeals/', appeal_views.inbox, name='appeal_inbox'),
     path('account/appeals/<slug:kind>/<int:source_id>/<str:version>/', appeal_views.submit, name='appeal_submit'),

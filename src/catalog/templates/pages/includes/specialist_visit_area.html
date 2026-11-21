@@ -1,9 +1,9 @@
 {% load i18n %}
 {% get_current_language as lang %}
 <fieldset class="km-visit-area" data-specialist-visit-area>
-  <legend>{% if lang == 'az' %}Səfər ərazisi{% elif lang == 'en' %}Home visit area{% else %}Территория выезда{% endif %}</legend>
+  <legend>{% if lang == 'az' %}Səfər ərazisi{% elif lang == 'en' %}Home visit area{% else %}Территория выезда{% endif %} {% include "pages/includes/specialist_field_badge.html" %}</legend>
   <div class="km-visit-region">
-    <label for="{{ form.visit_region.id_for_label }}">{% if lang == 'az' %}Şəhər və ya region{% elif lang == 'en' %}City or region{% else %}Город или регион{% endif %}</label>
+    <label for="{{ form.visit_region.id_for_label }}">{% if lang == 'az' %}Şəhər və ya region{% elif lang == 'en' %}City or region{% else %}Город или регион{% endif %} {% include "pages/includes/specialist_field_badge.html" %}</label>
     {{ form.visit_region }}
   </div>
   {{ form.visit_region.errors }}
@@ -13,7 +13,7 @@
   </label>
   {{ form.visit_citywide.errors }}
   <fieldset class="km-visit-districts" id="id_visit_districts" data-visit-districts>
-    <legend>{% if lang == 'az' %}Getdiyiniz rayonlar{% elif lang == 'en' %}Districts you visit{% else %}Районы выезда{% endif %}</legend>
+    <legend>{% if lang == 'az' %}Getdiyiniz rayonlar{% elif lang == 'en' %}Districts you visit{% else %}Районы выезда{% endif %} {% include "pages/includes/specialist_field_badge.html" %}</legend>
     <div class="km-format-choices">
       {% for choice in form.visit_districts %}
         <label class="km-format-choice">{{ choice.tag }} {{ choice.choice_label }}</label>

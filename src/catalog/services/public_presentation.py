@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.translation import get_language, override
 from catalog.models import Place, Organization, Program, Activity
+from catalog.services.contact_policy import LEGACY_DIRECTORY_PHONE, contact_optional_for_place
 from catalog.services.organization_ownership import affiliation_current
 from catalog.services.phone_numbers import format_phone, normalize_whatsapp, safe_phone
 from catalog.services.pricing_plans import (
@@ -73,20 +74,27 @@ def contact_data(obj):
     place = obj.place if isinstance(obj, Activity) else obj if isinstance(obj, Place) else None
     org = current_organization(place) if place else obj if isinstance(obj, Organization) and visible(obj) else None
     region = getattr(place, 'phone_country', 'AZ') or 'AZ'
+    public_space = bool(place and contact_optional_for_place(place))
+    # Affiliation does not establish that a park operates the organization's phone.
+    phone_org = None if public_space else org
     local_phones = list(place.phone_numbers) if place else []
-    phone_source = 'place' if local_phones else 'organization' if org and org.phone else ''
-    raw_phones = local_phones or ([org.phone] if org and org.phone else [])
+    phone_source = 'place' if local_phones else 'organization' if phone_org and phone_org.phone else ''
+    raw_phones = local_phones or ([phone_org.phone] if phone_org and phone_org.phone else [])
     # Do not guess a replacement for a malformed legacy local contact, or mutate
     # stored values while rendering. Its owner must review it explicitly.
     phones = list(dict.fromkeys(number for value in raw_phones
                                if (number := safe_phone(value, default_region=region if local_phones else 'AZ'))))
+    if public_space and LEGACY_DIRECTORY_PHONE in phones:
+        phones.remove(LEGACY_DIRECTORY_PHONE)
     local_website = safe_web_url(place.website_url()) if place else ''
     website = safe_web_url(local_website or (org.website if org else ''))
     website_source = 'place' if local_website else 'organization' if website else ''
     mode = getattr(place, 'whatsapp_mode', 'legacy') if place else 'legacy'
     whatsapp_source = ''
     whatsapp_number = ''
-    if place is None:
+    if public_space and not phones:
+        whatsapp_contact = ''
+    elif place is None:
         whatsapp_contact = org.whatsapp if org else ''
         whatsapp_source = 'organization' if whatsapp_contact else ''
     elif mode == 'separate':
@@ -96,8 +104,8 @@ def contact_data(obj):
         whatsapp_contact = phones[0] if phones else ''
         whatsapp_source = phone_source
     elif mode == 'legacy':
-        whatsapp_contact = local_phones[0] if local_phones else ((org.whatsapp if org else '') or (phones[0] if phones else ''))
-        whatsapp_source = 'place' if local_phones else 'organization' if org else ''
+        whatsapp_contact = local_phones[0] if local_phones else ((phone_org.whatsapp if phone_org else '') or (phones[0] if phones else ''))
+        whatsapp_source = 'place' if local_phones else 'organization' if phone_org else ''
     else:
         # Explicit none (and an unknown future value) never falls back to calls.
         whatsapp_contact = ''
@@ -106,11 +114,19 @@ def contact_data(obj):
             whatsapp_number = normalize_whatsapp(whatsapp_contact, default_region=region if whatsapp_source == 'place' else 'AZ')
         except ValidationError:
             pass
+    if public_space and whatsapp_number == LEGACY_DIRECTORY_PHONE:
+        whatsapp_number = ''
     if not whatsapp_number:
         whatsapp_source = ''
     whatsapp_url = 'https://wa.me/' + whatsapp_number[1:] if whatsapp_number else ''
     sources = {'phone': phone_source if phones else '', 'website': website_source, 'whatsapp': whatsapp_source}
+    administration_name = obj.administration_name.strip() if isinstance(obj, Place) else ''
+    administration_phone = safe_phone(obj.administration_phone, default_region=region) if administration_name else ''
+    if public_space and administration_phone == LEGACY_DIRECTORY_PHONE:
+        administration_phone = ''
     return {'phones': phones, 'has_phone': bool(phones), 'has_whatsapp': bool(whatsapp_url),
+        'administration_name': administration_name, 'administration_phone': administration_phone,
+        'has_administration_phone': bool(administration_phone),
         'has_contact': bool(phones or whatsapp_url), 'website_url': website, 'whatsapp_url': whatsapp_url,
         'public_links': getattr(place,'safe_public_links',[]) if place else [],
         'source': 'organization' if 'organization' in sources.values() else 'place' if place else '',
@@ -119,9 +135,14 @@ def contact_data(obj):
 
 def revealed_contacts(contacts):
     """Validated payload shared by the protected endpoint and private preview."""
-    return {'phones': [{'number': number, 'href': 'tel:' + number,
-                        'display': format_phone(number)} for number in contacts['phones']],
-            'whatsapp': contacts['whatsapp_url']}
+    def phone_entry(number):
+        return {'number': number, 'href': 'tel:' + number, 'display': format_phone(number)}
+
+    payload = {'phones': [phone_entry(number) for number in contacts['phones']],
+               'whatsapp': contacts['whatsapp_url']}
+    if contacts['has_administration_phone']:
+        payload['administration_phone'] = phone_entry(contacts['administration_phone'])
+    return payload
 
 
 def public_url(obj, language=None):
@@ -129,7 +150,8 @@ def public_url(obj, language=None):
         if isinstance(obj, Place):
             return obj.get_absolute_url()
         if isinstance(obj, Organization):
-            return reverse('organization_detail', args=[obj.public_id])
+            from catalog.services.organization_state import public_path
+            return public_path(obj)
         if isinstance(obj, Activity):
             return reverse('activity_detail', args=[obj.pk])
         return ''

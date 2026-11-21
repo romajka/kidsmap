@@ -395,6 +395,39 @@ class VolunteerAccessTests(TestCase):
         )
         self.assertEqual(response.context['revision'].pk, revision.pk)
 
+    def test_pending_location_summary_names_the_missing_schedule(self):
+        place = create_ready_place(created_by=self.user, district='baku_yasamal', lat=40.39, lng=49.81)
+        revision = self.submit(place, schedule_mode='regular', structured_schedule='[]')
+        self.assertEqual(revision.status, 'pending')
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = 'ru'
+        urls = [f'/admin/volunteer/{place.pk}/edit/', reverse('admin:catalog_place_change', args=[place.pk])]
+        for role, url in zip(('volunteer', 'reviewer'), urls, strict=True):
+            with self.subTest(role=role):
+                if role == 'reviewer':
+                    self.root_login()
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
+                sections = {section['id']: section['state'] for section in response.context['volunteer_sections']}
+                self.assertEqual(sections['location']['label'], '4 / 5')
+                self.assertEqual(sections['location']['missing_message'], 'Не заполнено: Расписание')
+
+    def test_only_the_reviewer_has_a_review_link_next_to_working_save(self):
+        place = create_ready_place(created_by=self.user)
+        revision = self.submit(place, name_az='Updated place for moderation')
+        self.assertEqual(revision.status, 'pending')
+        volunteer = self.client.get(f'/admin/volunteer/{place.pk}/edit/')
+        self.assertNotContains(volunteer, 'data-admin-review-link')
+        self.root_login()
+        editor = self.client.get(reverse('admin:catalog_place_change', args=[place.pk]))
+        review_url = reverse('admin:volunteer_review', args=[place.pk])
+        self.assertTrue(editor.context['admin_working_revision'])
+        self.assertEqual(editor.context['revision'].status, 'pending')
+        self.assertContains(editor, 'data-admin-review-link')
+        match = re.search(r'<a\b[^>]*\bdata-admin-review-link[^>]*href="([^"]+)"', editor.content.decode())
+        self.assertIsNotNone(match)
+        self.assertEqual(match.group(1), review_url)
+        self.assertEqual(self.client.get(review_url).status_code, 200)
+
     def test_admin_change_form_maps_every_shared_payload_value(self):
         from catalog.services.volunteer_places import content_snapshot, live_snapshot
         from catalog.volunteer_forms import CONTENT_FIELDS

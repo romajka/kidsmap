@@ -1,4 +1,5 @@
 """Explicit draft saves and idempotent sends under actor and draft locks."""
+from copy import copy
 from django.core.exceptions import PermissionDenied,ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
@@ -8,13 +9,14 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from catalog.forms import OwnerSpecialistForm
 from catalog.forms_specialist_locations import PracticeLocationForm,practice_location_formset
+from catalog.forms_specialist_pricing import PACKAGE_KEYS, PACKAGE_POST_FIELDS, submitted_package_rows
 from catalog.models import Specialist,SpecialistProposalDraft
 from catalog.services import specialist_domain
 from catalog.services.specialist_proposal_documents import qualification_formset, save_qualifications, transfer_confirmed_qualifications
 from catalog.services.specialist_formats import legacy_format_codes, profile_format_codes
 from catalog.services.owner_specialist_use_cases import save_owner_specialist_profile
 
-PUBLIC_FIELDS=set(OwnerSpecialistForm.Meta.fields)-{'photo'}
+PUBLIC_FIELDS=set(OwnerSpecialistForm.Meta.fields)-{'photo', 'pricing_packages'}
 MULTI_FIELDS = {'specializations', 'visit_districts', 'session_formats'}
 
 
@@ -62,7 +64,7 @@ def _payload(data):
     # Subject is an application intent, never identity proof or authority.
     # No authority IDs, consent, document metadata or arbitrary form keys.
     # Location IDs are accepted only through the parent-scoped validated formset.
-    keys=set(PUBLIC_FIELDS) | {'profile_subject', 'photo-clear'}
+    keys=set(PUBLIC_FIELDS) | set(PACKAGE_POST_FIELDS) | {'profile_subject', 'photo-clear'}
     keys.update('locations-'+key for key in ('TOTAL_FORMS','INITIAL_FORMS','MIN_NUM_FORMS','MAX_NUM_FORMS'))
     for i in range(31):keys.update(f'locations-{i}-{key}' for key in (*PracticeLocationForm.Meta.fields,'id','DELETE'))
     return {key:data.getlist(key) for key in keys if key in data}
@@ -78,6 +80,7 @@ def proposal_forms(*,actor,data=None,files=None,submit=False,payload=None,draft=
         initial = {key: (values if key in MULTI_FIELDS else values[-1])
                    for key, values in payload.items() if key in PUBLIC_FIELDS and values}
         if payload:
+            initial['pricing_packages'] = submitted_package_rows(proposal_data(payload))
             initial['session_formats'] = (
                 payload['session_formats'] if 'session_formats' in payload else _legacy_proposal_formats(payload)
             )
@@ -123,6 +126,10 @@ def save_proposal(*,actor,draft_id,expected_version,data,files,submit=False):
                 # Actor -> draft -> person, matching moderator return lock order.
                 person = Specialist.objects.select_for_update().get(pk=draft.submitted_specialist_id)
                 specialist_domain.require_proposal_revision(actor, person, draft)
+            if submit and draft and draft.photo and not files.get('photo') and not data.get('photo-clear'):
+                files = copy(files)
+                with draft.photo.open('rb') as stream:
+                    files['photo'] = ContentFile(stream.read(), name='portrait.webp')
             form,locations=proposal_forms(actor=actor,data=data,files=files,submit=submit,draft=draft)
             if files.get('documents') or data.get('documents'):
                 form.add_error('documents',_('Документы может загрузить только подтверждённый специалист.'))
@@ -138,14 +145,18 @@ def save_proposal(*,actor,draft_id,expected_version,data,files,submit=False):
             uploaded=form.cleaned_data.get('photo')
             if isinstance(uploaded, FieldFile) and uploaded._committed:
                 uploaded = None
-            if uploaded:
+            if uploaded and not submit:
                 uploaded.seek(0)
                 draft.photo.save(uploaded.name,uploaded,save=False)
                 new_photo=draft.photo.name
                 draft.photo_content_type=getattr(uploaded,'content_type','image/jpeg')
             elif data.get('photo-clear'):
                 draft.photo='';draft.photo_content_type=''
+            previous_payload = draft.payload or {}
             draft.payload = _payload(form.data)
+            for name in ('price_from', 'price_to'):
+                if name not in draft.payload and name in previous_payload:
+                    draft.payload[name] = previous_payload[name]
             draft.payload['session_formats'] = list(form.cleaned_data.get('session_formats') or ())
             # Keep the projection readable to older clients. Visits have no scalar equivalent.
             draft.payload['consultation_format'] = [form.instance.consultation_format]
@@ -153,10 +164,6 @@ def save_proposal(*,actor,draft_id,expected_version,data,files,submit=False):
             draft.payload['profile_subject'] = [subject]
             draft.version += 1
             if submit:
-                # Temporary files stay outside public media until a valid send.
-                if draft.photo and not uploaded:
-                    with draft.photo.open('rb') as stream:
-                        form.files['photo']=ContentFile(stream.read(),name='proposal.jpg')
                 result=save_owner_specialist_profile(user=actor,form=form,draft_save_only=False,locations=locations,
                                                      proposal_draft=draft if draft.submitted_specialist_id else None)
                 if not result.ok:
@@ -173,9 +180,6 @@ def save_proposal(*,actor,draft_id,expected_version,data,files,submit=False):
             if old_photo and old_photo!=draft.photo.name:
                 storage=draft.photo.storage
                 transaction.on_commit(lambda: storage.delete(old_photo), robust=True)
-            if new_photo and new_photo!=draft.photo.name:
-                storage=draft.photo.storage
-                transaction.on_commit(lambda: storage.delete(new_photo), robust=True)
             return draft
     except Exception:
         from catalog.private_storage import specialist_private_storage
@@ -190,6 +194,8 @@ def _revision_payload(specialist, subject):
     """Snapshot current public fields and stable location IDs; retain private files."""
     data = QueryDict('', mutable=True)
     data['profile_subject'] = subject
+    for key, field in zip(PACKAGE_KEYS, PACKAGE_POST_FIELDS):
+        data.setlist(field, [str(row.get(key, '')) for row in specialist.pricing_packages])
     for name in PUBLIC_FIELDS:
         if name in ('specializations', 'visit_districts'):
             related = getattr(specialist, name)

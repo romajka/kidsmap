@@ -79,7 +79,12 @@ class OrganizationFlowConsistencyTests(TestCase):
         self.assertEqual(self.org.content_revision.status, 'approved')
         self.assertIsNotNone(self.org.approved_at)
         self.assertEqual(self.org.description_az, 'Creative lessons for children')
-        self.assertEqual(self.client.get(reverse('organization_detail', args=[self.org.public_id])).status_code, 200)
+        # Approval reserves a readable URL; the UUID address now redirects to it.
+        self.assertTrue(self.org.slug)
+        legacy = self.client.get(reverse('organization_detail', args=[self.org.public_id]))
+        self.assertEqual(legacy.status_code, 301)
+        self.assertEqual(legacy['Location'], reverse('organization_detail_slug', args=[self.org.slug]))
+        self.assertEqual(self.client.get(legacy['Location']).status_code, 200)
 
     def test_bulk_cannot_bypass_reviewer_permission(self):
         actor = get_user_model().objects.create_user('org_flow_limited', is_staff=True)

@@ -5,3 +5,61 @@
 .org-connect button{min-height:44px;max-width:100%;padding:10px 18px;border:1px solid var(--org-green);border-radius:var(--radius-sm, 8px);background:var(--org-green);color:#fff;font:inherit;font-weight:600;cursor:pointer;white-space:normal}.org-connect button:disabled{background:#e5eee8;border-color:#cad5cd;color:#53665b;cursor:default}.org-connect :focus-visible{outline:3px solid #966100;outline-offset:3px}.org-connect__search,.org-connect__actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px}.org-connect__search input{flex:1;min-width:180px}.org-connect__actions{margin:20px 0}.org-connect__actions [role=status]{margin-right:auto}
 .org-connect__table{width:100%;table-layout:fixed;border-collapse:collapse;margin:20px 0;background:#fff}.org-connect__table th{text-align:left;background:#f3f7f4}.org-connect__table th,.org-connect__table td{padding:16px 12px;border-bottom:1px solid var(--org-line);vertical-align:top;overflow-wrap:anywhere}.org-connect__table th:first-child:has(+th:nth-child(4)){width:64px}.org-connect__table td span:not(.org-connect__badge),.org-connect__table small{display:block;margin-top:4px}.org-connect__table small{font-size:13px;color:#53665b}.org-connect__badge{display:inline-block;background:#edf5ef;border:1px solid #d1e4d7;border-radius:var(--radius-sm, 8px);padding:5px 8px;font-size:14px}.org-connect [data-result=other_network] .org-connect__badge,.org-connect [data-result=no_rights] .org-connect__badge,.org-connect [data-result=changed] .org-connect__badge{background:#fff3df;border-color:#e0bd7d;color:#704707}.org-connect__error{padding:18px;border:2px solid #b34b31;background:#fff4f0;border-radius:var(--radius-md, 12px)}.org-connect__impact{background:#fff8ec;border-left:4px solid #b57b20;padding:16px;margin:24px 0}.org-connect label.org-connect__consent{display:flex;align-items:flex-start;gap:12px;font-weight:400;margin:24px 0}.org-connect__receipt{font-size:13px;overflow-wrap:anywhere;color:#53665b}.org-connect__sr{position:absolute!important;width:1px;height:1px;padding:0!important;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 @media(max-width:640px){.org-connect{padding:0 16px 32px;margin:20px auto}.org-connect__panel{padding:16px}.org-connect__steps{gap:8px 16px;padding:12px 24px;font-size:13px}.org-connect__table,.org-connect__table tbody{display:block}.org-connect__table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}.org-connect__table tr{display:grid;grid-template-columns:36px minmax(0,1fr);border:1px solid var(--org-line);border-radius:var(--radius-md, 12px);margin:12px 0;padding:12px}.org-connect__table td{padding:4px 0;border:0;grid-column:2}.org-connect__table td:has(input){grid-column:1;grid-row:1 / 4}.org-connect__table tr:not(:has(input)) td{grid-column:1 / 3}.org-connect__search input{min-width:0;width:100%;flex-basis:100%}.org-connect__actions button{width:100%}.org-connect h2{font-size:20px}}
+/* 2026-11-21: stepper, selection feedback, motion */
+.org-connect{--org-ease:cubic-bezier(.22,1,.36,1);--org-spring:cubic-bezier(.34,1.56,.64,1)}
+.org-connect__steps{counter-reset:org-step;list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:18px 20px;background:linear-gradient(135deg,#f0f7f2,#f8fbf6);border:1px solid var(--org-line)}
+.org-connect__steps li{counter-increment:org-step;position:relative;display:flex;align-items:center;gap:10px;padding:0 12px 0 0;color:#5d7266;font-size:14px;font-weight:600;line-height:1.3}
+.org-connect__steps li::before{content:counter(org-step);flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#fff;border:2px solid #c9dccf;color:#5d7266;font-weight:800;font-size:13px;transition:background .3s,border-color .3s,transform .4s var(--org-spring)}
+.org-connect__steps li:not(:last-child)::after{content:"";flex:1;min-width:12px;height:2px;border-radius:2px;background:#d6e5da}
+.org-connect__steps li:has(~ li[aria-current]){color:var(--org-green)}
+.org-connect__steps li:has(~ li[aria-current])::before{content:"✓";background:var(--org-green);border-color:var(--org-green);color:#fff}
+.org-connect__steps li:has(~ li[aria-current])::after{background:var(--org-green)}
+.org-connect__steps [aria-current]{color:#14301f}
+.org-connect__steps [aria-current]::before{background:#fff;border-color:var(--org-green);color:var(--org-green);box-shadow:0 0 0 5px rgba(23,106,64,.14);animation:org-step-pop .55s var(--org-spring) both}
+.org-connect__panel{box-shadow:0 18px 40px -32px rgba(16,60,35,.55);animation:org-rise .45s var(--org-ease) both}
+.org-connect__error{animation:org-shake .45s ease both}
+.org-connect button{transition:transform .25s var(--org-spring),box-shadow .2s,background .2s}
+.org-connect button:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 12px 20px -14px rgba(23,106,64,.9);background:#145c37}
+.org-connect button:not(:disabled):active{transform:scale(.98)}
+.org-connect select{transition:border-color .2s,box-shadow .2s}
+.org-connect select:focus,.org-connect input:not([type=checkbox]):focus{border-color:var(--org-green);box-shadow:0 0 0 4px rgba(23,106,64,.12);outline:none}
+.org-connect select:invalid{color:#6b7f73}
+#org-kind-help{margin-top:10px;padding:12px 14px;border-radius:12px;background:#f5f9f6;border:1px dashed #cfe0d4;font-size:14px;color:#3c5547}
+#org-kind-help p{margin:4px 0}
+.org-connect__table tbody tr{transition:background .2s}
+.org-connect__table tbody tr:hover{background:#f8fbf9}
+.org-connect__table tbody tr:has(input[type=checkbox]:checked){background:#eef7f1;box-shadow:inset 3px 0 0 var(--org-green)}
+.org-connect__table tbody tr:has(input[type=checkbox]:checked) strong,.org-connect__table tbody tr:has(input[type=checkbox]:checked) td:nth-child(2)>:first-child{color:#0f4a2c}
+.org-connect__badge{border-radius:999px;padding:4px 10px;font-size:13px;font-weight:600}
+.org-connect__actions{position:sticky;bottom:12px;z-index:2;padding:12px 16px;border:1px solid var(--org-line);border-radius:16px;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);box-shadow:0 16px 32px -26px rgba(16,60,35,.7)}
+@keyframes org-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes org-step-pop{0%{transform:scale(.6)}100%{transform:none}}
+@keyframes org-shake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+@media(max-width:640px){.org-connect__steps{grid-template-columns:repeat(4,auto);padding:12px 14px;overflow-x:auto}.org-connect__steps li{font-size:0;gap:6px}.org-connect__steps li[aria-current]{font-size:13px}.org-connect__actions{bottom:8px}}
+@media(prefers-reduced-motion:reduce){.org-connect__panel,.org-connect__error,.org-connect__steps [aria-current]::before{animation:none}.org-connect button,.org-connect__steps li::before{transition:none}}
+/* relationship type cards (enhanced from #org-kind) */
+.org-connect__kinds{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;max-width:680px;margin:6px 0 4px}
+.org-connect label.org-connect__kind{position:relative;display:flex;align-items:flex-start;gap:12px;margin:0;padding:14px 44px 14px 14px;border:1.5px solid var(--org-line);border-radius:16px;background:#fff;font-weight:400;cursor:pointer;transition:border-color .2s,box-shadow .25s,transform .3s var(--org-spring),background .2s}
+.org-connect label.org-connect__kind:hover{border-color:#9cc3aa;transform:translateY(-2px);box-shadow:0 14px 26px -20px rgba(16,60,35,.6)}
+.org-connect__kind input{position:absolute;opacity:0;pointer-events:none}
+.org-connect__kind-icon{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:#eef6f1;color:var(--org-green);transition:transform .4s var(--org-spring),background .2s,color .2s}
+.org-connect__kind[data-kind=informational] .org-connect__kind-icon{background:#eef2ff;color:#3e4fb0}
+.org-connect__kind-text{display:grid;gap:3px;min-width:0}
+.org-connect__kind-text b{font-size:15px;color:#14301f}
+.org-connect__kind-text small{font-size:13px;line-height:1.4;color:#56695d}
+.org-connect__kind-check{position:absolute;top:14px;right:14px;width:20px;height:20px;border-radius:50%;border:2px solid #c3d6c9;background:#fff;transition:border-color .2s,background .2s,box-shadow .2s}
+.org-connect__kind:has(input:checked){border-color:var(--org-green);background:#f4faf6;box-shadow:0 0 0 3px rgba(23,106,64,.12)}
+.org-connect__kind[data-kind=informational]:has(input:checked){border-color:#3e4fb0;background:#f6f7ff;box-shadow:0 0 0 3px rgba(62,79,176,.12)}
+.org-connect__kind:has(input:checked) .org-connect__kind-icon{transform:scale(1.06) rotate(-4deg)}
+.org-connect__kind:has(input:checked) .org-connect__kind-check{border-color:currentColor;background:radial-gradient(circle,currentColor 0 4px,#fff 5px);color:var(--org-green)}
+.org-connect__kind[data-kind=informational]:has(input:checked) .org-connect__kind-check{color:#3e4fb0}
+.org-connect__kind:has(input:focus-visible){outline:3px solid #966100;outline-offset:2px}
+.org-connect__kinds.is-missing .org-connect__kind{border-color:#d9826b;background:#fffaf8;animation:org-shake .45s ease}
+.org-connect__error:focus{outline:none;box-shadow:0 0 0 4px rgba(179,75,49,.18)}
+.org-connect__error{display:flex;align-items:center;gap:10px;border-width:1.5px;font-weight:600}
+.org-connect__error::before{content:"!";flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#b34b31;color:#fff;font-weight:800;font-size:14px}
+@media(prefers-reduced-motion:reduce){.org-connect label.org-connect__kind,.org-connect__kind-icon{transition:none}.org-connect__kinds.is-missing .org-connect__kind{animation:none}}
+.org-connect__kind-text small{display:block}.org-connect__kind-text small::first-letter{text-transform:uppercase}
+.org-connect label.org-connect__consent{padding:14px 16px;border:1.5px solid var(--org-line);border-radius:14px;background:#fbfdfb;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s}
+.org-connect label.org-connect__consent:hover{border-color:#9cc3aa}
+.org-connect label.org-connect__consent:has(input:checked){border-color:var(--org-green);background:#f1f8f3;box-shadow:0 0 0 3px rgba(23,106,64,.1)}

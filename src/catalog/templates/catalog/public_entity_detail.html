@@ -5,7 +5,7 @@
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block structured_data %}<script type="application/ld+json">{{ entity_schema_json|safe }}</script>{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=20261120_audit">{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=20261120_audit">{% if presentation.kind == "organization" %}<link rel="stylesheet" href="{% static 'css/pages/organization_public_v2.css' %}?v=20261121_org_v2">{% endif %}{% endblock %}
 {% block content %}
 {% get_current_language as language %}
 {% if presentation.kind == "organization" %}
@@ -17,12 +17,15 @@
     </a>
   </div>
 
-  <div class="public-org-hero-card" id="about">
+  <div class="public-org-hero-card{% if org_cover_url %} has-cover{% endif %}" id="about">
+    {% if org_cover_url %}<div class="public-org-cover" style="--org-cover:url('{{ org_cover_url }}')" aria-hidden="true"></div>{% endif %}
     <div class="public-org-header-main">
 
       <!-- Media: Logo or Branch Photo or Clean Monogram Icon -->
-      <div class="public-org-media-wrapper">
-        {% if hero_image_url %}
+      <div class="public-org-media-wrapper{% if org_logo_url %} public-org-media-wrapper--logo{% endif %}">
+        {% if org_logo_url %}
+          <img class="public-org-media-img" src="{{ org_logo_url }}" alt="{{ presentation.name }}" decoding="async" />
+        {% elif hero_image_url %}
           <img class="public-org-media-img" src="{{ hero_image_url }}" alt="{{ presentation.name }}" decoding="async" />
         {% else %}
           <div class="public-org-media-placeholder" aria-hidden="true">
@@ -50,6 +53,12 @@
 
         <!-- Single Unique H1 Title -->
         <h1 class="public-org-title" lang="{{ presentation.name_language }}">{{ presentation.name }}</h1>
+        <ul class="public-org-facts" aria-label="{% if language == 'ru' %}Коротко о сети{% elif language == 'en' %}At a glance{% else %}Qısaca{% endif %}">
+          <li class="public-org-fact public-org-fact--verified" title="{% if language == 'ru' %}Профиль проверен модератором KidsMap{% elif language == 'en' %}Profile reviewed by a KidsMap moderator{% else %}Profil KidsMap moderatoru tərəfindən yoxlanılıb{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">verified</span>{% if language == 'ru' %}Проверено KidsMap{% elif language == 'en' %}Reviewed by KidsMap{% else %}KidsMap yoxlayıb{% endif %}</li>
+          {% if districts_count %}<li class="public-org-fact"><span class="material-symbols-rounded" aria-hidden="true">map</span>{{ districts_count }} {% if language == 'ru' %}{% if districts_count == 1 %}район{% elif districts_count < 5 %}района{% else %}районов{% endif %}{% elif language == 'en' %}district{{ districts_count|pluralize }}{% else %}rayon{% endif %}</li>{% endif %}
+          {% if programs %}<li class="public-org-fact"><span class="material-symbols-rounded" aria-hidden="true">school</span>{{ programs|length }} {% if language == 'ru' %}{% if programs|length == 1 %}программа{% elif programs|length < 5 %}программы{% else %}программ{% endif %}{% elif language == 'en' %}program{{ programs|length|pluralize }}{% else %}proqram{% endif %}</li>{% endif %}
+          {% if org_address %}<li class="public-org-fact"><span class="material-symbols-rounded" aria-hidden="true">apartment</span>{{ org_address }}</li>{% endif %}
+        </ul>
 
         {% if presentation.translation_fallback %}
           <p class="public-notice public-notice--inline" data-translation-fallback>
@@ -89,6 +98,11 @@
                 <span>WhatsApp</span>
               </a>
             {% endif %}
+            {% for s in org_social %}
+              <a class="public-contact public-contact--social public-contact--{{ s.kind }}" href="{{ s.url }}" target="_blank" rel="noopener noreferrer nofollow" aria-label="{{ s.label }}">
+                {% include "catalog/includes/social_icon.html" with kind=s.kind only %}<span>{{ s.label }}</span>
+              </a>
+            {% endfor %}
           </div>
         </div>
 

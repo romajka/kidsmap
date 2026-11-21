@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied,ValidationError
 from django.test import TestCase
 from django.http import QueryDict
+from catalog.testcases.specialist_document_fixtures import portrait_upload
 from catalog.models import Specialist
 
 class SpecialistProposalDraftTests(TestCase):
@@ -43,6 +44,18 @@ class SpecialistProposalDraftTests(TestCase):
         with self.assertRaises(PermissionDenied):self.service().get_proposal(actor=self.other,draft_id=self.key)
         with self.assertRaises(PermissionDenied):self.service().save_proposal(actor=self.other,draft_id=self.key,expected_version='1',data=self.data(),files={},submit=False)
 
+    def test_photo_is_required_to_send_even_if_a_client_claims_it_was_saved(self):
+        data = self.data(name='Photo QA', consultation_format='online', bio_ru='Biography',
+                         phone='+994500000000', language_ru='on', requested_specialization='QA',
+                         lesson_type='individual', lesson_price='25', has_saved_photo='on')
+        draft = self.save(data)
+        with self.assertRaises(ValidationError) as caught:
+            self.save(data, version=draft.version, submit=True)
+        self.assertIn('photo', caught.exception.form.errors)
+        draft.refresh_from_db()
+        self.assertIsNone(draft.submitted_at)
+        self.assertFalse(Specialist.objects.exists())
+
     def test_stale_draft_cannot_overwrite_and_authority_keys_are_discarded(self):
         self.save(self.data(name='QA Current',verified_person_user=str(self.actor.pk),owner=str(self.actor.pk),document_token='forged'))
         with self.assertRaises(ValidationError) as caught:self.save(self.data(name='QA Stale'),version=0)
@@ -54,8 +67,9 @@ class SpecialistProposalDraftTests(TestCase):
     def test_double_submit_creates_one_author_only_profile(self):
         from catalog.models import SpecialistSpecialization
         spec=SpecialistSpecialization.objects.create(code='proposal-qa',name_ru='QA Direction',name_az='QA',name_en='QA')
-        data=self.data(name='QA Proposal',consultation_format='online',bio_ru='QA Bio',phone='+994500000000',language_ru='on',specializations=str(spec.pk))
-        first=self.save(data,submit=True);second=self.save(data,submit=True)
+        data=self.data(name='QA Proposal',consultation_format='online',bio_ru='QA Bio',phone='+994500000000',
+                       language_ru='on',specializations=str(spec.pk),lesson_type='individual',lesson_price='25')
+        first=self.save(data,submit=True,files={'photo': portrait_upload()});second=self.save(data,submit=True)
         self.assertEqual(first.submitted_specialist_id,second.submitted_specialist_id)
         person=Specialist.objects.get(pk=first.submitted_specialist_id)
         self.assertEqual(person.created_by_id,self.actor.pk);self.assertIsNone(person.owner_id);self.assertIsNone(person.verified_person_user_id)
@@ -78,9 +92,11 @@ class SpecialistProposalDraftTests(TestCase):
         with patch('catalog.services.features.is_specialists_section_enabled',return_value=True):
             self.client.force_login(self.actor)
             response=self.client.get(url);self.assertEqual(response.status_code,200);self.assertEqual(response['Cache-Control'],'private, no-store')
+            response.close()
             self.client.force_login(self.other);self.assertEqual(self.client.get(url).status_code,404)
         spec=SpecialistSpecialization.objects.create(code='proposal-photo-qa',name_ru='QA',name_az='QA',name_en='QA')
-        sent=self.save(self.data(name='QA Photo person',consultation_format='online',bio_ru='QA Bio',phone='+994500000000',language_ru='on',specializations=str(spec.pk)),version=1,submit=True)
+        sent=self.save(self.data(name='QA Photo person',consultation_format='online',bio_ru='QA Bio',phone='+994500000000',
+                                 language_ru='on',specializations=str(spec.pk),lesson_type='individual',lesson_price='25'),version=1,submit=True)
         person=sent.submitted_specialist
         self.assertTrue(person.photo)
         self.addCleanup(person.photo.storage.delete,person.photo.name)

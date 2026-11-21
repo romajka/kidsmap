@@ -137,6 +137,10 @@
                   {% endif %}
                   <span class="km-place-id">#{{ place.pk }}</span>
                 </div>
+                {% if place.staff_delete_url %}
+                  <a href="{{ place.staff_delete_url }}" class="km-staff-btn km-staff-btn--danger"
+                     aria-label="{% translate 'В удалённые' %} · {{ place }} #{{ place.pk }}">{% translate 'В удалённые' %}</a>
+                {% endif %}
               </td>
               <td data-label="{% translate 'Статус места' %}">
                 {% if place.deleted_at %}

@@ -1,12 +1,17 @@
 """Genuine fictional documents for upload/ACL regression fixtures."""
 from io import BytesIO
 from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 def image_document_bytes(format='PNG'):
     stream = BytesIO()
     Image.new('RGB', (32, 24), '#26754b').save(stream, format=format)
     return stream.getvalue()
+
+
+def portrait_upload():
+    return SimpleUploadedFile('portrait.png', image_document_bytes(), content_type='image/png')
 
 
 def pdf_document_bytes(*, encrypted=False):

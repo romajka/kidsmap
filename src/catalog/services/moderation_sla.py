@@ -19,13 +19,18 @@ class SlaState:
     percentage: int | None
 
 
-def _policy(content_type: str) -> dict:
+PLACE_RELATED_TYPES = {"organization", "program", "activity", "offering_group", "affiliation"}
+
+
+def _policy(content_type: str) -> dict | None:
     policies = getattr(settings, "MODERATION_SLA", {})
     if not isinstance(policies, dict):
         raise ValueError('Invalid moderation SLA policy container')
     policy = policies.get(content_type)
-    if policy is None and content_type in {"organization", "program", "activity", "offering_group", "affiliation"}:
+    if policy is None and content_type in PLACE_RELATED_TYPES:
         policy = policies.get("place")
+    if policy is None and (content_type in PLACE_RELATED_TYPES or content_type in {"place", "review"}):
+        return None
     if not isinstance(policy, dict):
         raise ValueError(f"Unsupported moderation SLA content type: {content_type}")
     try:
@@ -39,6 +44,20 @@ def _policy(content_type: str) -> dict:
     return {"seconds": hours * 3600, "warning": warning, "critical": critical}
 
 
+def policy_hours(content_type):
+    policy = _policy(content_type)
+    return policy["seconds"] // 3600 if policy else None
+
+
+def matches_submission_date(submitted_at, params):
+    """Compare the inclusive date range against the day shown in the staff UI."""
+    start, end = params.get("from"), params.get("to")
+    if not (start or end):
+        return True
+    day = timezone.localdate(submitted_at).isoformat()
+    return (not start or start <= day) and (not end or day <= end)
+
+
 def calculate_sla(content_type: str, submitted_at, *, paused_at=None, completed_at=None, now=None) -> SlaState:
     policy = _policy(content_type)
     now = now or timezone.now()
@@ -48,6 +67,9 @@ def calculate_sla(content_type: str, submitted_at, *, paused_at=None, completed_
     if submitted_at is None:
         return SlaState(content_type, 'unknown', None, None, 0, None, None)
     elapsed = max(0, int(((completed_at or now) - submitted_at).total_seconds()))
+    if policy is None:
+        status = "completed" if completed_at else "unconfigured"
+        return SlaState(content_type, status, submitted_at, None, elapsed, None, None)
     total = policy["seconds"]
     remaining = total - elapsed
     percentage = int((elapsed * 100) / total)
@@ -102,7 +124,11 @@ def prepare_moderation_save(instance, kwargs, *, previous=None, terminal=('appro
 def submission_message(content_type):
     from catalog.services.permanent_place_rules import copy as t
     from django.utils.translation import gettext
-    hours = _policy(content_type)['seconds'] // 3600
+    hours = policy_hours(content_type)
     rules = t('правилам сообщества, требованиям к отзывам и политике конфиденциальности', 'icma qaydalarına, rəy tələblərinə və məxfilik siyasətinə', 'community rules, review requirements and privacy policy') if content_type == 'review' else t('требованиям KidsMap', 'KidsMap tələblərinə', 'KidsMap requirements')
     receipt = gettext('Мы получили ваш отзыв. Он появится на сайте после проверки модератором.') + ' ' if content_type == 'review' else ''
+    if hours is None:
+        return receipt + t('Материал принят на модерацию. Решение появится после проверки.',
+                           'Material moderasiyaya qəbul edilib. Nəticə yoxlanışdan sonra bildiriləcək.',
+                           'Your submission is in moderation. A decision will follow after review.')
     return receipt + t('На модерации. Рассмотрим материал в течение {hours} календарных часов на соответствие {rules}. Это срок рассмотрения, не гарантия публикации. Результат: публикация, отклонение или доработка.', 'Moderasiyadadır. Materialı {hours} təqvim saatı ərzində {rules} uyğunluq baxımından yoxlayacağıq. Bu baxılma müddətidir, yayımlanma zəmanəti deyil. Nəticə: yayımlanma, rədd və ya düzəliş.', 'On moderation. We will review the material within {hours} calendar hours for compliance with {rules}. This is a review deadline, not a publication guarantee. The outcome may be publication, rejection or requested changes.').format(hours=hours, rules=rules)

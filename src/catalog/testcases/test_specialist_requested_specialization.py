@@ -4,6 +4,7 @@ from django.db.migrations.executor import MigrationExecutor
 from django.http import QueryDict
 from django.test import TestCase
 
+from catalog.testcases.specialist_document_fixtures import portrait_upload
 from catalog.forms import OwnerSpecialistForm
 from catalog.models import Specialist, SpecialistSpecialization
 from catalog.services.specialist_proposal_drafts import _payload
@@ -17,9 +18,10 @@ class RequestedSpecializationTests(TestCase):
 
     def form(self, **extra):
         data = dict(name='Karate coach', bio_ru='Coaching kids', consultation_format='online',
+                    lesson_type='group', lesson_price='25',
                     phone='+994501234567', language_ru='on')
         data.update(extra)
-        return OwnerSpecialistForm(data)
+        return OwnerSpecialistForm(data, files={'photo': portrait_upload()})
 
     def test_neither_a_specialty_nor_an_own_one_is_rejected(self):
         form = self.form()

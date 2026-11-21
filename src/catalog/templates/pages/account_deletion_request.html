@@ -128,7 +128,7 @@
       {% else %}
         <div class="account-deletion-unavailable" role="status">
           <h2>{% if CURRENT_LANGUAGE == "az" %}Silinmə hələ aktiv deyil{% elif CURRENT_LANGUAGE == "en" %}Deletion is not active yet{% else %}Удаление пока не активировано{% endif %}</h2>
-          <p>{% if CURRENT_LANGUAGE == "az" %}Məlumatların saxlanması siyasəti səlahiyyətli şəxs tərəfindən təsdiqlənməlidir.{% elif CURRENT_LANGUAGE == "en" %}An authorized owner must approve the data-retention policy first.{% else %}Сначала уполномоченный владелец должен утвердить политику хранения данных.{% endif %}</p>
+          <p>{% include "pages/includes/account_deletion_support.html" %}</p>
           {% if form.non_field_errors %}<div class="account-deletion-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
         </div>
       {% endif %}

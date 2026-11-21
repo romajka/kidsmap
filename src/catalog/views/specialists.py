@@ -46,7 +46,7 @@ def specialist_list(request):
     from catalog.services.public_filter_options import build_public_specialist_filter_options
     from catalog.services.specialist_filtering import (
         apply_specialist_price_filter, get_specialist_max_price,
-        normalize_specialist_price_bounds, specialist_format_match,
+        normalize_specialist_price_bounds, order_by_specialist_price, specialist_format_match,
     )
     from catalog.services.specialist_formats import format_choices, profile_format_codes, public_format_label
     from django.db import models
@@ -59,7 +59,7 @@ def specialist_list(request):
 
     from catalog.services.specialist_subjects import SUBJECTS, TUTOR_CODES, subject_item, profile_subjects
     from catalog.services.age_display import format_age_range
-    from catalog.services.pricing_plans import format_price_range
+    from catalog.services.specialist_presentation import specialist_card_price
 
     spec_code = (request.GET.get("specialization") or "").strip()
     subject_code = (request.GET.get("subject") or "").strip()
@@ -171,18 +171,10 @@ def specialist_list(request):
     sort = (request.GET.get("sort") or "new").strip()
     if sort == "rating":
         qs = qs.order_by("-rating_avg", "-rating_count", "-created_at")
-    elif sort == "price_asc":
-        from django.db.models.functions import Coalesce
-        from django.db.models import Min
-        qs = qs.annotate(
-            min_price=Coalesce(Min("practice_locations__price_per_session", filter=models.Q(practice_locations__is_active=True)), "price_from")
-        ).order_by("min_price", "-created_at")
-    elif sort == "price_desc":
-        from django.db.models.functions import Coalesce
-        from django.db.models import Max
-        qs = qs.annotate(
-            max_price=Coalesce(Max("practice_locations__price_per_session", filter=models.Q(practice_locations__is_active=True)), "price_to")
-        ).order_by("-max_price", "-created_at")
+    elif sort in {"price_asc", "price_desc"}:
+        qs = order_by_specialist_price(
+            qs, descending=sort == "price_desc", lower=price_lower, upper=price_upper,
+        )
     elif sort == "experience":
         qs = qs.order_by("-experience_years", "-created_at")
     else:
@@ -369,6 +361,7 @@ def specialist_list(request):
         "acting_teacher": {"icon": "theater_comedy", "color_bg": "#fed7aa", "color_text": "#c2410c"},
         "programming_mentor": {"icon": "code", "color_bg": "#dbeafe", "color_text": "#1d4ed8"},
         "robotics_teacher": {"icon": "smart_toy", "color_bg": "#dbeafe", "color_text": "#1d4ed8"},
+        "child_numerology": {"icon": "pin", "color_bg": "#e8f4ed", "color_text": "#256546"},
         "career_guidance_specialist": {"icon": "explore", "color_bg": "#e2e8f0", "color_text": "#475569"},
     }
 
@@ -454,7 +447,7 @@ def specialist_list(request):
 
         # 1. Specialization list
         specialist.card_subjects = profile_subjects(specialist, language)
-        specialist.card_specializations = [s.name_i18n(language) for s in specialist.specializations.all() if s.code not in SUBJECTS]
+        specialist.card_specializations = [s for s in specialist.specializations.all() if s.code not in SUBJECTS]
 
         age_range = format_age_range(specialist.age_from, specialist.age_to, language)
         specialist.card_age = f"{age_range} {age_unit}" if age_range else ""
@@ -481,26 +474,9 @@ def specialist_list(request):
                     location_names.append(name)
         specialist.card_location = ", ".join(location_names)
 
-        low, high = specialist.price_from, specialist.price_to
-        if low is None and high is None:
-            fees = [loc.price_per_session for loc in locations if loc.price_per_session is not None]
-            if fees:
-                low, high = min(fees), max(fees)
-        if low is not None and high is not None:
-            price = format_price_range(low, high, language)["full"]
-        elif low is not None:
-            price = {"ru": f"от {low} AZN", "az": f"{low} AZN-dən", "en": f"from {low} AZN"}[language]
-        elif high is not None:
-            price = {"ru": f"до {high} AZN", "az": f"{high} AZN-dək", "en": f"up to {high} AZN"}[language]
-        else:
-            price = ""
-        duration = specialist.duration_minutes
-        if duration:
-            unit = {"az": "dəq", "ru": "мин", "en": "min"}[language]
-            session = f"{duration} {unit}"
-        else:
-            session = {"az": "seans", "ru": "занятие", "en": "session"}[language]
-        specialist.card_price = f"{price} / {session}" if price else ""
+        specialist.card_price = specialist_card_price(
+            specialist, language, locations, lower=price_lower, upper=price_upper,
+        )
 
     context = {
         "subject_options": subject_options,

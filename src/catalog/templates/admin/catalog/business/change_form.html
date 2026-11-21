@@ -152,16 +152,21 @@
     </section>
   {% endif %}
   {% if km_business_object %}
-    <section class="km-pf-group" aria-label="{% translate 'Публикация' %}">
+    <section class="km-pf-group" id="km-publication" aria-label="{% translate 'Публикация' %}">
       <h2>{% translate 'Публикация' %}</h2>
       <p>{% translate 'Черновик и проверка не меняют публичные данные до одобрения.' %}</p>
-      {% if km_business_object.status == 'published' %}
+      {% if km_business_object.status == 'published' and km_business_kind != 'organization' or km_business_object.status == 'published' and km_business_object.approved_at %}
         <input type="hidden" name="source_version" value="{{ km_business_object.content_version }}">
         <button class="km-pf-btn km-pf-btn--ghost" type="submit" name="action" value="unpublish" formaction="{{ km_business_transition_url }}" formmethod="post">{% translate 'Снять с публикации' %}</button>
       {% endif %}
       {% if km_business_revision.status == 'pending' %}
         <input type="hidden" name="revision_version" value="{{ km_business_revision.version }}">
         <button class="km-pf-btn km-pf-btn--primary" type="submit" name="action" value="approve" formaction="{{ km_business_transition_url }}" formmethod="post">{% translate 'Одобрить заявку' %}</button>
+        <div class="km-return-box">
+          <label for="km-review-note">{% translate 'Что исправить (увидит владелец)' %}</label>
+          <textarea id="km-review-note" name="review_note" rows="3" placeholder="{% translate 'Например: добавьте описание на русском и логотип без водяных знаков.' %}"></textarea>
+          <button class="km-pf-btn km-pf-btn--warn" type="submit" name="action" value="return" formaction="{{ km_business_transition_url }}" formmethod="post">{% translate 'Вернуть на доработку' %}</button>
+        </div>
       {% endif %}
     </section>
   {% endif %}

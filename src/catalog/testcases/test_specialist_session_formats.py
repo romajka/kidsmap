@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.http import QueryDict
 from django.test import TestCase
 
+from catalog.testcases.specialist_document_fixtures import portrait_upload
 from catalog.models import District, Region, SpecialistSpecialization
 from catalog.services.specialist_proposal_drafts import proposal_forms, return_for_revision, save_proposal
 
@@ -25,6 +26,7 @@ class SpecialistSessionFormsTests(TestCase):
     def data(self, codes):
         data = QueryDict('', mutable=True)
         data.update({'name':'Test Formats', 'bio_ru':'QA', 'language_ru':'on', 'phone':'+994501234567',
+                     'lesson_type': 'pair', 'lesson_price': '25',
                      'specializations':str(self.direction.pk), 'locations-INITIAL_FORMS':'0',
                      'locations-TOTAL_FORMS':'0', 'locations-MAX_NUM_FORMS':'30'})
         data.setlist('session_formats', list(codes))
@@ -38,7 +40,7 @@ class SpecialistSessionFormsTests(TestCase):
 
     def save(self, data, *, submit, key=None, version=0):
         return save_proposal(actor=self.author, draft_id=key or uuid4(), expected_version=version,
-                             data=data, files={}, submit=submit)
+                             data=data, files={'photo': portrait_upload()} if submit else {}, submit=submit)
 
     def test_all_seven_combinations_survive_draft_submission_and_return(self):
         for size in (1, 2, 3):
@@ -87,7 +89,7 @@ class SpecialistSessionFormsTests(TestCase):
         data = self.data(('visit',))
         data.setlist('visit_districts', [])
         data['visit_citywide'] = 'on'
-        form, _ = proposal_forms(actor=self.author, data=data, submit=True)
+        form, _ = proposal_forms(actor=self.author, data=data, files={'photo': portrait_upload()}, submit=True)
         self.assertTrue(form.is_valid(), form.errors)
         profile = self.save(data, submit=True).submitted_specialist
         self.assertTrue(profile.visit_citywide)

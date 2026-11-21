@@ -12,7 +12,7 @@ from django.test import TestCase, override_settings
 from catalog.models import SpecialistDocument, SpecialistSpecialization
 from catalog.services import specialist_domain
 from catalog.services.specialist_proposal_drafts import return_for_revision, save_proposal
-from catalog.testcases.specialist_document_fixtures import image_document_bytes
+from catalog.testcases.specialist_document_fixtures import portrait_upload, image_document_bytes
 
 
 class ProposalQualificationTests(TestCase):
@@ -33,6 +33,7 @@ class ProposalQualificationTests(TestCase):
     def data(self, subject='self', rows=None, initial=0):
         data = QueryDict('', mutable=True)
         data.update({'profile_subject': subject, 'name': 'Demo specialist', 'specializations': self.spec.pk,
+                     'lesson_type': 'individual', 'lesson_price': '25',
                      'session_formats': 'online', 'language_ru': 'on', 'phone': '+994500000000',
                      'bio_ru': 'Тестовый профиль', 'locations-TOTAL_FORMS': '0', 'locations-INITIAL_FORMS': '0'})
         if rows is not None:
@@ -47,6 +48,8 @@ class ProposalQualificationTests(TestCase):
         return {f'qual-{index}-file': SimpleUploadedFile(filename, image_document_bytes(), content_type='image/png')}
 
     def save(self, data, files=None, version=0, submit=False, actor=None):
+        if submit:
+            files = {'photo': portrait_upload(), **(files or {})}
         return save_proposal(actor=actor or self.owner, draft_id=self.key, data=data,
                              expected_version=version, files=files or {}, submit=submit)
 

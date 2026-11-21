@@ -1,0 +1,33 @@
+{% load l10n %}
+<div class="km-package-row" data-package-row role="group" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Tarif{% elif CURRENT_LANGUAGE == 'en' %}Plan{% else %}Тариф{% endif %}">
+  <div class="km-package-head">
+    <strong class="km-package-title" data-package-title>{% if CURRENT_LANGUAGE == 'az' %}Tarif{% elif CURRENT_LANGUAGE == 'en' %}Plan{% else %}Тариф{% endif %}</strong>
+    <span class="km-package-hint" data-package-hint hidden>{% if CURRENT_LANGUAGE == 'az' %}Hər üç sahəni doldurun{% elif CURRENT_LANGUAGE == 'en' %}Fill in all three fields{% else %}Заполните все три поля{% endif %}</span>
+    <button type="button" class="km-package-remove" data-package-remove hidden>
+      <svg class="km-package-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg>
+      <span>{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}Удалить{% endif %}</span>
+    </button>
+  </div>
+  <div class="km-package-fields">
+    <label>
+      <span>{% if CURRENT_LANGUAGE == 'az' %}Tarif növü{% elif CURRENT_LANGUAGE == 'en' %}Plan type{% else %}Вид тарифа{% endif %}</span>
+      <select class="field" name="package_period">
+        <option value="">{% if CURRENT_LANGUAGE == 'az' %}Tarif seçin{% elif CURRENT_LANGUAGE == 'en' %}Choose plan{% else %}Выберите тариф{% endif %}</option>
+        <option value="month"{% if row.period == 'month' %} selected{% endif %}>{% if CURRENT_LANGUAGE == 'az' %}Aylıq abunəlik{% elif CURRENT_LANGUAGE == 'en' %}Monthly subscription{% else %}Месячный абонемент{% endif %}</option>
+        <option value="package"{% if row.period == 'package' %} selected{% endif %}>{% if CURRENT_LANGUAGE == 'az' %}Dərs paketi{% elif CURRENT_LANGUAGE == 'en' %}Lesson package{% else %}Пакет занятий{% endif %}</option>
+      </select>
+    </label>
+    <label>
+      <span>{% if CURRENT_LANGUAGE == 'az' %}Ümumi qiymət, ₼{% elif CURRENT_LANGUAGE == 'en' %}Total price, ₼{% else %}Полная стоимость, ₼{% endif %}</span>
+      <input class="field" type="number" name="package_amount" inputmode="decimal" placeholder="{% if CURRENT_LANGUAGE == 'az' %}məs. 200{% elif CURRENT_LANGUAGE == 'en' %}e.g. 200{% else %}напр. 200{% endif %}" min="0.01" max="99999999.99" step="0.01" value="{{ row.amount|default_if_none:''|unlocalize }}">
+    </label>
+    <label>
+      <span data-sessions-label
+            data-label-default="{% if CURRENT_LANGUAGE == 'az' %}Dərs sayı{% elif CURRENT_LANGUAGE == 'en' %}Number of lessons{% else %}Количество занятий{% endif %}"
+            data-label-month="{% if CURRENT_LANGUAGE == 'az' %}Ayda dərs sayı{% elif CURRENT_LANGUAGE == 'en' %}Lessons per month{% else %}Занятий в месяц{% endif %}"
+            data-label-package="{% if CURRENT_LANGUAGE == 'az' %}Paketdə dərs sayı{% elif CURRENT_LANGUAGE == 'en' %}Lessons in package{% else %}Занятий в пакете{% endif %}">{% if row.period == 'month' %}{% if CURRENT_LANGUAGE == 'az' %}Ayda dərs sayı{% elif CURRENT_LANGUAGE == 'en' %}Lessons per month{% else %}Занятий в месяц{% endif %}{% elif row.period == 'package' %}{% if CURRENT_LANGUAGE == 'az' %}Paketdə dərs sayı{% elif CURRENT_LANGUAGE == 'en' %}Lessons in package{% else %}Занятий в пакете{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Dərs sayı{% elif CURRENT_LANGUAGE == 'en' %}Number of lessons{% else %}Количество занятий{% endif %}{% endif %}</span>
+      <input class="field" type="number" name="package_sessions" inputmode="numeric" placeholder="{% if CURRENT_LANGUAGE == 'az' %}məs. 8{% elif CURRENT_LANGUAGE == 'en' %}e.g. 8{% else %}напр. 8{% endif %}" min="1" max="2147483647" step="1" value="{{ row.sessions|default_if_none:''|unlocalize }}">
+    </label>
+  </div>
+  <output class="km-package-summary" data-package-unit aria-live="polite"></output>
+</div>

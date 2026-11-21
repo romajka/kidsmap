@@ -526,6 +526,8 @@
   top: 84px;
   align-self: start;
   min-width: 0;
+  max-height: calc(100dvh - 96px);
+  overflow-y: auto;
 }
 
 .km-pf .km-pf__accordion-actions {
@@ -4843,8 +4845,13 @@
   font-weight: 600 !important;
 }
 
-/* Responsive Breakpoints */
-@media (max-width: 860px) {
+/* The admin navigation and action panel can make this column much narrower
+   than the viewport. Stack the inputs when the schedule itself is narrow. */
+.km-pf [data-pf-group="schedule"] {
+  container: place-schedule / inline-size;
+}
+
+@container place-schedule (max-width: 860px) {
   .km-pf .km-schedule-editor__table {
     overflow-x: visible !important;
   }
@@ -4854,7 +4861,7 @@
   }
 
   .km-pf .km-schedule-editor__row {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: minmax(0, 1fr) !important;
     gap: 8px !important;
     padding: 10px 14px !important;
     min-width: 0 !important;
@@ -4930,7 +4937,7 @@
    Place workspace is too narrow for both a readable form and the action rail. */
 @media (max-width: 1535px) {
   .km-pf .km-pf__layout { grid-template-columns: minmax(0, 1fr); }
-  .km-pf .km-pf__side { position: static; max-height: none; }
+  .km-pf .km-pf__side { position: static; max-height: none; overflow: visible; }
   .km-pf .km-pf-side__card { max-height: none; }
   .km-pf .km-pf__stickybar { display: flex; }
 

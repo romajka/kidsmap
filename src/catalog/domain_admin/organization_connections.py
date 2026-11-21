@@ -67,6 +67,27 @@ def organization_connections_view(model_admin,request):
             if selected.get('actor')!=request.user.pk: raise PermissionDenied
             ids=service._ids(selected['ids']);_visible_ids(model_admin,request,ids)
             context['selection']=token
+            relationship_kind = request.POST.get('relationship_kind', '')
+            if request.method == 'GET' or (
+                request.POST.get('action') == 'preview' and relationship_kind not in {'business', 'informational'}
+            ):
+                targets = [
+                    org for org in Organization.objects.filter(archived_at__isnull=True).order_by('name_az', 'pk')
+                    if _target_visible(model_admin, request, org)
+                ]
+                for target in targets:
+                    target.connection_display_name = service.organization_name(target)
+                try:
+                    organization_ownership._reviewer(request.user)
+                    can_information = True
+                except PermissionDenied:
+                    can_information = False
+                context.update(admin_select=True, selected_count=len(ids), targets=targets,
+                               can_information=can_information)
+                if request.method == 'POST':
+                    context.update(connection_kind_required=True,
+                                   selected_organization_id=request.POST.get('organization_id', ''))
+                    return render(request, 'admin/catalog/place/organization_connections.html', context, status=400)
             if request.method=='POST':
                 if request.POST.get('action')=='confirm':
                     operation=OrganizationConnectionOperation.objects.get(pk=service._uuid(request.POST.get('preview_id')),actor=request.user)
@@ -76,14 +97,8 @@ def organization_connections_view(model_admin,request):
                 org=Organization.objects.get(pk=int(request.POST.get('organization_id','0')),archived_at__isnull=True)
                 if not _target_visible(model_admin,request,org): raise PermissionDenied
                 operation=service.preview_connections(actor=request.user,organization_id=org.pk,
-                    relationship_kind=request.POST.get('relationship_kind','business'),place_ids=ids)
+                    relationship_kind=relationship_kind,place_ids=ids)
                 context.update(connection_context(request,operation))
-            else:
-                targets=[o for o in Organization.objects.filter(archived_at__isnull=True).order_by('name_az','pk') if _target_visible(model_admin,request,o)]
-                for target in targets:target.connection_display_name=service.organization_name(target)
-                try:organization_ownership._reviewer(request.user);can_information=True
-                except PermissionDenied:can_information=False
-                context.update(admin_select=True,selected_count=len(ids),targets=targets,can_information=can_information)
     except (ObjectDoesNotExist,PermissionDenied):raise Http404
     except (ValueError,KeyError,signing.BadSignature,ValidationError):
         context['connection_error']=_('Не удалось подтвердить. Проверьте выбор, согласие и срок просмотра. Обновите просмотр перед новым действием.')

@@ -3,6 +3,7 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.utils.text import slugify
@@ -93,6 +94,12 @@ class SpecialistSpecialization(models.Model):
 
 
 class Specialist(models.Model):
+    LESSON_TYPE_CHOICES = (
+        ('individual', _('Индивидуальное занятие')),
+        ('pair', _('Парное занятие')),
+        ('group', _('Групповое занятие')),
+        ('consultation', _('Консультация')),
+    )
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         null=True, blank=True, related_name="proposed_specialists")
     verified_person_user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
@@ -185,6 +192,11 @@ class Specialist(models.Model):
     # Стоимость и продолжительность
     price_from = models.PositiveIntegerField(_("Стоимость от (AZN)"), null=True, blank=True)
     price_to = models.PositiveIntegerField(_("Стоимость до (AZN)"), null=True, blank=True)
+    lesson_type = models.CharField(_("Тип занятия"), choices=LESSON_TYPE_CHOICES, max_length=16,
+                                   blank=True, default='', db_default='')
+    lesson_price = models.DecimalField(_("Цена одного занятия (AZN)"), max_digits=10, decimal_places=2,
+                                       null=True, blank=True, validators=[MinValueValidator(0)])
+    pricing_packages = models.JSONField(_("Дополнительные тарифы"), default=list, db_default=[], blank=True)
     duration_minutes = models.PositiveSmallIntegerField(_("Продолжительность приема (минут)"), null=True, blank=True)
 
     # Образование и опыт (подробно)
@@ -224,6 +236,10 @@ class Specialist(models.Model):
         verbose_name = _("Специалист")
         verbose_name_plural = _("Специалисты")
         permissions = [("review_specialist_claim", "Can verify specialist person claims")]
+        constraints = [
+            models.CheckConstraint(condition=models.Q(lesson_price__gte=0) | models.Q(lesson_price__isnull=True),
+                                   name='specialist_lesson_price_nonnegative'),
+        ]
 
     def refresh_rating_stats(self):
         """Перерасчет рейтинга специалиста только на основе одобренных отзывов"""

@@ -1,4 +1,6 @@
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone as utc_timezone
+from html import unescape
+from urllib.parse import parse_qs, urlsplit
 
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.utils import timezone
@@ -131,6 +133,75 @@ class ModerationLifecycleTests(TestCase):
         self.assertEqual(self.place.moderated_by_id, self.admin.pk)
         response = self.client.get('/admin/moderation-sla/?status=needs_changes')
         self.assertEqual(response.context['page'].object_list[0]['sla'].status, 'paused')
+
+    def test_date_filter_uses_the_day_shown_in_baku(self):
+        from catalog.models import Place
+        timestamp = datetime(2026, 11, 20, 20, 30, tzinfo=utc_timezone.utc)
+        Place.objects.filter(pk=self.place.pk).update(submitted_at=timestamp)
+        self.client.force_login(self.admin)
+        with timezone.override('Asia/Baku'):
+            url = '/ru/admin/moderation-sla/'
+            included = self.client.get(url, {'from': '2026-11-21', 'to': '2026-11-21'})
+            self.assertContains(included, '21.11.2026 00:30')
+            self.assertEqual(self.client.get(url, {'to': '2026-11-20'}).context['page'].paginator.count, 0)
+
+    def test_first_overdue_minute_is_visible_before_displayed_hours_round_up(self):
+        from catalog.models import Place
+        Place.objects.filter(pk=self.place.pk).update(submitted_at=timezone.now() - timedelta(hours=72, seconds=10))
+        self.client.force_login(self.admin)
+        response = self.client.get('/en/admin/moderation-sla/', {'sla_status': 'breached'})
+        row, = response.context['page'].object_list
+        self.assertLess(row['sla'].remaining_seconds, 0)
+        self.assertContains(response, 'km-sla__remaining-chip--breached')
+
+    def test_type_counters_match_their_links_and_preserve_active_filters(self):
+        import re
+        from catalog.models import PlaceReview
+        PlaceReview.objects.create(place=self.place, text='Pending review', status='pending')
+        self.client.force_login(self.admin)
+        url = '/en/admin/moderation-sla/'
+        response = self.client.get(url, {'status': 'pending', 'from': '2020-01-01', 'type': 'place', 'page': '2'})
+        self.assertEqual(response.context['page'].paginator.count, 1)
+        chips = re.findall(r'<a href="([^"]*)" class="km-sla__type-pill[^"]*">\s*<span>([^<]+)</span>\s*<span class="km-sla__type-count">(\d+)</span>', response.content.decode())
+        self.assertTrue(chips)
+        for label, expected in [('All', 2), ('Places', 1), ('Reviews', 1)]:
+            href, count = next((href, int(n)) for href, text, n in chips if text == label)
+            query = parse_qs(urlsplit(unescape(href)).query)
+            self.assertEqual(count, expected, label)
+            self.assertEqual(query['from'], ['2020-01-01'])
+            self.assertEqual(query['status'], ['pending'])
+            self.assertNotIn('page', query)
+            self.assertEqual(self.client.get(url + unescape(href)).context['page'].paginator.count, count)
+
+    @override_settings(MODERATION_SLA={
+        'place': {'hours': 36, 'warning_percent': 50, 'critical_percent': 80},
+        'review': {'hours': 12, 'warning_percent': 50, 'critical_percent': 80},
+    })
+    def test_visible_policy_and_user_receipt_follow_configured_hours(self):
+        from catalog.services.moderation_sla import submission_message
+        from django.utils.translation import override
+        self.client.force_login(self.admin)
+        with override('en'):
+            response = self.client.get('/en/admin/moderation-sla/')
+            hero = response.content.decode().split('km-sla__hero-points')[1].split('</ul>')[0]
+            for kind, hours in [('place', 36), ('review', 12)]:
+                self.assertIn(str(hours), hero)
+                self.assertIn(f'{hours} calendar hours', submission_message(kind))
+            self.assertNotIn('48 ', hero)
+
+    @override_settings(MODERATION_SLA={})
+    def test_unconfigured_deadline_still_accepts_material_without_promising_a_time(self):
+        from catalog.services.moderation_sla import submission_message
+        from django.utils.translation import override
+        self.client.force_login(self.admin)
+        with override('en'):
+            response = self.client.get('/en/admin/moderation-sla/')
+            self.assertEqual(response.status_code, 200)
+            row, = response.context['page'].object_list
+            self.assertEqual(row['sla'].status, 'unconfigured')
+            self.assertIsNone(row['sla'].deadline)
+            self.assertNotIn('calendar hours', submission_message('review'))
+            self.assertIn('moderation', submission_message('review').lower())
 
     def test_site_submission_returns_localized_deadline_and_resets_old_decision(self):
         from django.test import RequestFactory

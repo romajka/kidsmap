@@ -3582,6 +3582,8 @@ class TestAdminSpecialistChangeList(TestCase):
         Specialist.objects.create(
             name="Pending specialist",
             slug="pending-specialist-list",
+            lesson_type="individual",
+            lesson_price=30,
             offers_online=True,
             status=Specialist.STATUS_PENDING,
             is_active=False,

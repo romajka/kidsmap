@@ -3,6 +3,7 @@ import importlib
 import importlib.util
 import uuid
 from datetime import timedelta
+from urllib.parse import parse_qs
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
@@ -13,6 +14,7 @@ from django.utils import timezone
 
 from catalog.models import Organization, OrganizationPlaceRequest, Place
 from catalog.services import organization_ownership
+from catalog.templatetags.admin_dashboard_tags import cl_sort_url
 from catalog.testcases.utils import create_quality_place, ensure_quality_subcategory
 
 
@@ -216,6 +218,46 @@ class OrganizationConnectionTests(TestCase):
         self.assertEqual(OrganizationConnectionOperation.objects.get(pk=operation.pk).items.get().result,'connected')
         replay=self.client.post('/admin/catalog/place/organization-connections/',{'action':'confirm','preview_id':operation.pk,'idempotency_key':key,'consent':'1'})
         self.assertEqual(replay.status_code,302)
+
+    def test_admin_search_finds_places_by_localized_organization_name(self):
+        Organization.objects.filter(pk=self.org.pk).update(
+            name_az='Şəbəkə Sınaq', name_ru='Сеть Тестовая', name_en='Network Example',
+        )
+        self.execute(self.preview(actor=self.staff, kind='informational'), actor=self.staff)
+        self.client.force_login(self.staff)
+        for term in ('Şəbəkə Sınaq', 'Сеть Тестовая', 'Network Example'):
+            with self.subTest(term=term):
+                response = self.client.get('/admin/catalog/place/', {'q': term})
+                self.assertEqual(response.status_code, 200)
+                self.assertIn(self.place.pk, [place.pk for place in response.context['cl'].result_list])
+        self.assertContains(response, 'data-field="organization"')
+        self.assertContains(response, 'data-apply-filters-together')
+
+    def test_admin_sort_keeps_publication_and_organization_filters(self):
+        self.execute(self.preview(actor=self.staff, kind='informational'), actor=self.staff)
+        self.client.force_login(self.staff)
+        filters = {'organization__id__exact': str(self.org.pk), 'publication_state': 'published'}
+        response = self.client.get('/admin/catalog/place/', filters)
+        self.assertEqual(response.status_code, 200)
+        query = parse_qs(cl_sort_url(response.context['cl'], 'name_asc').lstrip('?'))
+        self.assertEqual(query, {key: [value] for key, value in {**filters, 'sort': 'name_asc'}.items()})
+
+    def test_admin_preview_requires_the_operator_to_choose_a_relationship_kind(self):
+        from catalog.models import OrganizationConnectionOperation
+
+        self.client.force_login(self.staff)
+        url = '/admin/catalog/place/organization-connections/'
+        start = self.client.post(url, {'connection_selection': '1', '_selected_action': [self.place.pk]})
+        selection = self.client.get(start.url)
+        token = selection.context['selection']
+        target = Organization.objects.create(name_az='Zeta organization', status='published')
+        response = self.client.post(url, {
+            'selection': token, 'action': 'preview', 'organization_id': target.pk,
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.context['selection'], token)
+        self.assertContains(response, f'<option value="{target.pk}" selected>', status_code=400)
+        self.assertFalse(OrganizationConnectionOperation.objects.exists())
 
     def test_owner_return_does_not_make_old_preview_current(self):
         preview=self.preview()

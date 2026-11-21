@@ -151,7 +151,9 @@ def organization_detach_preview(request,org_id,place_id):
 def _organization_form_labels(form):
     for language in ('az', 'ru', 'en'):
         form.fields['name_' + language].label = _('Название организации (%(language)s)') % {'language': language.upper()}
-    form.fields['description_az'].label = _('Описание организации (%(language)s)') % {'language': 'AZ'}
+    for language in ('az', 'ru', 'en'):
+        if 'description_' + language in form.fields:
+            form.fields['description_' + language].label = _('Описание организации (%(language)s)') % {'language': language.upper()}
     for name, label in {'phone': _('Телефон'), 'whatsapp': 'WhatsApp', 'website': _('Сайт организации'),
                         'allow_separate': _('Создать отдельную организацию'),
                         'expected_version': _('Версия карточки'), 'revision_version': _('Версия изменений'),
@@ -197,14 +199,35 @@ class BranchCreateForm(forms.Form):
     allow_separate = forms.BooleanField(required=False)
 
 
+ORGANIZATION_PROFILE_FIELDS = ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en',
+    'phone', 'whatsapp', 'website', 'address', 'instagram', 'facebook', 'tiktok')
+ORGANIZATION_MEDIA_FIELDS = ('logo', 'cover_photo')
+MEDIA_RULES = {
+    # field: (max bytes, min width, min height)
+    'logo': (5 * 1024 * 1024, 120, 120),
+    'cover_photo': (8 * 1024 * 1024, 800, 300),
+}
+MEDIA_FORMATS = {'JPEG': 'jpg', 'PNG': 'png', 'WEBP': 'webp'}
+
+
 class OrganizationCandidateForm(OrganizationContactForm):
     name_az = forms.CharField(max_length=255, required=False)
     name_ru = forms.CharField(max_length=255, required=False)
     name_en = forms.CharField(max_length=255, required=False)
     description_az = forms.CharField(required=False, widget=forms.Textarea)
+    description_ru = forms.CharField(required=False, widget=forms.Textarea)
+    description_en = forms.CharField(required=False, widget=forms.Textarea)
     phone = forms.CharField(max_length=50, required=False)
     whatsapp = forms.CharField(max_length=50, required=False)
     website = forms.URLField(required=False)
+    address = forms.CharField(max_length=255, required=False)
+    instagram = forms.CharField(max_length=255, required=False)
+    facebook = forms.CharField(max_length=255, required=False)
+    tiktok = forms.CharField(max_length=255, required=False)
+    logo = forms.ImageField(required=False)
+    cover_photo = forms.ImageField(required=False)
+    logo_clear = forms.BooleanField(required=False)
+    cover_photo_clear = forms.BooleanField(required=False)
     expected_version = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
     revision_version = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
     submit = forms.BooleanField(required=False, widget=forms.HiddenInput)
@@ -212,6 +235,52 @@ class OrganizationCandidateForm(OrganizationContactForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         _organization_form_labels(self)
+        for name, label in {'address': _('Адрес головного офиса'), 'instagram': 'Instagram', 'facebook': 'Facebook',
+                            'tiktok': 'TikTok', 'logo': _('Логотип'), 'cover_photo': _('Обложка')}.items():
+            self.fields[name].label = label
+
+    def clean_media(self, name):
+        upload = self.cleaned_data.get(name)
+        if not upload:
+            return upload
+        limit, min_w, min_h = MEDIA_RULES[name]
+        if upload.size > limit:
+            raise ValidationError(_('Файл больше %(mb)s МБ.') % {'mb': limit // (1024 * 1024)}, code='too_large')
+        image = getattr(upload, 'image', None)
+        fmt = getattr(image, 'format', None)
+        if fmt not in MEDIA_FORMATS:
+            raise ValidationError(_('Загрузите JPG, PNG или WebP.'), code='format')
+        width, height = getattr(image, 'size', (0, 0))
+        if width < min_w or height < min_h:
+            raise ValidationError(_('Изображение слишком маленькое: нужно от %(w)s×%(h)s px.') % {'w': min_w, 'h': min_h}, code='too_small')
+        return upload
+
+    def clean_logo(self):
+        return self.clean_media('logo')
+
+    def clean_cover_photo(self):
+        return self.clean_media('cover_photo')
+
+    def clean(self):
+        data = super().clean()
+        from catalog.services.organization_state import normalize_social
+        for name in ('instagram', 'facebook', 'tiktok'):
+            if name in data:
+                try:
+                    data[name] = normalize_social(name, data.get(name))
+                except ValueError:
+                    self.add_error(name, _('Укажите ссылку на профиль или @имя аккаунта.'))
+        return data
+
+
+def store_organization_media(org, name, upload):
+    """Put a validated upload into storage; the candidate references its name."""
+    from django.core.files.storage import default_storage
+    from catalog.models import Organization
+    field = Organization._meta.get_field(name)
+    ext = MEDIA_FORMATS[upload.image.format]
+    upload.seek(0)
+    return field.storage.save(f'{field.upload_to}{org.pk}-{uuid.uuid4().hex[:12]}.{ext}', upload)
 
 
 ORGANIZATION_CONFLICT_COPY = {
@@ -255,8 +324,14 @@ def _owned_and_accessible_orgs(user):
         Q(team_grants__member=user, team_grants__is_active=True)
     ).distinct().order_by('pk')
     rows = [o for o in candidates if business_team.has_action(user=user, target=o, action='organization.view')]
+    from catalog.models import VolunteerPlaceRevision
+    from catalog.services import organization_state
+    revisions = {r.organization_id: r for r in VolunteerPlaceRevision.objects.filter(organization__in=rows)}
+    counts = organization_state.branch_counts_by_org([o.pk for o in rows])
     for org in rows:
         org.directory_published = bool(org.status == 'published' and org.approved_at and not org.archived_at)
+        org.state = organization_state.lifecycle(org, revisions.get(org.pk))
+        org.branch_current, org.branch_stale = counts.get(org.pk, (0, 0))
     return rows
 
 
@@ -344,17 +419,39 @@ def _detail_context(request, org, *, candidate_form=None, action_error=None):
         actor=request.user, target_type='organization', target_id=org.pk,
         source_version=org.content_version, schema_version=publication.SCHEMA_VERSION,
     ).order_by('-saved_at').first()
-    data = {k: getattr(org, k) for k in ('name_az','name_ru','name_en','description_az','phone','whatsapp','website')}
+    data = {k: getattr(org, k) for k in ORGANIZATION_PROFILE_FIELDS}
+    media = {k: str(getattr(org, k) or '') for k in ORGANIZATION_MEDIA_FIELDS}
     has_candidate = revision and revision.status in ('draft','pending','rejected')
     if has_candidate:
         data.update({k:v for k,v in revision.payload.items() if k in data})
+        media.update({k:v or '' for k,v in revision.payload.items() if k in media})
     show_current_data = request.method == 'GET' and request.GET.get('current') == '1'
     if draft and not show_current_data and (not has_candidate or draft.saved_at >= revision.updated_at):
         data.update({k:v for k,v in draft.fields.items() if k in data})
+    from catalog.services import organization_state
+    from django.core.files.storage import default_storage
+    all_linked = list(Place.objects.filter(organization=org, deleted_at__isnull=True).order_by('pk'))
+    health = organization_state.branch_health(org, places=all_linked)
+    visible_branch_ids = {p.pk for p in branches}
+    for place in branches:
+        place.link_state = 'current' if place.affiliation_is_current else 'stale'
+        place.link_stale_reason = '' if place.affiliation_is_current else organization_state.stale_reason(place, org)
+    # Owners see every stale link (name only), so a silent loss can no longer happen.
+    stale_hidden = [p for p in health.stale if p.pk not in visible_branch_ids] if org.owner_id == request.user.pk else []
+    state = organization_state.lifecycle(org, revision)
+    ready = organization_state.readiness(org, data={**data, **media}, health=health)
+    media_urls = {k: (default_storage.url(v) if v else '') for k, v in media.items()}
+    from catalog.services.organization_state import social_links
+    preview = type('Preview', (), {k: data.get(k, '') for k in ('instagram', 'facebook', 'tiktok')})()
     has_details = bool(data.get('description_az') or data.get('phone') or data.get('whatsapp') or data.get('website'))
     has_branches = len(branches) > 0
     has_team = len(grants) > 0 or len(invitations) > 0
     return {
+        'org_state': state, 'org_health': health, 'org_ready': ready,
+        'org_steps': organization_state.steps(org, state, ready, health),
+        'org_media': media, 'org_media_urls': media_urls, 'org_social': social_links(preview),
+        'org_public_url': organization_state.public_path(org) if state.public else '',
+        'stale_hidden_branches': stale_hidden,
         'organization_is_public': bool(org.status == 'published' and org.approved_at and not org.archived_at),
         'workspace_mode':'detail', 'organization':org, 'schema_version':publication.SCHEMA_VERSION, 'branches':branches,
         'show_current_data':show_current_data,
@@ -408,9 +505,17 @@ def organization_save(request, org_id):
     revision = getattr(org, 'content_revision', None)
     if revision and revision.status in ('draft', 'pending', 'rejected'):
         initial.update({name: revision.payload[name] for name in initial if name in revision.payload})
-    form = OrganizationCandidateForm(request.POST, initial=initial, preserve_existing_contacts=True)
+    form = OrganizationCandidateForm(request.POST, request.FILES, initial=initial, preserve_existing_contacts=True)
     if form.is_valid():
         patch = {k:form.cleaned_data[k] or '' for k in ('name_az','name_ru','name_en','description_az','phone','whatsapp','website')}
+        # Newer profile fields change only when the form actually sent them, so
+        # an older client or a partial form can never blank them out.
+        patch.update({k: form.cleaned_data[k] or '' for k in ORGANIZATION_PROFILE_FIELDS if k not in patch and k in request.POST})
+        for name in ORGANIZATION_MEDIA_FIELDS:
+            if form.cleaned_data.get(name):
+                patch[name] = store_organization_media(org, name, form.cleaned_data[name])
+            elif form.cleaned_data.get(name + '_clear'):
+                patch[name] = ''
         try:
             publication.propose(actor=request.user,target_type='organization',target_id=org.pk,
                 patch=patch,schema_version=publication.SCHEMA_VERSION,

@@ -51,7 +51,7 @@
         <div class="sp-specialties-menu">
           <a href="{{ all_specializations_url }}">{% if language == 'az' %}Bütün mütəxəssislər{% elif language == 'en' %}All specialists{% else %}Все специалисты{% endif %}</a>
           {% for item in available_subjects %}<a class="km-subject-quick-link" href="{{ item.url }}"{% if selected.subject == item.value %} aria-current="true"{% endif %}>{{ item.label }}</a>{% endfor %}
-          {% for chip in specialization_chips %}{% if chip.value != 'tutor' %}<a class="km-subject-quick-link" href="{{ chip.url }}" data-spec-chip="{{ chip.value }}"{% if chip.is_active %} aria-current="true"{% endif %}>{{ chip.label }}</a>{% endif %}{% endfor %}
+          {% for chip in specialization_chips %}{% if chip.value != 'tutor' %}<a class="km-subject-quick-link" href="{{ chip.url }}" data-spec-chip="{{ chip.value }}"{% if chip.is_active %} aria-current="true"{% endif %}>{% include "catalog/includes/specialization_icon.html" with code=chip.value only %}{{ chip.label }}</a>{% endif %}{% endfor %}
         </div>
       </details>
       {% endif %}
@@ -105,7 +105,7 @@
               </div>
               {% for spec in filter_options.specializations %}
                 <div class="km-custom-select__option{% if selected.specialization == spec.value %} is-selected{% endif %}" role="option" aria-selected="{% if selected.specialization == spec.value %}true{% else %}false{% endif %}" data-value="{{ spec.value }}">
-                  <span class="km-custom-select__opt-text">{{ spec.label }}</span>
+                  <span class="km-custom-select__opt-text">{% include "catalog/includes/specialization_icon.html" with code=spec.value only %}{{ spec.label }}</span>
                   {% if spec.count %}<span class="km-custom-select__opt-count">{{ spec.count }}</span>{% endif %}
                 </div>
               {% endfor %}
@@ -213,7 +213,7 @@
              data-from-suffix="{% if language == 'az' %}-dən{% endif %}"
              data-unlimited-label="{% if language == 'az' %}Yuxarı hədd yoxdur{% elif language == 'en' %}No upper limit{% else %}Без верхней границы{% endif %}">
           <div class="range-filter-head">
-            <label><span class="material-symbols-rounded" aria-hidden="true">payments</span> {% if language == 'az' %}Xidmətin qiyməti{% elif language == 'en' %}Service price{% else %}Стоимость услуги{% endif %}</label>
+            <label><span class="material-symbols-rounded" aria-hidden="true">payments</span> {% if language == 'az' %}Bir dərsin qiyməti{% elif language == 'en' %}Single lesson price{% else %}Цена одного занятия{% endif %}</label>
             <strong class="range-filter-current" data-range-caption></strong>
           </div>
           <input type="hidden" name="price_from" value="{{ selected.price_from|default:'0' }}" data-range-from-input />
@@ -402,11 +402,12 @@
               {% if specialist.name_alt %}<p class="sp-card-alt">{{ specialist.name_alt }}</p>{% endif %}
               {% if specialist.card_subjects or specialist.card_specializations %}
                 <ul class="km-subject-tags sp-card-subjects">
-                  {% for tag in specialist.card_specializations %}<li>{{ tag }}</li>{% endfor %}
+                  {% for spec in specialist.card_specializations %}<li>{% include "catalog/includes/specialization_icon.html" with code=spec.code only %}{{ spec.name_i18n }}</li>{% endfor %}
                   {% for item in specialist.card_subjects %}<li>{{ item.label }}</li>{% endfor %}
                 </ul>
               {% endif %}
               <ul class="sp-card-facts">
+                {% if specialist.lesson_type %}<li><span class="material-symbols-rounded" aria-hidden="true">school</span>{{ specialist.get_lesson_type_display }}</li>{% endif %}
                 {% if specialist.card_age %}<li><span class="material-symbols-rounded" aria-hidden="true">child_care</span>{{ specialist.card_age }}</li>{% endif %}
                 {% if specialist.card_format_label %}<li><span class="material-symbols-rounded" aria-hidden="true">{{ specialist.card_format_icon }}</span><span>{{ specialist.card_format_label }}</span></li>{% endif %}
                 {% if specialist.online_match_only %}<li>{% if language == 'az' %}Sorğunuza yalnız onlayn format uyğun gəlir{% elif language == 'en' %}Matches your search online only{% else %}По вашему запросу подходит онлайн{% endif %}</li>{% endif %}

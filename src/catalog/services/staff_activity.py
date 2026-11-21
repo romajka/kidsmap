@@ -41,6 +41,10 @@ def staff_activity_context(request, user, admin_site):
         place.staff_change_url = ''
         if place_admin and place_admin.has_view_or_change_permission(request, place):
             place.staff_change_url = reverse('admin:catalog_place_change', args=[place.pk])
+        place.staff_delete_url = ''
+        if (place.staff_change_url and place.status == Place.STATUS_DRAFT
+                and not place.is_deleted and place_admin.has_delete_permission(request, place)):
+            place.staff_delete_url = place_admin._place_delete_url(place)
         revision = getattr(place, 'volunteer_revision', None)
         place.staff_revision = revision
         place.staff_review_url = (

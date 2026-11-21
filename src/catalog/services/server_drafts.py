@@ -56,7 +56,7 @@ def _target(user, kind, target_id):
 
 
 def _fields(kind, fields):
-    allowed = publication.fields_for(kind) - {'photo','cover_photo','gallery'}
+    allowed = publication.fields_for(kind) - {'photo','cover_photo','gallery','logo'}
     if kind == 'place':
         allowed |= PLACE_EDITOR_DRAFT_FIELDS
     if not isinstance(fields, dict) or len(str(fields)) > 65536 or not set(fields) <= allowed:

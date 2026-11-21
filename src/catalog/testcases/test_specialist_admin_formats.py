@@ -24,6 +24,7 @@ class SpecialistAdminFormatTests(TestCase):
         request.user = self.staff
         cls = self.model_admin.get_form(request)
         return cls(data={'name': 'Format profile', 'status': 'pending',
+                         'lesson_type': 'individual', 'lesson_price': '25',
                          'specializations': [self.specialty.pk], **data})
 
     def test_admin_can_save_and_reopen_online_and_visits_without_an_office(self):
@@ -45,8 +46,9 @@ class SpecialistAdminFormatTests(TestCase):
         self.assertTrue(self.form(status='draft').is_valid())
 
     def test_pending_and_publish_actions_skip_office_without_active_location(self):
-        invalid = Specialist.objects.create(name='Missing office', consultation_format='offline', status='draft', is_active=False)
-        valid = Specialist.objects.create(name='Valid office', consultation_format='offline', status='draft', is_active=False)
+        fees = {'lesson_type': 'individual', 'lesson_price': 25}
+        invalid = Specialist.objects.create(name='Missing office', consultation_format='offline', status='draft', is_active=False, **fees)
+        valid = Specialist.objects.create(name='Valid office', consultation_format='offline', status='draft', is_active=False, **fees)
         SpecialistPracticeLocation.objects.create(specialist=valid, region=self.region, address='Test office')
         for action, expected in [('mark_pending', 'pending'), ('mark_published', 'published')]:
             with self.subTest(action=action):

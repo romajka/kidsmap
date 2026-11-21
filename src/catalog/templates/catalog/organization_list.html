@@ -6,7 +6,7 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block meta_description_og %}{{ meta_description }}{% endblock %}
 {% block meta_description_twitter %}{{ meta_description }}{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/organization_directory.css' %}?v=20261104_public_mobile_r2">{% include "pages/includes/editorial_styles.html" %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/organization_directory.css' %}?v=20261104_public_mobile_r2"><link rel="stylesheet" href="{% static 'css/pages/organization_public_v2.css' %}?v=20261121_org_v2">{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 {% block content %}
 <div class="org-directory">
@@ -66,7 +66,7 @@
 
   <div class="org-grid">
     {% for card in cards %}
-    <article class="org-card">
+    <article class="org-card org-card--v2" style="--i:{{ forloop.counter0 }}">
       <div class="org-card-media {% if not card.photos %}org-card-media--empty{% else %}org-card-media--count-{{ card.photos|length }}{% endif %}">
         {% for photo in card.photos %}
           <div class="org-media-frame">
@@ -93,6 +93,7 @@
       </div>
 
       <div class="org-card-body">
+        <a class="org-card-logo{% if card.logo %} has-image{% endif %}" href="{{ card.url }}" tabindex="-1" aria-hidden="true">{% if card.logo %}<img src="{{ card.logo }}" alt="" loading="lazy" decoding="async" width="64" height="64">{% else %}<span>{{ card.monogram }}</span>{% endif %}</a>
         <div class="org-card-topline">
           <span class="org-card-tag">
             <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
@@ -118,6 +119,11 @@
 
         {% if not card.branch_count %}
           <p class="org-fallback org-fallback--nobranches">{{ text.empty_branches }}</p>
+        {% endif %}
+        {% if card.socials %}
+          <div class="org-card-socials">
+            {% for s in card.socials %}<a href="{{ s.url }}" target="_blank" rel="noopener noreferrer nofollow" class="org-social org-social--{{ s.kind }}" aria-label="{{ s.label }}: {{ card.name }}">{% include "catalog/includes/social_icon.html" with kind=s.kind only %}</a>{% endfor %}
+          </div>
         {% endif %}
 
         <a class="org-card-cta" href="{{ card.url }}" aria-label="{{ card.name }}: {{ text.view_network }}">

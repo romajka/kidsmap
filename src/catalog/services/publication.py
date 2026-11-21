@@ -25,7 +25,7 @@ def fields_for(kind):
     from catalog.volunteer_forms import CONTENT_FIELDS
     return {
         'place': set(CONTENT_FIELDS) | PRICES | {'nature','operating_state','pricing_plans','nested_pricing','structured_schedule','gallery','location_override'},
-        'organization': TEXTS | {'phone','whatsapp','website'},
+        'organization': TEXTS | {'phone','whatsapp','website','logo','cover_photo','address','instagram','facebook','tiktok'},
         'program': TEXTS | {'category','subcategory'},
         'activity': TEXTS | {'supplement_az','supplement_ru','supplement_en','category','subcategory'},
         'offering_group': {'name_az','name_ru','name_en','age_from','age_to','lesson_format','language','schedule_text','teachers_text','conditions_az','conditions_ru','conditions_en'},
@@ -59,7 +59,7 @@ def snapshot(target, kind):
             value=serialize_place_schedule(target)
         else:
             field=target._meta.get_field(name);value=getattr(target,field.attname)
-            if name in {'photo','cover_photo'}:value=str(value or '')
+            if name in {'photo','cover_photo','logo'}:value=str(value or '')
         result[name]=json_value(value)
     return result
 
@@ -166,7 +166,25 @@ def _integer(value):
     return value
 
 
-def _validate_patch(target,kind,patch,*,pending=None):
+def _drop_unchanged_price_verification(target, patch):
+    from catalog.services.pricing_plans import place_pricing_records
+
+    plans = list(patch.get('pricing_plans', []))
+    for activity in patch.get('nested_pricing', {}).get('activities', []):
+        for group in activity['groups']:
+            plans.extend(group['pricing_plans'])
+    if not any('verified_at' in plan for plan in plans):
+        return
+    dates = {
+        plan.pk: plan.verified_at.isoformat() for plan in place_pricing_records(target, public=False)
+        if plan.verified_at
+    }
+    for plan in plans:
+        if plan.get('verified_at') == dates.get(plan.get('id')):
+            plan.pop('verified_at', None)
+
+
+def _validate_patch(target,kind,patch,*,pending=None,allow_price_verification=False):
     from catalog.services.volunteer_places import json_value
     if not isinstance(patch,dict) or not set(patch)<=fields_for(kind):raise ValidationError('Unknown/protected publication fields.')
     if kind in {'place', 'organization'}:
@@ -201,16 +219,25 @@ def _validate_patch(target,kind,patch,*,pending=None):
             value=clean
         elif name=='pricing_plans':
             from catalog.services.pricing_plans import normalize_pricing_plans
-            value=normalize_pricing_plans(value,allow_verified=False,legacy_place=target)
+            value=normalize_pricing_plans(value,allow_verified=allow_price_verification,legacy_place=target)
+            if not allow_price_verification:
+                value = [{k: v for k, v in plan.items() if k != 'verified_at'} for plan in value]
             # Validate ownership of supplied plan IDs even for gated candidates.
             ids={int(p['id']) for p in value if p.get('id')}
             if ids and set(target.pricing_plan_records.filter(pk__in=ids).values_list('pk',flat=True))!=ids:raise ValidationError('Foreign pricing plan.')
         elif name=='nested_pricing':
             from catalog.services.pricing_plans import validate_nested_pricing
-            value=validate_nested_pricing(target,value,allow_verified=False)
+            value=validate_nested_pricing(target,value,allow_verified=allow_price_verification)
         elif name=='public_links':
             from catalog.services.place_public_links import normalize_public_links
             value=normalize_public_links(value)
+        elif kind=='organization' and name in {'instagram','facebook','tiktok'}:
+            from catalog.services.organization_state import normalize_social
+            try:value=normalize_social(name,value if isinstance(value,str) else '')
+            except ValueError:
+                from django.utils.translation import gettext
+                raise ValidationError({name:gettext('Укажите ссылку или @имя аккаунта.')})
+            if len(value)>255:raise ValidationError({name:'Too long.'})
         elif name=='structured_schedule':
             import json
             from catalog.services.place_schedule import validate_schedule_payload
@@ -220,7 +247,7 @@ def _validate_patch(target,kind,patch,*,pending=None):
             value=checked.days
         else:
             field=target._meta.get_field(name)
-            if name in {'photo','cover_photo'}:
+            if name in {'photo','cover_photo','logo'}:
                 # Only form adapters may supply names already held by storage.
                 if value and str(value)!=str(getattr(target,name) or '') and not field.storage.exists(str(value)):raise ValidationError('Uploaded file missing.')
             value=field.to_python(value) if not field.is_relation else value
@@ -237,10 +264,12 @@ def _validate_patch(target,kind,patch,*,pending=None):
         validate_taxonomy(candidate.category_id,candidate.subcategory_id)
         if kind=='activity' and target.program_id and {'category','subcategory'} & set(patch):
             raise ValidationError('Linked Activity taxonomy comes from the approved Program.')
+    if allow_price_verification:
+        _drop_unchanged_price_verification(target, normalized)
     return normalized
 
 
-def _apply(target,kind,patch):
+def _apply(target,kind,patch,*,allow_price_verification=False):
     values={};now=timezone.now()
     for name,value in patch.items():
         if name in {'pricing_plans','nested_pricing','structured_schedule','gallery','location_override'}:continue
@@ -288,10 +317,10 @@ def _apply(target,kind,patch):
         sync_legacy_price_fields(place_id)
     if 'pricing_plans' in patch:
         from catalog.services.pricing_plans import replace_place_pricing_plans
-        replace_place_pricing_plans(target,patch['pricing_plans'])
+        replace_place_pricing_plans(target,patch['pricing_plans'],allow_verified=allow_price_verification)
     if 'nested_pricing' in patch:
         from catalog.services.pricing_plans import replace_nested_pricing
-        replace_nested_pricing(target,patch['nested_pricing'],complete_tree=True)
+        replace_nested_pricing(target,patch['nested_pricing'],allow_verified=allow_price_verification,complete_tree=True)
     if 'structured_schedule' in patch:
         from catalog.services.place_schedule import sync_place_schedule
         sync_place_schedule(target,patch['structured_schedule'])
@@ -349,11 +378,17 @@ def propose(*,actor,target_type,target_id,patch,schema_version,expected_version,
     from catalog.services.staff_roles import is_volunteer
     if revision and is_volunteer(actor) and revision.author_id != actor.pk:
         raise PermissionDenied
-    patch=_validate_patch(target,target_type,patch,pending=revision.payload if revision and revision.status in {'draft','pending'} else None);live=snapshot(target,target_type)
+    allow_price_verification = target_type == 'place' and platform_has_action(user=actor, action='place.publish') and not is_volunteer(actor)
+    patch=_validate_patch(target,target_type,patch,pending=revision.payload if revision and revision.status in {'draft','pending'} else None,allow_price_verification=allow_price_verification);live=snapshot(target,target_type)
     if revision and revision.status not in {'approved','rejected','declined'}:
         if revision.schema_version!=SCHEMA_VERSION or revision.dependencies!=dependencies(target,target_type):raise ValidationError('Candidate dependency conflict.', code='candidate_dependency_conflict')
         if any(live.get(k)!=revision.base_snapshot.get(k) for k in revision.changed_fields):raise ValidationError('Candidate source conflict.', code='candidate_source_conflict')
-        base=revision.base_snapshot;pending=dict(revision.payload)
+        base=dict(revision.base_snapshot);pending=dict(revision.payload)
+        if target_type == 'place':
+            # These columns were empty on every place when introduced. A still-open
+            # revision from before the migration can propose its first contact.
+            base.setdefault('administration_name', '')
+            base.setdefault('administration_phone', '')
     else:base=live;pending={}
     incoming=dict(patch)
     changed={k:v for k,v in patch.items() if live[k]!=v}
@@ -362,14 +397,21 @@ def propose(*,actor,target_type,target_id,patch,schema_version,expected_version,
         strip=lambda plans:[{k:v for k,v in p.items() if k not in amounts | {'verified_at'}} for p in plans]
         if strip(live['pricing_plans'])==strip(patch['pricing_plans']):
             by_id={p.get('id'):p for p in patch['pricing_plans']}
-            incoming['pricing_plans']=[{**p,**{k:v for k,v in by_id.get(p.get('id'),{}).items() if k in amounts}} for p in pending['pricing_plans']]
+            merged = []
+            for plan in pending['pricing_plans']:
+                edits = {k: v for k, v in by_id.get(plan.get('id'), {}).items() if k in amounts}
+                row = {**plan, **edits}
+                if any(plan.get(k) != v for k, v in edits.items()):
+                    row.pop('verified_at', None)
+                merged.append(row)
+            incoming['pricing_plans'] = merged
     immediate=_immediate(target,target_type,changed,explicit_save)
     if 'pricing_plans' in pending:immediate.discard('pricing_plans')
     # Changed conditions in an existing candidate keep newly changed amounts gated.
     if CONDITIONS.intersection(pending):immediate-=PRICES|{'pricing_plans'}
     if immediate:
         before_immediate=dict(live)
-        _apply(target,target_type,{k:patch[k] for k in immediate});live=snapshot(target,target_type)
+        _apply(target,target_type,{k:patch[k] for k in immediate},allow_price_verification=allow_price_verification);live=snapshot(target,target_type)
         rebase_fields=set(immediate)
         if target_type=='place' and 'pricing_plans' in immediate:
             # Applying canonical plans also refreshes their legacy price projections.
@@ -458,7 +500,7 @@ def review(*,actor,revision_id,version,approve,note='',final_reject=False):
             from catalog.services.location_assignment import can_override_location
             if not can_override_location(author) or (revision.payload['location_override'] is not None and revision.payload['location_override'].get('actor_id') != author.pk):
                 raise PermissionDenied
-        patch=_validate_patch(target,kind,revision.payload)
+        patch=_validate_patch(target,kind,revision.payload,allow_price_verification=kind=='place')
         if set(patch)!=set(revision.changed_fields):raise ValidationError('Candidate field conflict.')
         live=snapshot(target,kind)
         if any(live.get(k)!=revision.base_snapshot.get(k) for k in patch):raise ValidationError('Publication source conflict.')
@@ -477,14 +519,18 @@ def review(*,actor,revision_id,version,approve,note='',final_reject=False):
                 readiness=evaluate_form_readiness(SimpleNamespace(cleaned_data=patch,instance=candidate,cleaned_schedule_days=patch.get('structured_schedule',serialize_place_schedule(target))),candidate)
                 if not readiness.is_ready:raise ValidationError(publication_blocked_message(readiness))
         elif not getattr(candidate,'name_az','').strip() and kind in {'organization','program','activity'}:raise ValidationError('AZ name required.')
-        _apply(target,kind,patch)
+        _apply(target,kind,patch,allow_price_verification=kind=='place')
         now=timezone.now()
         if kind=='place':
             from catalog.services.place_urls import place_publication_url_values
             Place.objects.filter(pk=pk).update(status='published',is_active=True,
                 published_at=target.published_at or now,moderated_at=now,moderated_by=actor,
                 rejection_reason='',**place_publication_url_values(target))
-        elif kind in {'program','organization'}:type(target).objects.filter(pk=pk).update(status='published',approved_at=now)
+        elif kind in {'program','organization'}:
+            type(target).objects.filter(pk=pk).update(status='published',approved_at=now)
+            if kind=='organization':
+                from catalog.services.organization_state import assign_public_slug
+                assign_public_slug(type(target).objects.get(pk=pk))
         elif kind=='activity':
             Activity.objects.filter(pk=pk).update(status='published')
             from catalog.services.pricing_plans import sync_legacy_price_fields

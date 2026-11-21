@@ -51,11 +51,16 @@
   const loaded = new Map(), pending = new Map();
   let errorSequence = 0;
 
+  function validPhone(phone) {
+    return phone && typeof phone.number === 'string' && /^\+[1-9]\d{6,14}$/.test(phone.number) && phone.href === 'tel:' + phone.number;
+  }
+
   function validPayload(data) {
     if (!data || !Array.isArray(data.phones)) return false;
-    if (!data.phones.every(phone => phone && /^\+[1-9]\d{6,14}$/.test(phone.number) && phone.href === 'tel:' + phone.number)) return false;
+    if (!data.phones.every(validPhone)) return false;
+    if ('administration_phone' in data && !validPhone(data.administration_phone)) return false;
     if (data.whatsapp && !/^https:\/\/wa\.me\/[1-9]\d{6,14}$/.test(data.whatsapp)) return false;
-    return Boolean(data.phones.length || data.whatsapp);
+    return Boolean(data.phones.length || data.whatsapp || data.administration_phone);
   }
 
   function displayPhone(phone) {
@@ -142,7 +147,9 @@
         return;
       }
 
-      const phone = data.phones[Number(button.dataset.phoneIndex || 0)];
+      const phone = button.dataset.phoneAdministration === '1'
+        ? data.administration_phone
+        : data.phones[Number(button.dataset.phoneIndex || 0)];
       if (!phone) { button.remove(); return; }
       const formatted = displayPhone(phone);
 
@@ -179,6 +186,8 @@
             <span class="km-phone-copy-tooltip" role="status" aria-live="polite">${copy.copied}</span>
           </button>
         `;
+        const description = button.getAttribute('aria-describedby');
+        if (description) wrap.querySelector('a').setAttribute('aria-describedby', description);
         button.replaceWith(wrap);
         if (focused) wrap.querySelector('.km-phone-call-btn')?.focus({preventScroll: true});
         return;

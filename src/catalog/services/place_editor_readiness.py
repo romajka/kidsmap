@@ -5,7 +5,7 @@ from catalog.services.permanent_place_rules import submission_readiness
 def field_section(field):
     if field in {'name', 'name_az', 'name_ru', 'name_en', 'description', 'description_az', 'description_ru', 'description_en', 'category', 'subcategory'}:
         return 1
-    if field in {'region', 'district', 'metro', 'address', 'lat', 'lng', 'phone1', 'phone2', 'phone3', 'whatsapp_mode', 'whatsapp_number', 'website', 'instagram', 'public_links', 'schedule', 'schedule_mode', 'structured_schedule'} or field.startswith('schedule_note'):
+    if field in {'region', 'district', 'metro', 'address', 'lat', 'lng', 'phone1', 'phone2', 'phone3', 'whatsapp_mode', 'whatsapp_number', 'administration_name', 'administration_phone', 'website', 'instagram', 'public_links', 'schedule', 'schedule_mode', 'structured_schedule'} or field.startswith('schedule_note'):
         return 2
     if field in {'age_from', 'age_to', 'age_open_ended', 'age_varies_by_program', 'offers_adult_classes', 'price_mode', 'pricing_plans', 'nested_pricing'}:
         return 3

@@ -91,9 +91,18 @@ class Organization(TranslatedContent):
     ownership_version = models.PositiveBigIntegerField(default=1, editable=False)
     ownership_verified_at = models.DateTimeField(null=True, blank=True, editable=False)
     ownership_verified_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='verified_organizations', editable=False)
-    phone = models.CharField(max_length=50, blank=True, default='')
-    whatsapp = models.CharField(max_length=50, blank=True, default='')
-    website = models.URLField(blank=True, default='')
+    phone = models.CharField(_('Телефон'), max_length=50, blank=True, default='')
+    whatsapp = models.CharField('WhatsApp', max_length=50, blank=True, default='')
+    website = models.URLField(_('Сайт'), blank=True, default='')
+    # Public profile. Media and links travel through the same moderated
+    # candidate as names and contacts; only the slug is assigned by the system.
+    slug = models.SlugField(_('Адрес страницы'), max_length=80, unique=True, null=True, blank=True, editable=False)
+    logo = models.ImageField(_('Логотип'), upload_to='organizations/logos/', blank=True, default='', db_default='')
+    cover_photo = models.ImageField(_('Обложка'), upload_to='organizations/covers/', blank=True, default='', db_default='')
+    address = models.CharField(_('Адрес головного офиса'), max_length=255, blank=True, default='', db_default='')
+    instagram = models.CharField(_('Instagram'), max_length=255, blank=True, default='', db_default='')
+    facebook = models.CharField(_('Facebook'), max_length=255, blank=True, default='', db_default='')
+    tiktok = models.CharField(_('TikTok'), max_length=255, blank=True, default='', db_default='')
 
     class Meta(TranslatedContent.Meta):
         abstract = False
@@ -109,6 +118,14 @@ class Organization(TranslatedContent):
     def save(self, *args, **kwargs):
         from catalog.services.organization_ownership import save_organization
         return save_organization(self, *args, **kwargs)
+
+    @property
+    def is_public(self):
+        return self.status == 'published' and self.approved_at is not None and self.archived_at is None
+
+    def get_absolute_url(self):
+        from catalog.services.organization_state import public_path
+        return public_path(self)
 
 
 class Program(TranslatedContent):

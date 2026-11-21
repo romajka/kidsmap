@@ -1,5 +1,5 @@
 {% extends 'admin/base_site.html' %}{% load static i18n %}
-{% block extrastyle %}{{ block.super }}<link rel=stylesheet href="{% static 'admin/css/pages/moderation_sla.css' %}?v=20261028_sla_redesign_r1">{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel=stylesheet href="{% static 'admin/css/pages/moderation_sla.css' %}?v=20261121_sla_motion">{% endblock %}
 {% block content %}
 <section class="km-sla" aria-labelledby="sla-heading">
   <header class="km-sla__header">
@@ -12,26 +12,20 @@
     <!-- Баннер с пояснением SLA -->
     <div class="km-sla__hero" role="region" aria-label="{% translate 'О сроках SLA' %}">
       <div class="km-sla__hero-icon" aria-hidden="true">
-        <svg class="km-i" viewBox="0 0 960 960" width="24" height="24" fill="currentColor"><use href="#kmi-clock"></use></svg>
+        <svg class="km-i" viewBox="0 0 960 960" width="24" height="24" fill="currentColor"><use href="#kmi-schedule"></use></svg>
       </div>
       <div class="km-sla__hero-content">
         <div class="km-sla__hero-title">{% translate "Контроль регламентных сроков рассмотрения (Service Level Agreement)" %}</div>
         <div class="km-sla__hero-desc">{{ copy.note }}</div>
         <ul class="km-sla__hero-points">
+          {% for label, hours in policy_limits %}
           <li class="km-sla__hero-point">
-            <span class="km-sla__hero-point-icon">⏱</span>
-            <span><strong>{% translate "Места" %}:</strong> 72 {% translate "часа на рассмотрение" %}</span>
+            <span class="km-sla__hero-point-icon" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" width="14" height="14" fill="currentColor"><use href="#kmi-schedule"></use></svg></span>
+            <span><strong>{{ label }}:</strong> {% if hours %}{{ hours }} {{ copy.hours_unit }}{% else %}{{ copy.no_deadline }}{% endif %}</span>
           </li>
+          {% endfor %}
           <li class="km-sla__hero-point">
-            <span class="km-sla__hero-point-icon">💬</span>
-            <span><strong>{% translate "Отзывы" %}:</strong> 24 {% translate "часа на проверку" %}</span>
-          </li>
-          <li class="km-sla__hero-point">
-            <span class="km-sla__hero-point-icon">📝</span>
-            <span><strong>{% translate "Правки и связи" %}:</strong> 48 {% translate "часов" %}</span>
-          </li>
-          <li class="km-sla__hero-point">
-            <span class="km-sla__hero-point-icon">⏸</span>
+            <span class="km-sla__hero-point-icon" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" width="14" height="14" fill="currentColor"><use href="#kmi-pending"></use></svg></span>
             <span><strong>{% translate "Доработка" %}:</strong> {% translate "таймер ставится на паузу" %}</span>
           </li>
         </ul>
@@ -47,67 +41,65 @@
 
   {% if backlog_warning %}
     <div class="km-sla__alert" role="alert">
-      ⚠️ {{ copy.backlog }}
+      <span class="km-sla__pulse" aria-hidden="true"></span> {{ copy.backlog }}
     </div>
   {% endif %}
 
   <!-- Быстрые чипы очередей по типу контента -->
   <div class="km-sla__metrics-row" aria-label="{% translate 'Очереди материалов' %}">
-    <a href="?" class="km-sla__type-pill{% if not params.type %} is-active{% endif %}">
-      <span>{{ copy.all }}</span>
-      <span class="km-sla__type-count">{{ page.paginator.count|default:page|length }}</span>
+    {% for kind, label, count in type_chips %}
+    <a href="{% querystring type=kind|default:None page=None %}" class="km-sla__type-pill{% if params.type|default:'' == kind %} is-active{% endif %}">
+      <span>{{ label }}</span>
+      <span class="km-sla__type-count">{{ count }}</span>
     </a>
-    <a href="?type=place" class="km-sla__type-pill{% if params.type == 'place' %} is-active{% endif %}">
-      <span>{{ copy.places }}</span>
-      <span class="km-sla__type-count">{{ places_count }}</span>
-    </a>
-    <a href="?type=review" class="km-sla__type-pill{% if params.type == 'review' %} is-active{% endif %}">
-      <span>{{ copy.reviews }}</span>
-      <span class="km-sla__type-count">{{ reviews_count }}</span>
-    </a>
-    <a href="?type=place_revision" class="km-sla__type-pill{% if params.type == 'place_revision' or params.type == 'organization' or params.type == 'program' %} is-active{% endif %}">
-      <span>{{ copy.proposals }}</span>
-      <span class="km-sla__type-count">{{ proposals_count }}</span>
-    </a>
-    <a href="?type=affiliation" class="km-sla__type-pill{% if params.type == 'affiliation' %} is-active{% endif %}">
-      <span>{{ copy.links }}</span>
-      <span class="km-sla__type-count">{{ links_count }}</span>
-    </a>
+    {% endfor %}
   </div>
 
   <!-- Карточки здоровья очереди (SLA Health) -->
+  {% get_current_language as km_lang %}{% with total=type_chips.0.2 %}
   <div class="km-sla__health-grid" aria-label="{% translate 'Статистика SLA' %}">
-    <a href="?sla_status=breached" class="km-sla__health-card km-sla__health-card--breached{% if params.sla_status == 'breached' %} is-active{% endif %}">
+    <a href="{% querystring sla_status='breached' page=None %}" class="km-sla__health-card km-sla__health-card--breached{% if params.sla_status == 'breached' %} is-active{% endif %}" style="--n:0;--share:{% if total %}{% widthratio counts.breached|default:0 total 100 %}{% else %}0{% endif %}%">
       <span class="km-sla__health-card__label">
-        <span>🚨</span> {% translate "Срок истёк (Breached)" %}
+        <span class="km-sla__health-icon" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" width="16" height="16" fill="currentColor"><use href="#kmi-error"></use></svg></span>
+        <span>{% if km_lang == 'az' %}Müddət keçib{% elif km_lang == 'en' %}Overdue{% else %}Просрочено{% endif %}</span>
       </span>
-      <span class="km-sla__health-card__val">{{ counts.breached|default:0 }}</span>
+      <span class="km-sla__health-card__val" data-km-count="{{ counts.breached|default:0 }}">{{ counts.breached|default:0 }}</span>
+      <span class="km-sla__health-card__bar" aria-hidden="true"><i></i></span>
     </a>
-    <a href="?sla_status=critical" class="km-sla__health-card km-sla__health-card--critical{% if params.sla_status == 'critical' %} is-active{% endif %}">
+    <a href="{% querystring sla_status='critical' page=None %}" class="km-sla__health-card km-sla__health-card--critical{% if params.sla_status == 'critical' %} is-active{% endif %}" style="--n:1;--share:{% if total %}{% widthratio counts.critical|default:0 total 100 %}{% else %}0{% endif %}%">
       <span class="km-sla__health-card__label">
-        <span>⚠️</span> {% translate "Критично (Critical)" %}
+        <span class="km-sla__health-icon" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" width="16" height="16" fill="currentColor"><use href="#kmi-warning"></use></svg></span>
+        <span>{% if km_lang == 'az' %}Kritik{% elif km_lang == 'en' %}Critical{% else %}Критично{% endif %}</span>
       </span>
-      <span class="km-sla__health-card__val">{{ counts.critical|default:0 }}</span>
+      <span class="km-sla__health-card__val" data-km-count="{{ counts.critical|default:0 }}">{{ counts.critical|default:0 }}</span>
+      <span class="km-sla__health-card__bar" aria-hidden="true"><i></i></span>
     </a>
-    <a href="?sla_status=warning" class="km-sla__health-card km-sla__health-card--warning{% if params.sla_status == 'warning' %} is-active{% endif %}">
+    <a href="{% querystring sla_status='warning' page=None %}" class="km-sla__health-card km-sla__health-card--warning{% if params.sla_status == 'warning' %} is-active{% endif %}" style="--n:2;--share:{% if total %}{% widthratio counts.warning|default:0 total 100 %}{% else %}0{% endif %}%">
       <span class="km-sla__health-card__label">
-        <span>⏳</span> {% translate "Близок срок (Warning)" %}
+        <span class="km-sla__health-icon" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" width="16" height="16" fill="currentColor"><use href="#kmi-hourglass_top"></use></svg></span>
+        <span>{% if km_lang == 'az' %}Müddət yaxınlaşır{% elif km_lang == 'en' %}Due soon{% else %}Скоро срок{% endif %}</span>
       </span>
-      <span class="km-sla__health-card__val">{{ counts.warning|default:0 }}</span>
+      <span class="km-sla__health-card__val" data-km-count="{{ counts.warning|default:0 }}">{{ counts.warning|default:0 }}</span>
+      <span class="km-sla__health-card__bar" aria-hidden="true"><i></i></span>
     </a>
-    <a href="?sla_status=fresh" class="km-sla__health-card km-sla__health-card--fresh{% if params.sla_status == 'fresh' %} is-active{% endif %}">
+    <a href="{% querystring sla_status='fresh' page=None %}" class="km-sla__health-card km-sla__health-card--fresh{% if params.sla_status == 'fresh' %} is-active{% endif %}" style="--n:3;--share:{% if total %}{% widthratio counts.fresh|default:0 total 100 %}{% else %}0{% endif %}%">
       <span class="km-sla__health-card__label">
-        <span>✅</span> {% translate "В норме (Fresh)" %}
+        <span class="km-sla__health-icon" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" width="16" height="16" fill="currentColor"><use href="#kmi-check_circle"></use></svg></span>
+        <span>{% if km_lang == 'az' %}Normada{% elif km_lang == 'en' %}On track{% else %}В норме{% endif %}</span>
       </span>
-      <span class="km-sla__health-card__val">{{ counts.fresh|default:0 }}</span>
+      <span class="km-sla__health-card__val" data-km-count="{{ counts.fresh|default:0 }}">{{ counts.fresh|default:0 }}</span>
+      <span class="km-sla__health-card__bar" aria-hidden="true"><i></i></span>
     </a>
-    <a href="?sla_status=paused" class="km-sla__health-card km-sla__health-card--paused{% if params.sla_status == 'paused' %} is-active{% endif %}">
+    <a href="{% querystring sla_status='paused' page=None %}" class="km-sla__health-card km-sla__health-card--paused{% if params.sla_status == 'paused' %} is-active{% endif %}" style="--n:4;--share:{% if total %}{% widthratio counts.paused|default:0 total 100 %}{% else %}0{% endif %}%">
       <span class="km-sla__health-card__label">
-        <span>⏸</span> {% translate "На паузе (Paused)" %}
+        <span class="km-sla__health-icon" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" width="16" height="16" fill="currentColor"><use href="#kmi-pending"></use></svg></span>
+        <span>{% if km_lang == 'az' %}Dayandırılıb{% elif km_lang == 'en' %}Paused{% else %}На паузе{% endif %}</span>
       </span>
-      <span class="km-sla__health-card__val">{{ counts.paused|default:0 }}</span>
+      <span class="km-sla__health-card__val" data-km-count="{{ counts.paused|default:0 }}">{{ counts.paused|default:0 }}</span>
+      <span class="km-sla__health-card__bar" aria-hidden="true"><i></i></span>
     </a>
   </div>
+  {% endwith %}
 
   <!-- Карточка фильтрации -->
   <div class="km-sla__filter-card">
@@ -117,7 +109,7 @@
         <span>{% translate "Параметры фильтрации очереди" %}</span>
       </h2>
       {% if params.type or params.sla_status or params.from or params.to or params.status and params.status != 'pending' %}
-        <a href="?" class="km-sla__filter-reset">✕ {% translate "Сбросить фильтры" %}</a>
+        <a href="?" class="km-sla__filter-reset">{% translate "Сбросить фильтры" %}</a>
       {% endif %}
     </div>
 
@@ -189,11 +181,9 @@
         </thead>
         <tbody>
           {% for row in page %}
-            <tr>
+            <tr class="km-sla__row km-sla__row--{{ row.sla.status }}" style="--n:{{ forloop.counter0 }}">
               <td>
-                <span class="badge badge-light" style="font-size: 12px; padding: 5px 8px; border: 1px solid #cbd5e1;">
-                  {{ row.kind_label }}
-                </span>
+                <span class="km-sla__kind">{{ row.kind_label }}</span>
               </td>
               <td>
                 <a href="{{ row.url }}" class="km-sla__material-title">{{ row.name }}</a>
@@ -212,23 +202,24 @@
                 {% endif %}
               </td>
               <td>
-                <span class="badge badge-warning" style="font-size: 11.5px;">{{ row.status_label }}</span>
+                <span class="km-sla__state km-sla__state--{{ row.status }}">{{ row.status_label }}</span>
               </td>
               <td>
                 <div>{{ row.submitted_at|date:'d.m.Y H:i' }}</div>
-                {% if row.estimated %}<small class="text-muted" style="font-size: 11px;">⚠️ {{ copy.estimated }}</small>{% endif %}
+                {% if row.estimated %}<small class="km-sla__estimated">≈ {{ copy.estimated }}</small>{% endif %}
               </td>
               <td>
-                <strong>{{ row.age_hours }}</strong> <span class="text-muted" style="font-size: 11.5px;">{% translate "ч" %}</span>
+                <strong class="km-sla__hours">{{ row.age_hours }}</strong> <span class="km-sla__unit">{% translate "ч" %}</span>
               </td>
               <td>
                 <div>{{ row.sla.deadline|date:'d.m.Y H:i'|default:'—' }}</div>
               </td>
               <td>
                 {% if row.remaining_hours is not None %}
-                  {% if row.remaining_hours < 0 %}
+                  {% if row.sla.remaining_seconds <= 0 %}
                     <span class="km-sla__remaining-chip km-sla__remaining-chip--breached" title="{% translate 'Срок превышен' %}">
-                      {{ row.remaining_hours }} {% translate "ч" %}
+                      <span class="km-sla__pulse" aria-hidden="true"></span>
+                      +{% if row.remaining_hours == 0 %}&lt; 0.1{% else %}{{ row.remaining_hours|floatformat:1|cut:'-' }}{% endif %} {{ copy.hours_unit }}
                     </span>
                   {% else %}
                     <span class="km-sla__remaining-chip km-sla__remaining-chip--normal">
@@ -243,14 +234,19 @@
                 <span class="km-sla__badge km-sla__badge--{{ row.sla.status }}">
                   {{ row.sla_label }}
                 </span>
+                {% if row.sla.percentage is not None %}
+                  <span class="km-sla__meter" role="img" aria-label="{{ row.sla.percentage }}%" style="--p:{% if row.sla.percentage > 100 %}100{% else %}{{ row.sla.percentage }}{% endif %}"><i></i></span>
+                {% endif %}
               </td>
             </tr>
           {% empty %}
-            <tr>
-              <td colspan="8" style="text-align: center; padding: 36px 16px; color: #64748b;">
-                <div style="font-size: 24px; margin-bottom: 8px;">🎉</div>
-                <div style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">{{ copy.empty }}</div>
-                <div style="font-size: 13px;">{% translate "В данной очереди все заявки обработаны вовремя." %}</div>
+            <tr class="km-sla__empty-row">
+              <td colspan="8">
+                <div class="km-sla__empty">
+                  <span class="km-sla__empty-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  <div class="km-sla__empty-title">{{ copy.empty }}</div>
+                </div>
+
               </td>
             </tr>
           {% endfor %}
@@ -263,7 +259,7 @@
   {% if page.has_other_pages %}
     <nav class="km-sla__pagination" aria-label="{% translate 'Страницы' %}">
       {% if page.has_previous %}
-        <a href="?{{ params.urlencode }}&page={{ page.previous_page_number }}" rel="prev">
+        <a href="{% querystring page=page.previous_page_number %}" rel="prev">
           ← {% translate "Назад" %}
         </a>
       {% endif %}
@@ -271,7 +267,7 @@
         {{ page.number }} / {{ page.paginator.num_pages }}
       </span>
       {% if page.has_next %}
-        <a href="?{{ params.urlencode }}&page={{ page.next_page_number }}" rel="next">
+        <a href="{% querystring page=page.next_page_number %}" rel="next">
           {% translate "Далее" %} →
         </a>
       {% endif %}
@@ -306,4 +302,5 @@
     </div>
   </section>
 </section>
+<script src="{% static 'admin/js/kidsmap_moderation_sla.js' %}?v=20261121" defer></script>
 {% endblock %}
