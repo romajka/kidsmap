@@ -29,10 +29,17 @@
         map.moveCamera({center: literal(map.getCenter()), zoom: map.getZoom()});
       }
     }
-    // Capture before Google consumes the gesture. A marker's click can then
-    // start a new transition, while wheel/drag/keyboard always take priority.
-    ['pointerdown', 'touchstart', 'wheel', 'keydown'].forEach(name => {
-      mapEl.addEventListener(name, cancel, {capture: true, passive: true});
+    // A press can become a click, a drag or a pinch. Let a plain click land
+    // without freezing the camera halfway to its target.
+    const capture = {capture: true, passive: true};
+    mapEl.addEventListener('pointerdown', event => {
+      if (event.target.closest?.('button.gm-control-active')) cancel();
+    }, capture);
+    mapEl.addEventListener('touchstart', event => {
+      if (event.touches.length > 1) cancel();
+    }, capture);
+    ['wheel', 'dblclick', 'keydown'].forEach(name => {
+      mapEl.addEventListener(name, cancel, capture);
     });
     map.addListener('dragstart', cancel);
     map.addListener('idle', () => { nativeMoving = false; });

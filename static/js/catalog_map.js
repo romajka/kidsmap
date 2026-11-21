@@ -434,7 +434,14 @@
       getParams:()=>new URLSearchParams(window.location.search),
       onChange:(points, page)=>{
         state.panel.querySelector(".catalog-map-meta .chip")?.remove();
-        closeActiveCard(state);state.motion?.cancel();state.choice?.close(false);state.places=points;
+        // A viewport request can finish after the visitor clicks a pin or
+        // starts another zoom. Reconcile the selection with the new markers.
+        if (!page.bounds || !state.googleMap) {
+          closeActiveCard(state);
+          state.motion?.cancel();
+        }
+        state.choice?.close(false);
+        state.places = points;
         if (state.googleMap) {
           state.syncGooglePlaces();
           if (page.append && !page.bounds) revealCatalogResults(state);
@@ -566,6 +573,27 @@
     state.desktopCardEl.style.left = left + "px";
     state.desktopCardEl.style.top = top + "px";
     state.desktopCardEl.classList.toggle("is-below", placeBelow);
+  }
+
+  function rebindActiveCard(state, marker) {
+    if (!marker) { closeActiveCard(state); return; }
+    const previous = state.activePlace;
+    const point = marker.__kidsMapPlace;
+    const place = previous === state.activeMarker.__kidsMapPlace ? point :
+      (point.members || [point]).find(member => member.url === previous.url);
+    if (!place) { closeActiveCard(state); return; }
+    const mobile = isMobileViewport();
+    const card = mobile ? state.mobileSheetEl : state.desktopCardEl;
+    const html = renderMapCard(place, state, mobile);
+    if (html !== renderMapCard(previous, state, mobile)) {
+      const hadFocus = card.contains(document.activeElement);
+      card.innerHTML = html;
+      if (hadFocus) card.querySelector('[data-map-card-close]')?.focus({preventScroll: true});
+    }
+    state.activePlace = place;
+    state.activeMarker = marker;
+    state.motion.select(marker);
+    positionDesktopCard(state);
   }
 
   function openActiveCard(state, place, marker) {
@@ -713,7 +741,9 @@
       return;
     }
 
-    if (!window.google || !window.google.maps) {
+    // The async SDK exposes google.maps before the map and its controls exist.
+    // Its ready callback retries initialization when the panel is open.
+    if (typeof window.google?.maps?.Map !== "function" || !window.google.maps.ControlPosition) {
       if (state.sdkFailed) {
         renderCatalogSdkError(state);
         return;
@@ -731,13 +761,10 @@
     if (!window.markerClusterer) {
       renderCatalogMapState(state.mapEl, state.loadingMessage, "catalog-map-loading");
       loadScript("https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js")
-        .then(function () {
-          initCatalogGoogleMap();
-        })
         .catch(function () {
           window.markerClusterer = { dummy: true };
-          initCatalogGoogleMap();
-        });
+        })
+        .then(initCatalogGoogleMap);
       return;
     }
 
@@ -841,13 +868,15 @@
         state.bounds.extend(item.marker.getPosition());
       });
       const markers = Array.from(next.values(), item => item.marker);
-      if (state.activeMarker && !markers.includes(state.activeMarker)) closeActiveCard(state);
       if (updateMembership) updateMembership(markers);
       else {
         state.googleItems.forEach(item => { if (!markers.includes(item.marker)) item.marker.setMap(null); });
         markers.forEach(marker => { if (!marker.getMap()) marker.setMap(state.googleMap); });
       }
       state.googleItems = next;
+      if (state.activeMarker && !markers.includes(state.activeMarker)) {
+        rebindActiveCard(state, state.markersByUrl[state.activePlace.url]);
+      }
       let status = state.mapEl.querySelector('[data-map-empty-status]');
       if (!status) {
         status = document.createElement('div'); status.dataset.mapEmptyStatus = '';

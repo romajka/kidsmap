@@ -11,8 +11,49 @@ function setup({reduced=false,vector=true}={}) {
  const scope={window:{matchMedia:()=>({matches:reduced,addEventListener(){}})},document:{addEventListener(){},documentElement:{lang:'ru'}},performance:{now:()=>0},requestAnimationFrame(fn){frames.set(++id,fn);return id},cancelAnimationFrame(id){frames.delete(id)},google:{maps:{Point:function(x,y){this.x=x;this.y=y},LatLng:function(p){this.lat=()=>p.lat;this.lng=()=>p.lng},LatLngBounds:function(sw,ne){this.getSouthWest=()=>sw;this.getNorthEast=()=>ne}}},Map,Set,Math};
  const file='static/js/google_maps_motion.js';if(fs.existsSync(file))vm.runInNewContext(fs.readFileSync(file,'utf8'),scope);
  function tick(t){const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(t));}
- return {api:scope.window.KidsMapGoogleMotion,map,frames,domListeners,tick};
+ return {api:scope.window.KidsMapGoogleMotion,map,frames,domListeners,listeners,tick};
 }
+const mapSurface = {closest: () => null};
+
+test('a plain click or single tap during vector zoom lets the camera reach its target', () => {
+  for (const zoom of [9, 15]) {
+    const s = setup();
+    s.api.create(s.map).moveTo({center: {lat: 41, lng: 50}, zoom});
+    s.tick(130);
+    s.domListeners.pointerdown?.({target: mapSurface});
+    s.domListeners.touchstart?.({target: mapSurface, touches: [{}]});
+    s.tick(520);
+    assert.equal(s.map.getZoom(), zoom);
+    assert.equal(s.frames.size, 0);
+  }
+});
+
+test('a plain press during raster fit does not write back the intermediate camera', () => {
+  const s = setup({vector: false});
+  s.api.create(s.map).moveTo({center: {lat: 41, lng: 50}, zoom: 15}, {});
+  s.domListeners.pointerdown?.({target: mapSurface});
+  s.domListeners.touchstart?.({target: mapSurface, touches: [{}]});
+  assert.equal(s.map.fits, 1);
+  assert.equal(s.map.moves.length, 0);
+});
+
+test('a drag, pinch or explicit zoom control takes over an ongoing camera movement', () => {
+  for (const takeOver of [
+    s => s.listeners.dragstart(),
+    s => s.domListeners.touchstart({target: mapSurface, touches: [{}, {}]}),
+    s => s.domListeners.pointerdown({target: {closest: () => ({})}}),
+    s => s.domListeners.dblclick?.({target: mapSurface}),
+  ]) {
+    const s = setup();
+    s.api.create(s.map).moveTo({center: {lat: 41, lng: 50}, zoom: 15});
+    s.tick(130);
+    const intermediateZoom = s.map.getZoom();
+    takeOver(s);
+    s.tick(520);
+    assert.equal(s.map.getZoom(), intermediateZoom);
+    assert.equal(s.frames.size, 0);
+  }
+});
 test('new camera target cancels old work; manual input leaves no scheduled frames',()=>{
  const s=setup();assert.ok(s.api,'Shared cancellable camera controller is missing');const c=s.api.create(s.map);
  c.moveTo({center:{lat:41,lng:50},zoom:14});s.tick(100);c.moveTo({center:{lat:42,lng:51},zoom:15});assert.equal(s.frames.size,1);
