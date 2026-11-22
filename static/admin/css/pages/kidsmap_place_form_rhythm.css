@@ -290,12 +290,6 @@ body .km-pf .km-pf-issue__go { align-self: flex-start; }
 /* Та же ширина, что у формы, — не выходит за край колонки */
 body .km-pf .km-pf__stickybar { max-width: 1400px; margin-top: var(--pf-s4); margin-bottom: var(--pf-s2); }
 
-/* На широком экране справа уже висит закреплённая панель с теми же кнопками:
-   вторая копия внизу только дублирует действия */
-@media (min-width: 1536px) {
-  body .km-pf .km-pf__stickybar { display: none; }
-}
-
 /* ---------- 11. Телефон ---------- */
 
 @media (max-width: 900px) {
@@ -352,12 +346,6 @@ body .km-pf .km-pf-issues__list .km-pf-issue__copy { flex-basis: auto !important
 body .km-pf .km-pf-issues__list .km-pf-issue__copy strong { font-size: 12.5px; font-weight: 700; color: var(--pf-warn-text); }
 body .km-pf .km-pf-issues__list .km-pf-issue__copy > span,
 body .km-pf .km-pf-issues__list .km-pf-issue__go { display: none !important; }
-
-/* Узкий экран: кнопки и готовность уже есть в нижней панели —
-   справа под формой остаются только служебные настройки */
-@media (max-width: 1535px) {
-  body .km-pf .km-pf-side__block--top { display: none !important; }
-}
 
 /* ---------- 13. Подсказка «?»: длинный текст по нажатию, а не на экране ---------- */
 

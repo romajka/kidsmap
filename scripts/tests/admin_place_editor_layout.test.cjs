@@ -5,7 +5,19 @@ test('admin verification remains readable and photo entry matches the shared edi
  assert.equal(fixture.synthetic,true);assert.equal(fixture.database,'qa_stage04');
  const b=await H.launch(),c=await H.context(b,fixture.origin);
  try{const p=await H.login(c,fixture,'admin');await p.goto(fixture.origin+'/admin/catalog/place/add/?type=permanent');await p.locator('[data-place-accordion-expand-all]').click();
- for(const width of [1920,1600,1440,1325,1024,768,390,360,320]){await p.setViewportSize({width,height:1000});const m=await p.evaluate(()=>{const r=s=>document.querySelector(s).getBoundingClientRect();return{verify:r('.km-pf-verify').width,body:r('.km-pf-verify__body').width,overflow:document.documentElement.scrollWidth>innerWidth+1};});assert.equal(m.overflow,false,'no admin overflow at '+width);assert(m.body>=m.verify-2,'verification uses available width at '+width);}
+ for (const width of [1920,1600,1536,1535,1440,1325,1024,768,390,360,320]) {
+  await p.setViewportSize({width,height:1000});
+  const m=await p.evaluate(()=>{
+   const r=s=>document.querySelector(s).getBoundingClientRect();
+   return {verify:r('.km-pf-verify').width,body:r('.km-pf-verify__body').width,
+    overflow:document.documentElement.scrollWidth>innerWidth+1};
+  });
+  assert.equal(m.overflow,false,'no admin overflow at '+width);
+  assert(m.body>=m.verify-2,'verification uses available width at '+width);
+  for (const action of ['_save_draft','_save']) {
+   assert(await p.locator('button[name="'+action+'"]:visible').count()>0,action+' is reachable at '+width);
+  }
+ }
  assert.equal(await p.locator('[data-pf-preview]').count(),0,'one real preview, no competing simulated card');
  assert.equal(await p.locator('[data-km-photo-unified] [data-place-photos-picker]').isVisible(),true);
  assert.equal(await p.locator('[data-main-photo-root]').isVisible(),false,'no separate empty cover uploader');
