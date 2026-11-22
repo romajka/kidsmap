@@ -125,7 +125,13 @@ class OrganizationForm(ContactPhoneFormMixin, CandidateForm):
             'website':_('Используется в филиале, если там не указан собственный сайт.'),
             'instagram':_('Ссылка на профиль или @имя аккаунта.'),'facebook':_('Ссылка на профиль или @имя аккаунта.'),
             'tiktok':_('Ссылка на профиль или @имя аккаунта.'),
-            'logo':_('Квадрат от 120 px, JPG/PNG/WebP, до 5 МБ.'),'cover_photo':_('От 800×300 px, JPG/PNG/WebP, до 8 МБ.')}
+            'logo':_('Квадрат от 120 px, JPG/PNG/WebP, до 5 МБ.'),'cover_photo':_('От 800×300 px, JPG/PNG/WebP, до 8 МБ.'),
+            'name_az':_('Как сеть называется на вывеске. Обязательно. Например: Sea Breeze Kids.'),
+            'name_ru':_('Если пусто — на русской версии сайта покажем азербайджанское название.'),
+            'name_en':_('Если пусто — на английской версии сайта покажем азербайджанское название.'),
+            'description_az':_('2–4 предложения для родителей: чем занимаются дети, для какого возраста, чем сеть отличается.'),
+            'address':_('Адрес главного офиса. Адреса филиалов указываются в карточках мест.'),
+            'whatsapp':_('Номер для сообщений родителей. Можно отметить, что он совпадает с телефоном.')}
 
 
 class ProgramForm(CandidateForm):
@@ -615,13 +621,64 @@ class OrganizationAdmin(BusinessEditor):
     form = OrganizationForm
     change_form_template = 'admin/catalog/organization/change_form.html'
     structural_fields = frozenset()
-    list_display = ('display_name', 'publication_badge', 'ownership_badge', 'places_count_badge', 'programs_count_badge', 'display_phone', 'display_updated_at')
+    list_display = ('org_card', 'lifecycle_badge', 'readiness_badge', 'places_count_badge', 'ownership_badge', 'display_updated_at', 'row_action')
+    list_display_links = ('org_card',)
     list_filter = (OrganizationPublicationStatusFilter, OrganizationHasBranchesFilter)
     search_fields = ('name_az', 'name_ru', 'name_en', 'phone', 'website')
     actions = ['mark_published', 'mark_draft']
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('owner', 'content_revision')
+
+    # ── Changelist: one row tells a non-technical editor what it is and what to do.
+    def _row_state(self, obj):
+        from catalog.services.organization_state import lifecycle
+        cache = self.__dict__.setdefault('_row_states', {})
+        if obj.pk not in cache:
+            cache[obj.pk] = lifecycle(obj, getattr(obj, 'content_revision', None))
+        return cache[obj.pk]
+
+    @admin.display(description=_('Название'), ordering='name_az')
+    def org_card(self, obj):
+        name = obj.name_az or obj.name_ru or obj.name_en or f'#{obj.pk}'
+        second = obj.name_ru if obj.name_ru and obj.name_ru != name else (obj.name_en if obj.name_en and obj.name_en != name else '')
+        logo = (format_html('<img src="{}" alt="" width="40" height="40" loading="lazy">', obj.logo.url) if obj.logo
+                else format_html('<span>{}</span>', name[:1].upper()))
+        return format_html('<span class="km-orgl-name"><span class="km-orgl-logo">{}</span><span class="km-orgl-text"><b>{}</b>{}</span></span>',
+                           logo, name, format_html('<small>{}</small>', second) if second else '')
+
+    @admin.display(description=_('Статус'))
+    def lifecycle_badge(self, obj):
+        state = self._row_state(obj)
+        return format_html('<span class="km-orgl-state km-orgl-state--{}" data-org-state="{}" title="{}"><i></i>{}</span>',
+                           state.tone, state.code, state.hint, state.label)
+
+    @admin.display(description=_('Готовность'))
+    def readiness_badge(self, obj):
+        from catalog.services.organization_state import readiness, BranchHealth
+        revision = getattr(obj, 'content_revision', None)
+        data = dict(revision.payload) if revision and revision.status in ('draft', 'pending', 'rejected') else None
+        current, _stale = getattr(self, '_branch_counts', {}).get(obj.pk, (0, 0))
+        ready = readiness(obj, data=data, health=BranchHealth(current=[None] * current))
+        missing = ', '.join(str(item['label']) for item in ready['items'] if not item['done'])
+        return format_html('<span class="km-orgl-ready" title="{}"><span class="km-orgl-ready__bar"><span style="width:{}%"></span></span><b>{}%</b></span>',
+                           (_('Не хватает: %(items)s') % {'items': missing}) if missing else _('Профиль заполнен'),
+                           ready['percent'], ready['percent'])
+
+    @admin.display(description='')
+    def row_action(self, obj):
+        state = self._row_state(obj)
+        change = reverse('admin:catalog_organization_change', args=[obj.pk])
+        if state.review_pending:
+            return format_html('<a class="km-orgl-act km-orgl-act--primary" href="{}#km-publication">{}</a>', change, _('Решить заявку'))
+        if state.public:
+            from catalog.services.organization_state import public_path
+            return format_html('<a class="km-orgl-act" href="{}" target="_blank" rel="noopener">{} ↗</a>', public_path(obj), _('На сайте'))
+        if state.code in ('draft', 'inconsistent'):
+            return format_html('<a class="km-orgl-act km-orgl-act--go" href="{}">{}</a>', change, _('Проверить и опубликовать'))
+        if state.needs_changes:
+            return format_html('<span class="km-orgl-act km-orgl-act--muted">{}</span>', _('Ждём владельца'))
+        return format_html('<a class="km-orgl-act" href="{}">{}</a>', change, _('Открыть'))
 
     @admin.display(description=_('Филиалы'))
     def places_count_badge(self, obj):
@@ -640,6 +697,7 @@ class OrganizationAdmin(BusinessEditor):
         cl = super().get_changelist_instance(request)
         from catalog.services.organization_state import branch_counts_by_org
         self._branch_counts = branch_counts_by_org([obj.pk for obj in cl.result_list])
+        self._row_states = {}
         return cl
 
     @admin.display(description=_('Программы'))
@@ -700,12 +758,14 @@ class OrganizationAdmin(BusinessEditor):
         obj = self.get_object(request, object_id) if object_id else None
         if obj is None:
             context.setdefault('title', _('Новая организация'))
+            context['km_org_can_publish'] = self.can_publish(request.user)
         else:
             revision = VolunteerPlaceRevision.objects.filter(organization=obj).first()
             places = list(Place.objects.filter(organization=obj, deleted_at__isnull=True).select_related('owner').order_by('pk'))
             health = state_service.branch_health(obj, places=places)
             data = dict(revision.payload) if revision and revision.status in ('draft', 'pending', 'rejected') else None
             context.update({
+                'km_org_can_publish': self.can_publish(request.user) and self.has_change_permission(request, obj),
                 'km_org_state': state_service.lifecycle(obj, revision),
                 'km_org_health': health,
                 'km_org_ready': state_service.readiness(obj, data=data, health=health),
@@ -716,6 +776,24 @@ class OrganizationAdmin(BusinessEditor):
 
     def view_on_site(self, obj):
         return obj.get_absolute_url() if obj.is_public else None
+
+    @staticmethod
+    def can_publish(user):
+        from catalog.services.business_team import platform_has_action
+        return platform_has_action(user=user, action='place.publish')
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if '_save_and_publish' not in request.POST or not self.can_publish(request.user):
+            return
+        # One click for staff who are allowed to publish: the candidate is
+        # still created and reviewed through the same service, so history and
+        # checks stay identical to the two-step path.
+        revision = VolunteerPlaceRevision.objects.filter(organization_id=obj.pk, status='pending').first()
+        if revision is not None:
+            publication.review(actor=request.user, revision_id=revision.pk, version=revision.version, approve=True)
+            obj.refresh_from_db()
+            self.message_user(request, _('Сохранено и опубликовано. Организация видна на сайте.'))
 
     def _dashboard_stats(self, request, counts: dict):
         from catalog.models.catalog_structure import PublicationState
@@ -855,6 +933,7 @@ class OrganizationAdmin(BusinessEditor):
             "km_current_sort": km_current_sort,
             "km_current_sort_label": km_current_sort_label,
             "organization_bulk_actions": self._bulk_actions(),
+            "km_org_counts": counts,
             "km_search_label": _("Поиск организаций"),
             "km_search_placeholder": _("Название, телефон, сайт..."),
             "km_changelist_reset_url": "?",

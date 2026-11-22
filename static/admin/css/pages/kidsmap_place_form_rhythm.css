@@ -1,0 +1,426 @@
+/* ==========================================================================
+   kidsmap_place_form_rhythm.css
+   Единый ритм формы места в админке. Подключается последним, после
+   kidsmap_place_form.css, schedule/pricing-редакторов.
+
+   Шкала отступов (шаг 4px). Все значения ниже берутся только из неё:
+     --pf-s1: 4  --pf-s2: 8  --pf-s3: 12  --pf-s4: 16
+     --pf-s5: 20 --pf-s6: 24 --pf-s8: 32
+   Ширина одноколоночного поля: --pf-field-max (720px).
+   ========================================================================== */
+
+.km-pf {
+  --pf-s1: 4px;
+  --pf-s2: 8px;
+  --pf-s3: 12px;
+  --pf-s4: 16px;
+  --pf-s5: 20px;
+  --pf-s6: 24px;
+  --pf-s8: 32px;
+  --pf-field-max: 720px;
+  --pf-control-h: 40px;
+}
+
+/* ---------- 1. Каркас: одна колонка, один шаг между блоками ---------- */
+
+body .km-pf .km-pf__shell { gap: var(--pf-s4); }
+body .km-pf .km-pf__main { gap: var(--pf-s4); }
+body .km-pf .km-pf__layout { gap: var(--pf-s5); }
+
+/* Полоса автосохранения: одна компактная строка той же ширины, что и форма */
+body .km-pf .km-staff-save-panel {
+  max-width: 1400px;
+  margin: 0 0 var(--pf-s4);
+  padding: var(--pf-s2) var(--pf-s4);
+  gap: var(--pf-s3);
+  min-height: 0;
+  border-color: var(--pf-border-soft);
+  background: var(--pf-surface);
+  color: var(--pf-muted);
+  font-size: 12.5px;
+}
+body .km-pf .km-staff-save-panel [role=status]::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: var(--pf-s2);
+  border-radius: 50%;
+  background: var(--pf-accent);
+  vertical-align: middle;
+}
+body .km-pf .km-staff-save-panel[data-state=dirty] [role=status]::before { background: var(--pf-warn); }
+body .km-pf .km-staff-save-panel[data-state=failed] [role=status]::before,
+body .km-pf .km-staff-save-panel[data-state=conflict] [role=status]::before { background: var(--pf-error); }
+@media (pointer: fine) {
+  body .km-pf .km-staff-save-panel a,
+  body .km-pf .km-staff-save-panel button { min-height: 28px; padding: var(--pf-s1) var(--pf-s2); }
+}
+
+/* Быстрые ссылки живут в шапке рядом с остальными действиями */
+body .km-pf .km-pf__header-aside .km-admin-related-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--pf-s2);
+  margin: 0;
+}
+
+/* ---------- 2. Разделы ---------- */
+
+body .km-pf .km-pf-section__body > .km-pf-section__inner {
+  padding: var(--pf-s5) var(--pf-s6) var(--pf-s6);
+  gap: var(--pf-s6);
+}
+body .km-pf .km-pf-section.is-collapsed .km-pf-section__body > .km-pf-section__inner {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* «Не заполнено: …» в шапке раздела — одна строка, полный текст в подсказке шагов */
+body .km-pf .km-pf-section__missing {
+  max-width: 38%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+
+/* Группы внутри раздела: заголовок → поля через 12, поля между собой через 16 */
+body .km-pf .km-pf-group { gap: var(--pf-s3); }
+body .km-pf .km-pf-group__head { gap: var(--pf-s4); margin: 0; }
+body .km-pf .km-pf-grid { gap: var(--pf-s4); }
+body .km-pf .km-pf-divider { margin: 0; }
+
+/* ---------- 3. Поля: одна ширина, счётчик прижат к своему полю ---------- */
+
+body .km-pf .km-pf-field { gap: 6px; }
+
+body .km-pf [data-pf-langpane] .km-pf-field input[type="text"],
+body .km-pf [data-pf-langpane] .km-pf-field textarea { max-width: none; }
+
+body .km-pf .km-pf-section__inner .km-pf-group > .km-pf-field,
+body .km-pf [data-pf-langpane] > .km-pf-field,
+body .km-pf [data-pf-langpane] .km-pf-field,
+body .km-pf .km-pf-group > .km-pf-field--wide {
+  width: 100%;
+  max-width: var(--pf-field-max);
+}
+body .km-pf .km-pf-field:has(> .km-pf-field__control > .select2-container) { width: 100%; max-width: var(--pf-field-max); }
+body .km-pf .km-pf-grid .km-pf-field:has(> .km-pf-field__control > .select2-container) { max-width: none; }
+body .km-pf .km-pf-group[data-pf-group="taxonomy"] .km-pf-grid--2 { max-width: var(--pf-field-max); gap: var(--pf-s4); }
+
+body .km-pf .km-pf-field input[type="text"],
+body .km-pf .km-pf-field input[type="url"],
+body .km-pf .km-pf-field input[type="tel"],
+body .km-pf .km-pf-field input[type="email"],
+body .km-pf .km-pf-field input[type="number"],
+body .km-pf .km-pf-field textarea,
+body .km-pf .km-pf-field select { width: 100%; }
+
+/* Поле занимает всю ширину своей колонки: тогда счётчик символов стоит ровно под правым краем поля */
+body .km-pf .km-pf-field__control > input,
+body .km-pf .km-pf-field__control > textarea,
+body .km-pf .km-pf-field__control > select,
+body .km-pf .km-pf-field input.vTextField { max-width: none !important; }
+
+/* Выпадающие списки select2 — той же высоты и с тем же отступом текста, что поля ввода */
+body .km-pf .select2-container { width: 100% !important; max-width: var(--pf-field-max); }
+body .km-pf .km-pf-grid .select2-container { max-width: none; }
+body .km-pf .select2-container--default .select2-selection--single {
+  height: var(--pf-control-h);
+  display: flex;
+  align-items: center;
+  padding: 0 36px 0 var(--pf-s3);
+  border-color: var(--pf-field-border);
+  border-radius: var(--pf-radius-sm);
+}
+body .km-pf .select2-container--default .select2-selection--single .select2-selection__rendered {
+  padding: 0 !important;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--pf-text);
+}
+body .km-pf .select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: calc(var(--pf-control-h) - 2px);
+  right: var(--pf-s2);
+}
+
+/* ---------- 4. Раскрывающиеся блоки: один вид везде ---------- */
+
+body .km-pf .km-pf-disclosure,
+body .km-pf .km-pf-disclosure--tight {
+  border: 1px solid var(--pf-border);
+  border-style: solid;
+  border-radius: var(--pf-radius-sm);
+  background: var(--pf-surface);
+}
+body .km-pf .km-pf-disclosure__summary,
+body .km-pf .km-pf-disclosure > summary {
+  min-height: 44px;
+  padding: var(--pf-s3) var(--pf-s4);
+  gap: var(--pf-s3);
+}
+body .km-pf .km-pf-disclosure__body { padding: var(--pf-s1) var(--pf-s4) var(--pf-s4); gap: var(--pf-s3); }
+
+/* «Адреса карточки на сайте» — тот же вид, что у остальных блоков, без системного треугольника */
+body .km-pf .km-pf-disclosure > summary:not(.km-pf-disclosure__summary) {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pf-text-2);
+  border: 0;
+  border-radius: 0;
+}
+body .km-pf .km-pf-disclosure > summary:not(.km-pf-disclosure__summary)::-webkit-details-marker { display: none; }
+body .km-pf .km-pf-disclosure > summary:not(.km-pf-disclosure__summary)::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin: 0 var(--pf-s1) 3px;
+  border-right: 1.6px solid var(--pf-muted);
+  border-bottom: 1.6px solid var(--pf-muted);
+  transform: rotate(45deg);
+  transition: transform 200ms var(--pf-ease);
+}
+body .km-pf .km-pf-disclosure[open] > summary:not(.km-pf-disclosure__summary)::before { transform: rotate(225deg); margin-bottom: -3px; }
+
+/* Раскрывающийся блок в сетке из двух колонок занимает всю строку */
+body .km-pf .km-pf-grid > details.km-pf-disclosure,
+body .km-pf .km-pf-grid > .km-pf-disclosure { grid-column: 1 / -1; }
+/* Отступ между блоками задаёт раздел, а не сам блок */
+body .km-pf .km-pf-section__inner > .km-pf-disclosure { margin: 0; }
+
+/* Подтверждение филиала — компактной строкой, подсказка сразу под ней */
+body .km-pf .km-pf-group--branch { gap: var(--pf-s1); }
+body .km-pf .km-pf-group--branch > label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pf-s2);
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pf-text-2);
+}
+body .km-pf .km-pf-group--branch > .help { margin: 0 0 0 26px; padding: 0; font-size: 12px; color: var(--pf-muted); }
+
+/* ---------- 5. Карта ---------- */
+
+body .km-pf .km-pf-maprow { gap: var(--pf-s3); }
+body .km-pf .km-pf-mapnotice { margin: 0; }
+body .km-pf .km-pf-mapstatus { margin: 0; font-size: 12.5px; color: var(--pf-muted); }
+body .km-pf [data-pf-group="map"] .km-pf-linkbtn { align-self: flex-start; margin: 0; }
+
+/* ---------- 6. Расписание: без карточки в карточке и без второго заголовка ---------- */
+
+body .km-pf .km-schedule-editor { margin: 0; box-shadow: none; }
+body .km-pf .km-schedule-editor__head:not(:has(.pw-field-badge:not([hidden]))) { display: none; }
+body .km-pf .km-schedule-editor [class*="__preview"] { box-shadow: none; }
+
+/* ---------- 7. Цены ---------- */
+
+body .km-pf .km-price-policy > legend {
+  margin: 0 0 var(--pf-s2);
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pf-text-2);
+}
+body .km-pf [data-tariff-heading] {
+  margin: 0 0 var(--pf-s1);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0;
+  color: var(--pf-text);
+}
+body .km-pf .km-pf-tariffs { gap: var(--pf-s3); }
+body .km-pf .km-pf-tariffs > * { margin-top: 0; margin-bottom: 0; }
+/* Пустые служебные контейнеры не должны добавлять пустые промежутки */
+body .km-pf .km-pf-tariffs > :empty,
+body .km-pf .km-pf-tariffs > p.pw-help:empty { display: none; }
+body .km-pf .km-pf-tariffs__empty { padding: var(--pf-s5) var(--pf-s5); }
+
+/* ---------- 8. Фото: системная кнопка выбора файла в стиле формы ---------- */
+
+body .km-pf .km-place-photo-picker { margin: 0; padding: var(--pf-s4); }
+body .km-pf .km-place-photo-picker__note { margin: var(--pf-s2) 0 0; font-size: 12px; color: var(--pf-muted); }
+body .km-pf input[type="file"]::file-selector-button {
+  height: 36px;
+  margin-right: var(--pf-s3);
+  padding: 0 var(--pf-s4);
+  border: 1px solid var(--pf-accent);
+  border-radius: var(--pf-radius-sm);
+  background: var(--pf-accent);
+  color: #fff;
+  font: 600 13px/1 var(--pf-font);
+  cursor: pointer;
+  transition: background-color 160ms var(--pf-ease);
+}
+body .km-pf input[type="file"]::file-selector-button:hover { background: var(--pf-accent-hover); }
+body .km-pf input[type="file"] { font-size: 12.5px; color: var(--pf-muted); }
+
+/* ---------- 8b. Проверка: кнопка «Перейти» на одной линии с названием пункта ---------- */
+
+body .km-pf .km-pf-issue { padding: var(--pf-s3); gap: var(--pf-s3); }
+body .km-pf .km-pf-issue__go { align-self: flex-start; }
+
+/* ---------- 9. Панель действий, когда она уходит под форму (узкий экран) ---------- */
+
+@media (max-width: 1535px) {
+  body .km-pf .km-pf-side__block--top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: var(--pf-s3) var(--pf-s2);
+    padding: var(--pf-s4) var(--pf-s5);
+  }
+  body .km-pf .km-pf-side__block--top > .km-pf-side__row,
+  body .km-pf .km-pf-side__block--top > .km-pf-side__progress { grid-column: 1 / -1; }
+  body .km-pf .km-pf-side__block--top > .km-pf-side__readiness { grid-column: 1; margin: 0; }
+  body .km-pf .km-pf-side__block--top > .km-pf-btn--block { width: auto; min-width: 0; margin: 0; padding-inline: var(--pf-s4); }
+  body .km-pf .km-pf-side__block--top > .km-pf-savestate { grid-column: 1 / -1; margin: 0; }
+}
+
+/* ---------- 10. Нижняя плавающая панель ---------- */
+
+/* Та же ширина, что у формы, — не выходит за край колонки */
+body .km-pf .km-pf__stickybar { max-width: 1400px; margin-top: var(--pf-s4); margin-bottom: var(--pf-s2); }
+
+/* На широком экране справа уже висит закреплённая панель с теми же кнопками:
+   вторая копия внизу только дублирует действия */
+@media (min-width: 1536px) {
+  body .km-pf .km-pf__stickybar { display: none; }
+}
+
+/* ---------- 11. Телефон ---------- */
+
+@media (max-width: 900px) {
+  body .km-pf .km-pf-section__missing { max-width: none; white-space: normal; text-align: left; }
+  body .km-pf .km-pf-section__body > .km-pf-section__inner { padding: var(--pf-s4) var(--pf-s4) var(--pf-s5); gap: var(--pf-s5); }
+  body .km-pf .km-pf__header-aside .km-admin-related-links { justify-content: flex-start; }
+}
+
+/* ==========================================================================
+   12. Без повторов: каждое состояние показано в одном месте
+   - готовность: шаги вверху + панель действий (снизу или справа);
+   - «не заполнено»: шаги вверху + короткий список в «Проверке»;
+   - точка на карте: карточка «Местоположение по карте»;
+   - кнопки сохранения: одна панель.
+   Элементы остаются в разметке (их обновляют скрипты), только не показываются.
+   ========================================================================== */
+
+/* Шапка: название, статус публикации, владелец и действия */
+body .km-pf .km-pf__header .km-pf-chip--readiness,
+body .km-pf .km-pf__header [data-pf-coords-chip],
+body .km-pf .km-pf__header .km-pf__progress,
+body .km-pf .km-pf__header .km-pf__progress-copy,
+body .km-pf .km-pf__header .km-pf__header-savestate { display: none !important; }
+body .km-pf .km-pf__header { padding-top: var(--pf-s4); padding-bottom: var(--pf-s4); }
+
+/* Шапка раздела: только название и счётчик «2 из 4» */
+body .km-pf .km-pf-section__missing { display: none !important; }
+
+/* Карта: плашка без координат и строка статуса повторяют карточку местоположения */
+body .km-pf .km-pf-coordchip:has([data-pf-coord-value]:empty) { display: none; }
+body .km-pf .km-pf-mapstatus {
+  position: absolute !important;
+  width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* Проверка: без второй шкалы готовности, пункты — короткими ссылками */
+body .km-pf .km-pf-readiness { display: none !important; }
+body .km-pf .km-pf-issues { gap: var(--pf-s2); }
+body .km-pf .km-pf-issues__list { display: flex !important; flex-wrap: wrap; gap: var(--pf-s2); }
+body .km-pf .km-pf-issues__list .km-pf-issue {
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: var(--pf-s1) var(--pf-s3) var(--pf-s1) 10px;
+  border-radius: 999px;
+  border-color: var(--pf-warn-border);
+  background: var(--pf-warn-tint);
+}
+body .km-pf .km-pf-issues__list .km-pf-issue:hover { border-color: var(--pf-warn); }
+body .km-pf .km-pf-issues__list .km-pf-issue__icon { width: 14px; height: 14px; color: var(--pf-warn); }
+body .km-pf .km-pf-issues__list .km-pf-issue__copy { flex-basis: auto !important; }
+body .km-pf .km-pf-issues__list .km-pf-issue__copy strong { font-size: 12.5px; font-weight: 700; color: var(--pf-warn-text); }
+body .km-pf .km-pf-issues__list .km-pf-issue__copy > span,
+body .km-pf .km-pf-issues__list .km-pf-issue__go { display: none !important; }
+
+/* Узкий экран: кнопки и готовность уже есть в нижней панели —
+   справа под формой остаются только служебные настройки */
+@media (max-width: 1535px) {
+  body .km-pf .km-pf-side__block--top { display: none !important; }
+}
+
+/* ---------- 13. Подсказка «?»: длинный текст по нажатию, а не на экране ---------- */
+
+body .km-pf .km-pf-hint {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--pf-border);
+  border-radius: 50%;
+  background: var(--pf-surface);
+  color: var(--pf-muted);
+  font: 700 11px/18px var(--pf-font);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 160ms var(--pf-ease), color 160ms var(--pf-ease);
+}
+body .km-pf .km-pf-hint:hover,
+body .km-pf .km-pf-hint:focus-visible { border-color: var(--pf-accent); color: var(--pf-accent); }
+.km-pf-hint__pop {
+  max-width: min(420px, calc(100vw - 40px));
+  margin: auto;
+  padding: var(--pf-s4, 16px) var(--pf-s5, 20px);
+  border: 1px solid #C7E1D2;
+  border-radius: 12px;
+  background: #fff;
+  color: #16211A;
+  font-size: 13.5px;
+  line-height: 1.6;
+  box-shadow: 0 12px 40px rgba(22, 33, 26, .16);
+}
+.km-pf-hint__pop::backdrop { background: rgba(22, 33, 26, .12); }
+body .km-pf [data-pf-group="names"] > .km-pf-group__head { justify-content: flex-start; align-items: center; gap: var(--pf-s2); }
+body .km-pf .km-pf-group--branch { flex-direction: row; align-items: center; gap: var(--pf-s2); }
+
+/* ---------- 14. Короче пустые состояния и повторы внутри блоков ---------- */
+
+/* Местоположение: вводная строка повторяет живую строку статуса внизу карточки */
+body .km-pf .km-location { margin: 0; }
+body .km-pf .km-location__intro { display: none; }
+
+/* Расписание: «— Неизвестно —» уже написано в колонке «Статус» */
+body .km-pf .km-schedule-editor__state-copy--closed { display: none; }
+
+/* Пустые тарифы и галерея — одной строкой, а не блоком на 140px */
+body .km-pf .km-pf-tariffs__empty,
+body .km-pf .km-pf-gallery-empty {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start !important;
+  gap: var(--pf-s1) var(--pf-s3) !important;
+  min-height: 0 !important;
+  padding: var(--pf-s3) var(--pf-s4) !important;
+  text-align: left !important;
+}
+body .km-pf .km-pf-tariffs__empty > svg,
+body .km-pf .km-pf-gallery-empty > svg { width: 20px; height: 20px; margin: 0 !important; flex: none; }
+body .km-pf .km-pf-tariffs__empty > p,
+body .km-pf .km-pf-gallery-empty > p { margin: 0 !important; font-size: 13px; font-weight: 700; }
+body .km-pf .km-pf-tariffs__empty > small,
+body .km-pf .km-pf-gallery-empty > small { flex: 1 1 260px; margin: 0 !important; font-size: 12px; }
+body .km-pf .km-pf-gallery-empty > .km-pf-btn { margin: 0 0 0 auto !important; }
+/* «Сейчас загружено 0 из 10» уже стоит справа в заголовке «0 / 10» */
+body .km-pf .km-pf-gallery-empty > small { display: none; }

@@ -5,7 +5,7 @@
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block structured_data %}<script type="application/ld+json">{{ entity_schema_json|safe }}</script>{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=20261120_audit">{% if presentation.kind == "organization" %}<link rel="stylesheet" href="{% static 'css/pages/organization_public_v2.css' %}?v=20261121_org_v2">{% endif %}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=20261120_audit">{% if presentation.kind == "organization" %}<link rel="stylesheet" href="{% static 'css/pages/organization_public_v2.css' %}?v=20261122_org_v3"><link rel="stylesheet" href="{% static 'css/pages/organization_public_v3.css' %}?v=20261122_org_v3"><script src="{% static 'js/organization_public.js' %}?v=20261122_org_v3" defer></script>{% endif %}{% endblock %}
 {% block content %}
 {% get_current_language as language %}
 {% if presentation.kind == "organization" %}
@@ -124,6 +124,29 @@
       </div>
     </div>
   </div>
+
+  {% if presentation.kind == 'organization' %}
+  <div class="orgv-mbar" data-orgv-mbar aria-hidden="true">
+    <a class="orgv-mbar__main" href="#branches" tabindex="-1"><span class="material-symbols-rounded" aria-hidden="true">storefront</span>{% if language == 'ru' %}Выбрать филиал{% elif language == 'en' %}Choose a branch{% else %}Filial seç{% endif %}{% if branches_count %} · {{ branches_count }}{% endif %}</a>
+    {% if presentation.contacts.whatsapp_url %}<a class="orgv-mbar__wa" href="{{ presentation.contacts.whatsapp_url }}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-label="WhatsApp"><span class="material-symbols-rounded" aria-hidden="true">chat</span></a>{% endif %}
+  </div>
+  {% endif %}
+  {% if presentation.kind == 'organization' %}
+  <section class="orgv-stats" aria-label="{% if language == 'ru' %}Сеть в цифрах{% elif language == 'en' %}Network at a glance{% else %}Şəbəkə rəqəmlərlə{% endif %}" data-orgv-reveal>
+    <div class="orgv-stat" style="--i:0"><span class="material-symbols-rounded" aria-hidden="true">storefront</span><strong data-orgv-count="{{ branches_count|default:0 }}">{{ branches_count|default:0 }}</strong><small>{% if language == 'ru' %}филиалов{% elif language == 'en' %}branches{% else %}filial{% endif %}</small></div>
+    <div class="orgv-stat" style="--i:1"><span class="material-symbols-rounded" aria-hidden="true">map</span><strong data-orgv-count="{{ districts_count|default:0 }}">{{ districts_count|default:0 }}</strong><small>{% if language == 'ru' %}районов Баку{% elif language == 'en' %}districts{% else %}rayon{% endif %}</small></div>
+{% if activities_filter %}    <div class="orgv-stat" style="--i:2"><span class="material-symbols-rounded" aria-hidden="true">interests</span><strong data-orgv-count="{{ activities_filter|length }}">{{ activities_filter|length }}</strong><small>{% if language == 'ru' %}направлений{% elif language == 'en' %}activities{% else %}istiqamət{% endif %}</small></div>{% elif programs %}<div class="orgv-stat" style="--i:2"><span class="material-symbols-rounded" aria-hidden="true">school</span><strong data-orgv-count="{{ programs|length }}">{{ programs|length }}</strong><small>{% if language == 'ru' %}программ{% elif language == 'en' %}programs{% else %}proqram{% endif %}</small></div>{% endif %}
+    <div class="orgv-stat orgv-stat--rating" style="--i:3">{% if org_rating.count %}<span class="material-symbols-rounded" aria-hidden="true">star</span><strong>{{ org_rating.avg|floatformat:1 }}</strong><small>{{ org_rating.count }} {% if language == 'ru' %}отзывов{% elif language == 'en' %}reviews{% else %}rəy{% endif %}</small>{% else %}<span class="material-symbols-rounded" aria-hidden="true">verified</span><strong class="orgv-stat__word">KidsMap</strong><small>{% if language == 'ru' %}профиль проверен{% elif language == 'en' %}profile reviewed{% else %}profil yoxlanılıb{% endif %}</small>{% endif %}</div>
+  </section>
+  {% if org_directions %}
+  <section class="orgv-directions" aria-labelledby="orgv-directions-title" data-orgv-reveal>
+    <h2 id="orgv-directions-title" class="orgv-kicker">{% if language == 'ru' %}Чем занимаются дети{% elif language == 'en' %}What kids do here{% else %}Uşaqlar nə ilə məşğul olur{% endif %}</h2>
+    <ul class="orgv-chips">
+      {% for item in org_directions %}<li style="--i:{{ forloop.counter0 }}"><button type="button" class="orgv-chip" data-orgv-activity="{{ item.name|lower }}" aria-pressed="false">{{ item.name }}<span>{{ item.count }}</span></button></li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+  {% endif %}
 
   <nav class="public-entity-nav" id="public-entity-nav" aria-label="{% if language == 'ru' %}Разделы страницы{% elif language == 'en' %}Page sections{% else %}Səhifə bölmələri{% endif %}">
     <div class="public-entity-nav__inner">
@@ -305,9 +328,21 @@
       </div>
     </div>
 
+    {% if org_map_points %}
+    <div class="orgv-viewswitch" role="tablist" aria-label="{% if language == 'ru' %}Вид{% elif language == 'en' %}View{% else %}Görünüş{% endif %}">
+      <button type="button" role="tab" class="is-active" aria-selected="true" data-orgv-view="split"><span class="material-symbols-rounded" aria-hidden="true">view_sidebar</span>{% if language == 'ru' %}Список и карта{% elif language == 'en' %}List and map{% else %}Siyahı və xəritə{% endif %}</button>
+      <button type="button" role="tab" aria-selected="false" data-orgv-view="list"><span class="material-symbols-rounded" aria-hidden="true">grid_view</span>{% if language == 'ru' %}Только список{% elif language == 'en' %}List only{% else %}Yalnız siyahı{% endif %}</button>
+    </div>
+    {{ org_map_points|json_script:"orgv-map-points" }}
+    <div class="orgv-branches" data-orgv-branches data-view="split">
+    <div class="orgv-map" data-orgv-map aria-label="{% if language == 'ru' %}Карта филиалов{% elif language == 'en' %}Branch map{% else %}Filialların xəritəsi{% endif %}" role="region">
+      <div class="orgv-map__canvas" data-orgv-map-canvas></div>
+      <div class="orgv-map__placeholder" data-orgv-map-placeholder><span class="material-symbols-rounded" aria-hidden="true">map</span>{% if language == 'ru' %}Загружаем карту…{% elif language == 'en' %}Loading map…{% else %}Xəritə yüklənir…{% endif %}</div>
+    </div>
+    {% endif %}
     <ul class="public-branch-grid public-branch-grid--full" id="public-branches-list">
       {% for branch in branches %}
-      <li class="public-branch-item" data-district="{{ branch.district|default:'' }}" data-activities="{{ branch.activities_list|join:','|lower }}" data-search="{{ branch.name|lower }} {{ branch.address|lower }} {{ branch.district_label|lower }}">
+      <li class="public-branch-item" data-branch-id="{{ branch.pk }}" style="--i:{{ forloop.counter0 }}" data-district="{{ branch.district|default:'' }}" data-activities="{{ branch.activities_list|join:','|lower }}" data-search="{{ branch.name|lower }} {{ branch.address|lower }} {{ branch.district_label|lower }}">
         <article class="public-branch-card">
           <a class="public-branch-media" href="{{ branch.url }}" aria-label="{{ branch.name }}">
             {% if branch.image_url %}
@@ -373,6 +408,7 @@
       </li>
       {% endfor %}
     </ul>
+    {% if org_map_points %}</div>{% endif %}
   </section>
 
   {% if programs %}

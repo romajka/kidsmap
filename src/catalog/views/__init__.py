@@ -82,6 +82,7 @@ from .owner import (  # noqa: F401
     owner_place_gallery_photo_delete,
     owner_place_publish,
     owner_place_submit_review,
+    owner_connections,
     owner_places_dashboard,
     owner_review_approve,
     owner_review_reject,

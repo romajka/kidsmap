@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="{% static 'admin/css/pages/moderation_changes.css' %}?v=20261105_1">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20261121_editor_layout">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20261025_live2">
-  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=20261028_addition1" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=20261122_compact1" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_media.js' %}?v=20261007_place_r5" defer></script>
   <script src="{% static 'js/kidsmap_place_photo_picker.js' %}?v=20261025_adminparity1" defer></script>
   <script src="{% static 'js/kidsmap_native_draft_media.js' %}?v=20261025_adminparity1" defer></script>
@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_pricing_editor.css' %}?v=20261027_polish2">
   <script src="{% static 'js/kidsmap_pricing_editor.js' %}?v=20261029_fix2" defer></script>
   <link rel="stylesheet" href="{% static 'admin/css/components/activity_editor.css' %}?v=20261004">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form_rhythm.css' %}?v=20261122_compact1">
   <script src="{% static 'js/owner_place_offerings.js' %}?v=20261028_addition1" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=20261120_geocoding" defer></script>
   {% if google_maps_api_key %}
@@ -115,13 +116,6 @@
 
       <div class="km-pf__shell">
         {% include "admin/catalog/place/form/header.html" %}
-        {% if km_identity_registry_url or km_place_navigation %}
-          <nav class="km-admin-related-links" aria-label="{% translate 'Быстрые переходы' %}">
-            {% if km_identity_registry_url %}<a class="km-pf-btn km-pf-btn--ghost km-pf-btn--xs" href="{{ km_identity_registry_url }}" target="_blank" rel="noopener">{{ km_identity_copy.title }}</a>{% endif %}
-            {% if km_identity_compare_url %}<a class="km-pf-btn km-pf-btn--ghost km-pf-btn--xs" href="{{ km_identity_compare_url }}" target="_blank" rel="noopener">{{ km_identity_copy.compare }}</a>{% endif %}
-            {% for link in km_place_navigation %}<a class="km-pf-btn km-pf-btn--ghost km-pf-btn--xs" href="{{ link.url }}">{{ link.label }}</a>{% endfor %}
-          </nav>
-        {% elif add %}<p class="help">{% translate 'Сначала сохраните место.' %}</p>{% endif %}
         {{ km_identity_copy|json_script:"km-identity-copy" }}
 
         <label class="km-pf__mobile-nav">{{ km_place_entry_copy.section_nav }}<select data-pf-section-select>{% for section in km_place_form_sections %}<option value="{{ section.id }}">{{ section.title }}</option>{% endfor %}</select></label>

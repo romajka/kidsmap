@@ -41,6 +41,7 @@ from catalog.services.owner_place_use_cases import (
     OwnerAccessResult,
     build_owner_places_stats,
     ensure_owner_permission,
+    owner_card_url,
 )
 from catalog.services.place_access import (
     PLACE_PERMISSION_EDIT,
@@ -491,12 +492,15 @@ class OwnerPlacesController:
             latest_request_by_place.setdefault(ownership_request.place_id, ownership_request)
             if ownership_request.request_kind == PlaceOwnershipRequest.KIND_PUBLICATION:
                 latest_publication_request_by_place.setdefault(ownership_request.place_id, ownership_request)
+        from catalog.services.features import is_events_section_enabled
+        events_enabled = is_events_section_enabled()
         for place in managed_places:
             latest_request = latest_request_by_place.get(place.id)
             place.latest_moderation_request = latest_request
             place.owner_can_edit = self._is_user_editable_place(place) and self._has_permission(
                 user=request.user, place=place, permission_code=PLACE_PERMISSION_EDIT
             )
+            place.owner_card_url = owner_card_url(place, can_edit=place.owner_can_edit, events_enabled=events_enabled)
             place.owner_can_view_stats = bool(getattr(settings, "OWNER_ANALYTICS_ENABLED", False)) and self._has_permission(
                 user=request.user, place=place, permission_code=PLACE_PERMISSION_VIEW_STATS
             )

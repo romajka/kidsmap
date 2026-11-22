@@ -304,14 +304,6 @@
     });
   }
 
-  // Join form
-  const join = document.querySelector('[data-join-form]');
-  if (join) {
-    join.addEventListener('submit', () => {
-      join.action = join.querySelector('[data-join-org]').selectedOptions[0].dataset.url;
-    });
-  }
-
   // Team invitation form
   const team = document.querySelector('[data-team-form]');
   if (team) {

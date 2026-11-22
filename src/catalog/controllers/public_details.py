@@ -63,7 +63,10 @@ def organization_detail(request, public_id=None, slug=None):
             district=district_key,
             district_label=district_label,
             activities=branch_activities,
-            activities_list=act_names
+            activities_list=act_names,
+            pk=place.pk,
+            lat=place.lat,
+            lng=place.lng,
         )
         branches.append(branch)
 
@@ -178,6 +181,12 @@ def organization_detail(request, public_id=None, slug=None):
         'org_cover_url': entity.cover_photo.url if entity.cover_photo else '',
         'org_social': social_links(entity),
         'org_address': entity.address,
+        'org_map_points': [{'id': b['pk'], 'name': b['name'], 'url': b['url'], 'address': b.get('address') or '',
+                            'lat': b['lat'], 'lng': b['lng'], 'image': b.get('image_url') or ''}
+                           for b in branches if b.get('lat') is not None and b.get('lng') is not None],
+        'org_rating': {'avg': round(sum(r['rating'] for r in feed if r.get('rating')) / max(1, sum(1 for r in feed if r.get('rating'))), 1),
+                       'count': sum(1 for r in feed if r.get('rating'))},
+        'org_directions': activities_filter[:10],
         'districts_count': len(districts_filter),
         'org_specialists':org_specialists,
         'org_events':org_events,

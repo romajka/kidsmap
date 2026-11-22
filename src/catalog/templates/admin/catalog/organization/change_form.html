@@ -3,12 +3,42 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/organization_admin.css' %}?v=20261121_org_v2">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/organization_admin.css' %}?v=20261122_org_v3">
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+  {{ block.super }}
+  <script src="{% static 'admin/js/kidsmap_organization_admin.js' %}?v=20261122_org_v3" defer></script>
 {% endblock %}
 
 {% block bodyclass %}{{ block.super }} km-org-change{% endblock %}
 
+{% block breadcrumbs %}
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate 'Home' %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:catalog_organization_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a></li>
+    <li class="breadcrumb-item active">{% if add %}{% translate 'Новая организация' %}{% else %}{{ original|truncatewords:18 }}{% endif %}</li>
+  </ol>
+{% endblock %}
+
 {% block form_top %}
+  {% if not km_business_object %}
+    {# Add page: a three-step guide so a first-time editor knows the whole path. #}
+    <section class="km-orgc km-orgc--add" aria-labelledby="km-org-add-title">
+      <div class="km-orgc-guide">
+        <div>
+          <h2 id="km-org-add-title">{% translate 'Новая организация за 3 шага' %}</h2>
+          <p>{% translate 'Организация — это сеть: у неё общий бренд, а филиалы — отдельные места на карте.' %}</p>
+        </div>
+        <ol class="km-orgc-steps">
+          <li style="--i:0"><b>1</b><span><strong>{% translate 'Название' %}</strong>{% translate 'На азербайджанском обязательно, на русском и английском — по желанию.' %}</span></li>
+          <li style="--i:1"><b>2</b><span><strong>{% translate 'Описание и контакты' %}</strong>{% translate 'Пара предложений для родителей, телефон или WhatsApp.' %}</span></li>
+          <li style="--i:2"><b>3</b><span><strong>{% if km_org_can_publish %}{% translate 'Сохранить и опубликовать' %}{% else %}{% translate 'Отправить на проверку' %}{% endif %}</strong>{% translate 'Логотип, обложку и филиалы можно добавить потом.' %}</span></li>
+        </ol>
+      </div>
+    </section>
+  {% endif %}
   {% if km_org_state %}
     {% with org=km_business_object %}
     <section class="km-orgc" aria-label="{% translate 'Сводка организации' %}">
@@ -17,22 +47,59 @@
           {% if org.logo %}<img src="{{ org.logo.url }}" alt="" width="72" height="72">{% else %}<span aria-hidden="true">{{ org.name_az|default:'K'|slice:':1'|upper }}</span>{% endif %}
         </div>
         <div class="km-orgc__title">
-          <p class="km-orgc__eyebrow">{% translate 'Организация' %} · #{{ org.pk }}{% if org.slug %} · /{{ org.slug }}/{% endif %}</p>
+          <p class="km-orgc__eyebrow">{% translate 'Организация' %} · #{{ org.pk }}{% if org.slug %} · kidsmap.az/organizations/{{ org.slug }}/{% endif %}</p>
           <h1>{{ org.name_az|default:'—' }}</h1>
           <div class="km-orgc__chips">
             <span class="km-orgc-state km-orgc-state--{{ km_org_state.tone }}" data-org-state="{{ km_org_state.code }}"><span class="km-orgc-state__dot"></span>{{ km_org_state.label }}</span>
-            {% if org.owner %}<span class="km-orgc-chip">👤 {{ org.owner.get_full_name|default:org.owner.username }}</span>{% else %}<span class="km-orgc-chip km-orgc-chip--warn">{% translate 'Владелец не назначен' %}</span>{% endif %}
-            <span class="km-orgc-chip">{% if org.ownership_verified_at %}{% translate 'Владение проверено' %}{% else %}{% translate 'Владение не проверено' %}{% endif %}</span>
+            {% if org.owner %}<span class="km-orgc-chip" title="{% translate 'Владелец управляет организацией из своего кабинета' %}">👤 {{ org.owner.get_full_name|default:org.owner.username }}</span>{% else %}<span class="km-orgc-chip km-orgc-chip--warn">{% translate 'Владелец не назначен' %}</span>{% endif %}
           </div>
-          <p class="km-orgc__hint">{{ km_org_state.hint }}</p>
         </div>
         <div class="km-orgc__actions">
-          {% if km_org_public_url %}<a class="km-orgc-btn" href="{{ km_org_public_url }}" target="_blank" rel="noopener">{% translate 'Открыть на сайте' %} ↗</a>{% endif %}
+          {% if km_org_public_url %}<a class="km-orgc-btn km-orgc-btn--primary" href="{{ km_org_public_url }}" target="_blank" rel="noopener">{% translate 'Открыть на сайте' %} ↗</a>{% endif %}
           <a class="km-orgc-btn" href="{% url 'admin:moderation_sla' %}?type=organization_revision">{% translate 'Очередь модерации' %}</a>
         </div>
       </div>
 
+      {# One plain-language instruction: what this screen expects right now. #}
+      <div class="km-orgc-next km-orgc-next--{{ km_org_state.tone }}" role="status">
+        <span class="km-orgc-next__icon" aria-hidden="true">{% if km_org_state.code == 'pending' or km_org_state.code == 'published_review' %}⏳{% elif km_org_state.code == 'published' %}✅{% elif km_org_state.code == 'inconsistent' %}⚠️{% elif km_org_state.needs_changes %}✏️{% elif km_org_state.code == 'archived' %}📦{% else %}📝{% endif %}</span>
+        <div>
+          <strong>{% translate 'Что сделать сейчас' %}</strong>
+          <p>
+            {% if km_org_state.code == 'pending' or km_org_state.code == 'published_review' %}
+              {% translate 'Владелец прислал сведения на проверку. Прокрутите к блоку «Публикация» внизу, посмотрите изменения и нажмите «Одобрить заявку» или «Вернуть на доработку» с комментарием.' %}
+            {% elif km_org_state.code == 'published' %}
+              {% translate 'Организация видна родителям. Чтобы что-то поменять, исправьте поля ниже и нажмите кнопку сохранения внизу.' %}
+            {% elif km_org_state.code == 'inconsistent' %}
+              {% translate 'Это старая запись: она помечена опубликованной, но её никто не одобрял, поэтому на сайте её нет. Проверьте поля и нажмите «Сохранить и опубликовать» — или оставьте как есть, пока владелец не пришлёт сведения.' %}
+            {% elif km_org_state.needs_changes %}
+              {% translate 'Сведения вернули владельцу на доработку. Ждём, пока он исправит и отправит снова.' %}
+            {% elif km_org_state.code == 'archived' %}
+              {% translate 'Организация в архиве и не показывается на сайте.' %}
+            {% else %}
+              {% translate 'Организации ещё нет на сайте. Заполните поля ниже и нажмите внизу кнопку сохранения.' %}
+            {% endif %}
+          </p>
+        </div>
+        {% if km_org_state.code == 'pending' or km_org_state.code == 'published_review' %}<a class="km-orgc-btn km-orgc-btn--primary" href="#km-publication">{% translate 'К решению' %} ↓</a>{% endif %}
+      </div>
+
       <div class="km-orgc__grid">
+        <article class="km-orgc-card km-orgc-card--preview" aria-label="{% translate 'Так увидят родители' %}">
+          <h2>{% translate 'Так увидят родители' %} <small>{% translate 'обновляется по мере ввода' %}</small></h2>
+          <div class="km-orgc-preview" data-org-preview>
+            <div class="km-orgc-preview__cover" data-org-preview-cover{% if org.cover_photo %} style="background-image:url('{{ org.cover_photo.url }}')"{% endif %}></div>
+            <div class="km-orgc-preview__body">
+              <div class="km-orgc-preview__logo" data-org-preview-logo>{% if org.logo %}<img src="{{ org.logo.url }}" alt="">{% else %}<span>{{ org.name_az|default:'K'|slice:':1'|upper }}</span>{% endif %}</div>
+              <strong data-org-preview-name>{{ org.name_az|default:'—' }}</strong>
+              <p data-org-preview-desc>{{ org.description_az|default:''|truncatechars:150 }}</p>
+              <div class="km-orgc-preview__chips">
+                <span>✓ {% translate 'Проверено KidsMap' %}</span>
+                <span>{{ km_org_health.current_count }} {% translate 'филиал(ов)' %}</span>
+              </div>
+            </div>
+          </div>
+        </article>
         <article class="km-orgc-card">
           <h2>{% translate 'Готовность профиля' %} <b>{{ km_org_ready.percent }}%</b></h2>
           <div class="km-orgc-bar"><span style="width:{{ km_org_ready.percent }}%"></span></div>
@@ -52,35 +119,46 @@
             <thead><tr><th>{% translate 'Место' %}</th><th>{% translate 'Связь' %}</th><th></th></tr></thead>
             <tbody>
               {% for place in km_org_health.current %}
-                <tr><td><a href="{% url 'admin:catalog_place_change' place.pk %}">{{ place.name_az|default:place.name }}</a><small>{{ place.get_status_display }}{% if place.owner %} · {{ place.owner.username }}{% endif %}</small></td>
-                  <td><span class="km-orgc-link km-orgc-link--ok">{% if place.organization_relationship_kind == 'informational' %}{% translate 'Информационная' %}{% else %}{% translate 'Бизнес' %}{% endif %} ✓</span></td><td></td></tr>
+                <tr><td><a href="{% url 'admin:catalog_place_change' place.pk %}">{{ place.name_az|default:place.name }}</a><small>{{ place.get_status_display }}</small></td>
+                  <td><span class="km-orgc-link km-orgc-link--ok">✓ {% translate 'Подтверждена' %}</span></td><td></td></tr>
               {% endfor %}
               {% for place in km_org_health.stale %}
                 <tr class="is-stale"><td><a href="{% url 'admin:catalog_place_change' place.pk %}">{{ place.name_az|default:place.name }}</a><small>{{ place.link_stale_reason }}</small></td>
-                  <td><span class="km-orgc-link km-orgc-link--warn">{% translate 'Неактуальна' %}</span></td>
-                  <td>{% if not place.owner_id %}<button class="km-orgc-btn km-orgc-btn--sm" type="submit" name="action" value="relink" formaction="{{ km_business_transition_url }}" formmethod="post" onclick="this.form.querySelector('[name=place_id]').value='{{ place.pk }}'">{% translate 'Создать заявку на связь' %}</button>{% else %}<small>{% translate 'Подтверждают владельцы' %}</small>{% endif %}</td></tr>
+                  <td><span class="km-orgc-link km-orgc-link--warn" title="{% translate 'После смены владельца связь нужно подтвердить заново — так чужой филиал не попадёт в сеть без согласия.' %}">{% translate 'Ждёт подтверждения' %}</span></td>
+                  <td>{% if not place.owner_id %}<button class="km-orgc-btn km-orgc-btn--sm" type="submit" name="action" value="relink" formaction="{{ km_business_transition_url }}" formmethod="post" onclick="this.form.querySelector('[name=place_id]').value='{{ place.pk }}'">{% translate 'Подтвердить связь' %}</button>{% else %}<small>{% translate 'Подтверждает владелец места' %}</small>{% endif %}</td></tr>
               {% endfor %}
             </tbody>
           </table>
           <input type="hidden" name="place_id" value="">
-          {% else %}<p class="km-orgc-muted">{% translate 'Филиалов пока нет.' %}</p>{% endif %}
-        </article>
-        <article class="km-orgc-card km-orgc-card--review">
-          <h2>{% translate 'Модерация' %}</h2>
-          {% if km_org_revision %}
-            <p><b>{{ km_org_revision.get_status_display }}</b> · v{{ km_org_revision.version }}</p>
-            {% if km_org_revision.review_note %}<blockquote>{{ km_org_revision.review_note }}</blockquote>{% endif %}
-            {% if km_org_revision.status == 'pending' %}<a class="km-orgc-btn km-orgc-btn--primary" href="#km-publication">{% translate 'Решить по заявке' %} ↓</a>{% endif %}
-          {% else %}
-            <p class="km-orgc-muted">{% translate 'Заявок на проверку не было.' %}</p>
-          {% endif %}
-          {% if km_org_state.code == 'inconsistent' %}
-            <p class="km-orgc-alert">{% translate 'Старая запись: отмечена опубликованной без одобрения. Попросите владельца отправить сведения на проверку или используйте команду diagnose_organizations.' %}</p>
-          {% endif %}
+          {% else %}<p class="km-orgc-muted">{% translate 'Филиалов пока нет. Их добавляет владелец в кабинете или модератор в карточке места (поле «Организация»).' %}</p>{% endif %}
         </article>
       </div>
+      {% if km_org_revision.review_note %}<blockquote class="km-orgc-note"><b>{% translate 'Последний комментарий модератора:' %}</b> {{ km_org_revision.review_note }}</blockquote>{% endif %}
     </section>
     {% endwith %}
   {% endif %}
   {{ block.super }}
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+  {% if has_change_permission or not km_business_object %}
+  <div class="submit-row km-org-submit">
+    <div class="km-org-submit__hint" data-org-dirty-hint>{% translate 'Изменения не сохранены' %}</div>
+    <button type="submit" name="_save_draft" class="km-org-btn km-org-btn--ghost" title="{% translate 'Сохраняет без отправки. На сайте ничего не меняется.' %}">
+      <span>{% translate 'Сохранить черновик' %}</span><small>{% translate 'на сайте ничего не меняется' %}</small>
+    </button>
+    {% if km_org_can_publish %}
+      <button type="submit" name="_submit_candidate" class="km-org-btn km-org-btn--ghost" title="{% translate 'Отправляет на проверку другому модератору.' %}">
+        <span>{% translate 'Отправить на проверку' %}</span><small>{% translate 'решит другой модератор' %}</small>
+      </button>
+      <button type="submit" name="_save_and_publish" class="km-org-btn km-org-btn--primary">
+        <span>{% translate 'Сохранить и опубликовать' %}</span><small>{% translate 'сразу появится на сайте' %}</small>
+      </button>
+    {% else %}
+      <button type="submit" name="_submit_candidate" class="km-org-btn km-org-btn--primary">
+        <span>{% translate 'Отправить на проверку' %}</span><small>{% translate 'появится после одобрения' %}</small>
+      </button>
+    {% endif %}
+  </div>
+  {% endif %}
 {% endblock %}

@@ -31,7 +31,7 @@
         <span class="km-pf-group__title">{% translate "Что нужно заполнить" %}</span>
         <div class="km-pf-issues__list" data-pf-issues-list>
           {% for item in summary.missing %}
-            <a class="km-pf-issue" href="#{{ item.anchor }}" data-place-error-link data-place-error-section="#{{ item.section }}" data-pf-issue-code="{{ item.code }}">
+            <a class="km-pf-issue" href="#{{ item.anchor }}" data-place-error-link data-place-error-section="#{{ item.section }}" data-pf-issue-code="{{ item.code }}" title="{{ item.message }}">
               <svg class="km-i km-pf-issue__icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-radio_button_unchecked"></use></svg>
               <span class="km-pf-issue__copy">
                 <strong>{{ item.label }}</strong>

@@ -17,61 +17,17 @@
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'admin/css/kidsmap_notifications.css' %}">
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_sleep" />
-  <link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=20261120_decision_1" />
+  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=20261122_gallery" />
 {% endblock %}
 
 {% block content %}
-<div class="account-page-wrapper" data-owner-legacy-error="Kart tapılmadı">
+<div class="account-page-wrapper owner-places-workspace" data-owner-legacy-error="Kart tapılmadı">
 {% csrf_token %}
   {% trans "Удалить карточку и скрыть ее с сайта? Карточка пропадет из вашего кабинета, но останется в удаленных у администратора." as delete_place_confirm_text %}
   {% trans "Удалить мероприятие? Оно пропадет из вашего кабинета и публичных списков." as delete_event_confirm_text %}
-
-  <!-- User Identity Header Card -->
-  <div class="account-user-card">
-    <div class="account-user-avatar">
-      {% if profile_model.avatar %}
-        <img src="{{ profile_model.avatar.url }}" alt="{{ request.user.username }}" class="account-user-avatar__img">
-      {% elif request.user.profile.avatar %}
-        <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" class="account-user-avatar__img">
-      {% else %}
-        {{ request.user.first_name|default:request.user.username|slice:":2"|upper }}
-      {% endif %}
-    </div>
-    <div class="account-user-info">
-      <p class="account-user-name">{{ request.user.get_full_name|default:request.user.username }}</p>
-      <span class="account-user-email">{{ request.user.email|default:request.user.username }}</span>
-    </div>
-    <div class="account-user-meta">
-      <span class="material-symbols-rounded">event_available</span>
-      <span>
-        {% if CURRENT_LANGUAGE == "az" %}
-          Qeydiyyat: {{ request.user.date_joined|date:"d.m.Y" }}
-        {% elif CURRENT_LANGUAGE == "en" %}
-          Joined: {{ request.user.date_joined|date:"d.m.Y" }}
-        {% else %}
-          С нами с {{ request.user.date_joined|date:"d.m.Y" }}
-        {% endif %}
-      </span>
-    </div>
-    <div class="account-user-actions">
-      <a href="{% url 'account_settings' %}" class="account-edit-profile-btn">
-        <span class="material-symbols-rounded">edit</span>
-        <span>
-          {% if CURRENT_LANGUAGE == "az" %}
-            Profili redaktə et
-          {% elif CURRENT_LANGUAGE == "en" %}
-            Edit profile
-          {% else %}
-            Редактировать профиль
-          {% endif %}
-        </span>
-      </a>
-    </div>
-  </div>
 
   <!-- Main 2-column Grid: Sidebar + Content -->
   <div class="account-main-layout">
@@ -81,126 +37,10 @@
 
     <!-- Main Content Panel -->
     <section class="account-main-content">
-      {% if place_affiliation_requests or affiliated_places or joinable_places and joinable_organizations %}
-      <section class="account-card-box" id="organization-links" aria-labelledby="organization-links-title">
-        <div class="account-card-box__head">
-          <div class="account-card-box__head-wrap">
-            <h2 id="organization-links-title">
-              <span class="material-symbols-rounded" style="color: #136F38; font-size: 22px;">hub</span>
-              <span>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat əlaqələri{% elif CURRENT_LANGUAGE == 'en' %}Organization links{% else %}Связи с организациями{% endif %}</span>
-              {% if affiliated_places or place_affiliation_requests %}
-                <span class="account-badge-counter">{{ affiliated_places|length|add:place_affiliation_requests|length }}</span>
-              {% endif %}
-            </h2>
-            <p class="account-card-box__sub">
-              {% if CURRENT_LANGUAGE == 'az' %}Məkanlarınızın şəbəkə və filial əlaqələri, birgə proqramlar.{% elif CURRENT_LANGUAGE == 'en' %}Network and branch connections of your places, shared programs.{% else %}Сетевые связи и привязка филиалов к организациям для совместного управления.{% endif %}
-            </p>
-          </div>
-        </div>
-
-        <div class="account-card-box__body org-links-card-body">
-          {% if place_affiliation_requests %}
-            <div class="org-links-requests-block">
-              <h4>
-                <span class="material-symbols-rounded">pending_actions</span>
-                <span>{% if CURRENT_LANGUAGE == 'az' %}Təsdiq gözləyən sorğular{% elif CURRENT_LANGUAGE == 'en' %}Pending affiliation requests{% else %}Запросы на согласование{% endif %}</span>
-              </h4>
-              {% for item in place_affiliation_requests %}
-                {% include 'pages/includes/organization_join_request.html' %}
-              {% endfor %}
-            </div>
-          {% endif %}
-
-          {% if affiliated_places %}
-            <div class="org-links-list">
-              {% for place in affiliated_places %}
-                <div class="org-link-item">
-                  <div class="org-link-item__nodes">
-                    <span class="org-link-item__place">
-                      <span class="material-symbols-rounded">storefront</span>
-                      <span>{{ place.name_i18n }}</span>
-                    </span>
-                    <span class="material-symbols-rounded org-link-item__arrow">arrow_forward</span>
-                    <span class="org-link-item__org">
-                      <span class="material-symbols-rounded">corporate_fare</span>
-                      <span>{{ place.organization.name_az }}</span>
-                    </span>
-                    {% if place.organization_relationship_kind == 'informational' %}
-                      <span class="org-link-badge org-link-badge--info">
-                        <span class="material-symbols-rounded">info</span>
-                        <span>{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi{% elif CURRENT_LANGUAGE == 'en' %}Information link{% else %}Информационная связь{% endif %}</span>
-                      </span>
-                    {% else %}
-                      <span class="org-link-badge org-link-badge--success">
-                        <span class="material-symbols-rounded">verified</span>
-                        <span>{% if CURRENT_LANGUAGE == 'az' %}Şəbəkə filialı{% elif CURRENT_LANGUAGE == 'en' %}Network branch{% else %}Сетевой филиал{% endif %}</span>
-                      </span>
-                    {% endif %}
-                  </div>
-                  <a class="account-btn-sm account-btn-sm--danger-soft org-link-detach-btn" href="{% url 'organization_detach_preview' place.organization_id place.pk %}">
-                    <span class="material-symbols-rounded">link_off</span>
-                    <span>{% translate 'Отсоединить: посмотреть последствия' %}</span>
-                  </a>
-                </div>
-              {% endfor %}
-            </div>
-          {% endif %}
-
-          {% if joinable_places and joinable_organizations %}
-            <div class="org-links-form-wrap">
-              <h4>
-                <span class="material-symbols-rounded">add_link</span>
-                <span>{% if CURRENT_LANGUAGE == 'az' %}Məkanı təşkilata qoş{% elif CURRENT_LANGUAGE == 'en' %}Connect place to organization{% else %}Подключить место к организации{% endif %}</span>
-              </h4>
-              <form method="post" data-join-form class="org-links-form">
-                {% csrf_token %}
-                <div class="org-links-field">
-                  <label for="org-join-place">{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Place{% else %}Место{% endif %}</label>
-                  <div class="org-links-select-wrap">
-                    <select name="place_id" id="org-join-place" class="org-links-select">
-                      {% for place in joinable_places %}
-                        <option value="{{ place.pk }}">{{ place.name_i18n }}</option>
-                      {% endfor %}
-                    </select>
-                    <span class="material-symbols-rounded org-links-select-chevron">expand_more</span>
-                  </div>
-                </div>
-                <div class="org-links-field">
-                  <label for="org-join-org">{% if CURRENT_LANGUAGE == 'az' %}Təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Organization{% else %}Организация{% endif %}</label>
-                  <div class="org-links-select-wrap">
-                    <select name="organization_id" id="org-join-org" class="org-links-select" data-join-org>
-                      {% for org in joinable_organizations %}
-                        <option value="{{ org.pk }}" data-url="{% url 'organization_workspace_join' org.pk %}">{{ org.name_az }}</option>
-                      {% endfor %}
-                    </select>
-                    <span class="material-symbols-rounded org-links-select-chevron">expand_more</span>
-                  </div>
-                </div>
-                <button type="submit" class="account-btn-sm account-btn-sm--primary org-links-submit-btn">
-                  <span class="material-symbols-rounded">send</span>
-                  <span>{% if CURRENT_LANGUAGE == 'az' %}Qoşulma istə{% elif CURRENT_LANGUAGE == 'en' %}Request connection{% else %}Запросить присоединение{% endif %}</span>
-                </button>
-              </form>
-            </div>
-          {% endif %}
-        </div>
-      </section>
-      {% endif %}
-
-
       <!-- Section Title & Quick Action -->
       <div class="account-section-head-with-action">
         <div class="account-section-title-wrap">
           <h1>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</h1>
-          <p class="account-section-subtitle">
-            {% if CURRENT_LANGUAGE == "az" %}
-              Məkan və tədbirlərinizi idarə edin, moderasiya statusunu izləyin.
-            {% elif CURRENT_LANGUAGE == "en" %}
-              Manage your places and events, and track moderation status.
-            {% else %}
-              Управляйте местами и мероприятиями, следите за публикацией и модерацией.
-            {% endif %}
-          </p>
         </div>
         <div>
           {% if can_create_more_places %}
@@ -242,92 +82,17 @@
       {% endif %}
 
       <!-- Tab Panel: Places -->
-      <div class="owner-tab-panel is-active" id="owner-panel-places" role="tabpanel" aria-labelledby="owner-tab-pill-places">
-        <!-- Statistics Metric Pills -->
-        <div class="account-metric-pills">
-        <div class="account-metric-pill">
-          <span class="material-symbols-rounded metric-icon-green">location_on</span>
-          <strong>{{ owner_stats.total_places }}</strong>
-          <span>{% if CURRENT_LANGUAGE == "az" %}Bütün məkanlar{% elif CURRENT_LANGUAGE == "en" %}Total places{% else %}Всего мест{% endif %}</span>
-        </div>
-        <div class="account-metric-pill">
-          <span class="material-symbols-rounded metric-icon-green">check_circle</span>
-          <strong>{{ owner_stats.published_places }}</strong>
-          <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}</span>
-        </div>
-        <div class="account-metric-pill" data-owner-metric="unpublished">
-          <span class="material-symbols-rounded metric-icon-gold">schedule</span>
-          <strong>{{ owner_stats.draft_places|add:working_drafts_count }}</strong>
-          <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmayıb{% elif CURRENT_LANGUAGE == "en" %}Unpublished{% else %}Не опубликовано{% endif %}</span>
-        </div>
-        <div class="account-metric-pill" data-owner-metric="pending">
-          <span class="material-symbols-rounded metric-icon-gold">hourglass_top</span>
-          <strong>{{ pending_moderation_count }}</strong>
-          <span>{% if CURRENT_LANGUAGE == "az" %}Moderasiyada{% elif CURRENT_LANGUAGE == "en" %}In review{% else %}На модерации{% endif %}</span>
-        </div>
-        {% if can_view_stats %}
-          <div class="account-metric-pill">
-            <span class="material-symbols-rounded metric-icon-gold">star</span>
-            <strong>{{ owner_stats.total_reviews }}</strong>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}</span>
-          </div>
-          <div class="account-metric-pill">
-            <span class="material-symbols-rounded metric-icon-red">favorite</span>
-            <strong>{{ owner_stats.total_likes }}</strong>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Bəyənmələr{% elif CURRENT_LANGUAGE == "en" %}Likes{% else %}Лайки{% endif %}</span>
-          </div>
-          <div class="account-metric-pill">
-            <span class="material-symbols-rounded metric-icon-gold">grade</span>
-            <strong>{{ owner_stats.avg_rating|floatformat:1 }}</strong>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Reytinq{% elif CURRENT_LANGUAGE == "en" %}Rating{% else %}Рейтинг{% endif %}</span>
-          </div>
-        {% endif %}
-      </div>
-
-      <!-- Actionable Draft Card (if available) -->
-      {% if working_drafts_count %}
-        <div class="account-card-box" id="owner-working-drafts-panel">
-          <div class="account-card-box__head">
-            <h2>{% if CURRENT_LANGUAGE == 'az' %}Davam etmək üçün saxlanılıb{% elif CURRENT_LANGUAGE == 'en' %}Saved for later{% else %}Сохранено для продолжения{% endif %} <span class="account-badge-counter">{{ working_drafts_count }}</span></h2>
-          </div>
-          {% include 'pages/includes/owner_working_drafts.html' %}
-        </div>
-      {% elif latest_editable_place %}
-        <div class="account-continue-card">
-          <span class="material-symbols-rounded account-continue-icon">edit_note</span>
-          <div class="account-continue-info">
-            <div class="account-continue-header">
-              <span class="account-continue-title">{% if CURRENT_LANGUAGE == "az" %}Qaralamanı davam etdir{% elif CURRENT_LANGUAGE == "en" %}Continue draft{% else %}Продолжить черновик{% endif %}</span>
-              <span class="account-continue-placename">{{ latest_editable_place.owner_display.name_i18n }}</span>
-            </div>
-            <span class="account-continue-hint">
-              {% if latest_editable_place.owner_workflow.needs_changes %}
-                {% if CURRENT_LANGUAGE == "az" %}Düzəliş lazımdır: yoxlama qeydlərini nəzərdən keçirin{% elif CURRENT_LANGUAGE == "en" %}Action required: check moderation notes{% else %}Требуются исправления: проверьте замечания модератора{% endif %}
-              {% else %}
-                {% if CURRENT_LANGUAGE == "az" %}Tamamlanmamış məkan kartınızı yekunlaşdırıb moderasiyaya göndərin.{% elif CURRENT_LANGUAGE == "en" %}Finish your draft place card and submit for review.{% else %}Заполните оставшиеся данные и отправьте карточку на проверку.{% endif %}
-              {% endif %}
-            </span>
-          </div>
-          <a href="{% url 'owner_place_edit' latest_editable_place.id %}" class="account-btn-action" data-owner-legacy-label="Redaktəni davam et">
-            {% if CURRENT_LANGUAGE == "az" %}Redaktəyə davam et{% elif CURRENT_LANGUAGE == "en" %}Continue editing{% else %}Продолжить редактирование{% endif %}
-          </a>
-        </div>
-      {% endif %}
-
+      <div class="owner-tab-panel is-active" id="owner-panel-places" {% if is_events_section_enabled or is_specialists_section_enabled %}role="tabpanel" aria-labelledby="owner-tab-pill-places"{% endif %}>
+      <div id="owner-places-list">
+      {% if published_places or not draft_places and not working_drafts_count %}
       <!-- Section: Published Places -->
-      <div class="account-card-box" id="owner-places-list">
+      <div class="account-card-box">
         <div class="account-card-box__head">
           <h2>
             <span class="material-symbols-rounded" style="color: #136F38; font-size: 20px;">check_circle</span>
             <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmuş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Published places{% else %}Опубликованные места{% endif %}</span>
             <span class="account-badge-counter">{{ owner_stats.published_places }}</span>
           </h2>
-          {% if published_places and can_create_more_places %}
-            <a href="{% url 'owner_place_create' %}?fresh=1" class="account-link-all">
-              <span class="material-symbols-rounded">add</span>
-              <span>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add place{% else %}Добавить место{% endif %}</span>
-            </a>
-          {% endif %}
         </div>
 
         {% if published_places %}
@@ -363,6 +128,9 @@
                 </div>
 
                 <div class="account-owner-card__body">
+                  <h3 class="account-owner-card__name">
+                    {% if place.owner_card_url %}<a class="account-owner-card__link" href="{{ place.owner_card_url }}">{{ place.owner_display.name_i18n }}</a>{% else %}<span>{{ place.owner_display.name_i18n }}</span>{% endif %}
+                  </h3>
                   <div class="account-owner-card__meta">
                     <span class="account-owner-card__category">{{ place.owner_display.get_category_display|default:"Место" }}</span>
                     {% if place.owner_display.district %}
@@ -385,13 +153,12 @@
                     {% endif %}
                   </div>
 
-                  <h3 class="account-owner-card__name">
-                    <a href="{{ place.get_absolute_url }}">{{ place.owner_display.name_i18n }}</a>
-                  </h3>
-
                   {% include "pages/includes/owner_place_review_state.html" %}
                   <!-- Completion Progress Bar & Steps Checklist -->
-                  {% include "pages/includes/owner_place_readiness_progress.html" with place=place %}
+                  <details class="account-card-tech-details account-card-completion">
+                    <summary class="account-card-tech-summary">{% if CURRENT_LANGUAGE == 'az' %}Kartın doluluğu{% elif CURRENT_LANGUAGE == 'en' %}Card completeness{% else %}Заполнение карточки{% endif %} · {{ place.completion.percent }}%</summary>
+                    {% include "pages/includes/owner_place_readiness_progress.html" with place=place %}
+                  </details>
                   {% if place.working_draft %}<p class="account-working-copy" data-working-draft-id="{{ place.working_draft.id }}">{% if CURRENT_LANGUAGE == 'az' %}Qaralama saxlanıldı{% elif CURRENT_LANGUAGE == 'en' %}Draft saved{% else %}Черновик сохранён{% endif %} · {{ place.working_draft.saved_at|date:"d.m H:i" }} · {{ place.working_draft.readiness.completed_count }}/{{ place.working_draft.readiness.required_count }}{% if place.working_draft.needs_review %} · {% if CURRENT_LANGUAGE == 'az' %}Dəyişiklikləri yoxlayın{% elif CURRENT_LANGUAGE == 'en' %}Review newer changes{% else %}Проверьте новые изменения{% endif %}{% endif %}</p><div data-working-draft-id="{{ place.working_draft.id }}">{% include 'pages/includes/owner_working_draft_delete.html' with draft=place.working_draft %}</div>{% endif %}
 
                   <!-- Technical status details -->
@@ -413,10 +180,6 @@
                       <span>{% if CURRENT_LANGUAGE == "az" %}Analitika{% elif CURRENT_LANGUAGE == "en" %}Analytics{% else %}Аналитика{% endif %}</span>
                     </a>
                   {% endif %}
-                  <a class="account-btn-sm account-btn-sm--secondary" href="{{ place.get_absolute_url }}">
-                    <span class="material-symbols-rounded">visibility</span>
-                    <span>{% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Посмотреть{% endif %}</span>
-                  </a>
                   {% if place.owner_can_edit %}
                     <a class="account-btn-sm account-btn-sm--primary" href="{% if place.working_draft %}{{ place.working_draft.url }}{% else %}{% url 'owner_place_edit' place.id %}{% endif %}">
                       <span class="material-symbols-rounded">edit</span>
@@ -455,8 +218,10 @@
         {% endif %}
       </div>
 
+      {% endif %}
+
       <!-- Section: Drafts and Moderation -->
-      {% if draft_places or not working_drafts_count %}
+      {% if draft_places %}
       <div class="account-card-box">
         <div class="account-card-box__head">
           <h2>
@@ -496,6 +261,9 @@
                 </div>
 
                 <div class="account-owner-card__body">
+                  <h3 class="account-owner-card__name">
+                    {% if place.owner_card_url %}<a class="account-owner-card__link" href="{{ place.owner_card_url }}">{{ place.owner_display.name_i18n }}</a>{% else %}<span>{{ place.owner_display.name_i18n }}</span>{% endif %}
+                  </h3>
                   <div class="account-owner-card__meta">
                     <span class="account-owner-card__category">{{ place.owner_display.get_category_display|default:"Место" }}</span>
                     {% if place.owner_display.district %}
@@ -518,12 +286,11 @@
                     {% endif %}
                   </div>
 
-                  <h3 class="account-owner-card__name">
-                    <span>{{ place.owner_display.name_i18n }}</span>
-                  </h3>
-
                   <!-- Completion Progress Bar & Steps Checklist -->
-                  {% include "pages/includes/owner_place_readiness_progress.html" with place=place %}
+                  <details class="account-card-tech-details account-card-completion">
+                    <summary class="account-card-tech-summary">{% if CURRENT_LANGUAGE == 'az' %}Kartın doluluğu{% elif CURRENT_LANGUAGE == 'en' %}Card completeness{% else %}Заполнение карточки{% endif %} · {{ place.completion.percent }}%</summary>
+                    {% include "pages/includes/owner_place_readiness_progress.html" with place=place %}
+                  </details>
                   {% if place.working_draft %}<p class="account-working-copy" data-working-draft-id="{{ place.working_draft.id }}">{% if CURRENT_LANGUAGE == 'az' %}Qaralama saxlanıldı{% elif CURRENT_LANGUAGE == 'en' %}Draft saved{% else %}Черновик сохранён{% endif %} · {{ place.working_draft.saved_at|date:"d.m H:i" }} · {{ place.working_draft.readiness.completed_count }}/{{ place.working_draft.readiness.required_count }}{% if place.working_draft.needs_review %} · {% if CURRENT_LANGUAGE == 'az' %}Dəyişiklikləri yoxlayın{% elif CURRENT_LANGUAGE == 'en' %}Review newer changes{% else %}Проверьте новые изменения{% endif %}{% endif %}</p><div data-working-draft-id="{{ place.working_draft.id }}">{% include 'pages/includes/owner_working_draft_delete.html' with draft=place.working_draft %}</div>{% endif %}
 
                   {% include "pages/includes/owner_place_review_state.html" %}
@@ -609,6 +376,80 @@
       </div>
 
       {% endif %}
+
+      <!-- Actionable Draft Card (if available) -->
+      {% if working_drafts_count %}
+        <div class="account-card-box" id="owner-working-drafts-panel">
+          <div class="account-card-box__head">
+            <h2>{% if CURRENT_LANGUAGE == 'az' %}Davam etmək üçün saxlanılıb{% elif CURRENT_LANGUAGE == 'en' %}Saved for later{% else %}Сохранено для продолжения{% endif %} <span class="account-badge-counter">{{ working_drafts_count }}</span></h2>
+          </div>
+          {% include 'pages/includes/owner_working_drafts.html' %}
+        </div>
+      {% elif latest_editable_place %}
+        <div class="account-continue-card">
+          <span class="material-symbols-rounded account-continue-icon">edit_note</span>
+          <div class="account-continue-info">
+            <div class="account-continue-header">
+              <span class="account-continue-title">{% if CURRENT_LANGUAGE == "az" %}Qaralamanı davam etdir{% elif CURRENT_LANGUAGE == "en" %}Continue draft{% else %}Продолжить черновик{% endif %}</span>
+              <span class="account-continue-placename">{{ latest_editable_place.owner_display.name_i18n }}</span>
+            </div>
+            <span class="account-continue-hint">
+              {% if latest_editable_place.owner_workflow.needs_changes %}
+                {% if CURRENT_LANGUAGE == "az" %}Düzəliş lazımdır: yoxlama qeydlərini nəzərdən keçirin{% elif CURRENT_LANGUAGE == "en" %}Action required: check moderation notes{% else %}Требуются исправления: проверьте замечания модератора{% endif %}
+              {% else %}
+                {% if CURRENT_LANGUAGE == "az" %}Tamamlanmamış məkan kartınızı yekunlaşdırıb moderasiyaya göndərin.{% elif CURRENT_LANGUAGE == "en" %}Finish your draft place card and submit for review.{% else %}Заполните оставшиеся данные и отправьте карточку на проверку.{% endif %}
+              {% endif %}
+            </span>
+          </div>
+          <a href="{% url 'owner_place_edit' latest_editable_place.id %}" class="account-btn-action" data-owner-legacy-label="Redaktəni davam et">
+            {% if CURRENT_LANGUAGE == "az" %}Redaktəyə davam et{% elif CURRENT_LANGUAGE == "en" %}Continue editing{% else %}Продолжить редактирование{% endif %}
+          </a>
+        </div>
+      {% endif %}
+
+      </div>
+
+        <!-- Statistics Metric Pills -->
+        <div class="account-metric-pills">
+        <div class="account-metric-pill">
+          <span class="material-symbols-rounded metric-icon-green">location_on</span>
+          <strong>{{ owner_stats.total_places }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Bütün məkanlar{% elif CURRENT_LANGUAGE == "en" %}Total places{% else %}Всего мест{% endif %}</span>
+        </div>
+        <div class="account-metric-pill">
+          <span class="material-symbols-rounded metric-icon-green">check_circle</span>
+          <strong>{{ owner_stats.published_places }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}</span>
+        </div>
+        <div class="account-metric-pill" data-owner-metric="unpublished">
+          <span class="material-symbols-rounded metric-icon-gold">schedule</span>
+          <strong>{{ owner_stats.draft_places|add:working_drafts_count }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmayıb{% elif CURRENT_LANGUAGE == "en" %}Unpublished{% else %}Не опубликовано{% endif %}</span>
+        </div>
+        <div class="account-metric-pill" data-owner-metric="pending">
+          <span class="material-symbols-rounded metric-icon-gold">hourglass_top</span>
+          <strong>{{ pending_moderation_count }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Moderasiyada{% elif CURRENT_LANGUAGE == "en" %}In review{% else %}На модерации{% endif %}</span>
+        </div>
+        {% if can_view_stats %}
+          <div class="account-metric-pill">
+            <span class="material-symbols-rounded metric-icon-gold">star</span>
+            <strong>{{ owner_stats.total_reviews }}</strong>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}</span>
+          </div>
+          <div class="account-metric-pill">
+            <span class="material-symbols-rounded metric-icon-red">favorite</span>
+            <strong>{{ owner_stats.total_likes }}</strong>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Bəyənmələr{% elif CURRENT_LANGUAGE == "en" %}Likes{% else %}Лайки{% endif %}</span>
+          </div>
+          <div class="account-metric-pill">
+            <span class="material-symbols-rounded metric-icon-gold">grade</span>
+            <strong>{{ owner_stats.avg_rating|floatformat:1 }}</strong>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Reytinq{% elif CURRENT_LANGUAGE == "en" %}Rating{% else %}Рейтинг{% endif %}</span>
+          </div>
+        {% endif %}
+      </div>
+
       </div>
 
       <!-- Tab Panel: Events (if enabled) -->
@@ -817,6 +658,5 @@
 <script src="{% static 'admin/js/kidsmap_notifications.js' %}" defer></script>
 <script src="{% static 'js/kidsmap_editor_feedback.js' %}?v=20261025_live2" defer></script>
 <script src="{% static 'js/owner_working_drafts.js' %}?v=20261025_workflow3" defer></script>
-<script src="{% static 'js/organization_workspace.js' %}" defer></script>
 <script src="{% static 'js/owner_places_tabs.js' %}?v=20261020_release_r1" defer></script>
 {% endblock %}

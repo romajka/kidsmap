@@ -13,7 +13,7 @@
           <span class="km-pf-dot km-pf-dot--{{ summary.visibility.tone }}" aria-hidden="true"></span>
           {{ summary.visibility.label }}
         </span>
-        <span class="km-pf-chip">{% if summary.is_ready %}{% translate "Готово к публикации" %}{% else %}{% translate "Нужна доработка" %}{% endif %}</span>
+        <span class="km-pf-chip km-pf-chip--readiness">{% if summary.is_ready %}{% translate "Готово к публикации" %}{% else %}{% translate "Нужна доработка" %}{% endif %}</span>
         <span class="km-pf-chip">{% if adminform.form.instance.owner_id %}{% translate "Владелец назначен" %}{% else %}{% translate "Без владельца" %}{% endif %}</span>
         <span class="km-pf-chip" data-pf-coords-chip data-filled-label="{% translate 'Координаты указаны' %}" data-missing-label="{{ km_place_entry_copy.map_required_badge }}" data-tone="{% if adminform.form.instance.has_coordinates %}good{% else %}warn{% endif %}">
           <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use data-pf-coords-chip-icon href="#kmi-{% if adminform.form.instance.has_coordinates %}place{% else %}location_off{% endif %}"></use></svg>
@@ -64,6 +64,13 @@
         <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false" data-pf-savestate-icon><use href="#kmi-edit_note"></use></svg>
         <span data-pf-savestate-text>{{ km_place_entry_copy.not_saved }}</span>
       </p>
+      {% if km_identity_registry_url or km_place_navigation %}
+      <nav class="km-admin-related-links" aria-label="{% translate 'Быстрые переходы' %}">
+      {% if km_identity_registry_url %}<a class="km-pf-btn km-pf-btn--ghost km-pf-btn--xs" href="{{ km_identity_registry_url }}" target="_blank" rel="noopener">{{ km_identity_copy.title }}</a>{% endif %}
+      {% if km_identity_compare_url %}<a class="km-pf-btn km-pf-btn--ghost km-pf-btn--xs" href="{{ km_identity_compare_url }}" target="_blank" rel="noopener">{{ km_identity_copy.compare }}</a>{% endif %}
+      {% for link in km_place_navigation %}<a class="km-pf-btn km-pf-btn--ghost km-pf-btn--xs" href="{{ link.url }}">{{ link.label }}</a>{% endfor %}
+      </nav>
+      {% elif add %}<p class="help">{% translate 'Сначала сохраните место.' %}</p>{% endif %}
     </div>
   </header>
 {% endwith %}

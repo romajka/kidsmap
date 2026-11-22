@@ -13,3 +13,5 @@ Use [.agents/README.md](.agents/README.md), [.agents/registry.json](.agents/regi
 - Use applicable existing skills; user instructions take precedence. UI rules/source inspection are not rendered-browser evidence.
 
 Routing: [agent-orchestration](.agents/rules/agent-orchestration.md). Final audit decision artifact: [MASTER_AUDIT](docs/agent-audits/MASTER_AUDIT.md). Stop at recommendations and await the user's decision before implementing findings.
+
+- Для локальной демонстрации KidsMap заполнять все применимые поля синтетическими данными и готовить отдельные примеры для разных сценариев, ролей и состояний, включая ошибки, пустые состояния и модерацию. Проверять, что примеры можно открыть в интерфейсе.

@@ -531,8 +531,14 @@ def _action_error(request, org, exc):
 
 
 @require_POST
-def organization_join(request, org_id):
+def organization_join(request, org_id=None):
     if not request.user.is_authenticated: return _login(request)
+    from_connections = org_id is None
+    if from_connections:
+        try:
+            org_id = int(request.POST["organization_id"])
+        except (KeyError, ValueError, OverflowError):
+            raise Http404
     org = Organization.objects.filter(pk=org_id,archived_at__isnull=True).first()
     if org is None: raise Http404
     try:
@@ -542,9 +548,11 @@ def organization_join(request, org_id):
         if business_team.has_action(user=request.user,target=org,action='organization.view'):
             return _action_error(request,org,exc)
         return render(request,'pages/organization_connection_error.html',{},status=409)
+    if from_connections:
+        return redirect("owner_connections")
     if business_team.has_action(user=request.user,target=org,action='organization.view'):
         return redirect('organization_workspace_detail',org_id=org.pk)
-    return redirect('owner_places_dashboard')
+    return redirect('owner_connections')
 
 
 @require_safe
@@ -577,7 +585,7 @@ def organization_confirm(request, org_id, request_id):
         return render(request,'pages/organization_connection_error.html',{},status=409)
     if business_team.has_action(user=request.user,target=org,action='organization.view'):
         return redirect('organization_workspace_detail',org_id=org.pk)
-    return redirect('owner_places_dashboard')
+    return redirect('owner_connections')
 
 
 @require_POST

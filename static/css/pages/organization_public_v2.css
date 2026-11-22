@@ -52,7 +52,7 @@
 .public-contact--tiktok:hover { color: #111 !important; border-color: #cfcfcf !important; }
 
 /* ── Directory cards ────────────────────────────────────────────────────── */
-.org-card--v2 { animation: orgp-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(min(var(--i, 0), 8) * 70ms); }
+.org-card--v2 { animation: orgp-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards; animation-delay: calc(min(var(--i, 0), 8) * 70ms); }
 .org-card--v2 .org-card-body { position: relative; padding-top: 34px; }
 .org-card-logo {
   position: absolute;

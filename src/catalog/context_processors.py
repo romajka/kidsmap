@@ -72,6 +72,7 @@ NOINDEX_URL_NAMES = {
     "password_reset_confirm",
     "password_reset_complete",
     "owner_places_dashboard",
+    "owner_connections",
     "owner_place_create",
     "owner_place_edit",
     "owner_event_create",

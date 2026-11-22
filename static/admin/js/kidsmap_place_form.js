@@ -1038,6 +1038,7 @@
         link.setAttribute("data-place-error-link", "");
         link.setAttribute("data-place-error-section", "#" + item.section);
         link.dataset.pfIssueCode = item.code;
+        if (item.message) link.title = item.message;
 
         var icon = iconEl("radio_button_unchecked", "km-pf-issue__icon");
 

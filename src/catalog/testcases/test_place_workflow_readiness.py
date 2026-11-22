@@ -1,5 +1,8 @@
 """Private working-copy visibility and authoritative editor progress."""
+from datetime import timedelta
+
 from django.test import TestCase, RequestFactory
+from django.utils import timezone
 from django.urls import reverse
 from catalog.models import ServerDraft
 from catalog.controllers.owner_places_controller import OwnerPlacesController
@@ -31,6 +34,19 @@ class PlaceWorkflowReadinessTests(CandidateMediaFixture, TestCase):
     def draft(self, **kwargs):
         return ServerDraft.objects.create(actor=self.owner, target_type='place',
             schema_version=publication.SCHEMA_VERSION, fields={'name_az':'Unfinished saved place'}, **kwargs)
+
+    def saved_draft_sequence(self):
+        # Explicit save times keep pagination deterministic on coarse system clocks.
+        saved_at = timezone.now() - timedelta(minutes=13)
+        drafts = []
+        for index in range(13):
+            draft = ServerDraft.objects.create(
+                actor=self.owner, target_type='place', schema_version=publication.SCHEMA_VERSION,
+                fields={'name_az': f'Saved draft {index}'},
+            )
+            ServerDraft.objects.filter(pk=draft.pk).update(saved_at=saved_at + timedelta(minutes=index))
+            drafts.append(draft)
+        return drafts
 
     def dashboard(self):
         request=RequestFactory().get('/ru/account/places/')
@@ -108,15 +124,15 @@ class PlaceWorkflowReadinessTests(CandidateMediaFixture, TestCase):
                 self.assertContains(response, 'draft_id='+str(draft.pk))
                 self.assertEqual(Place.objects.count(), before)
 
-    def test_working_drafts_section_precedes_published_places(self):
+    def test_working_drafts_remain_available_after_the_place_gallery(self):
         draft = self.draft()
         response = self.client.get(reverse('owner_places_dashboard'))
         html = response.content.decode()
         self.assertIn('id="owner-working-drafts-panel"', html)
-        self.assertLess(html.index('data-working-draft-id="'+str(draft.pk)+'"'), html.index('id="owner-places-list"'))
+        self.assertLess(html.index(f'data-place-id="{self.place.pk}"'), html.index(f'data-working-draft-id="{draft.pk}"'))
 
     def test_overview_lists_latest_four_working_drafts_and_total_without_foreign_or_consumed(self):
-        drafts = [ServerDraft.objects.create(actor=self.owner, target_type='place', schema_version=publication.SCHEMA_VERSION, fields={'name_az': 'Saved draft '+str(i)}) for i in range(13)]
+        drafts = self.saved_draft_sequence()
         foreign = ServerDraft.objects.create(actor=self.other, target_type='place', schema_version=publication.SCHEMA_VERSION, fields={'name_az': 'Private foreign draft'})
         consumed = self.draft(materialized_place=self.place)
         response = self.client.get(reverse('account_dashboard'))
@@ -158,7 +174,7 @@ class PlaceWorkflowReadinessTests(CandidateMediaFixture, TestCase):
         self.assertGreater(response.json()['readiness']['sections'][1]['error_count'],0)
 
     def test_working_drafts_are_paginated_and_stale_edit_copy_stays_visible_for_review(self):
-        drafts=[self.draft() for _ in range(13)]
+        drafts = self.saved_draft_sequence()
         request=RequestFactory().get('/ru/account/places/?draft_page=2');request.user=self.owner
         context=OwnerPlacesController.build_default().build_dashboard_context(request=request)[0]
         self.assertEqual(context['working_drafts_count'],13)

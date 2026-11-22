@@ -6,14 +6,20 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.views.decorators.http import require_POST
+from django.urls import reverse
+from django.views.decorators.http import require_GET, require_POST
 from ..controllers import owner_events_controller
 from ..controllers.owner_analytics_controller import owner_analytics_controller
 from ..forms import OwnerEventForm
-from ..models import Event, Place, Specialist
+from ..models import Event, Organization, OrganizationPlaceRequest, Place, Specialist
 from ..models import FunnelEvent
 from ..services.tracking import queue_google_analytics_event, track_event as track_funnel_event
-from ..services.features import require_events_section_enabled
+from ..services.business_team import has_action
+from ..services.features import is_events_section_enabled, require_events_section_enabled
+from ..services.organization_connections import organization_name
+from ..services.organization_ownership import join_recovery_rows
+from ..services.organization_state import current_branch_q, public_q
+from ..services.owner_place_use_cases import ensure_owner_permission, owner_card_url
 from .common import (
     _build_owner_create_draft_key,
     _redirect_to_login,
@@ -33,8 +39,6 @@ def owner_places_dashboard(request):
         messages.error(request, access.message)
         return redirect("account_profile")
 
-    from ..services.features import is_events_section_enabled
-
     owner_events = []
     if is_events_section_enabled():
         from django.db.models import Q
@@ -52,18 +56,6 @@ def owner_places_dashboard(request):
                                   person_verified_at__isnull=False)
         .prefetch_related("specializations").order_by("-updated_at")
     )
-    from catalog.models import Organization, OrganizationPlaceRequest
-    from catalog.services.business_team import has_action
-    from catalog.services.organization_ownership import affiliation_current
-    direct_places = list(Place.objects.filter(owner=request.user, deleted_at__isnull=True).order_by('pk'))
-    context['joinable_places'] = [p for p in direct_places if p.organization_id is None]
-    context['joinable_organizations'] = list(Organization.objects.filter(status='published', archived_at__isnull=True).order_by('pk')[:100])
-    context['place_affiliation_requests'] = list(OrganizationPlaceRequest.objects.filter(
-        place__owner=request.user, status='pending').select_related('place', 'organization').order_by('-pk'))
-    from catalog.services.organization_ownership import join_recovery_rows
-    join_recovery_rows(actor=request.user, items=context['place_affiliation_requests'])
-    context['affiliated_places'] = [p for p in direct_places if p.organization_id and affiliation_current(p, p.organization)]
-    context['informational_places'] = [p for p in context['affiliated_places'] if p.organization_relationship_kind == 'informational']
     context.update(
         {
             "owner_events": owner_events,
@@ -85,6 +77,48 @@ def owner_places_dashboard(request):
         }
     )
     return render(request, "pages/owner_places.html", context)
+
+@require_GET
+def owner_connections(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+    access = ensure_owner_permission(user=request.user)
+    if not access.ok:
+        messages.error(request, access.message)
+        return redirect("account_profile")
+
+    direct = Place.objects.filter(owner=request.user, deleted_at__isnull=True)
+    branches = list(direct.filter(current_branch_q()).select_related("organization").order_by("pk"))
+    org_destinations = {}
+    events_enabled = is_events_section_enabled()
+    for place in branches:
+        # These places are directly owned by the current actor.
+        place.owner_card_url = owner_card_url(place, can_edit=True, events_enabled=events_enabled)
+        org = place.organization
+        if org.pk not in org_destinations:
+            if org.is_public:
+                org_destinations[org.pk] = org.get_absolute_url()
+            elif has_action(user=request.user, target=org, action="organization.view"):
+                org_destinations[org.pk] = reverse("organization_workspace_detail", args=[org.pk])
+            else:
+                org_destinations[org.pk] = ""
+        place.organization_url = org_destinations[org.pk]
+        place.organization_label = organization_name(org) if place.organization_url else ""
+
+    pending = join_recovery_rows(actor=request.user, items=OrganizationPlaceRequest.objects.filter(
+        place__owner=request.user, status="pending").select_related("place", "organization").order_by("-pk"))
+    joinable_places = list(direct.filter(organization__isnull=True).order_by("pk"))
+    organizations = list(Organization.objects.filter(public_q()).order_by("pk")) if joinable_places else []
+    for org in organizations:
+        org.connection_label = organization_name(org)
+    return render(request, "pages/owner_connections.html", {
+        "affiliated_places": branches,
+        "place_affiliation_requests": pending,
+        "connection_count": len(branches) + len(pending),
+        "joinable_places": joinable_places,
+        "joinable_organizations": organizations,
+    })
+
 
 def owner_place_analytics(request, pk):
     if not request.user.is_authenticated:

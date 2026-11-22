@@ -105,7 +105,7 @@ class PlaceAdminLayoutMixin:
     PLACE_FORM_SECONDARY_SECTIONS = (
         {
             "id": "system",
-            "title": _("Служебное"),
+            "title": _("Дополнительно"),
             "description": _("Служебные и административные поля, которые не нужны в основном сценарии заполнения."),
             "fieldset_indexes": (7, 8),
         },

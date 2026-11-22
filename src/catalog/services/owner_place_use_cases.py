@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from django.db.models import Q
+from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from catalog.models import Place
@@ -21,6 +22,15 @@ class OwnerAccessResult:
 
 # Compatibility alias while owner-named controllers and routes still exist.
 OwnerPermissionScope = PlacePermissionScope
+
+
+def owner_card_url(place, *, can_edit, events_enabled):
+    if place.is_public and (not place.is_temporary or events_enabled):
+        return place.get_absolute_url()
+    if can_edit:
+        draft = getattr(place, "working_draft", None)
+        return draft["url"] if draft else reverse("owner_place_edit", args=[place.pk])
+    return ""
 
 
 def ensure_owner_permission(*, user) -> OwnerAccessResult:

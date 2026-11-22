@@ -3,7 +3,8 @@
   <div class="km-pf-group" data-pf-group="names">
     <div class="km-pf-group__head">
       <span class="km-pf-group__title">{% translate "Название и описание" %}</span>
-      <span class="km-pf-group__note">{% if volunteer_editor %}{{ editor_copy.translations }}{% else %}{{ km_place_entry_copy.translations_hint }}{% endif %}</span>
+      <button type="button" class="km-pf-hint" popovertarget="km-pf-hint-names" aria-label="{% translate 'Название и описание' %}: ?">?</button>
+      <div id="km-pf-hint-names" class="km-pf-hint__pop" popover>{% if volunteer_editor %}{{ editor_copy.translations }}{% else %}{{ km_place_entry_copy.translations_hint }}{% endif %}</div>
     </div>
 
     <div class="km-pf-langtabs" data-pf-langtabs role="tablist" aria-label="{% translate 'Языки карточки' %}">
@@ -51,7 +52,7 @@
     </div>
   </div>
 
-  {% if add and form.create_as_distinct_branch %}<div class="km-pf-group"><label>{{ form.create_as_distinct_branch }} {{ km_identity_copy.branch }}</label><p class="help">{{ km_identity_copy.branch_hint }}</p></div>{% endif %}
+  {% if add and form.create_as_distinct_branch %}<div class="km-pf-group km-pf-group--branch"><label>{{ form.create_as_distinct_branch }} {{ km_identity_copy.branch }}</label><button type="button" class="km-pf-hint" popovertarget="km-pf-hint-branch" aria-label="{{ km_identity_copy.branch }}: ?">?</button><div id="km-pf-hint-branch" class="km-pf-hint__pop" popover>{{ km_identity_copy.branch_hint }}</div></div>{% endif %}
   <div class="km-pf-hidden-fields" aria-hidden="true">{{ form.name }}</div>
 {% endwith %}
 
