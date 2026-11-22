@@ -765,7 +765,10 @@ class OrganizationAdmin(BusinessEditor):
             health = state_service.branch_health(obj, places=places)
             data = dict(revision.payload) if revision and revision.status in ('draft', 'pending', 'rejected') else None
             context.update({
-                'km_org_can_publish': self.can_publish(request.user) and self.has_change_permission(request, obj),
+                'km_org_can_publish': (
+                    self.can_publish(request.user) and self.has_change_permission(request, obj)
+                    and getattr(revision, 'status', None) != VolunteerPlaceRevision.Status.PENDING
+                ),
                 'km_org_state': state_service.lifecycle(obj, revision),
                 'km_org_health': health,
                 'km_org_ready': state_service.readiness(obj, data=data, health=health),
@@ -783,8 +786,13 @@ class OrganizationAdmin(BusinessEditor):
         return platform_has_action(user=user, action='place.publish')
 
     def save_model(self, request, obj, form, change):
+        publish_now = '_save_and_publish' in request.POST and self.can_publish(request.user)
+        if publish_now and change and VolunteerPlaceRevision.objects.filter(
+            organization_id=obj.pk, status=VolunteerPlaceRevision.Status.PENDING,
+        ).exists():
+            raise ValidationError(_('Ожидает решения модератора'))
         super().save_model(request, obj, form, change)
-        if '_save_and_publish' not in request.POST or not self.can_publish(request.user):
+        if not publish_now:
             return
         # One click for staff who are allowed to publish: the candidate is
         # still created and reviewed through the same service, so history and

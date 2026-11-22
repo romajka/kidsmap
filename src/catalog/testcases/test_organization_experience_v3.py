@@ -61,6 +61,17 @@ class AdminPublishFlowTests(OrganizationV2Base):
         self.assertFalse(self.org.is_public)
         self.assertEqual(VolunteerPlaceRevision.objects.get(organization=self.org).status, 'pending')
 
+    def test_one_click_publish_preserves_a_candidate_already_under_review(self):
+        self.post(_submit_candidate='1')
+        pending = VolunteerPlaceRevision.objects.get(organization=self.org)
+        response = self.post(_save_and_publish='1', description_az='Yeni redaktə')
+        self.org.refresh_from_db()
+        current = VolunteerPlaceRevision.objects.get(organization=self.org)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(self.org.is_public)
+        self.assertEqual((current.status, current.version, current.payload),
+                         ('pending', pending.version, pending.payload))
+
     def test_change_form_explains_next_step_and_has_live_preview(self):
         page = self.client.get(self.change)
         self.assertContains(page, 'km-orgc-next')
