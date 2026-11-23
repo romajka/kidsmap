@@ -16,6 +16,7 @@ from catalog.models import (
     Place,
     PlacePhoto,
     Event,
+    EventPhoto,
     Category,
     Subcategory,
     CatalogContentSettings,
@@ -523,6 +524,8 @@ class EventAdminForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        from catalog.services.event_images import clean_focus_fields
+        cleaned = clean_focus_fields(self, cleaned)
         if self.instance.pk and self.check_version:
             # ModelAdmin change POST is atomic; retain the lock through parent,
             # inline and publication writes instead of checking after save_model.
@@ -606,6 +609,8 @@ class EventAdminForm(forms.ModelForm):
             else:
                 kwargs["data"] = data
         super().__init__(*args, **kwargs)
+        from catalog.services.event_images import prepare_focus_fields
+        prepare_focus_fields(self)
         if self.instance.pk:
             self.initial['expected_updated_at'] = self.instance.updated_at.isoformat()
         from catalog.services.locations import configure_location_choices, init_location_fields
@@ -656,3 +661,22 @@ class EventAdminForm(forms.ModelForm):
         self.fields["website"].widget.attrs.setdefault("placeholder", _("Напр., https://example.com"))
         self.fields["lat"].widget.attrs.setdefault("placeholder", _("Напр., 40.409264"))
         self.fields["lng"].widget.attrs.setdefault("placeholder", _("Напр., 49.867092"))
+
+
+
+class EventPhotoInlineForm(forms.ModelForm):
+    """Gallery photo with an optional focus point (older payloads omit it)."""
+
+    class Meta:
+        model = EventPhoto
+        fields = ("image", "caption", "order", "focus_x", "focus_y")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from catalog.services.event_images import prepare_focus_fields
+        prepare_focus_fields(self, ('focus_x', 'focus_y'))
+
+    def clean(self):
+        cleaned = super().clean()
+        from catalog.services.event_images import clean_focus_fields
+        return clean_focus_fields(self, cleaned, ('focus_x', 'focus_y'))

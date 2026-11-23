@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_location.css' %}?v=1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_event_form.css' %}?v=20261026">
+  <link rel="stylesheet" href="{% static 'css/components/focus_picker.css' %}?v=20261123">
+  <script src="{% static 'js/focus_picker.js' %}?v=20261123" defer></script>
   <script src="{% static 'admin/js/kidsmap_admin_form_shell.js' %}?v=16" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
   <script src="{% static 'js/kidsmap_datetime_picker.js' %}?v=2" defer></script>
@@ -104,6 +106,11 @@
           <div class="km-event-field km-event-field--wide km-event-grid" data-event-price-values>{% include 'admin/catalog/event/field.html' with field=form.price_amount %}<div data-event-price-max>{% include 'admin/catalog/event/field.html' with field=form.price_amount_max %}</div>{% include 'admin/catalog/event/field.html' with field=form.price_currency %}</div>
           {% include 'admin/catalog/event/field.html' with field=form.price_text wide=True %}
           {% include 'admin/catalog/event/field.html' with field=form.event_format wide=True %}
+          <fieldset class="km-event-field km-event-field--wide" data-event-field="languages">
+            {{ form.languages.legend_tag }}
+            {{ form.languages }}
+            {{ form.languages.errors }}
+          </fieldset>
         </div>
         <div data-event-physical>
           {% include 'admin/catalog/event/field.html' with field=form.related_place wide=True %}

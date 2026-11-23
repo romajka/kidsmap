@@ -1917,6 +1917,8 @@ class OwnerEventForm(forms.ModelForm):
             "phone",
             "description_az",
             "photo",
+            "photo_focus_x",
+            "photo_focus_y",
             "moderation_note",
         )
         widgets = {
@@ -1950,6 +1952,8 @@ class OwnerEventForm(forms.ModelForm):
         self.user = kwargs.pop("user", None)
         self.draft_save_only = bool(kwargs.pop("draft_save_only", False))
         super().__init__(*args, **kwargs)
+        from catalog.services.event_images import prepare_focus_fields
+        prepare_focus_fields(self)
         from catalog.services.event_presentation import EVENT_UI_CONFIG
         self.event_ui_config = EVENT_UI_CONFIG
         for field in ('price_mode', 'price_currency', 'registration_method', 'price_amount', 'price_amount_max',
@@ -2071,6 +2075,8 @@ class OwnerEventForm(forms.ModelForm):
         cleaned = super().clean()
         from catalog.services.locations import clean_location_fields
         cleaned = clean_location_fields(self, cleaned)
+        from catalog.services.event_images import clean_focus_fields
+        cleaned = clean_focus_fields(self, cleaned)
         org = cleaned.get('organizer_organization')
         person = cleaned.get('organizer_specialist')
         if bool(org) == bool(person):

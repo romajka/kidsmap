@@ -10,6 +10,7 @@
 {% block extra_head %}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
   <link rel="stylesheet" href="{% static 'css/pages/owner_event.css' %}?v=20261120_lang" />
+  <link rel="stylesheet" href="{% static 'css/components/focus_picker.css' %}?v=20261123" />
 {% endblock %}
 
 {% block content %}
@@ -453,6 +454,7 @@
               </div>
               {% for error in form.photo.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
             </div>
+            {% if event and event.photo %}{% include 'includes/focus_picker.html' with src=event.photo.url x=form.photo_focus_x y=form.photo_focus_y file_input='#id_photo' %}{% else %}{% include 'includes/focus_picker.html' with x=form.photo_focus_x y=form.photo_focus_y file_input='#id_photo' %}{% endif %}
 
             <div class="km-event-notice" data-event-requirements><h3>{% trans "Перед отправкой" %}</h3><p>{% trans "Список заполненных полей не заменяет серверную проверку значений и прав." %}</p><ul data-event-missing></ul></div>
             <!-- Live Event Preview Card -->
@@ -533,6 +535,7 @@
   <script src="{% static 'js/kidsmap_datetime_picker.js' %}"></script>
   <script src="{% static 'js/temporary_event_timer.js' %}"></script>
   <script src="{% static 'js/owner_event_form.js' %}?v=20261026event1" defer></script>
+  <script src="{% static 'js/focus_picker.js' %}?v=20261123" defer></script>
   <script src="{% static 'js/owner_event_recovery.js' %}?v=20261026event1" defer></script>
   <script src="{% static 'js/owner_place_map_picker.js' %}"></script>
   {% if google_maps_api_key %}
