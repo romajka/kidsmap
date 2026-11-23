@@ -1564,7 +1564,7 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   .km-ev-card:hover { transform: translateY(-3px); }
   .km-ev-card:hover .km-ev-card__media img { transform: scale(1.1); transition: transform 6s var(--ev-poster-ease); }
 }
-.km-ev-card__rowdate, .km-ev-card__foot, .km-timer__short { display: none; }
+.km-ev-card__rowdate, .km-ev-card__foot, .km-timer__short, .km-timer__ring { display: none; }
 
 /* showtimes of one show on one day */
 .km-ev-card__times { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 0; padding: 0; list-style: none; }
@@ -1633,7 +1633,23 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   .km-ev-card .km-timer__label { gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0; text-transform: none; white-space: nowrap; }
   .km-ev-card .km-timer__label [data-km-timer-label] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .km-ev-card .km-timer__short { display: inline; }
-  .km-ev-card .km-timer__pulse { width: 7px; height: 7px; }
+  /* seconds ring around a clock hand: fills once a minute, colour follows the state */
+  .km-ev-card .km-timer__pulse { display: none; }
+  .km-ev-card .km-timer__ring { display: block; width: 18px; height: 18px; flex: none; overflow: visible; }
+  .km-timer__ring circle { fill: none; stroke-width: 2.5; }
+  .km-timer__ring-track { stroke: color-mix(in srgb, var(--t-accent) 20%, transparent); }
+  .km-timer__ring-bar {
+    stroke: var(--t-accent); stroke-linecap: round; stroke-dasharray: 100;
+    stroke-dashoffset: calc((1 - var(--km-sec, 0)) * 100);
+    transform: rotate(-90deg); transform-origin: 50% 50%;
+    transition: stroke-dashoffset .95s linear, stroke .3s;
+  }
+  .km-timer.is-wrap .km-timer__ring-bar, .km-timer.is-wrap .km-timer__seg[data-unit="s"]::before { transition: none; }
+  .km-timer__ring-hand { fill: none; stroke: var(--t-accent); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transform-origin: 10px 10px; }
+  .km-timer[data-state="running"] .km-timer__ring-hand { animation: km-hand 4s linear infinite; }
+  @keyframes km-hand { to { transform: rotate(360deg); } }
+  .km-ev-card .km-timer.is-urgent { animation: km-pill-beat 1s ease-in-out infinite; }
+  @keyframes km-pill-beat { 50% { transform: scale(1.05); } }
   .km-ev-card .km-timer__clock { gap: 0; align-items: baseline; }
   .km-ev-card .km-timer__seg,
   .km-ev-card.km-ev-card .km-timer.is-urgent .km-timer__seg {
@@ -1643,9 +1659,9 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   .km-ev-card .km-timer__seg::before { display: none; }
   .km-ev-card .km-timer::before, .km-ev-card .km-timer::after { display: none; }
   .km-ev-card .km-timer__num,
-  .km-ev-card--compact .km-timer__num { font-size: 13px; font-weight: 800; color: var(--t-accent); }
+  .km-ev-card--compact .km-timer__num { font-size: 13px; font-weight: 800; color: var(--ev-ink); }
   .km-ev-card .km-timer__unit { margin: 0 6px 0 0; font-size: 11px; font-weight: 700; color: var(--ev-muted); text-transform: none; }
-  .km-ev-card .km-timer__colon { margin: 0 1px; font-size: 13px; animation: none; color: var(--t-accent); opacity: .7; }
+  .km-ev-card .km-timer__colon { margin: 0 1px; font-size: 13px; animation: none; color: var(--ev-ink); opacity: .55; }
   /* more than a day: "68 дн 06 ч" — days and hours only */
   .km-ev-card .km-timer__seg[data-unit="d"]:not(.is-zero) ~ .km-timer__seg:is([data-unit="m"], [data-unit="s"]),
   .km-ev-card .km-timer__seg[data-unit="d"]:not(.is-zero) ~ .km-timer__colon { display: none; }
@@ -1711,6 +1727,8 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .km-timer__ring-bar { transition: none; }
+  .km-timer__ring-hand, .km-ev-card .km-timer.is-urgent { animation: none !important; }
   .km-ev-card .km-ev-card__media img, .km-ev-card:hover .km-ev-card__media img { transform: none !important; transition: none !important; }
   .km-ev-card:hover { transform: none; }
 }

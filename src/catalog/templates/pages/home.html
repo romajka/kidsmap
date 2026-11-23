@@ -22,7 +22,7 @@
 <link rel="stylesheet" href="{% static 'css/pages/home_refresh.css' %}?v=20261119_stage1" />
 <link rel="stylesheet" href="{% static 'css/pages/home_hero_stage.css' %}?v=20261119_stage6" />
 <script defer src="{% static 'js/mappy.js' %}?v=20261119_specialists"></script>
-{% if upcoming_events or home_map_events or map_places %}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_pill" />{% endif %}
+{% if upcoming_events or home_map_events or map_places %}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_ring" />{% endif %}
 {% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
@@ -560,7 +560,7 @@
 {% block extra_body %}
 {% if hero_topics %}<script src="{% static 'js/home_hero_rotator.js' %}?v=20261119_stage2" defer></script>{% endif %}
 {% if home_rail_places %}<script src="{% static 'js/home_places_rail.js' %}?v=20261119_manual" defer></script>{% endif %}
-{% if upcoming_events or home_map_events %}<script src="{% static 'js/event_timer.js' %}?v=20261123_pill" defer></script>{% endif %}
+{% if upcoming_events or home_map_events %}<script src="{% static 'js/event_timer.js' %}?v=20261123_ring" defer></script>{% endif %}
 {% if upcoming_events %}<script src="{% static 'js/home_afisha.js' %}?v=20261120_r3" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endif %}
 {% if map_places %}<script src="{% static 'js/map_event_layer.js' %}?v=20261120_r2" defer></script>{% endif %}
 {% if hero_gallery_slides|length > 1 %}

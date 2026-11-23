@@ -6,7 +6,7 @@
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block structured_data %}<script type="application/ld+json">{{ event_schema_json|safe }}</script>{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261123_posters"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_pill">{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261123_posters"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_ring">{% endblock %}
 
 {% block content %}
 <article class="event-detail-page">
@@ -112,4 +112,4 @@
 </article>
 {% include 'catalog/includes/event_suggest_dialog.html' %}
 {% endblock %}
-{% block extra_body %}<script src="{% static 'js/event_detail_registration.js' %}?v=20261123_posters" defer></script><script src="{% static 'js/event_media.js' %}?v=20261123" defer></script><script src="{% static 'js/event_timer.js' %}?v=20261123_pill" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endblock %}
+{% block extra_body %}<script src="{% static 'js/event_detail_registration.js' %}?v=20261123_posters" defer></script><script src="{% static 'js/event_media.js' %}?v=20261123" defer></script><script src="{% static 'js/event_timer.js' %}?v=20261123_ring" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endblock %}
