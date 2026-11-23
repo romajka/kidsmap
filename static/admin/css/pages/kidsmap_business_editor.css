@@ -1,0 +1,199 @@
+.km-business-panel {
+  width: 100%;
+  margin: 0 0 16px;
+  padding: clamp(16px, 2.4vw, 24px);
+  border: 1px solid var(--km-admin-border);
+  border-radius: var(--km-admin-radius-md);
+  background: var(--km-admin-surface);
+}
+
+.km-business-panel h2 {
+  margin: 0 0 14px;
+  color: var(--km-admin-text);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.km-business-links-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+#content-main .km-business-panel .km-pf-btn,
+#content-main .submit-row button:is([name="_save_draft"], [name="_submit_candidate"]) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 9px 16px;
+  border: 1px solid var(--km-admin-button-border);
+  border-radius: var(--km-admin-radius-md);
+  background: var(--km-admin-surface);
+  color: var(--km-admin-text);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  white-space: normal;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#content-main .km-business-panel .km-pf-btn:hover,
+#content-main .submit-row button:is([name="_save_draft"], [name="_submit_candidate"]):hover {
+  background: var(--km-admin-accent-soft);
+  color: var(--km-admin-accent);
+  border-color: var(--km-admin-accent);
+}
+
+#content-main .km-business-panel .km-pf-btn--primary,
+#content-main .submit-row button[name="_submit_candidate"] {
+  background: var(--km-admin-accent);
+  border-color: var(--km-admin-accent);
+  color: var(--km-admin-surface);
+}
+
+#content-main .km-business-panel .km-pf-btn--primary:hover,
+#content-main .submit-row button[name="_submit_candidate"]:hover {
+  background: var(--km-admin-link);
+  color: var(--km-admin-surface);
+  text-decoration: underline;
+}
+
+#content-main .km-business-panel .km-pf-btn:focus-visible,
+#content-main .submit-row button:is([name="_save_draft"], [name="_submit_candidate"]):focus-visible {
+  outline: 3px solid var(--km-admin-focus-ring);
+  outline-offset: 2px;
+}
+
+.km-business-panel .table {
+  width: 100%;
+  table-layout: fixed;
+  margin: 0;
+  border: 1px solid var(--km-admin-border);
+}
+
+.km-business-panel .table th,
+.km-business-panel .table td {
+  padding: 10px 12px;
+  border-color: var(--km-admin-border);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+
+.km-business-panel .table thead th {
+  background: var(--km-admin-panel-bg-soft);
+}
+
+.km-business-panel input[type="email"] {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  min-height: 44px;
+  margin: 4px 0 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--km-admin-input-border);
+  border-radius: var(--km-admin-radius-md);
+}
+
+#organization_form .submit-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 575px) {
+  .km-business-panel .table th,
+  .km-business-panel .table td {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  #organization_form .submit-row button {
+    flex: 1 1 100%;
+  }
+}
+
+#organization_form > .row > :is(.col-lg-9, .col-lg-3) {
+  flex: 0 0 100%;
+  max-width: 100%;
+  padding-inline: 0;
+}
+
+#organization_form #jazzy-actions:has(.submit-row) {
+  padding: 12px 16px;
+  border: 1px solid var(--km-admin-border);
+  border-radius: var(--km-admin-radius-md);
+  background: var(--km-admin-surface);
+}
+
+#organization_form #jazzy-actions:not(:has(.submit-row)) {
+  display: none;
+}
+
+#organization_form #jazzy-actions .submit-row {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.km-organization-title {
+  display: block;
+  margin-inline: 32px 0;
+  padding-block: 6px;
+  color: var(--km-admin-text);
+  font-size: 1.15rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.km-business-comparison-label {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .km-business-panel .km-business-comparison,
+  .km-business-comparison tbody {
+    display: block;
+    border: 0;
+  }
+
+  .km-business-comparison thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .km-business-comparison tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border: 1px solid var(--km-admin-border);
+    border-radius: var(--km-admin-radius-md);
+  }
+
+  .km-business-comparison tbody tr + tr {
+    margin-top: 8px;
+  }
+
+  .km-business-panel .km-business-comparison tbody th {
+    grid-column: 1 / -1;
+    border-top: 0;
+    border-radius: var(--km-admin-radius-md) var(--km-admin-radius-md) 0 0;
+    background: var(--km-admin-panel-bg-soft);
+  }
+
+  .km-business-comparison-label {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--km-admin-text-muted);
+    font-weight: 600;
+  }
+}

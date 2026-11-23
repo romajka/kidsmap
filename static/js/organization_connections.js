@@ -5,6 +5,8 @@
     const count = selection.querySelectorAll('input[name="place_ids"]:checked,input[type="hidden"][name="place_ids"]').length;
     selection.querySelector('[data-selection-count]').textContent = count;
     selection.querySelector('[data-preview]').disabled = count === 0 || count > 100;
+    const clear = selection.querySelector('[data-clear-selection]');
+    if (clear) clear.hidden = count === 0;
   };
   if (selection) { selection.addEventListener('change', refresh); refresh(); }
   const form = document.querySelector('[data-confirm-form]');

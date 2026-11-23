@@ -114,6 +114,9 @@
             <span class="km-orgc-metric{% if km_org_health.stale_count %} km-orgc-metric--warn{% endif %}"><b>{{ km_org_health.stale_count }}</b>{% translate 'ждут подтверждения' %}</span>
             <span class="km-orgc-metric"><b>{{ km_org_health.pending_requests }}</b>{% translate 'заявки' %}</span>
           </div>
+          {% if km_business_connect_places_url %}
+          <p><a class="km-orgc-btn km-orgc-btn--primary" href="{{ km_business_connect_places_url }}">{% translate 'Подключить существующие места' %}</a></p>
+          {% endif %}
           {% if km_org_health.total %}
           <table class="km-orgc-table">
             <thead><tr><th>{% translate 'Место' %}</th><th>{% translate 'Связь' %}</th><th></th></tr></thead>

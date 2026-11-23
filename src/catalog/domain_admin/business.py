@@ -16,7 +16,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from catalog.models import Activity, OfferingGroup, Organization, Program, VolunteerPlaceRevision
+from catalog.models import Activity, OfferingGroup, Organization, Place, Program, VolunteerPlaceRevision
 from catalog.services import publication
 from catalog.services.staff_roles import is_volunteer
 
@@ -495,12 +495,21 @@ class BusinessEditor(admin.ModelAdmin):
         context['km_business_kind'] = self.publication_kind
         context['km_business_object'] = obj
         if obj:
+            from catalog.services.business_team import platform_has_action
+
             context['km_business_revision'] = VolunteerPlaceRevision.objects.filter(**{self.publication_kind: obj}).first()
             revision = context['km_business_revision']
+            can_review = not obj.archived_at and platform_has_action(user=request.user, action='place.publish')
+            context['km_business_can_approve'] = can_review and revision is not None and revision.status == 'pending'
+            context['km_business_can_unpublish'] = (
+                can_review and not isinstance(obj, OfferingGroup) and obj.status == 'published'
+                and (not isinstance(obj, Organization) or obj.approved_at is not None)
+                and (revision is None or revision.status not in {'draft', 'pending'})
+            )
             if revision and revision.status in {'draft', 'pending', 'rejected'}:
                 current = publication.snapshot(obj, self.publication_kind)
                 context['km_business_changes'] = [
-                    {'label': obj._meta.get_field(name).verbose_name,
+                    {'label': self.form.base_fields[name].label or obj._meta.get_field(name).verbose_name,
                      'current': current.get(name), 'candidate': revision.payload[name]}
                     for name in revision.changed_fields
                     if name in revision.payload and name in self.form._meta.fields
@@ -508,6 +517,14 @@ class BusinessEditor(admin.ModelAdmin):
             context['km_business_transition_url'] = reverse(f'admin:{self.opts.app_label}_{self.opts.model_name}_transition', args=[obj.pk])
             from .navigation import business_navigation
             context['km_business_links'] = business_navigation(request, obj)
+            if isinstance(obj, Organization):
+                from catalog.services.organization_connections import organization_name
+
+                context['km_business_organization_name'] = organization_name(obj)
+                place_admin = self.admin_site._registry.get(Place)
+                if not obj.archived_at and place_admin and place_admin.has_connection_permission(request):
+                    context['km_business_connect_places_url'] = reverse('admin:catalog_place_organization_connections',
+                        query={'organization_id': obj.pk})
             context['km_business_can_add_group'] = any('offeringgroup/add/' in url for _label, url in context['km_business_links'])
             context['km_business_can_invite'] = isinstance(obj, Organization) and obj.owner_id == request.user.pk
             if isinstance(obj, Activity):
@@ -630,6 +647,9 @@ class OrganizationAdmin(BusinessEditor):
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('owner', 'content_revision')
 
+    def get_fields(self, request, obj=None):
+        return [field for field in super().get_fields(request, obj) if field not in ('data_version', 'archived_since')]
+
     # ── Changelist: one row tells a non-technical editor what it is and what to do.
     def _row_state(self, obj):
         from catalog.services.organization_state import lifecycle
@@ -736,7 +756,9 @@ class OrganizationAdmin(BusinessEditor):
     @admin.display(description=_('Публикация и изменения'))
     def publication_badge(self, obj):
         from catalog.services.organization_state import lifecycle
-        published = obj.status == 'published' and obj.approved_at and not obj.archived_at
+        if obj.archived_at:
+            return format_html('<span class="km-status-badge km-status-draft">{}</span>', _('Архивная'))
+        published = obj.status == 'published' and obj.approved_at
         status = 'published' if published else 'draft'
         label = _('Опубликовано') if published else _('Не опубликовано')
         badge = format_html('<span class="km-status-badge km-status-{}">{}</span>', status, label)
