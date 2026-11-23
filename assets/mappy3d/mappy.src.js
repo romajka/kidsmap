@@ -8,6 +8,7 @@ import {
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { advanceSpring } from './spring.mjs';
 import { bindPressGesture } from './press-gesture.mjs';
 
 // facial presets: morph target name -> weight (".L"/".R" suffix = one side only)
@@ -91,7 +92,9 @@ export function mountMappy(el, opts = {}) {
     return ctl;
   }
   const nativeButton = el.tagName === 'BUTTON';
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  // Weak phones (few cores or little memory) get a slightly lower pixel ratio and frame rate; the look is the same.
+  const lowEnd = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, lowEnd ? 1.5 : 2));
   renderer.outputColorSpace = SRGBColorSpace; renderer.toneMapping = NeutralToneMapping; renderer.toneMappingExposure = 1.05;
   const canvas = renderer.domElement;
   // bleed: how far the canvas reaches past the box (fractions of the box), so hops and raised paws are not cut off
@@ -374,12 +377,31 @@ export function mountMappy(el, opts = {}) {
   // ------------------------------------------------------------ per frame
   const clock = new Clock(); const qTmp = new Quaternion(), eTmp = new Euler(), tmpV = new Vector3(); const ear = { v: 0, vel: 0, px: 0, py: 0 };
   function startLoop() {
-    if (ctl.ready && visible && !document.hidden && !manual && !raf) raf = requestAnimationFrame(loop);
+    if (ctl.ready && visible && !document.hidden && !manual && !raf) {
+      clock.start();
+      pending = 0;
+      raf = requestAnimationFrame(loop);
+    }
+  }
+  // Frame budget. He is drawn at full rate only while something moves: the pointer, a press, a reaction clip,
+  // a blink or a changing face. Standing idle (breathing) or asleep he is drawn less often, which looks the same
+  // but leaves the phone's processor free for scrolling and the rest of the page.
+  const touchFirst = matchMedia('(pointer: coarse)').matches;   // phones and tablets: no cursor for him to follow
+  const FPS = lowEnd ? { active: 30, calm: 10, sleep: 6 } : touchFirst ? { active: 60, calm: 12, sleep: 8 } : { active: 60, calm: 24, sleep: 10 };
+  let pending = 0;
+  function targetFps() {
+    if (press.on || Math.abs(press.v) > 0.002 || Math.abs(press.vel) > 0.01) return FPS.active;
+    if (sleeping) return FPS.sleep;
+    if (!mixer || current !== actions.idle || blinkT >= 0 || exprUntil || time - lastInput < 2.5) return FPS.active;
+    return reduced ? FPS.sleep : FPS.calm;
   }
   function loop() {
-    if (!visible || document.hidden) { raf = 0; return; }
+    if (!visible || document.hidden) { raf = 0; pending = 0; return; }
     raf = requestAnimationFrame(loop);
-    update(Math.min(clock.getDelta(), 1 / 20));
+    pending += clock.getDelta();
+    if (pending < 1 / targetFps() - 0.004) return;   // skip this screen refresh: nothing to draw yet
+    update(Math.min(pending, 0.2));
+    pending = 0;
   }
   function update(dt) {
     if (!mixer) return;
@@ -401,7 +423,7 @@ export function mountMappy(el, opts = {}) {
     addLook(bones.head, 0.55, 0.32); addLook(bones.eyeL, 0.22, 0.18); addLook(bones.eyeR, 0.22, 0.18);
     if (bones.spine && free) { saved.push([bones.spine, bones.spine.quaternion.clone()]); eTmp.set(0, look.x * 0.1, -look.x * 0.03, 'YXZ'); bones.spine.quaternion.multiply(qTmp.setFromEuler(eTmp)); }
     // press spring (underdamped, so release bounces)
-    if (dt > 0) { const acc = ((press.on ? 1 : 0) - press.v) * 520 - press.vel * 17; press.vel += acc * dt; press.v += press.vel * dt; }
+    advanceSpring(press, press.on ? 1 : 0, 520, 17, dt);
     const savedScale = [];
     if (Math.abs(press.v) > 0.002 || Math.abs(press.vel) > 0.01) {
       const headish = press.zone === 'head' || press.zone === 'ear' || press.zone === 'nose';
@@ -412,8 +434,8 @@ export function mountMappy(el, opts = {}) {
     // ears lag behind head turns and hops
     if (dt > 0) {
       const drive = MathUtils.clamp((look.x - ear.px) / dt * -0.12 - (Math.abs(bones.root?.position.z ?? 0) - ear.py) / dt * 0.25, -0.6, 0.6);
-      ear.px = look.x; ear.py = bones.root?.position.y ?? 0;
-      const acc = (drive - ear.v) * 160 - ear.vel * 9; ear.vel += acc * dt; ear.v += ear.vel * dt;
+      ear.px = look.x; ear.py = Math.abs(bones.root?.position.z ?? 0);
+      advanceSpring(ear, drive, 160, 9, dt);
     }
     for (const [n, sgn] of [['earL', 1], ['earR', 1]]) if (bones[n]) { saved.push([bones[n], bones[n].quaternion.clone()]); eTmp.set(Math.abs(ear.v) * 0.2, 0, ear.v * sgn, 'YXZ'); bones[n].quaternion.multiply(qTmp.setFromEuler(eTmp)); }
     if (bones.root) shadow.scale.setScalar(1 / (1 + Math.abs(bones.root.position.z) * 1.2));
