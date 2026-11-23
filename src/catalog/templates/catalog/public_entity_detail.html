@@ -4,11 +4,48 @@
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block structured_data %}<script type="application/ld+json">{{ entity_schema_json|safe }}</script>{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=20261120_audit">{% if presentation.kind == "organization" %}<link rel="stylesheet" href="{% static 'css/pages/organization_public_v2.css' %}?v=20261122_org_v3"><link rel="stylesheet" href="{% static 'css/pages/organization_public_v3.css' %}?v=20261122_org_v3"><script src="{% static 'js/organization_public.js' %}?v=20261122_org_v3" defer></script>{% endif %}{% endblock %}
+{% block robots_meta %}{% if organization_preview %}noindex,nofollow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block googlebot_meta %}{% if organization_preview %}noindex,nofollow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block structured_data %}{% if not organization_preview %}<script type="application/ld+json">{{ entity_schema_json|safe }}</script>{% endif %}{% endblock %}
+{% block extra_head %}{% if organization_preview %}
+<link rel="stylesheet" href="{% static 'css/pages/place_site_preview.css' %}?v=1">
+<script src="{% static 'js/organization_site_preview.js' %}?v=1" defer></script>
+{% endif %}<link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=20261120_audit">{% if presentation.kind == "organization" %}<link rel="stylesheet" href="{% static 'css/pages/organization_public_v2.css' %}?v=20261123_org_editor"><link rel="stylesheet" href="{% static 'css/pages/organization_public_v3.css' %}?v=20261123_org_editor"><script src="{% static 'js/organization_public.js' %}?v=20261123_org_editor" defer></script>{% endif %}{% endblock %}
 {% block content %}
 {% get_current_language as language %}
 {% if presentation.kind == "organization" %}
+{% if organization_preview %}
+  <aside class="site-preview-bar" aria-label="{% translate 'Предпросмотр организации' %}">
+    <div>
+      <strong>{% translate 'Предпросмотр организации' %}</strong>
+      <span>{% if organization_preview_submitted %}{% translate 'Текущие данные формы' %}{% else %}{% translate 'Сохранённые данные' %}{% endif %}</span>
+      <p>{% translate 'Предпросмотр доступен только сотрудникам. Данные формы сохраняются в редакторе.' %}</p>
+    </div>
+    {% if organization_preview_languages %}
+      <nav aria-label="{% translate 'Язык содержимого' %}">
+        {% for code, url in organization_preview_languages %}
+          <a href="{{ url }}"{% if code == language %} aria-current="page"{% endif %}>{{ code|upper }}</a>
+        {% endfor %}
+      </nav>
+    {% endif %}
+    {% if organization_preview_submitted %}
+      <a class="site-preview-return" href="{{ organization_preview_editor }}" data-organization-preview-close>{% translate 'Вернуться к форме' %}</a>
+    {% else %}
+      <a class="site-preview-return" href="{{ organization_preview_editor }}">{% translate 'Открыть карточку в админке' %}</a>
+    {% endif %}
+    {% if organization_preview_form.errors %}
+      <div class="site-preview-warning" role="status">
+        <strong>{% translate 'Проверьте поля в редакторе' %}</strong>
+        {{ organization_preview_form.non_field_errors }}
+        <ul>
+          {% for field in organization_preview_form %}
+            {% if field.errors %}<li>{{ field.label }}{{ field.errors }}</li>{% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </aside>
+{% endif %}
 <article class="public-entity public-entity--organization" data-public-kind="organization">
   <div class="public-back-nav">
     <a class="public-back-link" href="{% url 'organization_list' %}">
@@ -54,7 +91,7 @@
         <!-- Single Unique H1 Title -->
         <h1 class="public-org-title" lang="{{ presentation.name_language }}">{{ presentation.name }}</h1>
         <ul class="public-org-facts" aria-label="{% if language == 'ru' %}Коротко о сети{% elif language == 'en' %}At a glance{% else %}Qısaca{% endif %}">
-          <li class="public-org-fact public-org-fact--verified" title="{% if language == 'ru' %}Профиль проверен модератором KidsMap{% elif language == 'en' %}Profile reviewed by a KidsMap moderator{% else %}Profil KidsMap moderatoru tərəfindən yoxlanılıb{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">verified</span>{% if language == 'ru' %}Проверено KidsMap{% elif language == 'en' %}Reviewed by KidsMap{% else %}KidsMap yoxlayıb{% endif %}</li>
+          {% if not organization_preview or organization_reviewed %}<li class="public-org-fact public-org-fact--verified" title="{% if language == 'ru' %}Профиль проверен модератором KidsMap{% elif language == 'en' %}Profile reviewed by a KidsMap moderator{% else %}Profil KidsMap moderatoru tərəfindən yoxlanılıb{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">verified</span>{% if language == 'ru' %}Проверено KidsMap{% elif language == 'en' %}Reviewed by KidsMap{% else %}KidsMap yoxlayıb{% endif %}</li>{% endif %}
           {% if districts_count %}<li class="public-org-fact"><span class="material-symbols-rounded" aria-hidden="true">map</span>{{ districts_count }} {% if language == 'ru' %}{% if districts_count == 1 %}район{% elif districts_count < 5 %}района{% else %}районов{% endif %}{% elif language == 'en' %}district{{ districts_count|pluralize }}{% else %}rayon{% endif %}</li>{% endif %}
           {% if programs %}<li class="public-org-fact"><span class="material-symbols-rounded" aria-hidden="true">school</span>{{ programs|length }} {% if language == 'ru' %}{% if programs|length == 1 %}программа{% elif programs|length < 5 %}программы{% else %}программ{% endif %}{% elif language == 'en' %}program{{ programs|length|pluralize }}{% else %}proqram{% endif %}</li>{% endif %}
           {% if org_address %}<li class="public-org-fact"><span class="material-symbols-rounded" aria-hidden="true">apartment</span>{{ org_address }}</li>{% endif %}
@@ -77,6 +114,7 @@
         {% endif %}
 
         <!-- Actions Row (Prioritized on Mobile) -->
+        {% if branches_count or presentation.contacts.website_url or presentation.contacts.whatsapp_url or org_social %}
         <div class="public-org-actions-bar">
           <div class="public-actions public-actions--row">
             {% if branches_count > 0 %}
@@ -106,6 +144,8 @@
           </div>
         </div>
 
+        {% endif %}
+
         <!-- Description (Expandable, shown below actions on mobile) -->
         {% if presentation.description %}
           <div class="public-prose-expandable">
@@ -126,9 +166,15 @@
   </div>
 
   {% if presentation.kind == 'organization' %}
-  <div class="orgv-mbar" data-orgv-mbar aria-hidden="true">
-    <a class="orgv-mbar__main" href="#branches" tabindex="-1"><span class="material-symbols-rounded" aria-hidden="true">storefront</span>{% if language == 'ru' %}Выбрать филиал{% elif language == 'en' %}Choose a branch{% else %}Filial seç{% endif %}{% if branches_count %} · {{ branches_count }}{% endif %}</a>
-    {% if presentation.contacts.whatsapp_url %}<a class="orgv-mbar__wa" href="{{ presentation.contacts.whatsapp_url }}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-label="WhatsApp"><span class="material-symbols-rounded" aria-hidden="true">chat</span></a>{% endif %}
+  <div class="orgv-mbar" data-orgv-mbar aria-hidden="true"{% if not branches_count and not presentation.contacts.whatsapp_url %} hidden{% endif %}>
+    {% if branches_count %}
+      <a class="orgv-mbar__main" href="#branches" tabindex="-1"><span class="material-symbols-rounded" aria-hidden="true">storefront</span>{% if language == 'ru' %}Выбрать филиал{% elif language == 'en' %}Choose a branch{% else %}Filial seç{% endif %} · {{ branches_count }}</a>
+    {% endif %}
+    {% if presentation.contacts.whatsapp_url %}
+      <a class="{% if branches_count %}orgv-mbar__wa{% else %}orgv-mbar__main{% endif %}" href="{{ presentation.contacts.whatsapp_url }}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-label="WhatsApp">
+        <span class="material-symbols-rounded" aria-hidden="true">chat</span>{% if not branches_count %}WhatsApp{% endif %}
+      </a>
+    {% endif %}
   </div>
   {% endif %}
   {% if presentation.kind == 'organization' %}
@@ -136,7 +182,7 @@
     <div class="orgv-stat" style="--i:0"><span class="material-symbols-rounded" aria-hidden="true">storefront</span><strong data-orgv-count="{{ branches_count|default:0 }}">{{ branches_count|default:0 }}</strong><small>{% if language == 'ru' %}филиалов{% elif language == 'en' %}branches{% else %}filial{% endif %}</small></div>
     <div class="orgv-stat" style="--i:1"><span class="material-symbols-rounded" aria-hidden="true">map</span><strong data-orgv-count="{{ districts_count|default:0 }}">{{ districts_count|default:0 }}</strong><small>{% if language == 'ru' %}районов Баку{% elif language == 'en' %}districts{% else %}rayon{% endif %}</small></div>
 {% if activities_filter %}    <div class="orgv-stat" style="--i:2"><span class="material-symbols-rounded" aria-hidden="true">interests</span><strong data-orgv-count="{{ activities_filter|length }}">{{ activities_filter|length }}</strong><small>{% if language == 'ru' %}направлений{% elif language == 'en' %}activities{% else %}istiqamət{% endif %}</small></div>{% elif programs %}<div class="orgv-stat" style="--i:2"><span class="material-symbols-rounded" aria-hidden="true">school</span><strong data-orgv-count="{{ programs|length }}">{{ programs|length }}</strong><small>{% if language == 'ru' %}программ{% elif language == 'en' %}programs{% else %}proqram{% endif %}</small></div>{% endif %}
-    <div class="orgv-stat orgv-stat--rating" style="--i:3">{% if org_rating.count %}<span class="material-symbols-rounded" aria-hidden="true">star</span><strong>{{ org_rating.avg|floatformat:1 }}</strong><small>{{ org_rating.count }} {% if language == 'ru' %}отзывов{% elif language == 'en' %}reviews{% else %}rəy{% endif %}</small>{% else %}<span class="material-symbols-rounded" aria-hidden="true">verified</span><strong class="orgv-stat__word">KidsMap</strong><small>{% if language == 'ru' %}профиль проверен{% elif language == 'en' %}profile reviewed{% else %}profil yoxlanılıb{% endif %}</small>{% endif %}</div>
+    {% if org_rating.count or not organization_preview or organization_reviewed %}<div class="orgv-stat orgv-stat--rating" style="--i:3">{% if org_rating.count %}<span class="material-symbols-rounded" aria-hidden="true">star</span><strong>{{ org_rating.avg|floatformat:1 }}</strong><small>{{ org_rating.count }} {% if language == 'ru' %}отзывов{% elif language == 'en' %}reviews{% else %}rəy{% endif %}</small>{% else %}<span class="material-symbols-rounded" aria-hidden="true">verified</span><strong class="orgv-stat__word">KidsMap</strong><small>{% if language == 'ru' %}профиль проверен{% elif language == 'en' %}profile reviewed{% else %}profil yoxlanılıb{% endif %}</small>{% endif %}</div>{% endif %}
   </section>
   {% if org_directions %}
   <section class="orgv-directions" aria-labelledby="orgv-directions-title" data-orgv-reveal>

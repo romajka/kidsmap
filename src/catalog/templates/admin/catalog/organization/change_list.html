@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=20261028_search_adapt_r1">
-  <link rel="stylesheet" href="{% static 'admin/css/pages/organization_admin.css' %}?v=20261122_org_v4">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/organization_admin.css' %}?v=20261123_preview3">
   <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=20261026_org_flow_v1" defer></script>
 {% endblock %}
 
@@ -32,7 +32,7 @@
           <h1 class="place-admin-dashboard__title">{% translate "Организации и сети" %}</h1>
           <p class="place-admin-dashboard__subtitle">
             {% blocktranslate trimmed %}
-              Управляйте организациями, сетевыми структурами, филиалами и привязками.
+              Карточки организаций и их филиалы
             {% endblocktranslate %}
           </p>
         </div>
@@ -47,10 +47,9 @@
 
       {% if km_org_counts and not km_org_counts.published and km_org_counts.total %}
       <div class="km-orgl-hint" role="status">
-        <span class="km-orgl-hint__icon" aria-hidden="true">💡</span>
         <div>
           <strong>{% translate 'На сайте пока ни одной организации' %}</strong>
-          <p>{% translate 'Все организации ниже — черновики или ждут проверки, поэтому родители их не видят. Нажмите «Проверить и опубликовать» в строке, проверьте поля и нажмите «Сохранить и опубликовать». Заявки владельцев — кнопка «Решить заявку».' %}</p>
+          <p>{% translate 'Откройте предпросмотр любой карточки, чтобы проверить её вид перед публикацией.' %}</p>
         </div>
       </div>
       {% endif %}

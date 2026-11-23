@@ -230,6 +230,7 @@
 
 /* ── Mobile action bar: appears once the hero leaves the screen ─────────── */
 .orgv-mbar { display: none; }
+.orgv-mbar[hidden] { display: none; }
 @media (max-width: 760px) {
   .orgv-mbar {
     position: fixed;

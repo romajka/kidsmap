@@ -140,7 +140,7 @@
     <script src="{% static 'js/header.js' %}?v=20261119_lang_pc" defer></script>
     <script src="{% static 'js/motion.js' %}?v=20261105_polish_r1"></script>
   </head>
-  <body id="top" class="{% if site_preview %}page-place_detail{% elif request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
+  <body id="top" class="{% if site_preview %}{{ site_preview_page_class|default:'page-place_detail' }}{% elif request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
     {% if site_preview %}data-site-preview="true"{% endif %}
     data-analytics-page-type="{{ analytics_page_type }}"
     data-page-language="{{ current_lang_code }}">

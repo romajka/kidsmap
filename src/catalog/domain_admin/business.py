@@ -8,13 +8,14 @@ from operator import mod
 from django import forms
 from django.contrib import admin, messages
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.urls import path, reverse
 from django.db.models import Count, Q
 from django.utils.functional import lazy
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
 from catalog.models import Activity, OfferingGroup, Organization, Place, Program, VolunteerPlaceRevision
 from catalog.services import publication
@@ -70,10 +71,21 @@ class OrganizationForm(ContactPhoneFormMixin, CandidateForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        for name in ('logo', 'cover_photo'):
+            value = self.initial.get(name)
+            if name in self.fields and isinstance(value, str):
+                model_field = self.instance._meta.get_field(name)
+                self.initial[name] = model_field.attr_class(self.instance, model_field, value)
         # View-only admin (a moderator who is not the owner) builds the form
         # without editable fields; it must still open, not crash.
         if 'name_az' in self.fields:
             self.fields['name_az'].required = True
+            self.fields['name_az'].widget.attrs['aria-required'] = 'true'
+        if self.is_bound and 'whatsapp' in self.fields:
+            checkbox = self.fields['whatsapp_same_as_phone'].widget
+            if checkbox.value_from_datadict(self.data, self.files, self.add_prefix('whatsapp_same_as_phone')):
+                self.data = self.data.copy()
+                self.data[self.add_prefix('whatsapp')] = ''
 
     def _clean_media(self, name):
         from catalog.controllers.organization_workspace import MEDIA_RULES, MEDIA_FORMATS
@@ -121,17 +133,22 @@ class OrganizationForm(ContactPhoneFormMixin, CandidateForm):
             **{f'description_{lang}':_format_label(_('Описание организации (%(language)s)'), {'language':lang.upper()}) for lang in ('az','ru','en')},
             'phone':_('Общий телефон организации'),'whatsapp':_('Общий WhatsApp организации'),'website':_('Сайт организации'),
             'address':_('Адрес головного офиса'),'logo':_('Логотип'),'cover_photo':_('Обложка')}
-        help_texts = {'phone':_('Используется в филиале, если там не указан собственный телефон.'),
+        widgets = {
+            **{f'description_{lang}': forms.Textarea(attrs={'rows': 4}) for lang in ('az', 'ru', 'en')},
+            'phone': forms.TextInput(attrs={'inputmode': 'tel'}),
+            'whatsapp': forms.TextInput(attrs={'inputmode': 'tel'}),
+        }
+        help_texts = {'phone':_('Показывается в карточках филиалов, у которых нет своего телефона.'),
             'website':_('Используется в филиале, если там не указан собственный сайт.'),
             'instagram':_('Ссылка на профиль или @имя аккаунта.'),'facebook':_('Ссылка на профиль или @имя аккаунта.'),
             'tiktok':_('Ссылка на профиль или @имя аккаунта.'),
             'logo':_('Квадрат от 120 px, JPG/PNG/WebP, до 5 МБ.'),'cover_photo':_('От 800×300 px, JPG/PNG/WebP, до 8 МБ.'),
-            'name_az':_('Как сеть называется на вывеске. Обязательно. Например: Sea Breeze Kids.'),
+            'name_az':_('Укажите название, под которым родители знают организацию.'),
             'name_ru':_('Если пусто — на русской версии сайта покажем азербайджанское название.'),
             'name_en':_('Если пусто — на английской версии сайта покажем азербайджанское название.'),
-            'description_az':_('2–4 предложения для родителей: чем занимаются дети, для какого возраста, чем сеть отличается.'),
+            'description_az':_('Расскажите, чем занимается организация и для какого возраста подходят занятия.'),
             'address':_('Адрес главного офиса. Адреса филиалов указываются в карточках мест.'),
-            'whatsapp':_('Номер для сообщений родителей. Можно отметить, что он совпадает с телефоном.')}
+            'whatsapp':_('Показывается на странице организации как кнопка WhatsApp.')}
 
 
 class ProgramForm(CandidateForm):
@@ -408,12 +425,12 @@ class BusinessEditor(admin.ModelAdmin):
 
         variants = list(dict.fromkeys([term, term.lower(), term.capitalize(), term.upper()]))
         q_filter = Q()
-        fields = ("name_az", "name_ru", "name_en", "phone", "whatsapp", "website", "owner__username", "owner__email")
+        fields = self.search_fields
         for v in variants:
             for fld in fields:
                 q_filter |= Q(**{f"{fld}__icontains": v})
 
-        queryset = Organization.objects.filter(q_filter).select_related("owner").distinct()[:8]
+        queryset = self.get_queryset(request).filter(q_filter).distinct()[:8]
 
         results = []
         for org in queryset:
@@ -424,6 +441,8 @@ class BusinessEditor(admin.ModelAdmin):
             meta_parts = []
             if org.phone:
                 meta_parts.append(str(org.phone))
+            if org.address:
+                meta_parts.append(org.address)
             if org.website:
                 meta_parts.append(str(org.website))
 
@@ -454,7 +473,7 @@ class BusinessEditor(admin.ModelAdmin):
                     "status_tone": tone,
                     "category": str(_("Организация")),
                     "district": "",
-                    "address": str(org.website or ""),
+                    "address": org.address,
                     "phone": str(org.phone or ""),
                     "owner": owner_label,
                     "change_url": change_url,
@@ -634,14 +653,23 @@ class BusinessEditor(admin.ModelAdmin):
 @admin.register(Organization)
 class OrganizationAdmin(BusinessEditor):
     change_list_template = "admin/catalog/organization/change_list.html"
-    editor_sections = (( _('Названия'), ('name_az', 'name_ru', 'name_en')), (_('Описание'), ('description_az', 'description_ru', 'description_en')), (_('Контакты'), ('phone', 'whatsapp', 'whatsapp_same_as_phone', 'website', 'address')), (_('Медиа'), ('logo', 'cover_photo')), (_('Соцсети'), ('instagram', 'facebook', 'tiktok')))
+    editor_sections = (
+        ('profile', _('Основные данные'), ('name_az', 'description_az')),
+        ('translations', _('Переводы на русский и английский'), ('name_ru', 'description_ru', 'name_en', 'description_en')),
+        ('contacts', _('Контакты'), ('phone', 'whatsapp_same_as_phone', 'whatsapp', 'website', 'address')),
+        ('media', _('Логотип и обложка'), ('logo', 'cover_photo')),
+        ('social', _('Социальные сети'), ('instagram', 'facebook', 'tiktok')),
+    )
     form = OrganizationForm
     change_form_template = 'admin/catalog/organization/change_form.html'
     structural_fields = frozenset()
-    list_display = ('org_card', 'lifecycle_badge', 'readiness_badge', 'places_count_badge', 'ownership_badge', 'display_updated_at', 'row_action')
+    list_display = ('org_card', 'lifecycle_badge', 'readiness_badge', 'places_count_badge', 'ownership_badge', 'display_updated_at')
     list_display_links = ('org_card',)
     list_filter = (OrganizationPublicationStatusFilter, OrganizationHasBranchesFilter)
-    search_fields = ('name_az', 'name_ru', 'name_en', 'phone', 'website')
+    search_fields = (
+        'name_az', 'name_ru', 'name_en', 'address', 'phone', 'whatsapp', 'website',
+        'owner__username', 'owner__email', 'owner__first_name', 'owner__last_name',
+    )
     actions = ['mark_published', 'mark_draft']
 
     def get_queryset(self, request):
@@ -685,20 +713,86 @@ class OrganizationAdmin(BusinessEditor):
                            (_('Не хватает: %(items)s') % {'items': missing}) if missing else _('Профиль заполнен'),
                            ready['percent'], ready['percent'])
 
-    @admin.display(description='')
-    def row_action(self, obj):
+    def get_list_display(self, request):
+        from catalog.services.features import is_organizations_section_enabled
+
+        site_enabled = is_organizations_section_enabled()
+
+        @admin.display(description=_('Действия'))
+        def row_action(obj):
+            return self.organization_row_actions(request, obj, site_enabled=site_enabled)
+
+        return (*self.list_display, row_action)
+
+    def get_fieldsets(self, request, obj=None):
+        sections = [
+            (title, {'fields': fields, 'classes': (key,)})
+            for key, title, fields in self.editor_sections
+        ]
+        sections[0][1]['fields'] += ('source_version', 'candidate_version')
+        if obj:
+            sections.append((_('Состояние и владение'), {
+                'fields': (*self.readonly_fields,),
+                'classes': ('status',),
+            }))
+        return sections
+
+    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+        form = context['adminform'].form
+        errors = form.errors if form.is_bound else {}
+        context['km_org_invalid_sections'] = {
+            key for key, _title, fields in self.editor_sections if errors.keys() & set(fields)
+        }
+        return super().render_change_form(request, context, add, change, form_url, obj)
+
+    def organization_row_actions(self, request, obj, *, site_enabled):
+        from django.utils.html import format_html_join
+        from catalog.services.organization_state import public_path
+
         state = self._row_state(obj)
         change = reverse('admin:catalog_organization_change', args=[obj.pk])
-        if state.review_pending:
-            return format_html('<a class="km-orgl-act km-orgl-act--primary" href="{}#km-publication">{}</a>', change, _('Решить заявку'))
-        if state.public:
-            from catalog.services.organization_state import public_path
-            return format_html('<a class="km-orgl-act" href="{}" target="_blank" rel="noopener">{} ↗</a>', public_path(obj), _('На сайте'))
-        if state.code in ('draft', 'inconsistent'):
-            return format_html('<a class="km-orgl-act km-orgl-act--go" href="{}">{}</a>', change, _('Проверить и опубликовать'))
-        if state.needs_changes:
-            return format_html('<span class="km-orgl-act km-orgl-act--muted">{}</span>', _('Ждём владельца'))
-        return format_html('<a class="km-orgl-act" href="{}">{}</a>', change, _('Открыть'))
+        can_edit = self.has_change_permission(request, obj)
+        if state.review_pending and self.can_publish(request.user):
+            main_label, change = _('Решить заявку'), change + '#km-publication'
+        else:
+            main_label = _('Редактировать') if can_edit else _('Открыть')
+        links = [(change, main_label, 'km-orgl-act', '_self')]
+        if not is_volunteer(request.user) and self.has_view_or_change_permission(request, obj):
+            preview = reverse('admin:catalog_organization_site_preview', args=[obj.pk])
+            links.append((preview, _('Предпросмотр'), 'km-orgl-act km-orgl-act--plain', '_blank'))
+        if state.public and site_enabled:
+            links.append((public_path(obj), _('На сайте'), 'km-orgl-act km-orgl-act--plain', '_blank'))
+        return format_html(
+            '<div class="km-orgl-actions">{}</div>',
+            format_html_join('', '<a href="{}" class="{}" target="{}" rel="noopener">{}</a>',
+                             ((url, css, target, label) for url, label, css, target in links)),
+        )
+
+    def get_urls(self):
+        base = super().get_urls()
+        preview = self.admin_site.admin_view(require_http_methods(['GET', 'HEAD', 'POST'])(self.site_preview))
+        return [
+            path('site-preview/', preview, name='catalog_organization_add_site_preview'),
+            path('<int:object_id>/site-preview/', preview, name='catalog_organization_site_preview'),
+        ] + base
+
+    def site_preview(self, request, object_id=None):
+        from catalog.services.organization_admin_preview import render_organization_preview
+
+        obj = self.get_object(request, str(object_id)) if object_id is not None else None
+        if object_id is not None and obj is None:
+            raise Http404
+        if is_volunteer(request.user):
+            raise PermissionDenied
+        if obj is None:
+            allowed = request.method == 'POST' and self.has_add_permission(request)
+        elif request.method == 'POST':
+            allowed = self.has_change_permission(request, obj)
+        else:
+            allowed = self.has_view_or_change_permission(request, obj)
+        if not allowed:
+            raise PermissionDenied
+        return render_organization_preview(request, obj, form_class=self.form)
 
     @admin.display(description=_('Филиалы'))
     def places_count_badge(self, obj):
@@ -781,6 +875,7 @@ class OrganizationAdmin(BusinessEditor):
         if obj is None:
             context.setdefault('title', _('Новая организация'))
             context['km_org_can_publish'] = self.can_publish(request.user)
+            context['km_org_preview_url'] = reverse('admin:catalog_organization_add_site_preview')
         else:
             revision = VolunteerPlaceRevision.objects.filter(organization=obj).first()
             places = list(Place.objects.filter(organization=obj, deleted_at__isnull=True).select_related('owner').order_by('pk'))
@@ -794,13 +889,17 @@ class OrganizationAdmin(BusinessEditor):
                 'km_org_state': state_service.lifecycle(obj, revision),
                 'km_org_health': health,
                 'km_org_ready': state_service.readiness(obj, data=data, health=health),
-                'km_org_public_url': state_service.public_path(obj) if obj.is_public else '',
+                'km_org_public_url': self.view_on_site(obj),
+                'km_org_preview_url': reverse('admin:catalog_organization_site_preview', args=[obj.pk]),
+                'km_org_can_review': self.can_publish(request.user),
                 'km_org_revision': revision,
             })
         return super().changeform_view(request, object_id, form_url, context)
 
     def view_on_site(self, obj):
-        return obj.get_absolute_url() if obj.is_public else None
+        from catalog.services.features import is_organizations_section_enabled
+
+        return obj.get_absolute_url() if obj.is_public and is_organizations_section_enabled() else None
 
     @staticmethod
     def can_publish(user):
@@ -815,6 +914,8 @@ class OrganizationAdmin(BusinessEditor):
             raise ValidationError(_('Ожидает решения модератора'))
         super().save_model(request, obj, form, change)
         if not publish_now:
+            status_message = _('Черновик сохранён.') if '_save_draft' in request.POST else _('Организация отправлена на проверку.')
+            self.message_user(request, status_message, level=messages.SUCCESS, fail_silently=True)
             return
         # One click for staff who are allowed to publish: the candidate is
         # still created and reviewed through the same service, so history and
@@ -823,7 +924,7 @@ class OrganizationAdmin(BusinessEditor):
         if revision is not None:
             publication.review(actor=request.user, revision_id=revision.pk, version=revision.version, approve=True)
             obj.refresh_from_db()
-            self.message_user(request, _('Сохранено и опубликовано. Организация видна на сайте.'))
+            self.message_user(request, _('Организация опубликована.'), level=messages.SUCCESS, fail_silently=True)
 
     def _dashboard_stats(self, request, counts: dict):
         from catalog.models.catalog_structure import PublicationState
@@ -965,7 +1066,7 @@ class OrganizationAdmin(BusinessEditor):
             "organization_bulk_actions": self._bulk_actions(),
             "km_org_counts": counts,
             "km_search_label": _("Поиск организаций"),
-            "km_search_placeholder": _("Название, телефон, сайт..."),
+            "km_search_placeholder": _("Название AZ/RU/EN, адрес, телефон, владелец"),
             "km_changelist_reset_url": "?",
             "km_suggestions_url": reverse("admin:catalog_organization_search_suggestions"),
             **(extra_context or {}),

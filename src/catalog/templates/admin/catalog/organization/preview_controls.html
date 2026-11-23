@@ -1,0 +1,14 @@
+{% load i18n %}
+{% get_current_language as org_admin_language %}
+<div class="km-org-preview-control" data-org-preview>
+  <label class="sr-only" for="km-org-preview-language">{% translate 'Язык содержимого' %}</label>
+  <select name="preview_language" id="km-org-preview-language">
+    <option value="az"{% if org_admin_language == 'az' %} selected{% endif %}>AZ</option>
+    <option value="ru"{% if org_admin_language == 'ru' %} selected{% endif %}>RU</option>
+    <option value="en"{% if org_admin_language == 'en' %} selected{% endif %}>EN</option>
+  </select>
+  <button type="submit" class="km-orgc-btn" formtarget="_blank" formaction="{{ km_org_preview_url }}"
+          formmethod="post" formnovalidate data-org-preview-submit>
+    {% translate 'Предпросмотр правок' %} ↗
+  </button>
+</div>

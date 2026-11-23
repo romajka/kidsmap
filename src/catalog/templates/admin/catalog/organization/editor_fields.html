@@ -1,0 +1,40 @@
+{% load i18n %}
+<div class="km-org-fields">
+  {% for line in fieldset %}
+    {% for field in line %}
+      {% if field.field.is_hidden %}
+        {{ field.field }}
+      {% elif field.is_readonly %}
+        <div class="km-org-field">
+          <span class="km-org-field__label">{{ field.field.label|capfirst }}</span>
+          <div class="km-org-field__value">{{ field.contents }}</div>
+        </div>
+      {% else %}
+        {% with control=field.field %}
+          <div class="km-org-field{% if field.is_checkbox %} km-org-field--checkbox{% endif %}{% if control.errors %} km-org-field--invalid{% endif %}"
+               {% if control.name == 'whatsapp' %}data-org-separate-whatsapp{% endif %}>
+            {% if field.is_checkbox %}
+              <div class="km-org-field__check">{{ control }}{{ field.label_tag }}</div>
+            {% else %}
+              <div class="km-org-field__label">
+                <label for="{{ control.id_for_label }}">{{ control.label }}</label>
+                {% if control.field.required %}
+                  <span class="km-org-field__required">{% translate 'Обязательно' %}</span>
+                {% elif fieldset.classes == 'profile' %}
+                  <span class="km-org-field__optional">{% translate 'Необязательно' %}</span>
+                {% endif %}
+              </div>
+              {{ control }}
+            {% endif %}
+            {% if control.errors %}
+              <div class="km-org-field__errors" id="{{ control.auto_id }}_error">{{ control.errors }}</div>
+            {% endif %}
+            {% if control.help_text %}
+              <div class="km-org-field__help" id="{{ control.auto_id }}_helptext">{{ control.help_text }}</div>
+            {% endif %}
+          </div>
+        {% endwith %}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+</div>

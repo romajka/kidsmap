@@ -54,7 +54,7 @@
   }
 
   // Mobile action bar: shown once the hero scrolls away.
-  const mbar = doc.querySelector('[data-orgv-mbar]');
+  const mbar = doc.querySelector('[data-orgv-mbar]:not([hidden])');
   const hero = doc.querySelector('.public-org-hero-card');
   if (mbar && hero && 'IntersectionObserver' in window) {
     let heroGone = false;
