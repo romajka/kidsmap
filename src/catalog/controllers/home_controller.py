@@ -63,9 +63,9 @@ class HomeController:
             from catalog.services.event_afisha import event_map_points
             from catalog.services.event_sessions import group_sessions
             nearest = upcoming_events_for_home(limit=24)
-            upcoming_events = nearest[:4]
+            upcoming_events = nearest[:8]
             # One card per show and day; its showtimes are listed on the card.
-            upcoming_event_groups = group_sessions(nearest)[:6]
+            upcoming_event_groups = group_sessions(nearest)[:8]
             events_quick_stats = build_event_quick_stats()
             home_map_events = event_map_points(language_code=language_code)
 
