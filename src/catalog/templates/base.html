@@ -129,6 +129,7 @@
       extra_head (e.g. catalog_places.css) would otherwise outrank it.
     {% endcomment %}
     <link rel="stylesheet" href="{% static 'css/motion.css' %}?v=20261105_polish_r2" />
+    <link rel="stylesheet" href="{% static 'css/components/motion_budget.css' %}?v=20261123" />
     {% block navigation_motion %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=20261026_contacts_polish1">
     <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261120_header_fit">
@@ -139,6 +140,7 @@
     <link rel="stylesheet" href="{% static 'css/components/km_card.css' %}?v=20261118_card_r3">
     <script src="{% static 'js/header.js' %}?v=20261119_lang_pc" defer></script>
     <script src="{% static 'js/motion.js' %}?v=20261105_polish_r1"></script>
+    <script src="{% static 'js/motion_budget.js' %}?v=20261123" defer></script>
   </head>
   <body id="top" class="{% if site_preview %}{{ site_preview_page_class|default:'page-place_detail' }}{% elif request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
     {% if site_preview %}data-site-preview="true"{% endif %}
@@ -1003,7 +1005,7 @@
     {% if not site_preview %}<script src="{% static 'js/ai_referral_tracking.js' %}"></script>{% endif %}
     <script src="{% static 'js/auth_navigation.js' %}?v=20261117" defer></script>
     <script src="{% static 'js/review_submission.js' %}?v=20261104_mobile_public" defer></script>
-    <script src="{% static 'js/mappy3d_boot.js' %}?v=20261117_sleep" data-module="{% static '3d/mappy3d.js' %}?v=20261117_sleep" data-model="{% static '3d/mappy.glb' %}" defer></script>
+    <script src="{% static 'js/mappy3d_boot.js' %}?v=20261123_budget" data-module="{% static '3d/mappy3d.js' %}?v=20261123_budget" data-model="{% static '3d/mappy.glb' %}" defer></script>
     {% if analytics_events %}
       {{ analytics_events|json_script:"kidsmap-analytics-events" }}
     {% endif %}
