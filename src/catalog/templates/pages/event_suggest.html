@@ -3,7 +3,7 @@
 {% block title %}{% if language == 'az' %}Afişaya tədbir əlavə edin | KidsMap{% elif language == 'en' %}Add an event to the afisha | KidsMap{% else %}Добавить мероприятие в афишу | KidsMap{% endif %}{% endblock %}
 {% block robots_meta %}noindex,follow{% endblock %}
 {% block googlebot_meta %}noindex,follow{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_posters">{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_pill">{% endblock %}
 {% block content %}
 <div class="km-suggest-page">
   <a class="event-back" href="{% url 'events_landing' %}"><span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>{% if language == 'az' %}Afişaya qayıt{% elif language == 'en' %}Back to events{% else %}Назад в афишу{% endif %}</a>

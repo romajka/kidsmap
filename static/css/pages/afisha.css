@@ -1564,7 +1564,7 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   .km-ev-card:hover { transform: translateY(-3px); }
   .km-ev-card:hover .km-ev-card__media img { transform: scale(1.1); transition: transform 6s var(--ev-poster-ease); }
 }
-.km-ev-card__rowdate, .km-ev-card__foot { display: none; }
+.km-ev-card__rowdate, .km-ev-card__foot, .km-timer__short { display: none; }
 
 /* showtimes of one show on one day */
 .km-ev-card__times { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 0; padding: 0; list-style: none; }
@@ -1623,25 +1623,35 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   .km-ev-card__live-dot { position: relative; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
   .km-ev-card__live-dot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid currentColor; animation: km-ping 1.6s var(--ev-ease) infinite; }
 
-  /* countdown, as on desktop but in one slim line: dot + ticking tiles */
+  /* countdown: one calm pill — "• До начала 05:56:29" or "• До начала 68 дн 06 ч" */
   .km-ev-card .km-timer,
   .km-ev-card--compact .km-ev-card .km-timer {
-    flex-direction: row; align-items: center; gap: 7px;
-    width: fit-content; max-width: 100%; margin: 3px 0 0; padding: 3px 5px 3px 8px;
-    border-radius: 10px;
+    display: inline-flex; flex-direction: row; align-items: center; gap: 7px;
+    width: fit-content; max-width: 100%; margin: 4px 0 0; padding: 4px 11px 4px 9px;
+    border-radius: 999px; line-height: 1;
   }
-  .km-ev-card .km-timer__label { gap: 0; font-size: 0; }
+  .km-ev-card .km-timer__label { gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0; text-transform: none; white-space: nowrap; }
   .km-ev-card .km-timer__label [data-km-timer-label] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .km-ev-card .km-timer__clock { gap: 3px; align-items: center; }
-  .km-ev-card .km-timer__seg { flex: none; flex-direction: row; align-items: baseline; gap: 2px; padding: 3px 5px 4px; border-radius: 7px; }
+  .km-ev-card .km-timer__short { display: inline; }
+  .km-ev-card .km-timer__pulse { width: 7px; height: 7px; }
+  .km-ev-card .km-timer__clock { gap: 0; align-items: baseline; }
+  .km-ev-card .km-timer__seg,
+  .km-ev-card.km-ev-card .km-timer.is-urgent .km-timer__seg {
+    flex: none; flex-direction: row; align-items: baseline; gap: 2px;
+    padding: 0; margin: 0; background: none; box-shadow: none; border-radius: 0; overflow: visible; animation: none;
+  }
+  .km-ev-card .km-timer__seg::before { display: none; }
+  .km-ev-card .km-timer::before, .km-ev-card .km-timer::after { display: none; }
   .km-ev-card .km-timer__num,
-  .km-ev-card--compact .km-timer__num { font-size: 14px; }
-  .km-ev-card .km-timer__unit { margin: 0; font-size: 9.5px; }
-  .km-ev-card .km-timer__colon { font-size: 12px; margin: 0 -1px; }
-  .km-ev-card .km-timer__seg[data-unit="s"]::before { height: 2px; }
-  /* with days on the clock, seconds would not fit: d · h · m */
-  .km-ev-card .km-timer__seg[data-unit="d"]:not(.is-zero) ~ .km-timer__seg[data-unit="s"],
-  .km-ev-card .km-timer__seg[data-unit="d"]:not(.is-zero) ~ .km-timer__colon:nth-last-child(2) { display: none; }
+  .km-ev-card--compact .km-timer__num { font-size: 13px; font-weight: 800; color: var(--t-accent); }
+  .km-ev-card .km-timer__unit { margin: 0 6px 0 0; font-size: 11px; font-weight: 700; color: var(--ev-muted); text-transform: none; }
+  .km-ev-card .km-timer__colon { margin: 0 1px; font-size: 13px; animation: none; color: var(--t-accent); opacity: .7; }
+  /* more than a day: "68 дн 06 ч" — days and hours only */
+  .km-ev-card .km-timer__seg[data-unit="d"]:not(.is-zero) ~ .km-timer__seg:is([data-unit="m"], [data-unit="s"]),
+  .km-ev-card .km-timer__seg[data-unit="d"]:not(.is-zero) ~ .km-timer__colon { display: none; }
+  .km-ev-card .km-timer__seg[data-unit="h"] .km-timer__unit { margin-right: 0; }
+  /* within a day: a ticking clock "05:56:29" — no unit words */
+  .km-ev-card .km-timer__seg[data-unit="d"].is-zero ~ .km-timer__seg .km-timer__unit { display: none; }
   .km-ev-card:active { transform: scale(0.985); transition-duration: 0.12s; }
 
   .km-ev-card__cancelled { inset-block-start: auto; inset-block-end: 10px; inset-inline-end: 10px; padding: 3px 9px; font-size: 0.72rem; }

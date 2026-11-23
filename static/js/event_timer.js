@@ -76,7 +76,7 @@
       tiles[i].after(colon);
     }
     root.classList.add('is-live');
-    root.__kmTimer = { root: root, start: start, end: end, segs: segs, label: root.querySelector('[data-km-timer-label]') };
+    root.__kmTimer = { root: root, start: start, end: end, segs: segs, label: root.querySelector('[data-km-timer-label]'), short: root.querySelector('[data-km-timer-short]') };
     timers.push(root.__kmTimer);
   }
 
@@ -92,6 +92,7 @@
     if (root.dataset.state !== phase) {
       root.dataset.state = phase;
       if (t.label) t.label.textContent = root.dataset['l' + phase.charAt(0).toUpperCase() + phase.slice(1)] || '';
+      if (t.short) t.short.textContent = root.dataset['s' + phase.charAt(0).toUpperCase() + phase.slice(1)] || '';
       var card = root.closest('[data-event-card]');
       if (card) card.dataset.phase = phase;
     }
