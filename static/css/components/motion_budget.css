@@ -1,0 +1,17 @@
+/* Paired with js/motion_budget.js: endless animations pause where nobody can see them. */
+[data-km-motion="off"],
+[data-km-motion="off"]::before,
+[data-km-motion="off"]::after { animation-play-state: paused !important; }
+
+/* "Reduce motion" in the device settings: no movement anywhere.
+   Entrances finish at once in their final state; nothing loops. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
