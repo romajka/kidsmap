@@ -7,6 +7,17 @@
   var DAY = 86400000, HOUR = 3600000;
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var timers = [];
+  var quiet = false;  // true while catching a timer up: digits jump instead of rolling
+  // Only timers on screen tick. One far down the page costs nothing and catches up when it scrolls into view.
+  var watch = 'IntersectionObserver' in window ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      var t = entry.target.__kmTimer;
+      if (!t) return;
+      var was = t.visible;
+      t.visible = entry.isIntersecting;
+      if (t.visible && !was) { quiet = true; render(t, Date.now()); quiet = false; }
+    });
+  }, { rootMargin: '120px 0px' }) : null;
 
   function pad(n) { return n < 10 ? '0' + n : String(n); }
 
@@ -30,7 +41,7 @@
   function roll(digit, value) {
     var current = digit.lastElementChild;
     if (current && current.textContent === value) return;
-    if (reduce || !current) {
+    if (reduce || quiet || !current) {
       digit.textContent = '';
       var only = document.createElement('i');
       only.textContent = value;
@@ -76,8 +87,9 @@
       tiles[i].after(colon);
     }
     root.classList.add('is-live');
-    root.__kmTimer = { root: root, start: start, end: end, segs: segs, label: root.querySelector('[data-km-timer-label]'), short: root.querySelector('[data-km-timer-short]') };
+    root.__kmTimer = { root: root, start: start, end: end, segs: segs, label: root.querySelector('[data-km-timer-label]'), short: root.querySelector('[data-km-timer-short]'), visible: !watch };
     timers.push(root.__kmTimer);
+    if (watch) watch.observe(root);
   }
 
   function phaseOf(t, now) {
@@ -124,7 +136,7 @@
   function tick() {
     var now = Date.now();
     for (var i = 0; i < timers.length; i++) {
-      if (timers[i].root.isConnected) render(timers[i], now);
+      if (timers[i].visible && timers[i].root.isConnected) render(timers[i], now);
     }
   }
 
