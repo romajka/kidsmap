@@ -30,12 +30,30 @@ def organization_detail(request, public_id=None, slug=None):
                 target += '?' + request.META['QUERY_STRING']
             return redirect(target, permanent=True)
     lang = _language(request)
-    data = present(entity, lang)
-    if not data['visible'] or not is_public(entity):
+    if not is_public(entity):
         raise Http404
     request._seo_entity = entity
-    branch_objects = [p for p in prepare_cards(published_place_queryset(entity.places.all()), lang)
-        if p._card_organization_id == entity.pk]
+    context = organization_detail_context(entity, lang)
+    if not context['presentation']['visible']:
+        raise Http404
+    track_subject_view(request=request, subject=entity)
+    context.update(build_public_entity_seo_payload(
+        entity, request, lang, image_url=context['hero_image_url'],
+    ))
+    return render(request, 'catalog/public_entity_detail.html', context)
+
+
+def organization_detail_context(entity, lang, *, preview_media=None):
+    data = present(entity, lang)
+    places = published_place_queryset(entity.places.all()) if entity.pk else None
+    if places is None:
+        branch_objects = []
+    elif preview_media is not None:
+        from catalog.services.organization_state import current_branch_q
+        branch_objects = prepare_cards(places.filter(current_branch_q()), lang)
+    else:
+        branch_objects = [place for place in prepare_cards(places, lang)
+                          if place._card_organization_id == entity.pk]
     branches = []
     districts_map = {}
     activities_map = {}
@@ -72,7 +90,9 @@ def organization_detail(request, public_id=None, slug=None):
 
     districts_filter = sorted(districts_map.values(), key=lambda d: d['label'])
     activities_filter = sorted([{'name': k, 'count': v} for k, v in activities_map.items()], key=lambda a: a['name'])
-    programs = [present(p, lang) for p in entity.programs.filter(status='published', approved_at__isnull=False, archived_at__isnull=True)]
+    programs = [present(p, lang) for p in entity.programs.filter(
+        status='published', approved_at__isnull=False, archived_at__isnull=True,
+    )] if entity.pk else []
     branch_presentations = {p.pk: p._card_presentation for p in branch_objects}
     activity_presentations = {a['id']: a for p in branch_objects for a in p._card_activities}
     feed = []
@@ -87,14 +107,28 @@ def organization_detail(request, public_id=None, slug=None):
     # Top directions summary for compact hero block
     top_directions = [a['name'] for a in activities_filter[:4] if a.get('name')]
     # Suitable photo: entity photo or first published branch photo
-    hero_image_url = (entity.cover_photo.url if entity.cover_photo else '') or data.get('image_url') or next((b['image_url'] for b in branches if b.get('image_url')), '')
+    media = preview_media if preview_media is not None else {
+        name: field.url if (field := getattr(entity, name)) else ''
+        for name in ('logo', 'cover_photo')
+    }
+    hero_image_url = media['cover_photo'] or data.get('image_url') or next(
+        (branch['image_url'] for branch in branches if branch.get('image_url')), '',
+    )
 
     from catalog.services.features import is_specialists_section_enabled, is_events_section_enabled
     from django.utils import timezone
 
+    if preview_media is not None:
+        from catalog.models import SiteSettings
+        site = SiteSettings.objects.first() or SiteSettings()
+        specialists_enabled = site.specialists_section_enabled
+        events_enabled = site.events_section_enabled
+    else:
+        specialists_enabled = is_specialists_section_enabled()
+        events_enabled = is_events_section_enabled()
+
     org_specialists = []
-    specialists_enabled = is_specialists_section_enabled()
-    if specialists_enabled:
+    if specialists_enabled and entity.pk:
         from catalog.models.specialist_domain import SpecialistEmployment
         active_employments = (
             entity.specialist_employments.filter(
@@ -141,8 +175,7 @@ def organization_detail(request, public_id=None, slug=None):
             })
 
     org_events = []
-    events_enabled = is_events_section_enabled()
-    if events_enabled:
+    if events_enabled and entity.pk:
         events_qs = (
             entity.organized_events.filter(
                 status='published',
@@ -167,8 +200,7 @@ def organization_detail(request, public_id=None, slug=None):
                 'photo': ev.photo.url if ev.photo else None,
             })
 
-    track_subject_view(request=request, subject=entity)
-    return render(request,'catalog/public_entity_detail.html',{
+    return {
         'entity':entity,
         'presentation':data,
         'branches':branches,
@@ -177,8 +209,8 @@ def organization_detail(request, public_id=None, slug=None):
         'activities_filter':activities_filter,
         'top_directions':top_directions,
         'hero_image_url':hero_image_url,
-        'org_logo_url': entity.logo.url if entity.logo else '',
-        'org_cover_url': entity.cover_photo.url if entity.cover_photo else '',
+        'org_logo_url': media['logo'],
+        'org_cover_url': media['cover_photo'],
         'org_social': social_links(entity),
         'org_address': entity.address,
         'org_map_points': [{'id': b['pk'], 'name': b['name'], 'url': b['url'], 'address': b.get('address') or '',
@@ -194,7 +226,7 @@ def organization_detail(request, public_id=None, slug=None):
         'events_section_enabled':events_enabled,
         'programs':programs,
         'review_feed':feed,
-        **build_public_entity_seo_payload(entity, request, lang, image_url=hero_image_url)})
+    }
 
 
 @require_safe
