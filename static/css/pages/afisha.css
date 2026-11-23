@@ -1517,3 +1517,167 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   padding: 1px 5px; border-radius: 6px; background: #33408a; color: #fff;
   font-size: 8px; font-weight: 800; letter-spacing: 0.03em; white-space: nowrap; box-shadow: 0 0 0 1.5px #fff;
 }
+
+/* ═══ POSTERS — whole poster on a blurred copy, focus-aware crops (2026-11) ═══ */
+:root {
+  --ev-hot-ink: #c2410c;           /* orange text that keeps AA on white */
+  --ev-poster-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.km-fit {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  background: color-mix(in srgb, var(--poster-tint, #24302a) 55%, #1c2420);
+}
+.km-fit__bg {
+  position: absolute;
+  inset: -12%;                     /* hides the light rim blur leaves at the edges */
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  filter: blur(20px) saturate(1.4) brightness(0.72);
+}
+.km-fit__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--fx, 50%) var(--fy, 50%);
+  transform-origin: var(--fx, 50%) var(--fy, 50%);
+}
+.km-fit:not(.km-fit--whole) > .km-fit__bg { display: none; }
+.km-fit.km-fit--whole > img.km-fit__img {
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.45));
+}
+
+/* cards: taller frame so posters read; Ken Burns from the focus point */
+.km-ev-card__media,
+.km-ev-card--compact .km-ev-card__media { aspect-ratio: 4 / 3; }
+.km-ev-card__media::after { display: none; }   /* the light sweep would fight the zoom */
+.km-ev-card__media .km-fit__img { transition: transform 0.6s var(--ev-poster-ease); }
+@media (hover: hover) {
+  .km-ev-card:hover { transform: translateY(-3px); }
+  .km-ev-card:hover .km-ev-card__media img { transform: scale(1.1); transition: transform 6s var(--ev-poster-ease); }
+}
+.km-ev-card__rowdate, .km-ev-card__foot { display: none; }
+
+/* showtimes of one show on one day */
+.km-ev-card__times { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 0; padding: 0; list-style: none; }
+.km-ev-time {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 52px; min-height: 32px; padding: 0 10px;
+  border-radius: 999px; border: 1px solid color-mix(in srgb, var(--ev-green) 28%, transparent);
+  background: var(--ev-mint); color: var(--ev-deep);
+  font-weight: 800; font-size: 0.82rem; font-variant-numeric: tabular-nums; text-decoration: none;
+  transition: background 0.2s, color 0.2s, transform 0.2s var(--ev-poster-ease);
+}
+.km-ev-time:hover { background: var(--ev-green); color: #fff; }
+.km-ev-time:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset: 2px; }
+.km-ev-time.is-ended { opacity: 0.5; text-decoration: line-through; }
+.km-ev-time[aria-current="true"] { background: var(--ev-green); color: #fff; border-color: var(--ev-green); }
+@media (pointer: coarse) { .km-ev-time { min-height: 44px; min-width: 60px; } }
+
+/* ─── phone: compact rows instead of tall cards ─────────── */
+@media (max-width: 600px) {
+  .km-ev-grid.events-list-v2 { grid-template-columns: 1fr; gap: 10px; }
+  .km-ev-card {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    column-gap: 12px;
+    align-items: start;
+    padding: 10px;
+    border-radius: 18px;
+  }
+  .km-ev-card__media,
+  .km-ev-card--compact .km-ev-card__media {
+    width: 92px; height: 122px; aspect-ratio: auto;
+    border-radius: 12px; overflow: hidden;
+    background: #e9efeb;
+  }
+  .km-ev-card__media .km-fit > .km-fit__bg { display: block; }
+  .km-ev-card__media .km-fit > img.km-fit__img { object-fit: contain; object-position: center; filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.4)); }
+  .km-ev-card__media .km-ev-card__placeholder { object-fit: cover; }
+  .km-ev-card__shade, .km-ev-card__stamp, .km-ev-card__chips, .km-ev-card__langs, .km-ev-card__price,
+  .km-ev-card__when, .km-ev-card__meta, .km-ev-card .km-timer, .km-ev-card__actions { display: none !important; }
+  .km-ev-card__body,
+  .km-ev-card--compact .km-ev-card__body { display: flex; flex-direction: column; gap: 4px; padding: 2px 0 0; min-width: 0; }
+  .km-ev-card__rowdate { display: block; margin: 0; color: var(--ev-hot-ink); font-weight: 800; font-size: 12px; line-height: 1.3; }
+  .km-ev-card__title,
+  .km-ev-card--compact .km-ev-card__title {
+    margin: 0; font-size: 16px; line-height: 1.25;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .km-ev-card__place { margin: 0; font-size: 12px; color: var(--ev-muted); }
+  .km-ev-card__place .material-symbols-rounded { font-size: 0.9rem; }
+  .km-ev-card__times { gap: 5px; margin-top: 2px; }
+  .km-ev-card__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 0; }
+  .km-ev-card__age { padding: 2px 8px; border-radius: 999px; background: var(--ev-mint); color: var(--ev-deep); font-size: 12px; font-weight: 800; }
+  .km-ev-card__rowprice { padding: 2px 9px; border-radius: 999px; background: var(--ev-hot-soft); color: var(--ev-hot-ink); font-size: 12px; font-weight: 800; }
+  .km-ev-card__rowprice.is-free { background: #e3f7e8; color: #0b6b30; }
+  .km-ev-card__cancelled { inset-block-start: auto; inset-block-end: 10px; inset-inline-end: 10px; padding: 3px 9px; font-size: 0.72rem; }
+  .km-ev-card:has(.km-ev-card__title a:focus-visible) { outline-offset: 0; }
+
+  /* home block: a vertical list of rows, no horizontal rail */
+  .km-home-afisha__rail { overflow: visible; }
+  .km-home-afisha__track { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; overflow: visible; padding: 4px 16px 6px; scroll-snap-type: none; }
+  .km-home-afisha__item { flex: none; min-width: 0; }
+  .km-home-afisha__more > a { min-height: 0; flex-direction: row; justify-content: center; gap: 10px; padding: 14px 16px; }
+  .km-home-afisha__more > a small { margin: 0; }
+  .km-home-afisha__more .material-symbols-rounded { font-size: 1.6rem; }
+  .km-home-afisha__item:has(> .km-ev-suggest, > .km-suggest-tile) { display: none; }
+  .km-home-afisha__item--event:nth-child(n+6) { display: none; }
+  .km-home-afisha__arrow, .km-home-afisha__dots { display: none !important; }
+
+  /* the day agenda replaces the grid when a date chip is active */
+  .km-ev-grid--has-days { display: none !important; }
+}
+
+/* ─── phone agenda: by day ───────────────────────────────── */
+.km-ev-days { display: none; }
+@media (max-width: 600px) {
+  .km-ev-days { display: block; }
+  .km-ev-day + .km-ev-day { margin-top: 8px; }
+  .km-ev-day__head {
+    position: sticky; top: var(--km-sticky-offset, 64px); z-index: 2;
+    margin: 0 -4px; padding: 8px 6px;
+    background: color-mix(in srgb, var(--page-bg, #f7faf8) 92%, transparent);
+    backdrop-filter: blur(8px);
+    font-family: var(--font-display, inherit); font-size: 15px; color: var(--ev-deep);
+  }
+  .km-ev-day__list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .km-ev-agenda {
+    position: relative;
+    display: grid; grid-template-columns: 58px minmax(0, 1fr) 48px; gap: 10px; align-items: center;
+    padding: 9px 10px; border-radius: 14px; background: #fff; border: 1px solid var(--ev-line);
+  }
+  .km-ev-agenda[data-phase="ended"] { opacity: 0.6; }
+  .km-ev-agenda__time { display: flex; flex-direction: column; gap: 2px; font-variant-numeric: tabular-nums; }
+  .km-ev-agenda__time b { font-family: var(--font-display, inherit); font-size: 17px; line-height: 1.05; color: var(--ev-ink); }
+  .km-ev-agenda__time b.is-date { font-size: 13px; font-family: inherit; font-weight: 800; }
+  .km-ev-agenda__time small { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--ev-muted); }
+  .km-ev-agenda__time span { font-size: 11px; font-weight: 800; color: var(--ev-hot-ink); }
+  .km-ev-agenda__time span.is-free { color: #0b6b30; }
+  .km-ev-agenda__main { min-width: 0; display: grid; gap: 2px; }
+  .km-ev-agenda__title {
+    color: var(--ev-ink); font-weight: 800; font-size: 14px; line-height: 1.25; text-decoration: none;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .km-ev-agenda__title::after { content: ""; position: absolute; inset: 0; border-radius: 14px; }
+  .km-ev-agenda__title:focus-visible { outline: none; }
+  .km-ev-agenda:has(.km-ev-agenda__title:focus-visible) { outline: 3px solid var(--ev-leaf); outline-offset: 2px; }
+  .km-ev-agenda__meta { margin: 0; font-size: 12px; color: var(--ev-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .km-ev-agenda .km-ev-time { min-height: 30px; min-width: 48px; font-size: 0.76rem; }
+  .km-ev-agenda__thumb { width: 48px; height: 64px; border-radius: 9px; overflow: hidden; display: grid; place-items: center; background: var(--ev-mint); color: var(--ev-green); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .km-ev-card .km-ev-card__media img, .km-ev-card:hover .km-ev-card__media img { transform: none !important; transition: none !important; }
+  .km-ev-card:hover { transform: none; }
+}
+/* long chip rows must not widen the home block's single column */
+@media (max-width: 760px) { .km-home-afisha__head { grid-template-columns: minmax(0, 1fr); } }
