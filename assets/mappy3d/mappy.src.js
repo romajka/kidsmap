@@ -91,7 +91,9 @@ export function mountMappy(el, opts = {}) {
     return ctl;
   }
   const nativeButton = el.tagName === 'BUTTON';
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  // Weak phones (few cores or little memory) get a slightly lower pixel ratio and frame rate; the look is the same.
+  const lowEnd = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, lowEnd ? 1.5 : 2));
   renderer.outputColorSpace = SRGBColorSpace; renderer.toneMapping = NeutralToneMapping; renderer.toneMappingExposure = 1.05;
   const canvas = renderer.domElement;
   // bleed: how far the canvas reaches past the box (fractions of the box), so hops and raised paws are not cut off
@@ -376,10 +378,25 @@ export function mountMappy(el, opts = {}) {
   function startLoop() {
     if (ctl.ready && visible && !document.hidden && !manual && !raf) raf = requestAnimationFrame(loop);
   }
+  // Frame budget. He is drawn at full rate only while something moves: the pointer, a press, a reaction clip,
+  // a blink or a changing face. Standing idle (breathing) or asleep he is drawn less often, which looks the same
+  // but leaves the phone's processor free for scrolling and the rest of the page.
+  const touchFirst = matchMedia('(pointer: coarse)').matches;   // phones and tablets: no cursor for him to follow
+  const FPS = lowEnd ? { active: 30, calm: 10, sleep: 6 } : touchFirst ? { active: 60, calm: 12, sleep: 8 } : { active: 60, calm: 24, sleep: 10 };
+  let pending = 0;
+  function targetFps() {
+    if (press.on || Math.abs(press.v) > 0.002 || Math.abs(press.vel) > 0.01) return FPS.active;
+    if (sleeping) return FPS.sleep;
+    if (!mixer || current !== actions.idle || blinkT >= 0 || exprUntil || time - lastInput < 2.5) return FPS.active;
+    return reduced ? FPS.sleep : FPS.calm;
+  }
   function loop() {
-    if (!visible || document.hidden) { raf = 0; return; }
+    if (!visible || document.hidden) { raf = 0; pending = 0; return; }
     raf = requestAnimationFrame(loop);
-    update(Math.min(clock.getDelta(), 1 / 20));
+    pending += clock.getDelta();
+    if (pending < 1 / targetFps() - 0.004) return;   // skip this screen refresh: nothing to draw yet
+    update(Math.min(pending, 1 / 8));
+    pending = 0;
   }
   function update(dt) {
     if (!mixer) return;
