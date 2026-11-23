@@ -17,7 +17,7 @@
               <p class="km-ev-agenda__meta">{% if event.age_display %}{{ event.age_display }} {% if language == 'az' %}yaş{% elif language == 'en' %}y.o.{% else %}лет{% endif %}{% endif %}{% if event.age_display and event.event_format == 'online' or event.age_display and event.public_venue.address %} · {% endif %}{% if event.event_format == 'online' %}{% if language == 'az' %}Onlayn{% elif language == 'en' %}Online{% else %}Онлайн{% endif %}{% else %}{{ event.public_venue.address }}{% endif %}</p>
               {% if group.multi %}<ul class="km-ev-card__times">{% for session in group.sessions %}<li><a class="km-ev-time{% if session.ended %} is-ended{% endif %}" href="{{ session.url }}"><time datetime="{{ session.start|date:'c' }}">{{ session.start|date:'H:i' }}</time></a></li>{% endfor %}</ul>{% endif %}
             </div>
-            <span class="km-ev-agenda__thumb" aria-hidden="true">{% if poster %}{% include 'catalog/includes/event_poster_media.html' with alt='' whole=True sizes='48px' %}{% else %}<span class="material-symbols-rounded">confirmation_number</span>{% endif %}</span>
+            <span class="km-ev-agenda__thumb" aria-hidden="true">{% if poster %}{% include 'catalog/includes/event_poster_media.html' with alt='' whole=True sizes='57px' %}{% else %}<span class="material-symbols-rounded">confirmation_number</span>{% endif %}</span>
           </li>
         {% endtimezone %}{% endwith %}{% endfor %}
       </ul>
