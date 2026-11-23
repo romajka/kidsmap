@@ -68,6 +68,12 @@
                 <span>{% translate "Подпись" %}</span>
                 {{ form.caption }}
               </label>
+              {% if form.focus_x %}
+                <details class="km-photo-card__focus">
+                  <summary>{% translate "Точка фокуса" %}</summary>
+                  {% if form.instance.image and form.instance.image.name %}{% include 'includes/focus_picker.html' with src=form.instance.image.url x=form.focus_x y=form.focus_y %}{% else %}{% include 'includes/focus_picker.html' with x=form.focus_x y=form.focus_y %}{% endif %}
+                </details>
+              {% endif %}
               <div class="km-photo-card__delete">
                 {{ form.DELETE }}
                 <small>{% translate "Удалить" %}</small>

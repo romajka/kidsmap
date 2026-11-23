@@ -1,0 +1,26 @@
+{% load tz event_editorial %}{% comment %}Phone agenda for date chips: sticky day headers, time-first rows.{% endcomment %}
+<div class="km-ev-days" data-km-ev-days>
+  {% for day in event_days %}
+    <section class="km-ev-day" aria-labelledby="ev-day-{{ forloop.counter }}">
+      <h3 class="km-ev-day__head" id="ev-day-{{ forloop.counter }}">{% day_heading day.day language %}</h3>
+      <ul class="km-ev-day__list">
+        {% for group in day.groups %}{% with event=group.event %}{% event_card_facts event as facts %}{% event_poster event as poster %}{% timezone 'Asia/Baku' %}
+          <li class="km-ev-agenda" data-phase="{{ facts.phase }}">
+            <div class="km-ev-agenda__time">
+              {% if facts.long %}<small>{% if language == 'az' %}son gün{% elif language == 'en' %}until{% else %}до{% endif %}</small><b class="is-date">{% day_month event.end_datetime language %}</b>
+              {% elif facts.phase == 'running' and event.start_datetime.date != day.day %}<small>{% if language == 'az' %}İndi{% elif language == 'en' %}Now{% else %}Сейчас{% endif %}</small><b>{{ event.end_datetime|date:'H:i' }}</b>
+              {% else %}<b>{{ event.start_datetime|date:'H:i' }}</b>{% endif %}
+              {% if event.is_free %}<span class="is-free">{% if language == 'az' %}Pulsuz{% elif language == 'en' %}Free{% else %}Бесплатно{% endif %}</span>{% elif event.price_display %}<span>{{ event.price_display }}</span>{% endif %}
+            </div>
+            <div class="km-ev-agenda__main">
+              <a class="km-ev-agenda__title" href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a>
+              <p class="km-ev-agenda__meta">{% if event.age_display %}{{ event.age_display }} {% if language == 'az' %}yaş{% elif language == 'en' %}y.o.{% else %}лет{% endif %}{% endif %}{% if event.age_display and event.event_format == 'online' or event.age_display and event.public_venue.address %} · {% endif %}{% if event.event_format == 'online' %}{% if language == 'az' %}Onlayn{% elif language == 'en' %}Online{% else %}Онлайн{% endif %}{% else %}{{ event.public_venue.address }}{% endif %}</p>
+              {% if group.multi %}<ul class="km-ev-card__times">{% for session in group.sessions %}<li><a class="km-ev-time{% if session.ended %} is-ended{% endif %}" href="{{ session.url }}"><time datetime="{{ session.start|date:'c' }}">{{ session.start|date:'H:i' }}</time></a></li>{% endfor %}</ul>{% endif %}
+            </div>
+            <span class="km-ev-agenda__thumb" aria-hidden="true">{% if poster %}{% include 'catalog/includes/event_poster_media.html' with alt='' whole=True sizes='57px' %}{% else %}<span class="material-symbols-rounded">confirmation_number</span>{% endif %}</span>
+          </li>
+        {% endtimezone %}{% endwith %}{% endfor %}
+      </ul>
+    </section>
+  {% endfor %}
+</div>

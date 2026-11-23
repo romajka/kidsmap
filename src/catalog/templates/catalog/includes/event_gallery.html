@@ -1,31 +1,40 @@
-{% load event_editorial %}
-{% with gallery=event.gallery.all %}
-  {% if gallery %}
-    <section class="event-detail-gallery" aria-labelledby="event-gallery-title">
-      <h2 id="event-gallery-title">{% if language == 'az' %}Fotoqalereya{% elif language == 'en' %}Photo gallery{% else %}Фотогалерея{% endif %}</h2>
-      <div class="event-detail-gallery__grid">
-        {% for image in gallery %}
-          {% with caption=image.caption|event_caption %}
-            <figure>
-              <a class="event-photo-link" href="{{ image.image.url }}" data-event-photo
-                 aria-label="{% if language == 'az' %}Şəkli aç{% elif language == 'en' %}Open photo{% else %}Открыть фото{% endif %} · {{ caption.title|default:forloop.counter }}">
-                <img src="{{ image.image.url }}" alt="" loading="lazy" decoding="async">
-              </a>
-              {% if caption.title %}
-                <figcaption class="event-gallery__caption">
-                  <span>{{ caption.title }}</span>
-                  {% if caption.credits %}
-                    <details class="event-gallery__credits">
-                      <summary>{% if language == 'az' %}Müəllif və lisenziya{% elif language == 'en' %}Photo credit and license{% else %}Автор и лицензия{% endif %}</summary>
-                      <p>{% include 'catalog/includes/event_credit_links.html' with parts=caption.credits %}</p>
-                    </details>
-                  {% endif %}
-                </figcaption>
+{% load event_editorial %}{% comment %}
+"Fotoqalereya" as a stack of cards: drag/swipe the top card away, ← → buttons,
+keys ← → and Enter. Without JS the same figures read as a plain scrolling row.
+The main poster is not repeated here: it is already in the hero.
+{% endcomment %}{% event_gallery_items event event_gallery_items as items %}{% if items %}
+<section class="event-detail-gallery" aria-labelledby="event-gallery-title">
+  <h2 id="event-gallery-title">{% if language == 'az' %}Fotoqalereya{% elif language == 'en' %}Photo gallery{% else %}Фотогалерея{% endif %}</h2>
+  <div class="km-stack" data-km-stack data-lb-offset="{% if event_poster %}1{% else %}0{% endif %}" role="group" aria-roledescription="{% if language == 'az' %}foto dəstəsi{% elif language == 'en' %}photo stack{% else %}стопка фото{% endif %}" aria-labelledby="event-gallery-title">
+    <div class="km-stack__deck" data-km-stack-deck tabindex="0" aria-describedby="event-gallery-hint">
+      {% for item in items %}
+        <figure class="km-stack__card" data-km-stack-card data-index="{{ forloop.counter0 }}">
+          <a class="km-stack__frame" href="{{ item.original }}" data-km-lb-open="{% if event_poster %}{{ forloop.counter }}{% else %}{{ forloop.counter0 }}{% endif %}" tabindex="-1" aria-label="{% if language == 'az' %}Şəkli aç{% elif language == 'en' %}Open photo{% else %}Открыть фото{% endif %} {{ forloop.counter }}">
+            {% include 'catalog/includes/event_poster_media.html' with poster=item alt=event.name_i18n whole=True sizes='(max-width: 600px) 86vw, 460px' %}
+          </a>
+          {% if item.caption.title %}
+            <figcaption class="event-gallery__caption">
+              <span>{{ item.caption.title }}</span>
+              {% if item.caption.credits %}
+                <details class="event-gallery__credits">
+                  <summary>{% if language == 'az' %}Müəllif və lisenziya{% elif language == 'en' %}Photo credit and license{% else %}Автор и лицензия{% endif %}</summary>
+                  <p>{% include 'catalog/includes/event_credit_links.html' with parts=item.caption.credits %}</p>
+                </details>
               {% endif %}
-            </figure>
-          {% endwith %}
-        {% endfor %}
-      </div>
-    </section>
-  {% endif %}
-{% endwith %}
+            </figcaption>
+          {% endif %}
+        </figure>
+      {% endfor %}
+    </div>
+    {% if items|length > 1 %}
+    <div class="km-stack__nav">
+      <button type="button" class="km-round-btn" data-km-stack-prev aria-label="{% if language == 'az' %}Əvvəlki şəkil{% elif language == 'en' %}Previous photo{% else %}Предыдущее фото{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">arrow_back</span></button>
+      <span class="km-stack__count" data-km-stack-count aria-live="polite">1 / {{ items|length }}</span>
+      <button type="button" class="km-round-btn" data-km-stack-next aria-label="{% if language == 'az' %}Növbəti şəkil{% elif language == 'en' %}Next photo{% else %}Следующее фото{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></button>
+    </div>
+    {% endif %}
+    <div class="km-stack__caption event-gallery__caption" data-km-stack-caption aria-live="polite"></div>
+    <p class="km-stack__hint visually-hidden" id="event-gallery-hint">{% if language == 'az' %}Şəkilləri ← → oxları ilə vərəqləyin, Enter ilə tam ekranda açın.{% elif language == 'en' %}Use ← → to flip through photos and Enter to open full screen.{% else %}Листайте фото клавишами ← →, Enter открывает на весь экран.{% endif %}</p>
+  </div>
+</section>
+{% endif %}

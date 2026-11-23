@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_init, post_save
 from django.dispatch import receiver
 
 from catalog.models import AnalyticsActorExclusion, PlaceLike, Place, SiteGalleryImage
@@ -48,3 +48,20 @@ def discard_proposal_document_file(sender, instance, using, **kwargs):
     if instance.file:
         storage, name = instance.file.storage, instance.file.name
         transaction.on_commit(lambda: storage.delete(name), using=using, robust=True)
+
+
+@receiver(post_init, sender='catalog.Event')
+@receiver(post_init, sender='catalog.EventPhoto')
+def remember_event_image_source(sender, instance, **kwargs):
+    from catalog.services.event_images import remember_source
+    remember_source(instance)
+
+
+@receiver(post_save, sender='catalog.Event')
+@receiver(post_save, sender='catalog.EventPhoto')
+def prepare_event_image_meta(sender, instance, raw=False, **kwargs):
+    """Poster shape/colour and WebP sizes, once per uploaded file."""
+    if raw:
+        return
+    from catalog.services.event_images import refresh_meta
+    refresh_meta(instance)

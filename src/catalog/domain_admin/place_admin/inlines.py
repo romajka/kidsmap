@@ -24,7 +24,12 @@ class EventPhotoInline(admin.TabularInline):
     template = "admin/catalog/place/placephoto_inline.html"
     extra = 0
     max_num = 10
-    fields = ("image", "caption", "order")
+    fields = ("image", "caption", "order", "focus_x", "focus_y")
+
+    def get_formset(self, request, obj=None, **kwargs):
+        from .forms import EventPhotoInlineForm
+        kwargs.setdefault("form", EventPhotoInlineForm)
+        return super().get_formset(request, obj, **kwargs)
     ordering = ("order", "id")
 
 class PlaceChangeAuditInline(admin.TabularInline):

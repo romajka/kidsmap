@@ -66,7 +66,7 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         (_("Когда и где"), {"fields": (("start_datetime", "end_datetime"), ("age_from", "age_to"),
             "price_mode", ("price_amount", "price_amount_max", "price_currency"), "price_text", "event_format", "languages",
             "related_place", ("region", "district", "metro"), "address", ("lat", "lng"))}),
-        (_("Фото и запись"), {"fields": ("photo", "registration_method", "phone", "whatsapp", "registration_url",
+        (_("Фото и запись"), {"fields": ("photo", ("photo_focus_x", "photo_focus_y"), "registration_method", "phone", "whatsapp", "registration_url",
             "instagram", "website", "moderation_note")}),
         (_("Переводы RU / EN"), {"fields": (("name_ru", "description_ru"), ("name_en", "description_en"))}),
         (_("Служебные настройки"), {"fields": ("owner", "slug", "status", "published_at", "rejection_reason",

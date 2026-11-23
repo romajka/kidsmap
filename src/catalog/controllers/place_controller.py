@@ -337,6 +337,17 @@ class PlaceController:
         paginator = Paginator(qs, 12)
         page_obj = paginator.get_page(request.GET.get("page"))
         events = list(page_obj.object_list)
+        from catalog.services.event_sessions import group_sessions
+        # Showtimes of one show on one day share a card; history stays one card per event.
+        event_groups = group_sessions(events, now=now) if not events_when else [
+            {'event': event, 'sessions': [], 'multi': False} for event in events]
+        # Phones get a day-by-day agenda for the date chips (today, weekend, ...).
+        from catalog.services.event_sessions import by_day
+        event_days = []
+        if date_filter and not events_when and events_mode == 'list':
+            from catalog.services.event_queries import BAKU, parse_event_period
+            period_start = parse_event_period(request.GET, now=now).start
+            event_days = by_day(event_groups, now=now, first_day=period_start.astimezone(BAKU).date() if period_start else None)
 
         # --- build query string without page ---
         query_params = {k: v for k, v in selected.items() if v and not (k == 'sort' and v == 'date')}
@@ -392,6 +403,8 @@ class PlaceController:
             "event_page_numbers": paginator.get_elided_page_range(page_obj.number, on_each_side=1, on_ends=1),
             "events_quick_stats": build_event_quick_stats(now=now),
             "events": events,
+            "event_groups": event_groups,
+            "event_days": event_days,
             "calendar_events": calendar_events,
             "event_calendar": event_calendar,
             "events_mode": events_mode,

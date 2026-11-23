@@ -1,8 +1,8 @@
-{% load i18n static tz event_editorial %}{% event_card_facts event as facts %}{% timezone 'Asia/Baku' %}
-<article class="km-ev-card panel{% if compact %} km-ev-card--compact{% endif %}" id="event-card-{{ event.pk }}" data-event-id="{{ event.pk }}" data-event-card data-phase="{{ facts.phase }}">
+{% load i18n static tz event_editorial %}{% event_card_facts event as facts %}{% event_poster event as poster %}{% timezone 'Asia/Baku' %}
+<article class="km-ev-card panel{% if compact %} km-ev-card--compact{% endif %}{% if group.multi %} km-ev-card--sessions{% endif %}{% if poster %} km-ev-card--{{ poster.orientation }}{% endif %}" id="event-card-{{ event.pk }}" data-event-id="{{ event.pk }}" data-event-card data-phase="{{ facts.phase }}">
   <a class="km-ev-card__media" href="{{ event.get_absolute_url }}" tabindex="-1" aria-hidden="true">
-    {% if event.photo %}
-      <img src="{{ event.photo.url }}" alt="" loading="lazy" decoding="async">
+    {% if poster %}
+      {% include 'catalog/includes/event_poster_media.html' with alt=event.name_i18n %}
     {% else %}
       <img class="km-ev-card__placeholder" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="" loading="lazy" decoding="async">
     {% endif %}
@@ -32,12 +32,13 @@
     <span class="km-ev-card__cancelled"><span class="material-symbols-rounded" aria-hidden="true">event_busy</span>{% if language == 'az' %}Ləğv edilib{% elif language == 'en' %}Cancelled{% else %}Отменено{% endif %}</span>
   {% endif %}
   <div class="km-ev-card__body">
+    <p class="km-ev-card__rowdate{% if facts.phase == 'running' %} is-live{% elif facts.when == 'today' %} is-today{% endif %}">{% if facts.phase == 'running' and not group.multi %}<i class="km-ev-card__live-dot" aria-hidden="true"></i>{% if language == 'az' %}İndi gedir{% elif language == 'en' %}On now{% else %}Идёт сейчас{% endif %} · {% if facts.long %}{% if language == 'az' %}son gün{% elif language == 'en' %}until{% else %}до{% endif %} {% day_month event.end_datetime language %}{% else %}{% if language == 'az' %}{{ event.end_datetime|date:'H:i' }}-dək{% elif language == 'en' %}until {{ event.end_datetime|date:'H:i' }}{% else %}до {{ event.end_datetime|date:'H:i' }}{% endif %}{% endif %}{% elif facts.long %}{% day_month event.start_datetime language %} – {% day_month event.end_datetime language %}{% else %}{% if facts.when == 'today' %}{% if language == 'az' %}Bu gün{% elif language == 'en' %}Today{% else %}Сегодня{% endif %}{% elif facts.when == 'tomorrow' %}{% if language == 'az' %}Sabah{% elif language == 'en' %}Tomorrow{% else %}Завтра{% endif %}{% else %}{% day_month event.start_datetime language %}{% endif %} · {% if group.multi %}{% sessions_label group.sessions|length language %}{% else %}{{ event.start_datetime|date:'H:i' }}–{{ event.end_datetime|date:'H:i' }}{% endif %}{% endif %}</p>
     <p class="km-ev-card__when">
       <span class="material-symbols-rounded" aria-hidden="true">{% if facts.long %}date_range{% else %}schedule{% endif %}</span>
       {% if facts.long %}
         <span>{{ event.start_datetime|date:'j b'|cut:'.' }} – {{ event.end_datetime|date:'j b'|cut:'.' }}</span>
       {% else %}
-        <span>{% if facts.when == 'today' %}{% if language == 'az' %}Bu gün{% elif language == 'en' %}Today{% else %}Сегодня{% endif %}{% elif facts.when == 'tomorrow' %}{% if language == 'az' %}Sabah{% elif language == 'en' %}Tomorrow{% else %}Завтра{% endif %}{% else %}{{ event.start_datetime|date:'D, j b'|cut:'.' }}{% endif %} · <time datetime="{{ event.start_datetime|date:'c' }}">{{ event.start_datetime|date:'H:i' }}</time>–<time datetime="{{ event.end_datetime|date:'c' }}">{{ event.end_datetime|date:'H:i' }}</time></span>
+        <span>{% if group.multi %}{% if facts.when == 'today' %}{% if language == 'az' %}Bu gün{% elif language == 'en' %}Today{% else %}Сегодня{% endif %}{% elif facts.when == 'tomorrow' %}{% if language == 'az' %}Sabah{% elif language == 'en' %}Tomorrow{% else %}Завтра{% endif %}{% else %}{{ event.start_datetime|date:'D, j b'|cut:'.' }}{% endif %} · {% sessions_label group.sessions|length language %}</span>{% else %}<span>{% if facts.when == 'today' %}{% if language == 'az' %}Bu gün{% elif language == 'en' %}Today{% else %}Сегодня{% endif %}{% elif facts.when == 'tomorrow' %}{% if language == 'az' %}Sabah{% elif language == 'en' %}Tomorrow{% else %}Завтра{% endif %}{% else %}{{ event.start_datetime|date:'D, j b'|cut:'.' }}{% endif %} · <time datetime="{{ event.start_datetime|date:'c' }}">{{ event.start_datetime|date:'H:i' }}</time>–<time datetime="{{ event.end_datetime|date:'c' }}">{{ event.end_datetime|date:'H:i' }}</time></span>{% endif %}
       {% endif %}
     </p>
     <h3 class="km-ev-card__title"><a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a>{% include 'catalog/includes/event_title_fallback.html' %}</h3>
@@ -51,6 +52,15 @@
     {% elif event.public_venue.address %}
       <p class="km-ev-card__place"><span class="material-symbols-rounded" aria-hidden="true">location_on</span>{{ event.public_venue.address|truncatechars:52 }}</p>
     {% endif %}
+
+    {% if group.multi %}
+      <ul class="km-ev-card__times" aria-label="{% if language == 'az' %}Seanslar{% elif language == 'en' %}Showtimes{% else %}Сеансы{% endif %}">
+        {% for session in group.sessions %}<li><a class="km-ev-time{% if session.ended %} is-ended{% endif %}" href="{{ session.url }}"><time datetime="{{ session.start|date:'c' }}">{{ session.start|date:'H:i' }}</time></a></li>{% endfor %}
+      </ul>
+    {% endif %}
+    <p class="km-ev-card__foot">
+      {% if event.age_display %}<span class="km-ev-card__age">{{ event.age_display }} {% if language == 'az' %}yaş{% elif language == 'en' %}y.o.{% else %}лет{% endif %}</span>{% endif %}
+      {% if event.is_free or event.price_display %}<span class="km-ev-card__rowprice{% if event.is_free %} is-free{% endif %}">{% if event.is_free %}{% if language == 'az' %}Pulsuz{% elif language == 'en' %}Free{% else %}Бесплатно{% endif %}{% else %}{{ event.price_display }}{% endif %}</span>{% endif %}    </p>
 
     {% include 'catalog/includes/event_timer.html' with variant='card' %}
 

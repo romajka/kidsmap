@@ -6,12 +6,12 @@
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block structured_data %}<script type="application/ld+json">{{ event_schema_json|safe }}</script>{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261123_ticket_layout"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261120_afisha">{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261123_posters"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_places">{% endblock %}
 
 {% block content %}
 <article class="event-detail-page">
   <a class="event-back" href="{% url 'events_landing' %}"><span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>{% if language == 'az' %}Bütün tədbirlər{% elif language == 'en' %}All events{% else %}Все мероприятия{% endif %}</a>
-  <header class="event-poster{% if not event.photo %} event-poster--no-photo{% endif %}">
+  <header class="event-poster{% if not event_poster %} event-poster--no-photo{% else %} event-poster--{{ event_poster.orientation }}{% endif %}">
     <div class="event-poster-intro">
       <div class="event-poster-meta">
         {% if event.get_category_display %}<span class="event-category"><span class="material-symbols-rounded" aria-hidden="true">confirmation_number</span>{{ event.get_category_display }}</span>{% endif %}
@@ -34,6 +34,12 @@
           </div>
         </div>
       {% endif %}
+      {% if event_sessions|length > 1 %}
+        <div class="event-sessions">
+          <span class="event-sessions__label">{% if language == 'az' %}Bu gün seanslar{% elif language == 'en' %}Showtimes this day{% else %}Сеансы в этот день{% endif %}</span>
+          <ul class="km-ev-card__times">{% for session in event_sessions %}<li><a class="km-ev-time{% if session.ended %} is-ended{% endif %}" href="{{ session.url }}"{% if session.event.pk == event.pk %} aria-current="true"{% endif %}>{% timezone 'Asia/Baku' %}<time datetime="{{ session.start|date:'c' }}">{{ session.start|date:'H:i' }}</time>{% endtimezone %}</a></li>{% endfor %}</ul>
+        </div>
+      {% endif %}
     </div>
 
     <div class="event-ticket" data-event-key-facts>
@@ -53,10 +59,10 @@
       {% endif %}
     </div>
 
-    {% if event.photo %}
+    {% if event_poster %}
       <div class="event-detail-media">
-        <a class="event-cover event-photo-link" data-event-photo href="{{ event.photo.url }}" aria-label="{% if language == 'az' %}Üz qabığına tam ölçüdə bax{% elif language == 'en' %}View full cover image{% else %}Открыть обложку целиком{% endif %}">
-          <img src="{{ event.photo.url }}" alt="" fetchpriority="high" decoding="async">
+        <a class="event-cover event-photo-link" data-km-lb-open="0" href="{{ event_poster.original }}" aria-label="{% if language == 'az' %}Afişaya tam ölçüdə bax{% elif language == 'en' %}View the full poster{% else %}Открыть афишу целиком{% endif %}">
+          {% include 'catalog/includes/event_poster_media.html' with poster=event_poster alt=event.name_i18n eager=True whole=True sizes='(max-width: 767px) 92vw, 460px' %}
           <span class="event-expand material-symbols-rounded" aria-hidden="true">open_in_full</span>
         </a>
       </div>
@@ -102,16 +108,8 @@
 
   {% if not event.has_ended and event.occurrence_state != 'cancelled' %}{% include 'catalog/includes/event_more.html' %}{% endif %}
 
-  {% if event.photo or event.gallery.all %}
-    <dialog class="event-photo-dialog" aria-labelledby="event-photo-title" data-event-photo-dialog>
-      <div class="event-photo-toolbar">
-        <h2 id="event-photo-title">{{ event.name_i18n }}</h2>
-        <form method="dialog"><button autofocus aria-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}Закрыть{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">close</span></button></form>
-      </div>
-      <img alt="">
-    </dialog>
-  {% endif %}
+  {% include 'catalog/includes/event_lightbox.html' %}
 </article>
 {% include 'catalog/includes/event_suggest_dialog.html' %}
 {% endblock %}
-{% block extra_body %}<script src="{% static 'js/event_detail_registration.js' %}?v=20261120_ticket" defer></script><script src="{% static 'js/event_timer.js' %}?v=20261120" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endblock %}
+{% block extra_body %}<script src="{% static 'js/event_detail_registration.js' %}?v=20261123_posters" defer></script><script src="{% static 'js/event_media.js' %}?v=20261123" defer></script><script src="{% static 'js/event_timer.js' %}?v=20261123_ring" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endblock %}

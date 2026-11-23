@@ -1,0 +1,29 @@
+{% load i18n %}{% get_current_language as lang %}{% comment %}
+Focus point picker (static/js/focus_picker.js + css/components/focus_picker.css).
+Args: src (current image URL), x, y (bound form fields), file_input (CSS selector
+of the upload input; inside admin gallery cards the card's own input is used).
+{% endcomment %}
+<div class="km-focus" data-km-focus data-src="{{ src|default:'' }}"{% if file_input %} data-file-input="{{ file_input }}"{% endif %}>
+  <div class="km-focus__head">
+    <p class="km-focus__title">{% if lang == 'az' %}Fokus nöqtəsi{% elif lang == 'en' %}Focus point{% else %}Точка фокуса{% endif %}</p>
+    <p class="km-focus__help">{% if lang == 'az' %}Şəkildə əsas olan yerə toxunun və ya nöqtəni sürükləyin — kartlar bu nöqtəyə görə kəsiləcək.{% elif lang == 'en' %}Tap or drag the dot onto what matters in the photo — cards are cropped around it.{% else %}Нажмите или потяните точку на главное на фото — по ней будут кадрироваться карточки.{% endif %}</p>
+  </div>
+  <div class="km-focus__body">
+    <div class="km-focus__stage" data-km-focus-stage>
+      <img alt="" data-km-focus-img>
+      <span class="km-focus__dot" data-km-focus-dot tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="100" aria-label="{% if lang == 'az' %}Fokus nöqtəsi: oxlar 1%, Shift ilə 10% hərəkət etdirir{% elif lang == 'en' %}Focus point: arrow keys move 1%, with Shift 10%{% else %}Точка фокуса: стрелки двигают на 1%, с Shift — на 10%{% endif %}"></span>
+      <span class="km-focus__empty" data-km-focus-empty>{% if lang == 'az' %}Fokus nöqtəsini seçmək üçün şəkil yükləyin.{% elif lang == 'en' %}Upload a photo to choose the focus point.{% else %}Загрузите фото, чтобы выбрать точку фокуса.{% endif %}</span>
+    </div>
+    <div class="km-focus__previews" aria-hidden="true">
+      <figure><img alt="" data-km-focus-preview style="aspect-ratio:1/1"><figcaption>1:1</figcaption></figure>
+      <figure><img alt="" data-km-focus-preview style="aspect-ratio:4/3"><figcaption>4:3</figcaption></figure>
+      <figure><img alt="" data-km-focus-preview style="aspect-ratio:16/9"><figcaption>16:9</figcaption></figure>
+      <figure><img alt="" data-km-focus-preview style="aspect-ratio:3/4"><figcaption>3:4</figcaption></figure>
+    </div>
+  </div>
+  <div class="km-focus__inputs">
+    <label data-km-focus-x>X, % {{ x }}</label>
+    <label data-km-focus-y>Y, % {{ y }}</label>
+    {% if x.errors or y.errors %}<span class="errorlist">{{ x.errors }}{{ y.errors }}</span>{% endif %}
+  </div>
+</div>
