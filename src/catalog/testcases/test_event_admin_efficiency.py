@@ -44,6 +44,27 @@ class EventAdminEfficiencyTests(TestCase):
                 self.assertContains(response, 'https://iticket.az/ru/page/rules')
                 self.assertNotContains(response, '/home/ramin/')
 
+    def test_editor_can_select_and_reopen_multiple_event_languages(self):
+        self.client.force_login(self.actor)
+        event = self.event()
+        change_url = f'/admin/catalog/event/{event.pk}/change/'
+        for url in ('/admin/catalog/event/add/', change_url):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.content.count(b'name="languages"'), 4, url)
+            self.assertContains(response, 'id="id_languages"', count=1)
+
+        data = legacy_admin.TestAdminOwnershipModerationUX._admin_event_change_payload(
+            self, event, languages=['ru', 'az'], _continue='1')
+        response = self.client.post(change_url, data)
+        self.assertEqual(response.status_code, 302)
+        event.refresh_from_db()
+        self.assertEqual(event.languages, 'az,ru')
+        reopened = self.client.get(change_url)
+        field = reopened.context['adminform'].form['languages']
+        self.assertEqual(field.value(), ['az', 'ru'])
+        self.assertContains(reopened, str(field), html=True)
+
     def test_single_owned_organizer_is_initial_but_multiple_are_not_guessed(self):
         initial = self.admin.get_changeform_initial_data(self.request)
         self.assertEqual(initial.get('organizer_organization'), self.org.pk)

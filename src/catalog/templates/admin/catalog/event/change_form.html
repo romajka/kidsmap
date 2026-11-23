@@ -104,6 +104,11 @@
           <div class="km-event-field km-event-field--wide km-event-grid" data-event-price-values>{% include 'admin/catalog/event/field.html' with field=form.price_amount %}<div data-event-price-max>{% include 'admin/catalog/event/field.html' with field=form.price_amount_max %}</div>{% include 'admin/catalog/event/field.html' with field=form.price_currency %}</div>
           {% include 'admin/catalog/event/field.html' with field=form.price_text wide=True %}
           {% include 'admin/catalog/event/field.html' with field=form.event_format wide=True %}
+          <fieldset class="km-event-field km-event-field--wide" data-event-field="languages">
+            {{ form.languages.legend_tag }}
+            {{ form.languages }}
+            {{ form.languages.errors }}
+          </fieldset>
         </div>
         <div data-event-physical>
           {% include 'admin/catalog/event/field.html' with field=form.related_place wide=True %}
