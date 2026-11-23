@@ -11,7 +11,7 @@
 {% block content %}
 <article class="event-detail-page">
   <a class="event-back" href="{% url 'events_landing' %}"><span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>{% if language == 'az' %}Bütün tədbirlər{% elif language == 'en' %}All events{% else %}Все мероприятия{% endif %}</a>
-  <header class="event-poster{% if not event_poster %} event-poster--no-photo{% else %} event-poster--tinted event-poster--{{ event_poster.orientation }}{% endif %}"{% if event_poster %} style="{% if event_poster.color %}--poster:{{ event_poster.color }};{% endif %}{% if event_accent %}--accent:{{ event_accent.bg }};--accent-ink:{{ event_accent.ink }};{% endif %}{% if event_poster.width and event_poster.height %}--poster-ar:{{ event_poster.width }} / {{ event_poster.height }};{% endif %}"{% endif %}>
+  <header class="event-poster{% if not event_poster %} event-poster--no-photo{% else %} event-poster--{{ event_poster.orientation }}{% endif %}">
     <div class="event-poster-intro">
       <div class="event-poster-meta">
         {% if event.get_category_display %}<span class="event-category"><span class="material-symbols-rounded" aria-hidden="true">confirmation_number</span>{{ event.get_category_display }}</span>{% endif %}

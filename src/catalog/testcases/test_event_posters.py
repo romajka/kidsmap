@@ -13,9 +13,7 @@ from django.utils import timezone
 from PIL import Image
 
 from catalog.models import Category, Event, EventPhoto, SiteSettings
-from catalog.services.event_images import (
-    accent_for, clamp_focus, contrast_ratio, dominant_color, orientation_for, readable_ink,
-)
+from catalog.services.event_images import clamp_focus, dominant_color, orientation_for
 from catalog.services.event_sessions import by_day, group_sessions, session_key
 
 BAKU = ZoneInfo('Asia/Baku')
@@ -57,14 +55,6 @@ class PosterFactsTests(SimpleTestCase):
         r, g, b = (int(color[i:i + 2], 16) for i in (1, 3, 5))
         self.assertGreater(r, 180)          # saturation weighting keeps the red
         self.assertLess(g, 120)
-
-    def test_text_colour_and_button_keep_aa(self):
-        self.assertEqual(readable_ink('#ffe066'), '#1f2a22')
-        self.assertEqual(readable_ink('#20304a'), '#ffffff')
-        for color in ('#ffe066', '#9d4165', '#67acd1', '#808080', '#ef8e37', '#ffffff', '#000000'):
-            accent = accent_for(color)
-            self.assertGreaterEqual(contrast_ratio(accent['bg'], accent['ink']), 4.5, color)
-        self.assertEqual(accent_for('not-a-colour'), {})
 
 
 class EventPosterDataTests(TestCase):

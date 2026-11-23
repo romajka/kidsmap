@@ -83,46 +83,6 @@ def analyze(file_field) -> dict:
         return {}
 
 
-def readable_ink(color: str) -> str:
-    """Dark or white text for a background, by the 0.299/0.587/0.114 luma rule."""
-    if not color or not HEX.match(color):
-        return '#ffffff'
-    r, g, b = (int(color[i:i + 2], 16) for i in (1, 3, 5))
-    return '#1f2a22' if 0.299 * r + 0.587 * g + 0.114 * b > 150 else '#ffffff'
-
-
-def _relative_luminance(color: str) -> float:
-    def channel(c):
-        c /= 255
-        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
-    r, g, b = (int(color[i:i + 2], 16) for i in (1, 3, 5))
-    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
-
-
-def contrast_ratio(a: str, b: str) -> float:
-    la, lb = sorted((_relative_luminance(a), _relative_luminance(b)), reverse=True)
-    return (la + 0.05) / (lb + 0.05)
-
-
-def accent_for(color: str) -> dict:
-    """A button colour from the poster that keeps AA (4.5:1) with its text.
-
-    The hue is kept; lightness is pulled toward the text's opposite until
-    the pair passes, so a pale or mid-tone poster never yields unreadable text.
-    """
-    if not color or not HEX.match(color):
-        return {}
-    r, g, b = (int(color[i:i + 2], 16) for i in (1, 3, 5))
-    ink = readable_ink(color)
-    target = (0, 0, 0) if ink == '#ffffff' else (255, 255, 255)
-    for step in range(0, 21):
-        t = step / 20 * 0.85
-        mixed = '#{:02x}{:02x}{:02x}'.format(*(round(c + (tc - c) * t) for c, tc in zip((r, g, b), target)))
-        if contrast_ratio(mixed, ink) >= 4.5:
-            return {'bg': mixed, 'ink': ink}
-    return {'bg': '#1f6b45', 'ink': '#ffffff'}
-
-
 def _meta(source, *, prefix):
     get = lambda name: getattr(source, prefix + name, None)  # noqa: E731
     width, height = get('width'), get('height')
