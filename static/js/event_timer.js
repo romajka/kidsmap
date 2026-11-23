@@ -76,7 +76,7 @@
       tiles[i].after(colon);
     }
     root.classList.add('is-live');
-    root.__kmTimer = { root: root, start: start, end: end, segs: segs, label: root.querySelector('[data-km-timer-label]') };
+    root.__kmTimer = { root: root, start: start, end: end, segs: segs, label: root.querySelector('[data-km-timer-label]'), short: root.querySelector('[data-km-timer-short]') };
     timers.push(root.__kmTimer);
   }
 
@@ -92,6 +92,7 @@
     if (root.dataset.state !== phase) {
       root.dataset.state = phase;
       if (t.label) t.label.textContent = root.dataset['l' + phase.charAt(0).toUpperCase() + phase.slice(1)] || '';
+      if (t.short) t.short.textContent = root.dataset['s' + phase.charAt(0).toUpperCase() + phase.slice(1)] || '';
       var card = root.closest('[data-event-card]');
       if (card) card.dataset.phase = phase;
     }
@@ -102,7 +103,14 @@
     var values = { d: Math.floor(left / 86400), h: Math.floor(left % 86400 / 3600), m: Math.floor(left % 3600 / 60), s: left % 60 };
     root.classList.toggle('is-urgent', phase !== 'running' && leftMs < HOUR);
     // seconds tile: share of the current minute that has passed (0..1)
-    root.style.setProperty('--km-sec', ((60 - values.s) % 60 / 60).toFixed(3));
+    var sec = (60 - values.s) % 60 / 60;
+    // a new minute restarts the seconds ring at once instead of rewinding it
+    if (t.sec !== undefined && sec < t.sec) {
+      root.classList.add('is-wrap');
+      requestAnimationFrame(function () { requestAnimationFrame(function () { root.classList.remove('is-wrap'); }); });
+    }
+    t.sec = sec;
+    root.style.setProperty('--km-sec', sec.toFixed(3));
     // whole-event progress for running events (0..1)
     if (phase === 'running') root.style.setProperty('--km-run', Math.min(1, (now - t.start) / Math.max(1, t.end - t.start)).toFixed(3));
     Object.keys(values).forEach(function (unit) {

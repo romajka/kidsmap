@@ -6,7 +6,7 @@
         <h3 class="km-media-section__title">{% translate "Главное фото" %}</h3>
         <p class="km-media-section__description">{% translate "Используется в афише мероприятий и на странице события." %}</p>
       </div>
-      <p class="km-media-section__hint">{% translate "Рекомендуется изображение не меньше 1200×1200 px. В афише оно показывается квадратным." %}</p>
+      <p class="km-media-section__hint">{% translate "Афиша показывается целиком, без обрезки; подходит вертикальный постер, квадрат или горизонтальное фото. Чем больше разрешение, тем чётче полноэкранный просмотр." %}</p>
     </div>
 
     <div class="km-media-main{% if stored_photo and stored_photo.name %} has-photo{% endif %}" data-main-photo-root>
@@ -16,7 +16,7 @@
           <span class="km-media-main__placeholder-icon" aria-hidden="true"><i class="fas fa-camera"></i></span>
           <strong>{% translate "Добавить главное фото" %}</strong>
           <span class="km-media-main__placeholder-sub">{% translate "Перетащите изображение или выберите файл" %}</span>
-          <span class="km-media-main__placeholder-hint">{% translate "Превью показывает квадратный кроп для афиши." %}</span>
+          <span class="km-media-main__placeholder-hint">{% translate "Ниже можно отметить главное на фото." %}</span>
         </div>
         {% if stored_photo and stored_photo.name %}
           <img src="{{ stored_photo.url }}" alt="{{ obj.name_i18n }}" class="km-media-main__image" data-main-photo-preview data-main-photo-initial-url="{{ stored_photo.url }}" data-main-photo-initial-name="{{ stored_photo.name }}"{% if obj.safe_photo_size %} data-main-photo-initial-size="{{ obj.safe_photo_size }}"{% endif %}>
@@ -30,9 +30,10 @@
           <button type="button" class="km-media-main__pick" data-main-photo-pick>{% translate "Выбрать фото" %}</button>
           <button type="button" class="km-media-main__clear" data-main-photo-clear>{% translate "Удалить" %}</button>
         </div>
-        <p class="km-media-main__meta"><span>{% translate "Квадратное превью афиши" %}</span><span class="km-media-main__drop-note">{% translate "Можно перетащить новое фото прямо на превью" %}</span><span data-main-photo-file-name style="display:none"></span><span data-main-photo-file-size style="display:none"></span></p>
+        <p class="km-media-main__meta"><span>{% translate "Превью афиши" %}</span><span class="km-media-main__drop-note">{% translate "Можно перетащить новое фото прямо на превью" %}</span><span data-main-photo-file-name style="display:none"></span><span data-main-photo-file-size style="display:none"></span></p>
       </div>
     </div>
+    {% if stored_photo and stored_photo.name %}{% include 'includes/focus_picker.html' with src=stored_photo.url x=form.photo_focus_x y=form.photo_focus_y file_input='#id_photo' %}{% else %}{% include 'includes/focus_picker.html' with x=form.photo_focus_x y=form.photo_focus_y file_input='#id_photo' %}{% endif %}
 
     <details class="km-gallery-section km-event-extra" aria-labelledby="km-event-gallery-title">
       <summary class="km-gallery-section__head">

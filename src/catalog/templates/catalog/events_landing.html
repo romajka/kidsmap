@@ -5,7 +5,7 @@
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261104_public_mobile_r2"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261120_calendar_day">{% include "pages/includes/editorial_styles.html" %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261104_public_mobile_r2"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_places">{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 {% block content %}
 <div class="events-page-wrap">
@@ -170,9 +170,10 @@
         <p class="events-results-count">{{ results_count_label }}</p>
         {% endif %}
       </div>
-      <div class="events-list-v2 km-ev-grid{% if events_when %} km-ev-grid--history{% endif %}" data-km-stagger>
-        {% for event in events %}
-          {% include 'catalog/includes/event_listing_card.html' %}
+      {% if event_days %}{% include 'catalog/includes/event_day_agenda.html' %}{% endif %}
+      <div class="events-list-v2 km-ev-grid{% if events_when %} km-ev-grid--history{% endif %}{% if event_days %} km-ev-grid--has-days{% endif %}" data-km-stagger>
+        {% for group in event_groups %}
+          {% include 'catalog/includes/event_listing_card.html' with event=group.event group=group %}
         {% empty %}
           <div class="km-state-card km-state-card--filter km-editorial-empty" role="status">
             {% include "pages/includes/editorial_art.html" with art="img/editorial/calendar.webp" art_class="km-editorial-empty__art" only %}
@@ -237,4 +238,4 @@
 </div>
 {% include 'catalog/includes/event_suggest_dialog.html' %}
 {% endblock %}
-{% block extra_body %}<script src="{% static 'js/events_filters.js' %}?v=20261026" defer></script><script src="{% static 'js/event_timer.js' %}?v=20261120" defer></script><script src="{% static 'js/events_calendar.js' %}?v=20261120" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endblock %}
+{% block extra_body %}<script src="{% static 'js/events_filters.js' %}?v=20261026" defer></script><script src="{% static 'js/event_timer.js' %}?v=20261123_ring" defer></script><script src="{% static 'js/events_calendar.js' %}?v=20261120" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endblock %}

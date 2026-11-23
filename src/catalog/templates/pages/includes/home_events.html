@@ -22,7 +22,7 @@
   <div class="km-home-afisha__rail">
     <button type="button" class="km-home-afisha__arrow km-home-afisha__arrow--prev" data-km-rail-prev aria-label="{% if language == 'az' %}Əvvəlki{% elif language == 'en' %}Previous{% else %}Назад{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button>
     <ul class="km-home-afisha__track" data-km-rail tabindex="0" aria-label="{% if language == 'az' %}Yaxın tədbirlər{% elif language == 'en' %}Upcoming events{% else %}Ближайшие события{% endif %}">
-      {% for event in upcoming_events %}<li class="km-home-afisha__item">{% include 'catalog/includes/event_listing_card.html' with compact=True %}</li>{% endfor %}
+      {% for group in upcoming_event_groups %}<li class="km-home-afisha__item km-home-afisha__item--event">{% include 'catalog/includes/event_listing_card.html' with event=group.event group=group compact=True %}</li>{% endfor %}
     </ul>
     <button type="button" class="km-home-afisha__arrow km-home-afisha__arrow--next" data-km-rail-next aria-label="{% if language == 'az' %}Növbəti{% elif language == 'en' %}Next{% else %}Вперёд{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
   </div>
