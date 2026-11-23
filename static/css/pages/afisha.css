@@ -1603,7 +1603,7 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   .km-ev-card__media .km-fit > img.km-fit__img { object-fit: contain; object-position: center; filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.4)); }
   .km-ev-card__media .km-ev-card__placeholder { object-fit: cover; }
   .km-ev-card__shade, .km-ev-card__stamp, .km-ev-card__chips, .km-ev-card__langs, .km-ev-card__price,
-  .km-ev-card__when, .km-ev-card__meta, .km-ev-card .km-timer, .km-ev-card__actions { display: none !important; }
+  .km-ev-card__when, .km-ev-card__meta, .km-ev-card__actions { display: none !important; }
   .km-ev-card__body,
   .km-ev-card--compact .km-ev-card__body { display: flex; flex-direction: column; gap: 4px; padding: 2px 0 0; min-width: 0; }
   .km-ev-card__rowdate { display: block; margin: 0; color: var(--ev-hot-ink); font-weight: 800; font-size: 12px; line-height: 1.3; }
@@ -1619,6 +1619,31 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   .km-ev-card__age { padding: 2px 8px; border-radius: 999px; background: var(--ev-mint); color: var(--ev-deep); font-size: 12px; font-weight: 800; }
   .km-ev-card__rowprice { padding: 2px 9px; border-radius: 999px; background: var(--ev-hot-soft); color: var(--ev-hot-ink); font-size: 12px; font-weight: 800; }
   .km-ev-card__rowprice.is-free { background: #e3f7e8; color: #0b6b30; }
+  .km-ev-card__rowdate.is-live { color: #0b6b30; display: inline-flex; align-items: center; gap: 6px; }
+  .km-ev-card__live-dot { position: relative; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+  .km-ev-card__live-dot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid currentColor; animation: km-ping 1.6s var(--ev-ease) infinite; }
+
+  /* countdown, as on desktop but in one slim line: dot + ticking tiles */
+  .km-ev-card .km-timer,
+  .km-ev-card--compact .km-ev-card .km-timer {
+    flex-direction: row; align-items: center; gap: 7px;
+    width: fit-content; max-width: 100%; margin: 3px 0 0; padding: 3px 5px 3px 8px;
+    border-radius: 10px;
+  }
+  .km-ev-card .km-timer__label { gap: 0; font-size: 0; }
+  .km-ev-card .km-timer__label [data-km-timer-label] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .km-ev-card .km-timer__clock { gap: 3px; align-items: center; }
+  .km-ev-card .km-timer__seg { flex: none; flex-direction: row; align-items: baseline; gap: 2px; padding: 3px 5px 4px; border-radius: 7px; }
+  .km-ev-card .km-timer__num,
+  .km-ev-card--compact .km-timer__num { font-size: 14px; }
+  .km-ev-card .km-timer__unit { margin: 0; font-size: 9.5px; }
+  .km-ev-card .km-timer__colon { font-size: 12px; margin: 0 -1px; }
+  .km-ev-card .km-timer__seg[data-unit="s"]::before { height: 2px; }
+  /* with days on the clock, seconds would not fit: d · h · m */
+  .km-ev-card .km-timer__seg[data-unit="d"]:not(.is-zero) ~ .km-timer__seg[data-unit="s"],
+  .km-ev-card .km-timer__seg[data-unit="d"]:not(.is-zero) ~ .km-timer__colon:nth-last-child(2) { display: none; }
+  .km-ev-card:active { transform: scale(0.985); transition-duration: 0.12s; }
+
   .km-ev-card__cancelled { inset-block-start: auto; inset-block-end: 10px; inset-inline-end: 10px; padding: 3px 9px; font-size: 0.72rem; }
   .km-ev-card:has(.km-ev-card__title a:focus-visible) { outline-offset: 0; }
 
