@@ -1032,7 +1032,7 @@
 /* ── Responsive Rules ── */
 @media (max-width: 1024px) {
   .contacts-main-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .contacts-cta-banner {
@@ -1064,6 +1064,7 @@
   .contacts-channel-actions {
     grid-column: 1 / -1;
     width: 100%;
+    flex-wrap: wrap;
   }
 
   .contacts-action-btn {

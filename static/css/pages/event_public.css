@@ -32,6 +32,7 @@
 .event-poster {
   position: relative;
   isolation: isolate;
+  container: event-poster / inline-size;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, .98fr);
   grid-template-areas: "intro photo" "ticket ticket";
@@ -152,6 +153,7 @@
   position: relative;
   grid-area: ticket;
   display: flex;
+  flex-wrap: wrap;
   align-items: stretch;
   background: var(--poster-paper);
   border: 1px solid #dfddcc;
@@ -160,10 +162,10 @@
 }
 .event-ticket-facts {
   display: grid;
-  grid-template-columns: minmax(140px, 1.15fr) minmax(145px, 1fr) minmax(95px, .8fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, .8fr);
   align-items: center;
   gap: clamp(16px, 2.3vw, 34px);
-  flex: 1;
+  flex: 1 0 min(100%, 33rem);
   min-width: 0;
   margin: 0;
   padding: 24px clamp(20px, 3.4vw, 48px);
@@ -177,10 +179,12 @@
 .event-ticket dd { margin: 0; font-variant-numeric: tabular-nums; }
 .event-date-stamp { display: flex; gap: 10px; align-items: center; }
 .event-date-day {
+  flex: none;
+  white-space: nowrap;
   font: 850 clamp(2.6rem, 4.2vw, 4rem)/1 var(--font-display);
   letter-spacing: -.055em;
 }
-.event-date-caption { display: grid; font-size: .88rem; line-height: 1.4; color: var(--muted); }
+.event-date-caption { display: grid; min-width: 0; font-size: .88rem; line-height: 1.4; color: var(--muted); }
 .event-date-caption strong { color: var(--poster-ink); font-weight: 750; }
 .event-ticket-time dd, .event-ticket-price dd { font: 780 clamp(1.05rem, 1.6vw, 1.45rem)/1.25 var(--font-display); }
 .event-ticket-price .event-price-note { margin-top: 5px; color: var(--muted); font: 400 .91rem/1.45 var(--font-body); }
@@ -188,6 +192,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  max-inline-size: min(100%, 19rem);
   padding: 20px clamp(18px, 3vw, 42px);
   border-left: 2px dashed #c8c9b5;
 }
@@ -287,10 +292,24 @@
 .event-photo-toolbar button { display: grid; place-items: center; padding: 0; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--tint-turf-100); color: var(--brand-spruce); cursor: pointer; }
 .event-photo-dialog img { display: block; max-height: 75dvh; max-width: 100%; margin: auto; object-fit: contain; }
 
+@container event-poster (max-width: 72rem) {
+  .event-ticket-facts { flex-basis: 100%; }
+  .event-poster .event-ticket > .km-timer--poster {
+    align-self: center;
+    margin: 0 0 16px clamp(20px, 3.4vw, 48px);
+  }
+  .event-ticket-action {
+    flex: 1;
+    justify-content: flex-end;
+    max-inline-size: none;
+    padding-block: 0 16px;
+    border-left: 0;
+  }
+}
 @media (max-width: 920px) {
   .event-poster-intro { padding: 26px; }
-  .event-ticket-facts { gap: 12px; padding: 20px; grid-template-columns: 1.1fr 1fr .85fr; }
-  .event-ticket-action { padding: 16px; }
+  .event-ticket-facts { gap: 12px; padding: 20px; }
+  .event-ticket-action { padding-inline: 16px; }
 }
 @media (max-width: 767px) {
   .event-poster { grid-template-columns: minmax(0,1fr); grid-template-areas: "intro" "photo" "ticket"; }
@@ -304,13 +323,18 @@
   .event-detail-media::before { border-radius: 0; }
   .event-cover { aspect-ratio: 2.5; border-width: 4px; transform: rotate(1deg); }
   .event-ticket { display: block; }
-  .event-ticket-facts { grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px 19px; }
+  .event-ticket-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 15px 19px; }
   .event-ticket-date { grid-column: 1 / -1; }
   .event-date-stamp { gap: 8px; }
   .event-date-day { font-size: 2.4rem; }
   .event-date-caption { font-size: .85rem; }
   .event-ticket dt { margin-bottom: 3px; }
-  .event-ticket-action { display: block; padding: 12px 18px; border-left: 0; border-top: 2px dashed #c8c9b5; }
+  .event-poster .event-ticket > .km-timer--poster {
+    width: fit-content;
+    max-width: calc(100% - 38px);
+    margin: 0 auto 14px;
+  }
+  .event-ticket-action { display: block; max-inline-size: none; padding: 12px 18px; border-left: 0; border-top: 2px dashed #c8c9b5; }
   .event-ticket-action .event-registration-btn { width: 100%; }
   .event-body { grid-template-columns: minmax(0,1fr); gap: 25px; margin-block: 30px; }
   .event-mobile-registration:not([hidden]) {

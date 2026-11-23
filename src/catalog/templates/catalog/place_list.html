@@ -12,7 +12,7 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_sleep" />
-  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261120_sort_width" />
+  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261123_sort_layout" />
   {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=20261106_card_height" />{% endif %}
   {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_layout.css' %}?v=20261120_mobile_cards" />{% endif %}
 {% endblock %}
@@ -709,6 +709,9 @@
           <span class="results-count-text">{{ results_count_label }}</span>
         </p>
       </div>
+      {% if is_new_page %}
+        <p class="results-order-label">{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}{% trans "Сначала новые" %}{% endif %}</p>
+      {% else %}
       <div class="results-toolbar-actions">
         <div class="results-view-mode" role="group" aria-label="{% if language == 'az' %}Görünüş rejimi{% elif language == 'en' %}View mode{% else %}{% trans 'Режим отображения' %}{% endif %}">
           <button
@@ -825,6 +828,7 @@
           </div>
         </div>
       </div>
+      {% endif %}
     </div>
   </div>
 

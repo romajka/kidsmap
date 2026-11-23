@@ -199,11 +199,16 @@ body.page-home .home-map-explorer .home-explorer-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+body.page-home .home-map-explorer :is(.home-explorer-list, .km-evlist) {
   max-height: 520px;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: #bfceb9 transparent;
+}
+body.page-home .home-map-explorer .km-evlist {
+  align-content: start;
 }
 body.page-home .home-map-explorer .home-explorer-card {
   border: 1px solid var(--home-line, #d8e6dc);
@@ -882,8 +887,10 @@ body.page-home .home-map-explorer .home-map-pagination {
   }
 
   /* List on mobile */
-  body.page-home .home-map-explorer .home-explorer-list {
+  body.page-home .home-map-explorer :is(.home-explorer-list, .km-evlist) {
     max-height: 480px;
+  }
+  body.page-home .home-map-explorer .home-explorer-list {
     gap: 8px;
   }
   body.page-home .home-map-explorer .home-explorer-card {
@@ -954,7 +961,7 @@ body.page-home .home-map-explorer .home-search-show-map-btn > span { display: in
 /* Keep the larger guide and map aligned; only the results list scrolls. */
 @media (min-width: 768px) {
   body.page-home .home-map-explorer .home-explorer-list-panel { height: 520px; }
-  body.page-home .home-map-explorer .home-explorer-list {
+  body.page-home .home-map-explorer :is(.home-explorer-list, .km-evlist) {
     flex: 1 1 0;
     min-height: 0;
     max-height: none;

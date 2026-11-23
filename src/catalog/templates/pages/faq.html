@@ -272,7 +272,7 @@
   /* Layout Grid */
   .faq-main-grid {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 260px minmax(0, 1fr);
     gap: 32px;
     align-items: start;
   }
@@ -715,7 +715,7 @@
       grid-template-columns: 1fr;
     }
     .faq-main-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
     .faq-sidebar {
       position: static;

@@ -384,6 +384,18 @@
   opacity: 1 !important;
 }
 
+.page-place_new .results-toolbar {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.page-place_new .results-order-label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
 .page-place_list .results-toolbar-actions .results-map-toggle {
   height: 38px !important;
   min-height: 38px !important;

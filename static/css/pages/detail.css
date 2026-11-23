@@ -1495,7 +1495,7 @@ a.public-place-org.detail-org-badge {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr));
   gap: 10px;
 }
 
@@ -1544,6 +1544,7 @@ a.public-place-org.detail-org-badge {
   color: #111827;
   line-height: 1.35;
   letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
 }
 
 .detail-week__day--today {
@@ -1619,6 +1620,12 @@ a.public-place-org.detail-org-badge {
   padding: 4px 11px;
   border-radius: var(--radius-sm, 8px);
   white-space: nowrap;
+}
+
+.detail-schedule-rows__time:has(> a) {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .detail-schedule-rows__item:not(:has(.detail-schedule-rows__days)) .detail-schedule-rows__time {

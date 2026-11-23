@@ -5162,7 +5162,8 @@ a.km-admin-action--muted:hover,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 8px 16px;
   margin: 16px 0 12px 0;
   padding: 0 4px;
 }
@@ -5170,6 +5171,8 @@ a.km-admin-action--muted:hover,
 .km-changelist-view-modes {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
+  max-width: 100%;
   background: #F3F4F6;
   border-radius: 10px;
   padding: 3px;
@@ -5212,6 +5215,7 @@ a.km-admin-action--muted:hover,
 .km-changelist-view-left {
   display: flex;
   align-items: center;
+  min-width: 0;
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -5610,10 +5614,15 @@ a.km-admin-action--muted:hover,
 }
 
 /* Readiness Meter */
+.km-card-status-bar__right {
+  min-width: 0;
+}
+
 .km-card-readiness-meter {
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 6px 10px;
 }
 
 .km-readiness-label-row {

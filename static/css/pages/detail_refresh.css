@@ -1229,7 +1229,12 @@ body.page-place_detail .detail-side > .detail-card:not(#kd-a):not(#kd-b) {
 
 body.page-place_detail .detail-week__time:not(#kd-a):not(#kd-b) {
   font-size: 13.5px !important;
-  white-space: nowrap !important;
+}
+
+@media (max-width: 760px) {
+  body.page-place_detail .detail-week__time:not(#kd-a):not(#kd-b) {
+    white-space: nowrap;
+  }
 }
 
 body.page-place_detail .detail-week__label:not(#kd-a):not(#kd-b) {
