@@ -763,7 +763,13 @@ def event_detail(request, slug, pk=None):
             continue
         if start and end and timezone.is_aware(start) and timezone.is_aware(end):
             previous_periods.append({'start':start.astimezone(ZoneInfo('Asia/Baku')), 'end':end.astimezone(ZoneInfo('Asia/Baku'))})
+    from catalog.services.event_images import accent_for, gallery as event_gallery, poster as event_poster
+    from catalog.services.event_sessions import sibling_sessions
+    poster = event_poster(event)
     context = {'event':event, 'language':language, 'event_online':event.event_format == 'online',
+        'event_poster': poster, 'event_gallery_items': event_gallery(event),
+        'event_accent': accent_for(poster['color']) if poster else {},
+        'event_sessions': sibling_sessions(event) if not event.has_ended else [],
         'event_venue':event.public_venue(language),
         'related_place_presentation': related_place_presentation,
         'organizations_section_enabled': orgs_enabled,

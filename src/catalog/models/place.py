@@ -3,6 +3,7 @@ from functools import lru_cache
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, router, transaction
 from django.db.models import Avg, Count, Q
 from django.db.models.signals import post_delete, post_save
@@ -16,6 +17,7 @@ from django.dispatch import receiver
 from catalog.taxonomy_data import CATEGORIES
 from catalog.services.place_public_links import validate_public_links
 from .catalog_structure import PlaceNature, OperatingState
+from catalog.services.event_images import ORIENTATION_CHOICES as IMAGE_ORIENTATION_CHOICES
 
 def _localized_free_label(lang: str | None = None) -> str:
     normalized_lang = (lang or get_language() or settings.LANGUAGE_CODE or "az").split("-")[0]
@@ -949,6 +951,13 @@ class Event(models.Model):
     instagram = models.CharField(_("Instagram"), max_length=255, blank=True, default="")
     website = models.URLField(_("Сайт"), max_length=255, blank=True, default="")
     photo = models.FileField(_("Основное фото"), upload_to="events/", blank=True, null=True)
+    # Poster facts (see services/event_images.py): computed at upload, focus set by hand.
+    photo_focus_x = models.PositiveSmallIntegerField(_("Фокус афиши X, %"), default=50, db_default=50, validators=[MinValueValidator(0), MaxValueValidator(100)])
+    photo_focus_y = models.PositiveSmallIntegerField(_("Фокус афиши Y, %"), default=50, db_default=50, validators=[MinValueValidator(0), MaxValueValidator(100)])
+    photo_width = models.PositiveIntegerField(_("Ширина афиши"), null=True, blank=True, editable=False)
+    photo_height = models.PositiveIntegerField(_("Высота афиши"), null=True, blank=True, editable=False)
+    photo_orientation = models.CharField(_("Ориентация афиши"), max_length=9, blank=True, default="", db_default="", editable=False, choices=IMAGE_ORIENTATION_CHOICES)
+    photo_dominant_color = models.CharField(_("Цвет афиши"), max_length=7, blank=True, default="", db_default="", editable=False)
     moderation_note = models.TextField(_("Комментарий для модерации"), blank=True, default="")
     rejection_reason = models.TextField(_("Причина отклонения"), blank=True, default="")
     status = models.CharField(_("Статус модерации"), max_length=16, choices=STATUS_CHOICES, default=STATUS_DRAFT, db_index=True)
@@ -1164,6 +1173,7 @@ class Event(models.Model):
                 | Q(organizer_resolution='legacy_unresolved', organizer_organization__isnull=True, organizer_specialist__isnull=True)
             ), name='event_organizer_xor'),
             models.CheckConstraint(condition=Q(event_format__in=('physical', 'online')), name='event_valid_format'),
+            models.CheckConstraint(condition=Q(photo_focus_x__lte=100, photo_focus_y__lte=100), name='event_poster_focus_range'),
             models.CheckConstraint(condition=Q(occurrence_state__in=('scheduled', 'cancelled', 'rescheduled')), name='event_valid_occurrence'),
             models.CheckConstraint(condition=Q(status__in=('draft', 'pending', 'published', 'rejected')), name='event_valid_publication'),
             models.CheckConstraint(condition=(Q(organizer_resolution='legacy_unresolved') | Q(start_datetime__isnull=True)
@@ -1188,9 +1198,18 @@ class EventPhoto(models.Model):
     image = models.FileField(_("Фото"), upload_to="events/gallery/")
     caption = models.CharField(_("Подпись"), max_length=255, blank=True)
     order = models.PositiveIntegerField(_("Порядок"), default=0)
+    focus_x = models.PositiveSmallIntegerField(_("Фокус X, %"), default=50, db_default=50, validators=[MinValueValidator(0), MaxValueValidator(100)])
+    focus_y = models.PositiveSmallIntegerField(_("Фокус Y, %"), default=50, db_default=50, validators=[MinValueValidator(0), MaxValueValidator(100)])
+    width = models.PositiveIntegerField(_("Ширина"), null=True, blank=True, editable=False)
+    height = models.PositiveIntegerField(_("Высота"), null=True, blank=True, editable=False)
+    orientation = models.CharField(_("Ориентация"), max_length=9, blank=True, default="", db_default="", editable=False, choices=IMAGE_ORIENTATION_CHOICES)
+    dominant_color = models.CharField(_("Основной цвет"), max_length=7, blank=True, default="", db_default="", editable=False)
 
     class Meta:
         ordering = ("order", "id")
+        constraints = [
+            models.CheckConstraint(condition=Q(focus_x__lte=100, focus_y__lte=100), name='eventphoto_focus_range'),
+        ]
         verbose_name = _("Фото мероприятия")
         verbose_name_plural = _("Фотографии мероприятия")
 
