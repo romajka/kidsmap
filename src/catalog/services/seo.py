@@ -642,6 +642,9 @@ def build_event_seo_payload(event, request, language_code, *, public_context):
         'eventAttendanceMode': 'https://schema.org/OnlineEventAttendanceMode' if public_context['event_online'] else 'https://schema.org/OfflineEventAttendanceMode',
         'eventStatus': {'cancelled':'https://schema.org/EventCancelled',
                         'rescheduled':'https://schema.org/EventRescheduled'}.get(event.occurrence_state, 'https://schema.org/EventScheduled')}
+    poster_url = _absolute_uri(request, event.photo.url) if event.photo else ''
+    if poster_url:
+        schema['image'] = [poster_url]
     organizer = public_context.get('event_organizer')
     if organizer:
         schema['organizer'] = {'@type': organizer['type'], 'name': organizer['name']}
@@ -679,7 +682,7 @@ def build_event_seo_payload(event, request, language_code, *, public_context):
             'datePublished':review.current_revision.created_at.isoformat()} for review in reviews]
     return {'seo_title':build_branded_seo_title(event.name_i18n(language_code)),
             'meta_description':_truncate_text(event.description_i18n(language_code) or event.name_i18n(language_code)),
-            'seo_image_url':_absolute_uri(request, event.photo.url) if event.photo else '',
+            'seo_image_url':poster_url,
             'event_schema_json':_serialize_json_ld(schema)}
 
 

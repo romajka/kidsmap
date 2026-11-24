@@ -183,7 +183,9 @@ def seo_urls(request):
         robots_content = "noindex,follow"
 
     page_number = getattr(request, "_seo_catalog_page_number", None)
-    if url_name == "place_list" and set(request.GET) == {"page"} and page_number is not None:
+    if url_name == "events_landing":
+        page_number = getattr(request, "_seo_events_page_number", None)
+    if url_name in {"place_list", "events_landing"} and set(request.GET) == {"page"} and page_number is not None:
         suffix = f"?page={page_number}" if page_number > 1 else ""
         canonical_url = f"{canonical_url}{suffix}"
         alternate_urls = {code: f"{url}{suffix}" for code, url in alternate_urls.items()}

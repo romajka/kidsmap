@@ -5,6 +5,7 @@
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
+{% block structured_data %}{% if events_breadcrumbs_json %}<script type="application/ld+json">{{ events_breadcrumbs_json|safe }}</script>{% endif %}{% endblock %}
 {% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261104_public_mobile_r2"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_budget">{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 {% block content %}
@@ -216,7 +217,7 @@
     {% if page_obj.has_other_pages %}
       <nav class="km-afisha-pages{% if page_obj.paginator.num_pages > 3 %} km-afisha-pages--wide{% endif %}" aria-label="{% translate 'Пагинация' %}">
         {% if page_obj.has_previous %}
-          <a class="km-afisha-pages__prev" rel="prev" href="?{% if query_without_page %}{{ query_without_page }}&amp;{% endif %}page={{ page_obj.previous_page_number }}#events-feed" aria-label="{% translate 'Предыдущая страница' %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></a>
+          <a class="km-afisha-pages__prev" rel="prev" href="{% if not query_without_page and page_obj.previous_page_number == 1 %}{{ request.path }}{% else %}?{% if query_without_page %}{{ query_without_page }}&amp;{% endif %}page={{ page_obj.previous_page_number }}{% endif %}#events-feed" aria-label="{% translate 'Предыдущая страница' %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></a>
         {% endif %}
         <div class="km-afisha-pages__numbers">
           {% for number in event_page_numbers %}
@@ -225,7 +226,7 @@
             {% elif number == page_obj.number %}
               <span aria-current="page" aria-label="{% translate 'Страница' %} {{ number }}">{{ number }}</span>
             {% else %}
-              <a href="?{% if query_without_page %}{{ query_without_page }}&amp;{% endif %}page={{ number }}#events-feed" aria-label="{% translate 'Страница' %} {{ number }}">{{ number }}</a>
+              <a href="{% if not query_without_page and number == 1 %}{{ request.path }}{% else %}?{% if query_without_page %}{{ query_without_page }}&amp;{% endif %}page={{ number }}{% endif %}#events-feed" aria-label="{% translate 'Страница' %} {{ number }}">{{ number }}</a>
             {% endif %}
           {% endfor %}
         </div>

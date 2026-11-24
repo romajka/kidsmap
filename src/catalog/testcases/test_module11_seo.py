@@ -70,6 +70,19 @@ class SocialMetadataTests(Module11Fixture):
                 r=self.response(self.event,lang);head=Head(r.content.decode());expected=build_public_absolute_uri(r.wsgi_request,self.event.photo.url);self.assertEqual(head.one('og:image'),expected);self.assertEqual(head.one('twitter:image'),expected)
     def test_event_without_photo_does_not_substitute_the_site_logo(self):
         self.event.photo='';self.event.save(update_fields=['photo']);r=self.response(self.event);head=Head(r.content.decode());self.assertNotIn('og:image',head.meta);self.assertNotIn('twitter:image',head.meta);self.assertEqual(head.one('twitter:card'),'summary')
+    def test_event_structured_data_references_the_real_poster_in_every_language(self):
+        from catalog.services.public_urls import build_public_absolute_uri
+        for lang in ('az', 'ru', 'en'):
+            with self.subTest(lang=lang):
+                response = self.response(self.event, lang)
+                schema = json.loads(response.context['event_schema_json'])
+                poster = build_public_absolute_uri(response.wsgi_request, self.event.photo.url)
+                self.assertEqual(schema.get('image'), [poster])
+
+        self.event.photo = ''
+        self.event.save(update_fields=['photo'])
+        response = self.response(self.event)
+        self.assertNotIn('image', json.loads(response.context['event_schema_json']))
     def test_social_description_attributes_escape_untrusted_quotes(self):
         attack='M11 quote " onerror="alert(1) <script>fictional()</script> & text'
         self.spec.bio_az=attack;self.spec.save(update_fields=['bio_az']);r=self.response(self.spec);head=Head(r.content.decode());self.assertEqual(head.one('og:description'),head.one('description'));self.assertEqual(head.one('twitter:description'),head.one('description'));self.assertNotIn('meta',head.bad)
