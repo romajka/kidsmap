@@ -330,3 +330,251 @@ body.page-home .home-search-popular-chip--specialist::before {
   .home-sp-visual.is-waiting .home-sp-rings i, .home-sp-visual.is-waiting .home-sp-face,
   .home-sp-row.is-waiting .home-sp-card { transform: none; opacity: 1; }
 }
+
+/* ======================= Featured (hand-picked in admin) ======================= */
+/* A soft green panel with large specialist cards; the people are chosen in admin
+   ("Показывать на главной") and keep the order set there. No endless animations:
+   cards rise in once and react to hover only. */
+body.page-home .home-specialists--featured {
+  position: relative;
+  isolation: isolate;
+  margin: 52px 0 0;
+  padding: 30px 30px 14px;
+  overflow: hidden;
+  border: 1px solid #cfe9d8;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #f5fbf7 0%, #e7f5ec 55%, #d8f0e1 100%);
+  box-shadow: 0 26px 56px -40px rgba(19, 111, 56, .55);
+}
+.home-spf-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(520px 300px at 96% -10%, rgba(255, 255, 255, .95), transparent 70%),
+    radial-gradient(420px 320px at 0% 110%, rgba(255, 214, 107, .26), transparent 70%),
+    radial-gradient(1.2px 1.2px at 1px 1px, rgba(19, 111, 56, .11) 1px, transparent 0) 0 0 / 18px 18px;
+  pointer-events: none;
+}
+.home-spf-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 10px;
+  border: 1px solid #f0d48a;
+  border-radius: 999px;
+  background: #fff8e3;
+  color: #7a4d00;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.home-spf-eyebrow svg { color: #f2a900; }
+body.page-home .home-specialists--featured .home-rail-heading h2 { margin-top: 12px; }
+
+.home-spf-row {
+  grid-auto-columns: 288px;
+  gap: 18px;
+  margin: 0 -6px;
+  padding: 6px 6px 20px;
+  scroll-padding-inline: 6px;
+}
+/* Wide screens: exactly four whole cards per view, the rest scrolls in */
+@media (min-width: 1100px) { .home-spf-row { grid-auto-columns: calc((100% - 3 * 18px) / 4); } }
+.home-spf { display: flex; }
+.home-spf__link {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #dcebe2;
+  border-radius: 24px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 18px 38px -30px rgba(19, 60, 45, .5);
+  transition: transform .25s cubic-bezier(.22, 1, .36, 1), box-shadow .25s ease, border-color .2s ease;
+}
+.home-spf__link:hover { transform: translateY(-6px); border-color: #b6d8c2; box-shadow: 0 30px 46px -30px rgba(19, 60, 45, .6); }
+.home-spf__link:focus-visible { outline: 3px solid rgba(19, 111, 56, .4); outline-offset: 3px; }
+
+.home-spf__media {
+  position: relative;
+  display: block;
+  flex: none;
+  overflow: hidden;
+  aspect-ratio: 5 / 6;
+  background: linear-gradient(160deg, #e5f4ea, #cfe9d8);
+}
+.home-spf__media::before {
+  content: attr(data-initials);
+  position: absolute;
+  inset: 0 0 18% 0;
+  display: grid;
+  place-items: center;
+  color: #136f38;
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+.home-spf__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+  transition: transform .6s cubic-bezier(.22, 1, .36, 1);
+}
+.home-spf__link:hover .home-spf__media img { transform: scale(1.05); }
+.home-spf__shade {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 46%;
+  background: linear-gradient(to top, rgba(8, 38, 22, .62), rgba(8, 38, 22, 0));
+  pointer-events: none;
+}
+.home-spf__top {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+.home-spf__badge, .home-spf__score, .home-spf__new {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+  line-height: 1.2;
+  box-shadow: 0 6px 16px -8px rgba(8, 38, 22, .5);
+}
+.home-spf__badge { background: rgba(255, 255, 255, .95); color: #136f38; }
+.home-spf__score { margin-left: auto; background: rgba(255, 255, 255, .95); color: #1f2933; }
+.home-spf__score svg { color: #f2b01e; }
+.home-spf__score small { color: #7b8680; font-size: 11.5px; font-weight: 700; }
+.home-spf__new { margin-left: auto; background: #fff6dc; color: #8a5a00; }
+.home-spf__specialty {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  overflow: hidden;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, .35);
+}
+.home-spf__specialty small {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .22);
+  font-size: 12px;
+  text-shadow: none;
+}
+
+.home-spf__body { display: flex; flex: 1; flex-direction: column; gap: 8px; padding: 16px 18px 18px; min-width: 0; }
+.home-spf__name { color: var(--home-ink, #143c2d); font-size: 18px; font-weight: 800; line-height: 1.22; letter-spacing: -.01em; }
+.home-spf__facts { display: flex; flex-wrap: wrap; gap: 6px; }
+.home-spf__facts span {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #eef8f1;
+  color: #136f38;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.home-spf__bio {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #56645c;
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.home-spf__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px dashed #dfeae3;
+}
+.home-spf__meta { display: grid; gap: 2px; min-width: 0; }
+.home-spf__price { color: var(--home-ink, #143c2d); font-size: 15.5px; font-weight: 800; line-height: 1.25; }
+.home-spf__format { overflow: hidden; color: #5b6b63; font-size: 12.5px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.home-spf__go {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #136f38;
+  color: #fff;
+  transition: background-color .2s ease, transform .25s cubic-bezier(.22, 1, .36, 1);
+}
+.home-spf__link:hover .home-spf__go { background: #0d5229; transform: translateX(3px); }
+
+/* The last card: all specialists */
+.home-spf--all .home-spf__link {
+  justify-content: center;
+  gap: 12px;
+  padding: 28px 24px;
+  border-color: transparent;
+  background: linear-gradient(160deg, #178244 0%, #136f38 45%, #0d5229 100%);
+  color: #fff;
+}
+.home-spf__all-mark { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(255, 255, 255, .14); }
+.home-spf__all-count { font-size: 26px; font-weight: 800; line-height: 1.15; letter-spacing: -.02em; }
+.home-spf__all-text { color: rgba(255, 255, 255, .86); font-size: 14.5px; line-height: 1.5; }
+.home-spf__all-cta {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: #fff;
+  color: #136f38;
+  font-size: 15px;
+  font-weight: 800;
+}
+.home-spf__all-cta svg { transition: transform .25s cubic-bezier(.22, 1, .36, 1); }
+.home-spf--all .home-spf__link:hover .home-spf__all-cta svg { transform: translateX(4px); }
+
+@media (max-width: 860px) {
+  body.page-home .home-specialists--featured { margin-top: 34px; padding: 22px 18px 8px; border-radius: 24px; }
+  .home-spf-row {
+    grid-auto-columns: min(76vw, 288px);
+    gap: 12px;
+    margin: 0 -18px;
+    padding: 4px 18px 18px;
+    scroll-padding-inline: 18px;
+    scrollbar-width: none;
+  }
+  .home-spf-row::-webkit-scrollbar { display: none; }
+  .home-spf__media { aspect-ratio: 1 / 1.05; }
+  .home-spf__body { padding: 14px 15px 15px; }
+  .home-spf__name { font-size: 17px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-spf__link, .home-spf__media img, .home-spf__go, .home-spf__all-cta svg { transition: none !important; }
+  .home-spf__link:hover, .home-spf__link:hover .home-spf__media img, .home-spf__link:hover .home-spf__go { transform: none; }
+}

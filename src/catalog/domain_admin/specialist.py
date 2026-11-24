@@ -38,6 +38,13 @@ class SpecialistAdminForm(SpecialistFormatsFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         if 'session_formats' in self.fields:
             self._init_format_fields()
+        if 'home_featured_order' in self.fields:
+            # An empty order is fine: it means "no particular place" (0).
+            self.fields['home_featured_order'].required = False
+
+    def clean_home_featured_order(self):
+        value = self.cleaned_data.get('home_featured_order')
+        return 0 if value is None else value
 
     @property
     def subject_rules(self):
@@ -522,13 +529,13 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     km_primary_filters = ("status", "is_active", "format")
     
     list_display = ("profile_column", "directions_column", "owner", "identity_review_column", "format_badge", "status_badge", "documents_count", "rating_column", "row_actions")
-    list_filter = (QueueSortParameter, "status", "is_active", SpecialistFormatFilter, "specializations")
+    list_filter = (QueueSortParameter, "status", "is_active", "is_home_featured", SpecialistFormatFilter, "specializations")
     search_fields = ("name", "name_alt", "bio_ru", "bio_az", "bio_en")
     readonly_fields = ("owner", "verified_person_user", "identity_verification_date", "created_by",
                        "rating_avg", "rating_count", "created_at", "updated_at")
     filter_horizontal = ()
     inlines = [SpecialistPracticeLocationInline, SpecialistDocumentInline]
-    actions = ("mark_published", "return_for_revision", "mark_draft", "mark_pending", "mark_rejected")
+    actions = ("mark_published", "return_for_revision", "mark_draft", "mark_pending", "mark_rejected", "feature_on_home", "unfeature_on_home")
 
     def get_readonly_fields(self, request, obj=None):
         fields = tuple(super().get_readonly_fields(request, obj))
@@ -923,6 +930,23 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 
+    @admin.action(permissions=['change'], description=_("Показывать выбранных на главной"))
+    def feature_on_home(self, request, queryset):
+        updated_count = queryset.update(is_home_featured=True, updated_at=timezone.now())
+        skipped = queryset.exclude(status=Specialist.STATUS_PUBLISHED, is_active=True).count()
+        self.message_user(request, _("Отмечено для главной: %(count)d.") % {"count": updated_count}, level=messages.SUCCESS)
+        if skipped:
+            self.message_user(
+                request,
+                _("%(count)d из них пока не опубликованы или не активны — на главной они появятся после публикации.") % {"count": skipped},
+                level=messages.WARNING,
+            )
+
+    @admin.action(permissions=['change'], description=_("Убрать выбранных с главной"))
+    def unfeature_on_home(self, request, queryset):
+        updated_count = queryset.update(is_home_featured=False, updated_at=timezone.now())
+        self.message_user(request, _("Убрано с главной: %(count)d.") % {"count": updated_count}, level=messages.SUCCESS)
+
     @admin.action(permissions=['change'], description=_("Вернуть выбранных специалистов в черновик"))
     def mark_draft(self, request, queryset):
         self._require_moderation_permission(request)
@@ -1041,6 +1065,8 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             public_url = obj.get_absolute_url() if hasattr(obj, "get_absolute_url") else ""
             if public_url:
                 sub_badges.append(format_html('<a href="{}" class="km-spec-site-link" target="_blank" rel="noopener noreferrer">{} ↗</a>', public_url, _("На сайте")))
+        if getattr(obj, "is_home_featured", False):
+            sub_badges.append(format_html('<span class="km-spec-date-chip km-spec-home-chip" title="{}">★ {} {}</span>', _("Показывается на главной"), _("Главная"), obj.home_featured_order))
         if getattr(obj, "created_at", None):
             sub_badges.append(format_html('<span class="km-spec-date-chip" title="{}"><i class="far fa-clock"></i> {}</span>', _("Дата создания / подачи"), obj.created_at.strftime('%d.%m.%Y')))
                 
@@ -1352,6 +1378,8 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
                 "fields": (
                     "status",
                     "is_active",
+                    "is_home_featured",
+                    "home_featured_order",
                     "rejection_reason",
                     "created_by",
                     "verified_person_user",

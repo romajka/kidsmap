@@ -25,6 +25,7 @@ from catalog.services.features import is_events_section_enabled
 # teaser band; from this number on it shows a row of specialist cards.
 HOME_SPECIALISTS_RAIL_MIN = 6
 HOME_SPECIALISTS_RAIL_SIZE = 10
+HOME_SPECIALISTS_FEATURED_SIZE = 8  # hand-picked in admin: Specialist.is_home_featured
 
 
 @dataclass(slots=True)
@@ -148,7 +149,9 @@ class HomeController:
         Three states, picked from live data so nobody has to switch them by hand:
         - "soon":   nothing published yet; invite specialists to fill in a profile;
         - "teaser": a few profiles; a slim band with faces and the busiest specialties;
-        - "rail":   enough profiles with photos; a row of specialist cards.
+        - "rail":   enough profiles with photos; a row of specialist cards;
+        - "featured": the admin picked people by hand (is_home_featured); large cards in
+          the chosen order. Takes priority over the automatic states.
         """
         from django.db.models import Count
         from catalog.models import Specialist, SpecialistSpecialization
@@ -177,6 +180,17 @@ class HomeController:
             .order_by("-published_count", "pk")[:5]
         )
         chips = [{"code": item.code, "label": item.name_i18n(language_code)} for item in specialties]
+        featured = list(
+            published.filter(is_home_featured=True)
+            .prefetch_related("specializations", "practice_locations")
+            .order_by("home_featured_order", "-rating_count", "-rating_avg", "-pk")[:HOME_SPECIALISTS_FEATURED_SIZE]
+        )
+        if featured:
+            return {
+                "mode": "featured", "total": total, "chips": chips, "fillers": [],
+                "total_label": HomeController._specialists_count_label(total, language_code),
+                "people": [HomeController._featured_card(person, language_code) for person in featured],
+            }
         mode = "rail" if len(with_photo) >= HOME_SPECIALISTS_RAIL_MIN else "teaser"
         people = []
         for person in with_photo if mode == "rail" else with_photo[:4]:
@@ -196,6 +210,63 @@ class HomeController:
         # The band keeps at least three round faces; icons stand in for missing photos.
         fillers = ["person", "book", "heart"][: max(0, 3 - len(people))] if mode == "teaser" else []
         return {"mode": mode, "total": total, "people": people, "chips": chips, "fillers": fillers}
+
+    @staticmethod
+    def _specialists_count_label(count: int, language_code: str) -> str:
+        if language_code == "az":
+            return f"{count} mütəxəssis"
+        if language_code == "en":
+            return f"{count} specialist" if count == 1 else f"{count} specialists"
+        tail = count % 100
+        word = "специалист" if count % 10 == 1 and tail != 11 else (
+            "специалиста" if 2 <= count % 10 <= 4 and not 12 <= tail <= 14 else "специалистов")
+        return f"{count} {word}"
+
+    @staticmethod
+    def _featured_card(person, language_code: str) -> dict:
+        """Data for one large hand-picked specialist card on the home page."""
+        from django.utils.text import Truncator
+        from catalog.services.responsive_images import responsive_image
+        from catalog.services.specialist_formats import public_format_label
+
+        specialties = sorted(item.name_i18n(language_code) for item in person.specializations.all())
+        name_parts = (person.name or "").split()
+        image = responsive_image(person.photo) if person.photo else {"src": "", "srcset": ""}
+        years = person.experience_years or 0
+        if not years:
+            experience = ""
+        elif language_code == "az":
+            experience = f"{years} il təcrübə"
+        elif language_code == "en":
+            experience = f"{years} yr experience" if years == 1 else f"{years} yrs experience"
+        else:
+            tail = years % 100
+            word = "год" if years % 10 == 1 and tail != 11 else (
+                "года" if 2 <= years % 10 <= 4 and not 12 <= tail <= 14 else "лет")
+            experience = f"Стаж {years} {word}"
+        ages = ""
+        if person.age_from is not None or person.age_to is not None:
+            low, high = person.age_from, person.age_to
+            span = f"{low}–{high}" if low is not None and high is not None else (f"{low}+" if low is not None else f"0–{high}")
+            ages = {"az": f"{span} yaş", "en": f"Ages {span}"}.get(language_code, f"Возраст {span}")
+        bio = " ".join((person.bio_i18n(language_code) or "").split())
+        return {
+            "name": person.name,
+            "initials": "".join(part[:1] for part in name_parts[:2]).upper() or "KM",
+            "url": person.get_absolute_url(),
+            "photo": image["src"],
+            "srcset": image["srcset"],
+            "specialty": specialties[0] if specialties else "",
+            "more_specialties": max(0, len(specialties) - 1),
+            "experience": experience,
+            "ages": ages,
+            "bio": Truncator(bio).chars(130) if bio else "",
+            "verified": bool(person.is_verified or person.person_verified_at),
+            "rating": round(person.rating_avg, 1) if person.rating_count else None,
+            "rating_count": person.rating_count,
+            "format_label": public_format_label(person, language_code),
+            "price_from": person.price_from,
+        }
 
     # The rotating word under the hero headline. Each word opens the catalog already filtered
     # the way its landing page is (same category or query, Baku).
