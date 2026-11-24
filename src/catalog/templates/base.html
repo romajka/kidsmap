@@ -118,7 +118,7 @@
     {% if website_schema_json %}
       <script type="application/ld+json">{{ website_schema_json|safe }}</script>
     {% endif %}
-    {% if page_image_preview and not guide_webpage_json %}<script type="application/ld+json">{{ page_image_preview.schema_json|safe }}</script>{% endif %}
+    {% if page_image_preview and not guide_webpage_json and not moved_specialist_profile_json %}<script type="application/ld+json">{{ page_image_preview.schema_json|safe }}</script>{% endif %}
     {% block structured_data %}{% endblock %}
     {% block extra_head %}{% endblock %}
     {% if living_map_enabled %}

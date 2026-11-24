@@ -538,7 +538,7 @@ def specialist_detail(request, slug):
     from django.db.models import Prefetch
 
     specialist = get_object_or_404(
-        Specialist.objects.prefetch_related(
+        Specialist.objects.select_related("place_move").prefetch_related(
             "specializations",
             Prefetch('practice_locations', queryset=SpecialistPracticeLocation.objects.filter(is_active=True)
                      .select_related('place', 'region', 'district', 'metro')),
@@ -578,6 +578,8 @@ def specialist_detail(request, slug):
         "specialist": specialist,
         "reviews": reviews,
         "visible_documents": visible_documents,
+        "specialist_display_name": specialist.name,
+        "specialist_alternate_name": specialist.name_alt,
         "language": language,
         "seo_title": seo_title,
         "seo_image_url": build_public_absolute_uri(request, specialist.photo.url) if specialist.photo else "",
@@ -587,6 +589,19 @@ def specialist_detail(request, slug):
     }
     from catalog.services.specialist_presentation import public_profile_context
     context.update(public_profile_context(specialist))
+    move = getattr(specialist, 'place_move', None)
+    if move:
+        from django.db.models import prefetch_related_objects
+        from catalog.services.place_schedule import build_schedule_summary, serialize_place_schedule
+        from catalog.services.seo import moved_specialist_seo
+
+        locations = context['specialist_active_practice_locations']
+        prefetch_related_objects(locations, 'schedule_days__intervals')
+        for location in locations:
+            location.structured_hours = build_schedule_summary(serialize_place_schedule(location), language)
+        context.update(moved_specialist_seo(
+            request, specialist, move.localized_seo.get(language, {}), language, context['seo_image_url'],
+        ))
     context['can_manage_specialist'] = is_person(request.user, specialist)
     context['claim_workspace_url'] = reverse('specialist_workspace_claims', args=[specialist.pk])
     return render(request, "catalog/specialist_detail.html", context)

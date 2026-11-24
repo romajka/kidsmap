@@ -3,13 +3,13 @@
 {% get_current_language as CURRENT_LANGUAGE %}
 
 {% block title %}
-  {% if CURRENT_LANGUAGE == "az" %}Seçilmiş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Favorite Places{% else %}Избранные места{% endif %}
+  {% if has_moved_favorites %}{% translate "Избранное" %}{% elif CURRENT_LANGUAGE == "az" %}Seçilmiş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Favorite Places{% else %}Избранные места{% endif %}
 {% endblock %}
 {% block title_plain %}
-  {% if CURRENT_LANGUAGE == "az" %}Seçilmiş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Favorite Places{% else %}Избранные места{% endif %} | KidsMap
+  {% if has_moved_favorites %}{% translate "Избранное" %}{% elif CURRENT_LANGUAGE == "az" %}Seçilmiş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Favorite Places{% else %}Избранные места{% endif %} | KidsMap
 {% endblock %}
 {% block title_plain_twitter %}
-  {% if CURRENT_LANGUAGE == "az" %}Seçilmiş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Favorite Places{% else %}Избранные места{% endif %} | KidsMap
+  {% if has_moved_favorites %}{% translate "Избранное" %}{% elif CURRENT_LANGUAGE == "az" %}Seçilmiş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Favorite Places{% else %}Избранные места{% endif %} | KidsMap
 {% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
@@ -77,7 +77,9 @@
       <div class="account-card-box">
         <div class="account-card-box__head">
           <h2>
-            {% if CURRENT_LANGUAGE == "az" %}
+            {% if has_moved_favorites %}
+              {% translate "Избранное" %}
+            {% elif CURRENT_LANGUAGE == "az" %}
               Seçilmiş məkanlar
             {% elif CURRENT_LANGUAGE == "en" %}
               Favorite places
@@ -92,10 +94,26 @@
           </a>
         </div>
 
-        {% if favorite_places %}
+        {% if favorite_entries %}
           <div class="account-favs-grid">
-            {% for place in favorite_places %}
-              {% include "catalog/includes/place_card.html" with place=place %}
+            {% for entry in favorite_entries %}
+              {% if entry.specialist %}
+                <article class="account-card-box">
+                  <a href="{{ entry.target.get_absolute_url }}" class="account-fav-chip-link">
+                    <span class="material-symbols-rounded fav-chip-icon" aria-hidden="true">school</span>
+                    {{ entry.name }}
+                  </a>
+                  <p>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis profili{% elif CURRENT_LANGUAGE == "en" %}Specialist profile{% else %}Профиль специалиста{% endif %}</p>
+                  <form action="{% url 'account_favorites' %}" method="post">
+                    {% csrf_token %}
+                    <button class="account-fav-chip-link" type="submit" name="remove_moved_favorite" value="{{ entry.like_id }}">
+                      {% if CURRENT_LANGUAGE == "az" %}Seçilmişlərdən çıxar{% elif CURRENT_LANGUAGE == "en" %}Remove from favorites{% else %}Убрать из избранного{% endif %}
+                    </button>
+                  </form>
+                </article>
+              {% else %}
+                {% include "catalog/includes/place_card.html" with place=entry.place %}
+              {% endif %}
             {% endfor %}
           </div>
         {% else %}

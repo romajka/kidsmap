@@ -1,5 +1,7 @@
 """Public pages: home, catalog, place and event pages, reviews, static pages."""
 
+from functools import wraps
+
 from django.conf import settings
 from django.contrib import messages
 from django.http import Http404, JsonResponse
@@ -14,6 +16,7 @@ from ..models import Category, Event, Place, PlaceReview, SiteReview
 from ..models import FunnelEvent
 from ..models.site import reuse_site_settings_for_render
 from ..services.content_quality import approved_review_queryset, public_place_queryset, public_review_queryset
+from ..services.place_urls import moved_place_specialist_url
 from ..services.pricing_plans import public_pricing_plans
 from ..services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
 from ..services.features import is_events_section_enabled
@@ -176,12 +179,29 @@ def _render_place_list(request, force_new_only=False, created_after=None):
 
     return render(request, "catalog/place_list.html", context)
 
+def _redirect_retired_place(view):
+    @wraps(view)
+    def wrapped(request, pk=None, slug=None):
+        try:
+            return view(request, pk=pk, slug=slug)
+        except Http404:
+            if request.method in {"GET", "HEAD"}:
+                target = moved_place_specialist_url(pk=pk, slug=slug, language=request.LANGUAGE_CODE)
+                if target:
+                    return redirect(target, permanent=True)
+            raise
+
+    return wrapped
+
+
+@_redirect_retired_place
 def place_detail_legacy(request, pk, slug=None):
     place = place_controller.get_active_place_for_legacy_redirect(pk=pk)
     if place.is_temporary and not is_events_section_enabled():
         return _retired_public_page(request)
     return redirect(place.get_absolute_url(), permanent=True)
 
+@_redirect_retired_place
 def place_detail(request, pk=None, slug=None):
     from django.utils.encoding import iri_to_uri
 

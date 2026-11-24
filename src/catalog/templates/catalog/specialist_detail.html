@@ -3,6 +3,12 @@
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 {% block title %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
+{% block structured_data %}
+  {% if moved_specialist_profile_json %}
+    <script type="application/ld+json">{{ moved_specialist_profile_json|safe }}</script>
+    <script type="application/ld+json">{{ moved_specialist_breadcrumb_json|safe }}</script>
+  {% endif %}
+{% endblock %}
 {% block extra_head %}
   {% if visible_documents %}<link rel="stylesheet" href="{% static 'css/components/specialist_document_gallery.css' %}?v=20261120_gallery3">{% endif %}
   <link rel="stylesheet" href="{% static 'css/components/specialist_subjects.css' %}?v=20261105_subjects_r2">
@@ -14,17 +20,21 @@
 
 {% block content %}
 <article class="sp-detail km-specialist-detail-page km-specialists-detail">
+  {% if moved_specialist_breadcrumbs %}
+    {% include "catalog/includes/breadcrumbs.html" with items=moved_specialist_breadcrumbs only %}
+  {% else %}
   <a href="{% url 'specialist_list' %}" class="sp-back"><span aria-hidden="true">←</span> {% if language == 'az' %}Mütəxəssislər{% elif language == 'en' %}Specialists{% else %}Специалисты{% endif %}</a>
+  {% endif %}
   <header class="sp-card sp-header">
     <div class="sp-identity">
       <div class="sp-avatar{% if specialist.photo %} has-photo{% endif %}">
-        {% with parts=specialist.name.split %}<span class="sp-avatar__initials" aria-hidden="true">{{ parts.0|slice:":1"|upper }}{% if parts|length > 1 %}{{ parts|last|slice:":1"|upper }}{% endif %}</span>{% endwith %}
-        {% if specialist.photo %}<img src="{{ specialist.photo.url }}" alt="{{ specialist.name }}" class="sp-photo" width="160" height="160" fetchpriority="high" onerror="this.parentNode.classList.remove('has-photo');this.remove()">{% endif %}
+        {% with parts=specialist_display_name.split %}<span class="sp-avatar__initials" aria-hidden="true">{{ parts.0|slice:":1"|upper }}{% if parts|length > 1 %}{{ parts|last|slice:":1"|upper }}{% endif %}</span>{% endwith %}
+        {% if specialist.photo %}<img src="{{ specialist.photo.url }}" alt="{{ specialist_display_name }}" class="sp-photo" width="160" height="160" fetchpriority="high" onerror="this.parentNode.classList.remove('has-photo');this.remove()">{% endif %}
       </div>
       <div class="sp-identity-text">
-        <h1>{{ specialist.name }}</h1>
+        <h1>{{ specialist_display_name }}</h1>
         {% if specialist_subjects %}<ul class="km-subject-tags" aria-label="{% if language == 'az' %}Fənlər{% elif language == 'en' %}Subjects{% else %}Предметы{% endif %}">{% for item in specialist_subjects %}<li><span class="material-symbols-rounded" aria-hidden="true">{{ item.icon }}</span>{{ item.label }}</li>{% endfor %}</ul>{% endif %}
-        {% if specialist.name_alt %}<p class="sp-muted sp-name-alt">{{ specialist.name_alt }}</p>{% endif %}
+        {% if specialist_alternate_name %}<p class="sp-muted sp-name-alt">{{ specialist_alternate_name }}</p>{% endif %}
         {% if specialist_categories %}<ul class="sp-tags" aria-label="{% if language == 'az' %}İstiqamətlər{% elif language == 'en' %}Specializations{% else %}Направления{% endif %}">{% for spec in specialist_categories %}<li>{% include "catalog/includes/specialization_icon.html" with code=spec.code only %}{{ spec.name_i18n }}</li>{% endfor %}</ul>{% endif %}
         <a href="#reviews" class="sp-rating-link">
           {% if specialist.rating_count %}<span class="sp-rating" style="--rating-fill:{{ specialist_public.rating_percent }}%" aria-hidden="true"><span>★★★★★</span><span class="sp-rating-fill">★★★★★</span></span><strong>{{ specialist.rating_avg|floatformat:1 }} / 5</strong><span>({{ specialist.rating_count|review_count }})</span>
@@ -71,7 +81,7 @@
           <h3>{% if loc.place and loc.is_place_visible %}<a href="{{ loc.place.get_absolute_url }}">{{ loc.place.name_i18n }}</a>{% elif loc.place %}{{ loc.place.name_i18n }}{% else %}{% if language == 'az' %}Şəxsi kabinet{% elif language == 'en' %}Private office{% else %}Собственный кабинет{% endif %}{% endif %}</h3>
           <p>{{ loc.address }}</p>
           {% if loc.region or loc.district or loc.metro %}<p class="sp-muted">{% if loc.region %}{{ loc.region.name_i18n }}{% endif %}{% if loc.district %} · {{ loc.district.name_i18n }}{% endif %}{% if loc.metro %} · {{ loc.metro.name_i18n }}{% endif %}</p>{% endif %}
-          {% if loc.schedule %}<p><strong>{% if language == 'az' %}Qəbul saatları:{% elif language == 'en' %}Hours:{% else %}Время приёма:{% endif %}</strong> {{ loc.schedule }}</p>{% endif %}
+          {% if loc.structured_hours or loc.schedule %}<p><strong>{% if language == 'az' %}Qəbul saatları:{% elif language == 'en' %}Hours:{% else %}Время приёма:{% endif %}</strong> {% if loc.structured_hours %}{{ loc.structured_hours|linebreaksbr }}{% else %}{{ loc.schedule }}{% endif %}</p>{% endif %}
           {% if loc.phone %}<p><a href="tel:{{ loc.phone }}">{{ loc.phone }}</a></p>{% endif %}
           {% if loc.price_per_session != None %}<p><strong>{{ loc.price_per_session }} AZN</strong></p>{% endif %}
         </li>{% empty %}<li class="sp-muted">{% if language == 'az' %}Ünvanı mütəxəssisdən dəqiqləşdirin.{% elif language == 'en' %}Ask the specialist for the address.{% else %}Уточните адрес у специалиста.{% endif %}</li>{% endfor %}</ul>
@@ -188,7 +198,7 @@
             {% include "catalog/includes/review_byline.html" with review=r author=r.author_name|default:_("Гость") %}
           {% endif %}
           <p class="sp-review-text">{{ r.text|linebreaksbr }}</p>
-          {% include "catalog/includes/official_review_replies.html" with review=r review_kind="specialist" reply_target_name=specialist.name show_reply_action=True %}
+          {% include "catalog/includes/official_review_replies.html" with review=r review_kind="specialist" reply_target_name=specialist_display_name show_reply_action=True %}
         </article>{% empty %}<p class="sp-muted">{% if language == 'az' %}Hələ dərc olunmuş rəy yoxdur.{% elif language == 'en' %}No published reviews yet.{% else %}Пока нет опубликованных отзывов.{% endif %}</p>{% endfor %}</div>
         {% if request.user.is_authenticated %}
           <form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation data-review-login hidden target="_blank" rel="noopener">

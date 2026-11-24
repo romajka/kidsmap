@@ -143,6 +143,20 @@ class AccountFavoritesView(LoginRequiredMixin, TemplateView):
     login_url = reverse_lazy("account_login")
     redirect_field_name = "next"
 
+    def post(self, request, *args, **kwargs):
+        from catalog.models import PlaceLike, PlaceSpecialistMove
+
+        try:
+            like_id = int(request.POST.get("remove_moved_favorite", ""))
+        except ValueError:
+            return self.http_method_not_allowed(request, *args, **kwargs)
+        PlaceLike.objects.filter(
+            pk=like_id,
+            user=request.user,
+            place_id__in=PlaceSpecialistMove.objects.public_targets().values("place_id"),
+        ).delete()
+        return redirect("account_favorites")
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         profile = account_controller.ensure_profile(user=self.request.user)

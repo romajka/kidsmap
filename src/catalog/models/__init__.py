@@ -111,3 +111,6 @@ __all__ += ['PlaceReviewResponse', 'SpecialistReviewResponse', 'ActivityReviewRe
 
 from .specialist_proposal_draft import SpecialistProposalDraft, SpecialistProposalDocument
 __all__ += ['SpecialistProposalDraft', 'SpecialistProposalDocument']
+
+from .place_specialist_move import PlaceSpecialistMove
+__all__ += ['PlaceSpecialistMove']
