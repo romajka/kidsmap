@@ -102,7 +102,7 @@ class FilterDrawerTests(TestCase):
                     response = self.page(model, lang=lang)
                     parsed = DrawerControls(response.content.decode())
                     expected = (['category', 'status', 'start_datetime', 'event_language', 'owner'] if model is Event
-                        else ['status', 'is_active', 'format', 'specializations'])
+                        else ['status', 'is_active', 'format', 'is_home_featured', 'specializations'])
                     self.assertEqual(list(parsed.selects), expected)
                     self.assertEqual(len(set(c['id'] for c in parsed.selects.values())), len(expected))
                     for spec in response.context['cl'].filter_specs:
@@ -115,6 +115,13 @@ class FilterDrawerTests(TestCase):
                             'text': str(o['display'])} for o in spec.choices(response.context['cl'])])
                     status = parsed.selects['status']['options']
                     self.assertIn({'ru': 'Опубликовано', 'az': 'Dərc olunub', 'en': 'Published'}[lang], [o['text'] for o in status])
+                    if model is Specialist:
+                        control = parsed.selects['is_home_featured']
+                        self.assertEqual(parsed.labels[control['id']], {
+                            'ru': 'Показывать на главной',
+                            'az': 'Ana səhifədə göstər',
+                            'en': 'Show on homepage',
+                        }[lang])
                     self.assertNotContains(response, 'km-filter-chips-section')
 
     def test_event_language_filter_returns_only_matching_events(self):
@@ -155,6 +162,19 @@ class FilterDrawerTests(TestCase):
             self.assert_ids(self.page(Specialist, urlsplit(selected['url']).query), self.specialists[:1])
         response = self.choose(response, 'format', 'format', 'office')
         self.assert_ids(response, [])
+
+    def test_specialist_homepage_filter_keeps_the_admin_selection(self):
+        Specialist.objects.filter(pk=self.specialists[2]).update(is_home_featured=True)
+        unfiltered = self.page(Specialist)
+        featured = self.choose(unfiltered, 'is_home_featured', 'is_home_featured__exact', '1')
+        self.assert_ids(featured, self.specialists[2:])
+        self.assert_ids(
+            self.choose(featured, 'status', 'status__exact', 'published'), [],
+        )
+        self.assert_ids(
+            self.choose(unfiltered, 'is_home_featured', 'is_home_featured__exact', '0'),
+            self.specialists[:2],
+        )
 
     def test_status_chip_removes_only_status_and_reset_clears_query(self):
         for model, expected in ((Event, self.events), (Specialist, self.specialists)):
