@@ -64,10 +64,16 @@
       {% endif %}
     </section>
   {% endif %}
-  {% if km_business_links %}
+  {% if km_business_links or km_business_connect_places_url %}
     <section class="km-pf-group km-business-panel" aria-label="{% translate 'Связанные разделы' %}">
       <h2>{% translate 'Связанные разделы' %}</h2>
       <div class="km-business-links-grid">
+        {% if km_business_connect_places_url %}
+          <a class="km-pf-btn km-pf-btn--primary" href="{{ km_business_connect_places_url }}">{% translate 'Подключить существующие места' %}</a>
+        {% endif %}
+        {% if km_business_connect_places_url %}
+          <a class="km-pf-btn km-pf-btn--primary" href="{{ km_business_connect_places_url }}">{% translate 'Подключить существующие места' %}</a>
+        {% endif %}
         {% for label, url in km_business_links %}<a class="km-pf-btn km-pf-btn--ghost" href="{{ url }}">{{ label }}</a>{% endfor %}
       </div>
     </section>

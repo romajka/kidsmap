@@ -188,6 +188,8 @@
 .event-date-caption strong { color: var(--poster-ink); font-weight: 750; }
 .event-ticket-time dd, .event-ticket-price dd { font: 780 clamp(1.05rem, 1.6vw, 1.45rem)/1.25 var(--font-display); }
 .event-ticket-price .event-price-note { margin-top: 5px; color: var(--muted); font: 400 .91rem/1.45 var(--font-body); }
+/* the countdown sits inside the ticket with air around it, not glued to its edge */
+.event-ticket > .km-timer--poster { align-self: center; flex: none; margin: 14px clamp(14px, 2vw, 24px) 14px 0; }
 .event-ticket-action {
   display: flex;
   align-items: center;
@@ -306,7 +308,7 @@
   .event-poster .event-ticket > .km-timer--poster {
     width: fit-content;
     max-width: calc(100% - 38px);
-    margin: 0 auto 14px;
+    margin: 0 auto 16px;
   }
   .event-ticket-action { display: block; max-inline-size: none; padding: 12px 18px; border-left: 0; border-top: 2px dashed #c8c9b5; }
   .event-ticket-action .event-registration-btn { width: 100%; }
@@ -389,52 +391,160 @@
   .event-poster .event-detail-media { justify-items: center; }
 }
 
-/* ═══ Fotoqalereya: a stack of cards ═══ */
-.km-stack { --stack-w: min(100%, 460px); display: grid; gap: 14px; justify-items: start; }
-.km-stack__deck {
-  display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
-  width: 100%; padding: 4px 2px 10px;
+/* ═══ Poster frame follows the poster (2026-11-24) ═══
+   With a known size the frame takes the photo's own shape (9:16 … 2:1, see
+   event_images.frame_ratio), so a stage photo is no longer squeezed into a
+   tall 4:5 card with blurred bands. --cover-h caps how tall the card gets;
+   the width follows from it, never past the column. */
+.event-poster .event-cover--sized {
+  --cover-h: min(540px, 72vh);
+  justify-self: center;
+  width: min(100%, calc(var(--cover-h) * var(--ratio)));
+  aspect-ratio: var(--ratio);
+  max-height: none;
 }
-.km-stack__card { flex: 0 0 min(86%, 360px); margin: 0; scroll-snap-align: start; }
-.km-stack__frame {
-  display: block; aspect-ratio: 4 / 3; overflow: hidden;
-  border: 6px solid #fff; border-radius: 18px; background: #fff;
-  box-shadow: 0 18px 36px -18px rgb(0 0 0 / 66%);
+@media (max-width: 767px) {
+  .event-poster .event-cover--sized { --cover-h: min(60vh, 520px); }
 }
-.km-stack__frame .km-fit { border-radius: 12px; }
-.km-stack__card .event-gallery__caption { padding: 10px 2px 0; font-size: .91rem; line-height: 1.45; }
-.km-stack__nav { display: flex; align-items: center; gap: 12px; }
-.km-stack__count { min-width: 4.5ch; text-align: center; font: 750 .95rem/1 var(--font-display); color: var(--brand-spruce); font-variant-numeric: tabular-nums; }
-.km-round-btn {
-  display: grid; place-items: center; width: 44px; height: 44px; padding: 0;
-  border: 1px solid var(--tint-line-200); border-radius: 50%; background: #fff; color: var(--brand-spruce);
-  cursor: pointer; transition: background .2s, color .2s, transform .2s;
+/* Tablets and narrow windows: a tall poster sits beside the title instead of
+   floating in the middle of an empty green band. */
+@media (min-width: 600px) and (max-width: 767px) and (min-height: 681px) {
+  .event-poster--sized:is(.event-poster--portrait, .event-poster--square) {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-areas: "intro photo" "ticket ticket";
+  }
+  .event-poster--sized:is(.event-poster--portrait, .event-poster--square) .event-poster-intro { padding: 26px 8px 22px 22px; }
+  .event-poster--sized:is(.event-poster--portrait, .event-poster--square) h1 { font-size: clamp(1.9rem, 5.2vw, 2.5rem); }
+  .event-poster--sized:is(.event-poster--portrait, .event-poster--square) .event-detail-media { padding: 22px 22px 22px 6px; }
+  .event-poster--sized:is(.event-poster--portrait, .event-poster--square) .event-cover--sized { --cover-h: min(420px, 56vh); }
 }
-.km-round-btn:hover { background: var(--brand-spruce); color: #fff; }
-.km-round-btn:active { transform: scale(.94); }
-/* enhanced: cards lie in a pile */
-.km-stack.is-ready .km-stack__deck {
-  position: relative; display: block; overflow: visible; width: var(--stack-w);
-  aspect-ratio: 4 / 3; margin-bottom: 52px; padding: 0;
-  touch-action: pan-y; user-select: none; -webkit-user-select: none;
+
+/* ═══ Fotoqalereya: a carousel (2026-11-24) ═══
+   The photo in the middle is large and straight; its neighbours shrink, turn
+   and dim with their distance from the middle (--d 0…1, --s −1…1, from JS on
+   every scroll frame), so the effect follows the finger. Same height, own width. */
+.event-detail-page .event-detail-gallery { margin: clamp(36px, 4vw, 52px) 0 0; }
+.km-car { --car-h: clamp(230px, 28vw, 330px); --car-gap: clamp(14px, 2vw, 24px); --car-ms: 4800ms; display: grid; gap: 6px; }
+.km-car__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.event-detail-page .event-detail-gallery .km-car__head h2 { margin: 0; }
+.km-car__count { font: 750 .95rem/1 var(--font-display); color: var(--muted); font-variant-numeric: tabular-nums; }
+.km-car__count b { color: var(--brand-spruce); font-weight: 800; }
+.km-car__stage { position: relative; container-type: inline-size; }
+.km-car__track {
+  display: flex; align-items: flex-start; gap: var(--car-gap);
+  overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+  padding: 26px var(--pad-r, 8px) 10px var(--pad-l, 8px);
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%);
 }
-.km-stack.is-ready .km-stack__deck:focus-visible { outline: 3px solid var(--brand-turf); outline-offset: 8px; border-radius: 20px; }
-.km-stack.is-ready .km-stack__card {
-  position: absolute; inset: 0; flex: none;
-  transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .45s cubic-bezier(.2,.8,.2,1);
-  will-change: transform;
+.km-car--single .km-car__track { -webkit-mask-image: none; mask-image: none; }
+.km-car__track::-webkit-scrollbar { display: none; }
+.km-car__track.is-grabbing { scroll-snap-type: none; cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.km-car__track.is-grabbing a { pointer-events: none; }
+.km-car__item {
+  --d: 0; --s: 0;
+  flex: none; width: calc(var(--car-h) * var(--ratio, 1.3333));
+  max-width: 82vw; max-width: 74cqw;
+  margin: 0; scroll-snap-align: center;
+  transform: translateY(calc(var(--d) * 14px)) scale(calc(1 - var(--d) * .15)) rotate(calc(var(--s) * -4deg));
+  filter: saturate(calc(1 - var(--d) * .4)) brightness(calc(1 - var(--d) * .1));
+  transform-origin: 50% 60%;
 }
-.km-stack.is-ready .km-stack__card.is-dragging { transition: none; cursor: grabbing; }
-.km-stack.is-ready .km-stack__card[data-pos="0"] { cursor: grab; }
-.km-stack.is-ready .km-stack__frame { height: 100%; aspect-ratio: auto; }
-.km-stack.is-ready .km-stack__frame, .km-stack.is-ready .km-stack__frame img { -webkit-user-drag: none; }
-.km-stack.is-ready .km-stack__frame img { pointer-events: none; }
-.km-stack.is-ready .km-stack__card .event-gallery__caption { display: none; }
-.km-stack__caption { margin: 0; min-height: 1.45em; max-width: var(--stack-w); font-size: .91rem; line-height: 1.45; }
-.km-stack__caption:empty { display: none; }
-.km-stack:not(.is-ready) .km-stack__caption { display: none; }
-@media (prefers-reduced-motion: reduce) {
-  .km-stack.is-ready .km-stack__card { transition: none; }
+.km-car__frame {
+  position: relative; display: block;
+  height: var(--car-h); max-height: calc(82vw / var(--ratio, 1.3333)); max-height: calc(74cqw / var(--ratio, 1.3333));
+  overflow: hidden; border: 6px solid #fff; border-radius: 20px; background: #fff;
+  box-shadow: 0 16px 30px -20px rgb(0 0 0 / 55%), 0 2px 6px rgb(0 0 0 / 7%);
+  -webkit-user-drag: none;
+}
+.km-car__item.is-active .km-car__frame { box-shadow: 0 30px 50px -26px rgb(13 73 36 / 60%), 0 3px 10px rgb(0 0 0 / 9%); }
+.km-car__frame .km-fit { border-radius: 14px; }
+.km-car__frame img { -webkit-user-drag: none; }
+.km-car__frame:focus-visible { outline: 3px solid var(--brand-turf); outline-offset: 4px; }
+.km-car__item .event-gallery__caption { padding: 14px 4px 0; font-size: .91rem; line-height: 1.45; text-align: center; opacity: calc(1 - var(--d) * 1.6); }
+.km-car { --nav-ms: var(--car-ms); }
+.km-car__arrow { position: absolute; z-index: 3; display: grid; top: calc(26px + var(--car-h) / 2); translate: 0 -50%; }
+.km-car__arrow--prev { left: 14px; } .km-car__arrow--next { right: 14px; }
+/* under the photos: dots, and on phones ← dots → in one calm bar */
+.km-car__bar { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 4px; }
+.km-car__ctl { position: relative; display: none; flex: none; }
+.km-car__dots { display: flex; justify-content: center; align-items: center; gap: 4px; min-width: 0; }
+.km-car__dot {
+  position: relative; display: grid; place-items: center; width: 24px; height: 44px; padding: 0;
+  border: 0; background: none; cursor: pointer;
+}
+.km-car__dot::before {
+  content: ""; width: 8px; height: 8px; border-radius: 999px; background: var(--tint-line-200, #cfd8cf);
+  transition: width .45s var(--ease-out-quint), background .3s;
+}
+.km-car__dot:hover::before { background: var(--brand-celadon, #9cc9a6); }
+.km-car__dot[aria-current="true"] { width: 44px; }
+.km-car__dot[aria-current="true"]::before { width: 34px; background: var(--tint-line-200, #cfd8cf); }
+.km-car__fill {
+  position: absolute; left: 5px; top: 50%; width: 34px; height: 8px; margin-top: -4px; border-radius: 999px;
+  background: var(--brand-spruce); transform-origin: left center; transform: scaleX(0); display: none;
+}
+.km-car__dot[aria-current="true"] .km-car__fill { display: block; transform: scaleX(1); }
+.km-car__dot:focus-visible { outline: 3px solid var(--brand-turf); outline-offset: -6px; border-radius: 999px; }
+@media (max-width: 600px) {
+  .km-car { --car-h: 230px; }
+  .km-car__item { max-width: 80cqw; }
+  .km-car__frame { max-height: calc(80cqw / var(--ratio, 1.3333)); }
+  .km-car__arrow { display: none; }
+  .km-car__ctl { display: inline-grid; }
+  .km-car__bar { justify-content: space-between; margin-top: 8px; }
+  .km-car__frame { border-width: 5px; border-radius: 18px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .km-car.is-ready .km-car__frame .km-fit__img {
+    transform: translate3d(calc(var(--s, 0) * -16px), 0, 0) scale(var(--zoom, 1.08));
+    transition: transform .45s var(--ease-out-quint);
+  }
+  @media (hover: hover) {
+    .km-car__item.is-active .km-car__frame:hover { --zoom: 1.13; }
+  }
+  .km-car__frame { transition: box-shadow .5s var(--ease-out-quint); }
+  /* autoplay: the bar under the current photo fills, then the next one comes */
+  .km-car.is-playing .km-car__dot[aria-current="true"] .km-car__fill { animation: km-car-fill var(--car-ms) linear both; }
+  .km-car.is-playing.is-paused .km-car__dot[aria-current="true"] .km-car__fill { animation-play-state: paused; }
+  /* entrance: cards rise in one after another */
+  .km-car.is-ready:not(.is-inview) .km-car__frame { opacity: 0; }
+  .km-car.is-inview .km-car__frame { animation: km-car-rise .8s var(--ease-out-quint) both; animation-delay: calc(min(var(--i, 0), 6) * 90ms); }
+  .km-car__count.is-ticking b { display: inline-block; animation: km-count-tick .35s var(--ease-out-quint); }
+}
+
+/* ═══ Hero poster: a postcard you can tilt (pointer devices only) ═══
+   JS sets --rx/--ry (tilt) and --gx/--gy (where the light falls). At rest it is
+   the same card as before, leaning 1.6deg. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .event-poster .event-cover.is-tiltable {
+    transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) rotate(var(--lean, 1.6deg)) scale(var(--lift, 1));
+    transition: transform .6s var(--ease-out-quint), box-shadow .6s var(--ease-out-quint);
+    will-change: transform;
+  }
+  .event-poster .event-cover.is-tilting {
+    --lean: 0deg; --lift: 1.02;
+    transition: transform .12s linear, box-shadow .6s var(--ease-out-quint);
+    box-shadow: 0 30px 60px -24px rgb(0 0 0 / 55%), 0 4px 12px rgb(0 0 0 / 14%);
+  }
+  .event-poster .event-cover.is-tiltable::after {
+    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: inherit;
+    background: radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgb(255 255 255 / 38%), rgb(255 255 255 / 0) 55%);
+    mix-blend-mode: soft-light; opacity: 0; transition: opacity .5s ease;
+  }
+  .event-poster .event-cover.is-tilting::after { opacity: 1; }
+  .event-poster .event-cover.is-tiltable .event-expand { z-index: 2; }
+}
+
+@keyframes km-car-rise {
+  from { opacity: 0; transform: translateY(26px) scale(.94); }
+}
+@keyframes km-car-fill {
+  from { transform: scaleX(0); } to { transform: scaleX(1); }
+}
+@keyframes km-count-tick {
+  from { opacity: .2; transform: translateY(6px); }
 }
 
 /* ═══ Full-screen viewer ═══ */
@@ -456,15 +566,10 @@
   transform-origin: 0 0; border-radius: 6px; box-shadow: 0 30px 80px -20px rgb(0 0 0 / 70%);
   user-select: none; -webkit-user-drag: none;
 }
-.km-lb__btn {
-  position: absolute; z-index: 2; display: grid; place-items: center; width: 48px; height: 48px; padding: 0;
-  border: 1px solid rgb(255 255 255 / 30%); border-radius: 50%; background: rgb(0 0 0 / 35%); color: #fff; cursor: pointer;
-  backdrop-filter: blur(6px); transition: background .2s, opacity .25s;
-}
-.km-lb__btn:hover { background: rgb(0 0 0 / 60%); }
+.km-lb__btn { position: absolute; z-index: 2; display: grid; }
 .km-lb__btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .km-lb__close { top: max(14px, env(safe-area-inset-top)); right: 14px; }
-.km-lb__prev, .km-lb__next { top: 50%; margin-top: -24px; }
+.km-lb__prev, .km-lb__next { top: 50%; margin-top: -26px; }
 .km-lb__prev { left: 14px; } .km-lb__next { right: 14px; }
 .km-lb.is-single .km-lb__prev, .km-lb.is-single .km-lb__next, .km-lb.is-single .km-lb__count { display: none; }
 .km-lb__bar {

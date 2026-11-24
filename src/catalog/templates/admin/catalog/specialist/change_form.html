@@ -779,6 +779,25 @@
                     </div>
                   </div>
 
+                  {% if adminform.form.is_home_featured %}
+                  <div class="km-form-row km-form-row--multi km-spec-home-featured">
+                    <div class="km-field km-field--is_home_featured">
+                      <label class="km-spec-checkbox-label" for="id_is_home_featured">
+                        {{ adminform.form.is_home_featured }}
+                        <span class="km-checkbox-fake"><i class="fas fa-check" aria-hidden="true"></i></span>
+                        <span class="km-checkbox-text"><strong>{% translate 'Показывать на главной' %}</strong> ({% translate 'большая карточка в блоке специалистов' %})</span>
+                      </label>
+                      {{ adminform.form.is_home_featured.errors }}
+                    </div>
+                    <div class="km-field km-field--home_featured_order">
+                      <label for="id_home_featured_order">{% translate 'Порядок на главной' %}</label>
+                      {{ adminform.form.home_featured_order }}
+                      <p class="help">{% translate 'Меньшее число показывается раньше. Показываются только опубликованные и активные профили; без фото будет карточка с инициалами.' %}</p>
+                      {{ adminform.form.home_featured_order.errors }}
+                    </div>
+                  </div>
+                  {% endif %}
+
                   <div class="km-field km-field--rejection_reason">
                     <label for="id_rejection_reason">{% translate 'Комментарий модератора' %}</label>
                     {{ adminform.form.rejection_reason }}

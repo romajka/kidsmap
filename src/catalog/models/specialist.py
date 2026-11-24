@@ -227,6 +227,14 @@ class Specialist(models.Model):
         db_index=True
     )
     rejection_reason = models.TextField(_("Причина отклонения"), blank=True, default="")
+    is_home_featured = models.BooleanField(
+        _("Показывать на главной"), default=False, db_default=False, db_index=True,
+        help_text=_("Профиль попадёт в блок специалистов на главной (только опубликованные и активные)."),
+    )
+    home_featured_order = models.PositiveSmallIntegerField(
+        _("Порядок на главной"), default=0, db_default=0,
+        help_text=_("Меньшее число показывается раньше."),
+    )
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

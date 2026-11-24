@@ -58,11 +58,11 @@
         {% for session in group.sessions %}<li><a class="km-ev-time{% if session.ended %} is-ended{% endif %}" href="{{ session.url }}"><time datetime="{{ session.start|date:'c' }}">{{ session.start|date:'H:i' }}</time></a></li>{% endfor %}
       </ul>
     {% endif %}
-    <p class="km-ev-card__foot">
-      {% if event.age_display %}<span class="km-ev-card__age">{{ event.age_display }} {% if language == 'az' %}yaş{% elif language == 'en' %}y.o.{% else %}лет{% endif %}</span>{% endif %}
-      {% if event.is_free or event.price_display %}<span class="km-ev-card__rowprice{% if event.is_free %} is-free{% endif %}">{% if event.is_free %}{% if language == 'az' %}Pulsuz{% elif language == 'en' %}Free{% else %}Бесплатно{% endif %}{% else %}{{ event.price_display }}{% endif %}</span>{% endif %}    </p>
-
-    {% include 'catalog/includes/event_timer.html' with variant='card' %}
+    {% if event.age_display %}<span class="km-ev-card__age">{{ event.age_display }} {% if language == 'az' %}yaş{% elif language == 'en' %}y.o.{% else %}лет{% endif %}</span>{% endif %}
+    <div class="km-ev-card__foot">
+      {% if event.is_free or event.price_display %}<span class="km-ev-card__rowprice{% if event.is_free %} is-free{% endif %}">{% if event.is_free %}{% if language == 'az' %}Pulsuz{% elif language == 'en' %}Free{% else %}Бесплатно{% endif %}{% else %}{{ event.price_display }}{% endif %}</span>{% endif %}
+      {% include 'catalog/includes/event_timer.html' with variant='card' %}
+    </div>
 
     <div class="km-ev-card__actions">
       {% if event.occurrence_state != 'cancelled' and facts.phase != 'ended' and event.registration.url %}

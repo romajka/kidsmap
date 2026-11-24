@@ -32,6 +32,22 @@ def orientation_for(width, height) -> str:
     return SQUARE
 
 
+# A frame follows the photo's own shape between these bounds (9:16 … 2:1);
+# only photos beyond them get the blurred fill around the whole picture.
+FRAME_MIN_RATIO = 9 / 16
+FRAME_MAX_RATIO = 2.0
+
+
+def frame_ratio(width, height) -> str:
+    """CSS aspect-ratio for a frame around this photo, e.g. '1.4356'; '' if unknown.
+
+    A plain string with a dot so templates never localise it into '1,4356'."""
+    if not width or not height or width <= 0 or height <= 0:
+        return ''
+    ratio = min(FRAME_MAX_RATIO, max(FRAME_MIN_RATIO, width / height))
+    return f'{ratio:.4f}'
+
+
 def clamp_focus(value, default=DEFAULT_FOCUS) -> int:
     try:
         number = int(round(float(value)))
@@ -91,6 +107,7 @@ def _meta(source, *, prefix):
     return {
         'width': width, 'height': height,
         'orientation': orientation or PORTRAIT,  # unknown posters are shown whole
+        'ratio': frame_ratio(width, height),
         'fx': clamp_focus(get('focus_x')), 'fy': clamp_focus(get('focus_y')),
         'color': color if HEX.match(color) else '',
     }

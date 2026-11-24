@@ -20,11 +20,11 @@
     </div>
   </header>
   <div class="km-home-afisha__rail">
-    <button type="button" class="km-home-afisha__arrow km-home-afisha__arrow--prev" data-km-rail-prev aria-label="{% if language == 'az' %}Əvvəlki{% elif language == 'en' %}Previous{% else %}Назад{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button>
+    <button type="button" class="km-home-afisha__arrow km-home-afisha__arrow--prev km-nav km-nav--prev" data-km-rail-prev aria-label="{% if language == 'az' %}Əvvəlki{% elif language == 'en' %}Previous{% else %}Назад{% endif %}">{% include 'includes/km_nav_icon.html' with icon='arrow' %}</button>
     <ul class="km-home-afisha__track" data-km-rail tabindex="0" aria-label="{% if language == 'az' %}Yaxın tədbirlər{% elif language == 'en' %}Upcoming events{% else %}Ближайшие события{% endif %}">
       {% for group in upcoming_event_groups %}<li class="km-home-afisha__item km-home-afisha__item--event">{% include 'catalog/includes/event_listing_card.html' with event=group.event group=group compact=True %}</li>{% endfor %}
     </ul>
-    <button type="button" class="km-home-afisha__arrow km-home-afisha__arrow--next" data-km-rail-next aria-label="{% if language == 'az' %}Növbəti{% elif language == 'en' %}Next{% else %}Вперёд{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
+    <button type="button" class="km-home-afisha__arrow km-home-afisha__arrow--next km-nav km-nav--next" data-km-rail-next aria-label="{% if language == 'az' %}Növbəti{% elif language == 'en' %}Next{% else %}Вперёд{% endif %}">{% include 'includes/km_nav_icon.html' with icon='arrow' %}</button>
   </div>
 </section>
 {% include 'catalog/includes/event_suggest_dialog.html' %}

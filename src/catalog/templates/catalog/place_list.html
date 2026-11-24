@@ -644,8 +644,8 @@
     <section class="catalog-category-picker" aria-labelledby="catalog-category-title">
       <h2 class="catalog-category-title" id="catalog-category-title">{% trans "Категории" %}</h2>
       <div class="catalog-category-strip-wrap" data-catalog-categories-scroll>
-        <button type="button" class="catalog-category-strip__arrow catalog-category-strip__arrow--prev" data-strip-prev aria-label="{% if language == 'az' %}Əvvəlki kateqoriyalar{% elif language == 'en' %}Previous categories{% else %}{% trans 'Предыдущие категории' %}{% endif %}" tabindex="-1" hidden>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        <button type="button" class="catalog-category-strip__arrow catalog-category-strip__arrow--prev km-nav km-nav--prev" data-strip-prev aria-label="{% if language == 'az' %}Əvvəlki kateqoriyalar{% elif language == 'en' %}Previous categories{% else %}{% trans 'Предыдущие категории' %}{% endif %}" tabindex="-1" hidden>
+          {% include 'includes/km_nav_icon.html' with icon='arrow' %}
         </button>
         <div class="catalog-category-strip" role="tablist" aria-labelledby="catalog-category-title">
           <button
@@ -681,8 +681,8 @@
             </button>
           {% endfor %}
         </div>
-        <button type="button" class="catalog-category-strip__arrow catalog-category-strip__arrow--next" data-strip-next aria-label="{% if language == 'az' %}Növbəti kateqoriyalar{% elif language == 'en' %}Next categories{% else %}{% trans 'Следующие категории' %}{% endif %}" tabindex="-1">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        <button type="button" class="catalog-category-strip__arrow catalog-category-strip__arrow--next km-nav km-nav--next" data-strip-next aria-label="{% if language == 'az' %}Növbəti kateqoriyalar{% elif language == 'en' %}Next categories{% else %}{% trans 'Следующие категории' %}{% endif %}" tabindex="-1">
+          {% include 'includes/km_nav_icon.html' with icon='arrow' %}
         </button>
       </div>
     </section>
