@@ -4,7 +4,6 @@ from collections import Counter
 from dataclasses import dataclass
 
 from catalog.interfaces.repositories import IAccountRepository, IUserProfileRepository
-from catalog.models import Place
 from catalog.repositories.django_repositories import DjangoAccountRepository, DjangoUserProfileRepository
 
 
@@ -24,22 +23,42 @@ class AccountController:
         return self.profile_repository.get_or_create_for_user(user)
 
     def build_favorites_context(self, *, user) -> dict:
-        likes = list(self.account_repository.list_user_favorite_likes(user=user))
-        favorite_places: list[Place] = []
-        seen_place_ids: set[int] = set()
-        for like in likes:
-            place = like.place
-            if place is None or not place.is_active or place.id in seen_place_ids:
-                continue
-            seen_place_ids.add(place.id)
-            place.is_liked = True
-            favorite_places.append(place)
-
+        from catalog.models import PlaceSpecialistMove
         from catalog.services.public_presentation import prepare_cards
-        favorite_places = prepare_cards(favorite_places)
+
+        saved = {}
+        places = []
+        for like in self.account_repository.list_user_favorite_likes(user=user):
+            if not like.place_id or like.place_id in saved:
+                continue
+            saved[like.place_id] = like
+            if like.place.is_active:
+                like.place.is_liked = True
+                places.append(like.place)
+
+        favorite_places = prepare_cards(places)
+        entries = {
+            place.pk: {"place": place, "target": place, "name": place.name_i18n()}
+            for place in favorite_places
+        }
+        hidden_place_ids = saved.keys() - entries.keys()
+        if hidden_place_ids:
+            moves = PlaceSpecialistMove.objects.public_targets().filter(
+                place_id__in=hidden_place_ids
+            ).select_related("specialist")
+            for move in moves:
+                entries[move.place_id] = {
+                    "specialist": move.specialist,
+                    "target": move.specialist,
+                    "name": move.specialist.name,
+                    "like_id": saved[move.place_id].pk,
+                }
+
         return {
             "favorite_places": favorite_places,
-            "favorites_count": len(favorite_places),
+            "favorite_entries": [entries[pk] for pk in saved if pk in entries],
+            "has_moved_favorites": len(entries) > len(favorite_places),
+            "favorites_count": len(entries),
         }
 
     def build_history_context(self, *, user, limit: int = 12) -> dict:

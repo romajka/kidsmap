@@ -23,7 +23,7 @@ def _page_image(context, route, language):
         return guide['url'], guide['caption']
     if 'seo_image_url' in context:
         presentation = context.get('presentation') or {}
-        return context['seo_image_url'], presentation.get('name') or context.get('seo_title', '')
+        return context['seo_image_url'], context.get('seo_image_alt') or presentation.get('name') or context.get('seo_title', '')
     if route == 'seo_landing':
         for card in context.get('seo_featured_places') or []:
             if card.get('image_url'):

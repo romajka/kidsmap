@@ -154,3 +154,25 @@ def populate_missing_place_slugs(place, *, update_fields=None, previous=None) ->
         if value != saved:
             changed.add(field)
     return changed
+
+
+def moved_place_specialist_url(*, pk=None, slug=None, language):
+    """Resolve a retired place detail to its explicitly linked public specialist."""
+    from catalog.models import PlaceSpecialistMove
+
+    language = normalized_place_language(language)
+    if pk is not None:
+        lookup = {'place_id': pk}
+    elif slug:
+        lookup = {'place__uses_slug_only_urls': True, f'place__public_slug_{language}': slug}
+    else:
+        return None
+
+    move = (
+        PlaceSpecialistMove.objects.public_targets()
+        .filter(**lookup).select_related('specialist').only('specialist__slug').first()
+    )
+    if move:
+        with override(language):
+            return move.specialist.get_absolute_url()
+    return None

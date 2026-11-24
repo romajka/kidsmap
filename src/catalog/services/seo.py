@@ -109,6 +109,37 @@ def build_section_breadcrumbs(request, label, path):
     return items, schema
 
 
+def moved_specialist_seo(request, specialist, copy, language, image_url):
+    """Describe the same public identity shown on this language's profile."""
+    name = copy.get('name') or specialist.name
+    title = copy.get('title') or name
+    description = copy.get('description') or specialist.bio_i18n(language)[:150]
+    canonical = _absolute_uri(request, specialist.get_absolute_url())
+    items = [
+        {'name': _('Главная'), 'url': reverse('home')},
+        {'name': _('Педагоги и специалисты'), 'url': reverse('specialist_list')},
+        {'name': name, 'url': specialist.get_absolute_url()},
+    ]
+    person = {'@type': 'Person', 'name': name, 'url': canonical}
+    profile = {
+        '@context': 'https://schema.org', '@type': 'ProfilePage', '@id': canonical,
+        'url': canonical, 'inLanguage': language, 'name': title, 'description': description,
+        'mainEntity': person,
+    }
+    if image_url:
+        person['image'] = image_url
+        profile['primaryImageOfPage'] = {'@type': 'ImageObject', 'url': image_url, 'caption': name}
+    return {
+        'specialist_display_name': name, 'seo_title': title, 'meta_description': description,
+        'specialist_alternate_name': specialist.name_alt if specialist.name_alt != name else '',
+        'seo_image_alt': name, 'moved_specialist_profile_json': _serialize_json_ld(profile),
+        'moved_specialist_breadcrumbs': items,
+        'moved_specialist_breadcrumb_json': _build_breadcrumb_schema([
+            {'name': item['name'], 'url': _absolute_uri(request, item['url'])} for item in items
+        ]),
+    }
+
+
 def _build_item_list_schema(*, name: str, item_urls: list[dict], total_count: int | None = None) -> str:
     payload = {
         "@context": "https://schema.org",

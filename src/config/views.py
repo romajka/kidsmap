@@ -1,6 +1,6 @@
 from django.http import Http404, HttpResponse
 from django.http import HttpResponsePermanentRedirect
-from django.urls import reverse
+from django.urls import Resolver404, resolve, reverse
 from django.utils import timezone
 from django.http import JsonResponse
 from django.conf import settings
@@ -140,6 +140,17 @@ def healthz(request):
 
 def redirect_legacy_default_language_prefix(request, path=""):
     target_path = f"/{path}" if path else "/"
+    if request.method in {"GET", "HEAD"}:
+        try:
+            match = resolve(target_path)
+        except Resolver404:
+            match = None
+        if match and match.url_name in {"place_detail", "place_detail_legacy", "place_detail_root_legacy"}:
+            from catalog.services.place_urls import moved_place_specialist_url
+
+            target = moved_place_specialist_url(language=settings.LANGUAGE_CODE, **match.kwargs)
+            if target:
+                return HttpResponsePermanentRedirect(target)
     query_string = filtered_query_string_for_path(target_path, request.GET)
     if query_string:
         target_path = f"{target_path}?{query_string}"

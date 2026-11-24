@@ -205,7 +205,7 @@
       {% endif %}
 
       <!-- Favorites Section -->
-      {% if favorite_places %}
+      {% if favorite_entries %}
         <div class="account-card-box">
           <div class="account-card-box__head">
             <h2>{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</h2>
@@ -215,20 +215,21 @@
             </a>
           </div>
           <div class="account-favs-row">
-            {% for place in favorite_places|slice:":4" %}
-              <a href="{{ place.get_absolute_url }}" class="account-fav-chip-link">
+            {% for entry in favorite_entries|slice:":4" %}
+              <a href="{{ entry.target.get_absolute_url }}" class="account-fav-chip-link">
                 <span class="material-symbols-rounded fav-chip-icon">
-                  {% if "sport" in place.category %}sports_soccer
-                  {% elif "music" in place.category %}music_note
-                  {% elif "lang" in place.category %}translate
-                  {% elif "chess" in place.category %}extension
+                  {% if entry.specialist %}school
+                  {% elif "sport" in entry.place.category %}sports_soccer
+                  {% elif "music" in entry.place.category %}music_note
+                  {% elif "lang" in entry.place.category %}translate
+                  {% elif "chess" in entry.place.category %}extension
                   {% else %}favorite{% endif %}
                 </span>
-                <span class="fav-chip-name">{{ place.name_i18n }}</span>
-                {% if place.rating_avg %}
+                <span class="fav-chip-name">{{ entry.name }}</span>
+                {% if entry.place.rating_avg %}
                   <span class="fav-chip-star">
                     <span class="material-symbols-rounded">star</span>
-                    {{ place.rating_avg|floatformat:1 }}
+                    {{ entry.place.rating_avg|floatformat:1 }}
                   </span>
                 {% endif %}
               </a>

@@ -76,7 +76,7 @@ class CleanPublicQueryMiddleware:
         if original_query:
             # Detail views check visibility and normalize slug + query together.
             # Doing query cleanup here first creates a second redirect hop.
-            if resolve_url_name(request.path) in {"event_detail", "place_detail", "place_detail_legacy", "place_detail_root_legacy"}:
+            if resolve_url_name(canonical_public_path(request.path)) in {"event_detail", "place_detail", "place_detail_legacy", "place_detail_root_legacy"}:
                 return self.get_response(request)
             if resolve_url_name(request.path) == "seo_landing":
                 from catalog.content_data import SEO_LANDING_ALIASES
