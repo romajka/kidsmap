@@ -56,11 +56,38 @@ class HomeFeaturedSpecialistsTests(TestCase):
     def test_home_page_renders_large_cards_and_all_card(self):
         person = self.person("Leyla Aliyeva", is_home_featured=True, price_from=25)
         page = self.client.get("/ru/")
-        self.assertContains(page, "home-specialists--featured")
+        self.assertContains(page, "data-spx")
         self.assertContains(page, person.get_absolute_url())
         self.assertContains(page, "от 25 ₼")
-        self.assertContains(page, "home-spf--all")
+        self.assertContains(page, "home-spx-card--all")
+        self.assertContains(page, "js/home_specialists.js")
         self.assertNotContains(page, "home-specialists--band")
+
+    def test_filter_tabs_come_from_picked_people_and_whatsapp_is_offered(self):
+        from catalog.models import SpecialistSpecialization
+
+        speech = SpecialistSpecialization.objects.create(code="spx-speech", name_ru="Логопед")
+        psych = SpecialistSpecialization.objects.create(code="spx-psych", name_ru="Психолог")
+        first = self.person("One", is_home_featured=True, whatsapp="+994 50 123 45 67")
+        first.specializations.add(speech)
+        second = self.person("Two", is_home_featured=True)
+        second.specializations.add(speech, psych)
+
+        block = HomeController._specialists_block("ru")
+
+        self.assertEqual([tab["code"] for tab in block["tabs"]], ["spx-speech", "spx-psych"])
+        self.assertEqual(block["tabs"][0]["count"], 2)
+        cards = {card["name"]: card for card in block["people"]}
+        self.assertEqual(cards["One"]["whatsapp_url"], "https://wa.me/994501234567")
+        self.assertEqual(cards["Two"]["whatsapp_url"], "")
+        self.assertEqual(cards["Two"]["specialty_codes"], "spx-speech spx-psych")
+        page = self.client.get("/ru/")
+        self.assertContains(page, 'data-spx-tab="spx-psych"')
+        self.assertContains(page, 'data-spx-codes="spx-speech spx-psych"')
+
+    def test_one_specialty_shows_no_tabs(self):
+        self.person("Solo", is_home_featured=True)
+        self.assertEqual(HomeController._specialists_block("ru")["tabs"], [])
 
     def test_admin_actions_toggle_the_flag(self):
         admin_user = get_user_model().objects.create_superuser("featured-admin", "a@example.com", "pw-12345")

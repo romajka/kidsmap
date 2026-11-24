@@ -186,10 +186,21 @@ class HomeController:
             .order_by("home_featured_order", "-rating_count", "-rating_avg", "-pk")[:HOME_SPECIALISTS_FEATURED_SIZE]
         )
         if featured:
+            people = [HomeController._featured_card(person, language_code) for person in featured]
+            # Filter tabs: only specialties the picked people actually have, most common first.
+            counts: dict[str, list] = {}
+            for person in people:
+                for code, label in person["specialty_items"]:
+                    counts.setdefault(code, [label, 0])[1] += 1
+            tabs = [
+                {"code": code, "label": label, "count": count}
+                for code, (label, count) in sorted(counts.items(), key=lambda item: (-item[1][1], item[1][0]))
+            ][:5]
             return {
                 "mode": "featured", "total": total, "chips": chips, "fillers": [],
                 "total_label": HomeController._specialists_count_label(total, language_code),
-                "people": [HomeController._featured_card(person, language_code) for person in featured],
+                "people": people, "tabs": tabs if len(tabs) > 1 else [],
+                "specialty_total": len(counts),
             }
         mode = "rail" if len(with_photo) >= HOME_SPECIALISTS_RAIL_MIN else "teaser"
         people = []
@@ -225,11 +236,21 @@ class HomeController:
     @staticmethod
     def _featured_card(person, language_code: str) -> dict:
         """Data for one large hand-picked specialist card on the home page."""
+        from django.core.exceptions import ValidationError
         from django.utils.text import Truncator
+        from catalog.services.phone_numbers import normalize_whatsapp
         from catalog.services.responsive_images import responsive_image
         from catalog.services.specialist_formats import public_format_label
 
-        specialties = sorted(item.name_i18n(language_code) for item in person.specializations.all())
+        specialty_items = sorted(
+            ((item.code, item.name_i18n(language_code)) for item in person.specializations.all()),
+            key=lambda pair: pair[1],
+        )
+        specialties = [label for _code, label in specialty_items]
+        try:
+            whatsapp = normalize_whatsapp(person.whatsapp) if person.whatsapp else ""
+        except ValidationError:
+            whatsapp = ""
         name_parts = (person.name or "").split()
         image = responsive_image(person.photo) if person.photo else {"src": "", "srcset": ""}
         years = person.experience_years or 0
@@ -258,6 +279,10 @@ class HomeController:
             "srcset": image["srcset"],
             "specialty": specialties[0] if specialties else "",
             "more_specialties": max(0, len(specialties) - 1),
+            "specialty_items": specialty_items,
+            "specialty_codes": " ".join(code for code, _label in specialty_items),
+            "whatsapp_url": f"https://wa.me/{whatsapp.lstrip('+')}" if whatsapp else "",
+            "rating_fraction": f"{max(0.0, min(1.0, (person.rating_avg or 0) / 5)):.3f}" if person.rating_count else "0",
             "experience": experience,
             "ages": ages,
             "bio": Truncator(bio).chars(130) if bio else "",
