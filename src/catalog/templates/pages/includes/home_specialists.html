@@ -23,7 +23,7 @@
     <p class="home-spx__lead">{% if hl == 'az' %}Loqopedlər, repetitorlar və psixoloqlar: qiymət, format və valideyn rəyləri ilə.{% elif hl == 'en' %}Speech therapists, tutors and psychologists, with prices, formats and parent reviews.{% else %}Логопеды, репетиторы и психологи: с ценами, форматом занятий и отзывами родителей.{% endif %}</p>
     <div class="home-spx__stats">
       <span><b data-spx-count="{{ sp.total }}">{{ sp.total }}</b>{% if hl == 'az' %}mütəxəssis{% elif hl == 'en' %}specialists{% else %}в каталоге{% endif %}</span>
-      <span><b data-spx-count="{{ sp.specialty_total }}">{{ sp.specialty_total }}</b>{% if hl == 'az' %}ixtisas burada{% elif hl == 'en' %}specialties here{% else %}направлений здесь{% endif %}</span>
+      <span><b data-spx-count="{{ sp.specialty_total }}">{{ sp.specialty_total }}</b>{% if hl == 'az' %}ixtisas{% elif hl == 'en' %}specialties{% else %}направлений{% endif %}</span>
     </div>
     {% if sp.tabs %}
     <div class="home-spx__tabs" role="group" aria-label="{% if hl == 'az' %}İxtisas üzrə göstər{% elif hl == 'en' %}Show by specialty{% else %}Показать по специализации{% endif %}">
@@ -83,6 +83,7 @@
     <div class="home-spx__nav">
       <button type="button" class="home-spx__arrow" data-spx-step="-1" aria-label="{% if hl == 'az' %}Əvvəlki{% elif hl == 'en' %}Previous{% else %}Назад{% endif %}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
       <span class="home-spx__progress" aria-hidden="true"><i></i></span>
+      <span class="home-spx__dots" role="group" data-label="{% if hl == 'az' %}Kart{% elif hl == 'en' %}Card{% else %}Карточка{% endif %}" aria-label="{% if hl == 'az' %}Kartlar{% elif hl == 'en' %}Cards{% else %}Карточки{% endif %}"></span>
       <button type="button" class="home-spx__arrow" data-spx-step="1" aria-label="{% if hl == 'az' %}Növbəti{% elif hl == 'en' %}Next{% else %}Вперёд{% endif %}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
     </div>
   </div>

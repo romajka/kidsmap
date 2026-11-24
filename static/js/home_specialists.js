@@ -1,7 +1,7 @@
 /* Home: hand-picked specialists (section.home-spx).
    - filter tabs with a sliding pill; cards leave and the rest slide into place (FLIP);
    - cards tilt toward the pointer with a soft glare (mouse and pen only);
-   - on phones the card in the middle of the row is full size, neighbours step back;
+   - on phones one whole card per view, dots under the row, a short nudge hints at swiping;
    - arrows and a progress line follow the row; numbers count up once.
    Everything is driven by events and requestAnimationFrame; nothing runs on a timer. */
 (function () {
@@ -37,19 +37,7 @@
         bar.style.setProperty("--size", size.toFixed(3));
         bar.style.setProperty("--start", start.toFixed(3));
       }
-      if (phone.matches && !reduce) {
-        track.classList.add("is-coverflow");
-        var box = track.getBoundingClientRect();
-        var mid = box.left + box.width / 2;
-        cards.forEach(function (card) {
-          if (card.hidden) return;
-          var r = card.getBoundingClientRect();
-          var d = Math.abs(r.left + r.width / 2 - mid) / (r.width || 1);
-          card.style.setProperty("--focus", Math.max(0, 1 - d).toFixed(3));
-        });
-      } else {
-        track.classList.remove("is-coverflow");
-      }
+      paintDots();
     }
     function schedule() { if (!frame) frame = requestAnimationFrame(paint); }
     track.addEventListener("scroll", schedule, { passive: true });
@@ -66,6 +54,47 @@
         track.scrollBy({ left: dir * count * stepWidth, behavior: reduce ? "auto" : "smooth" });
       });
     });
+
+    /* ---------- Dots (phones): one per visible card ---------- */
+    var dotsBox = section.querySelector(".home-spx__dots");
+    var dotLabel = dotsBox ? (dotsBox.getAttribute("data-label") || "") : "";
+    function visibleCards() { return cards.filter(function (c) { return !c.hidden; }); }
+    function buildDots() {
+      if (!dotsBox) return;
+      dotsBox.textContent = "";
+      visibleCards().forEach(function (card, i) {
+        var dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "home-spx__dot";
+        dot.setAttribute("aria-label", dotLabel + " " + (i + 1));
+        dot.addEventListener("click", function () {
+          track.scrollTo({ left: card.offsetLeft - track.offsetLeft - parseFloat(getComputedStyle(track).paddingLeft || 0), behavior: reduce ? "auto" : "smooth" });
+        });
+        dotsBox.appendChild(dot);
+      });
+    }
+    function paintDots() {
+      if (!dotsBox || !dotsBox.children.length) return;
+      var shown = visibleCards();
+      var first = shown[0];
+      var step = first ? first.getBoundingClientRect().width + (parseFloat(getComputedStyle(track).columnGap) || 0) : 1;
+      var index = Math.max(0, Math.min(shown.length - 1, Math.round(track.scrollLeft / (step || 1))));
+      Array.prototype.forEach.call(dotsBox.children, function (dot, i) {
+        dot.setAttribute("aria-current", i === index ? "true" : "false");
+      });
+    }
+    buildDots();
+
+    /* A short nudge when the row first shows on a phone: the next card peeks in and slides back */
+    function nudge() {
+      if (reduce || !phone.matches || !track.animate || track.scrollLeft > 4) return;
+      visibleCards().slice(0, 2).forEach(function (card) {
+        card.animate(
+          [{ transform: "none" }, { transform: "translateX(-46px)", offset: .45 }, { transform: "none" }],
+          { duration: 1100, delay: 900, easing: "cubic-bezier(.45, 0, .2, 1)" }
+        );
+      });
+    }
 
     /* ---------- Filter tabs ---------- */
     var tabs = section.querySelector(".home-spx__tabs");
@@ -109,6 +138,7 @@
       if (reduce) {
         cards.forEach(function (c) { c.hidden = !matches(c, code); });
         track.scrollLeft = 0;
+        buildDots();
         schedule();
         return;
       }
@@ -121,6 +151,7 @@
         leaving.forEach(function (c) { c.hidden = true; c.classList.remove("is-leaving"); });
         entering.forEach(function (c) { c.hidden = false; });
         track.scrollLeft = 0;
+        buildDots();
         staying.forEach(function (c, i) {
           var dx = before[i] - c.getBoundingClientRect().left;
           if (!dx) return;
@@ -190,6 +221,14 @@
         countUp();
       }, { threshold: 0.3 });
       io.observe(section);
+    }
+    if ("IntersectionObserver" in window) {
+      var seen = new IntersectionObserver(function (entries) {
+        if (!entries[0].isIntersecting) return;
+        seen.disconnect();
+        nudge();
+      }, { threshold: 0.6 });
+      seen.observe(track);
     }
   }
 
