@@ -41,7 +41,7 @@
     }
     function schedule() { if (!frame) frame = requestAnimationFrame(paint); }
     track.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
+    window.addEventListener("resize", function () { buildDots(); schedule(); });
     if (phone.addEventListener) phone.addEventListener("change", schedule);
     schedule();
 
@@ -59,26 +59,48 @@
     var dotsBox = section.querySelector(".home-spx__dots");
     var dotLabel = dotsBox ? (dotsBox.getAttribute("data-label") || "") : "";
     function visibleCards() { return cards.filter(function (c) { return !c.hidden; }); }
+    // Dots count pages: as many cards as fit whole in the row make one page.
+    var perView = 1;
+    function measure() {
+      var shown = visibleCards();
+      var style = getComputedStyle(track);
+      var gap = parseFloat(style.columnGap) || 0;
+      var room = track.clientWidth - (parseFloat(style.paddingLeft) || 0) - (parseFloat(style.paddingRight) || 0);
+      var width = shown[0] ? shown[0].getBoundingClientRect().width : room;
+      perView = Math.max(1, Math.round((room + gap) / (width + gap)));
+      return { shown: shown, step: width + gap };
+    }
     function buildDots() {
+      var m = measure();
+      cards.forEach(function (c) { c.classList.remove("is-page-start"); });
+      m.shown.forEach(function (c, i) { if (i % perView === 0) c.classList.add("is-page-start"); });
+      track.classList.toggle("has-pages", perView > 1);
       if (!dotsBox) return;
       dotsBox.textContent = "";
-      visibleCards().forEach(function (card, i) {
-        var dot = document.createElement("button");
-        dot.type = "button";
-        dot.className = "home-spx__dot";
-        dot.setAttribute("aria-label", dotLabel + " " + (i + 1));
-        dot.addEventListener("click", function () {
-          track.scrollTo({ left: card.offsetLeft - track.offsetLeft - parseFloat(getComputedStyle(track).paddingLeft || 0), behavior: reduce ? "auto" : "smooth" });
-        });
-        dotsBox.appendChild(dot);
-      });
+      var pages = Math.ceil(m.shown.length / perView);
+      if (pages < 2) return;
+      for (var p = 0; p < pages; p++) {
+        (function (page) {
+          var dot = document.createElement("button");
+          dot.type = "button";
+          dot.className = "home-spx__dot";
+          dot.setAttribute("aria-label", dotLabel + " " + (page + 1));
+          dot.addEventListener("click", function () {
+            var target = visibleCards()[page * perView];
+            if (!target) return;
+            track.scrollTo({ left: target.offsetLeft - (parseFloat(getComputedStyle(track).paddingLeft) || 0), behavior: reduce ? "auto" : "smooth" });
+          });
+          dotsBox.appendChild(dot);
+        })(p);
+      }
     }
     function paintDots() {
       if (!dotsBox || !dotsBox.children.length) return;
-      var shown = visibleCards();
-      var first = shown[0];
-      var step = first ? first.getBoundingClientRect().width + (parseFloat(getComputedStyle(track).columnGap) || 0) : 1;
-      var index = Math.max(0, Math.min(shown.length - 1, Math.round(track.scrollLeft / (step || 1))));
+      var m = measure();
+      var max = track.scrollWidth - track.clientWidth;
+      var pages = dotsBox.children.length;
+      var index = track.scrollLeft >= max - 2 ? pages - 1 : Math.round(track.scrollLeft / (m.step * perView || 1));
+      index = Math.max(0, Math.min(pages - 1, index));
       Array.prototype.forEach.call(dotsBox.children, function (dot, i) {
         dot.setAttribute("aria-current", i === index ? "true" : "false");
       });
@@ -87,7 +109,7 @@
 
     /* A short nudge when the row first shows on a phone: the next card peeks in and slides back */
     function nudge() {
-      if (reduce || !phone.matches || !track.animate || track.scrollLeft > 4) return;
+      if (reduce || !phone.matches || !track.animate || track.scrollLeft > 4 || track.scrollWidth <= track.clientWidth + 4) return;
       visibleCards().slice(0, 2).forEach(function (card) {
         card.animate(
           [{ transform: "none" }, { transform: "translateX(-46px)", offset: .45 }, { transform: "none" }],

@@ -75,15 +75,11 @@
                   </div>
 
                   {% if gallery|length > 1 %}
-                    <button type="button" class="place-gallery__nav place-gallery__nav--prev" data-place-gallery-prev aria-label="{% trans 'Предыдущее фото' %}">
-                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
-                      </svg>
+                    <button type="button" class="place-gallery__nav place-gallery__nav--prev km-nav km-nav--prev" data-place-gallery-prev aria-label="{% trans 'Предыдущее фото' %}">
+                      {% include 'includes/km_nav_icon.html' with icon='arrow' %}
                     </button>
-                    <button type="button" class="place-gallery__nav place-gallery__nav--next" data-place-gallery-next aria-label="{% trans 'Следующее фото' %}">
-                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="m9.5 5 6.5 7-6.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
-                      </svg>
+                    <button type="button" class="place-gallery__nav place-gallery__nav--next km-nav km-nav--next" data-place-gallery-next aria-label="{% trans 'Следующее фото' %}">
+                      {% include 'includes/km_nav_icon.html' with icon='arrow' %}
                     </button>
                     <div class="place-gallery__counter" aria-live="polite">
                       <span data-place-gallery-current>1</span>

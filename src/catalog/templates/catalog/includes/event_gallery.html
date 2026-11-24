@@ -1,40 +1,55 @@
 {% load event_editorial %}{% comment %}
-"Fotoqalereya" as a stack of cards: drag/swipe the top card away, ← → buttons,
-keys ← → and Enter. Without JS the same figures read as a plain scrolling row.
-The main poster is not repeated here: it is already in the hero.
+"Fotoqalereya" as a carousel: the photo in the middle is large and straight,
+its neighbours smaller, turned and dimmed; it changes as you swipe. Every photo
+keeps its own shape (same height, own width), so nothing is cropped. It turns
+by itself until you touch it; a tap on a side photo brings it to the middle,
+a tap on the middle one opens it full screen (static/js/event_media.js).
+Without JS it is a plain scrolling row of links. The main poster is not
+repeated here: it is already in the hero.
 {% endcomment %}{% event_gallery_items event event_gallery_items as items %}{% if items %}
 <section class="event-detail-gallery" aria-labelledby="event-gallery-title">
-  <h2 id="event-gallery-title">{% if language == 'az' %}Fotoqalereya{% elif language == 'en' %}Photo gallery{% else %}Фотогалерея{% endif %}</h2>
-  <div class="km-stack" data-km-stack data-lb-offset="{% if event_poster %}1{% else %}0{% endif %}" role="group" aria-roledescription="{% if language == 'az' %}foto dəstəsi{% elif language == 'en' %}photo stack{% else %}стопка фото{% endif %}" aria-labelledby="event-gallery-title">
-    <div class="km-stack__deck" data-km-stack-deck tabindex="0" aria-describedby="event-gallery-hint">
-      {% for item in items %}
-        <figure class="km-stack__card" data-km-stack-card data-index="{{ forloop.counter0 }}">
-          <a class="km-stack__frame" href="{{ item.original }}" data-km-lb-open="{% if event_poster %}{{ forloop.counter }}{% else %}{{ forloop.counter0 }}{% endif %}" tabindex="-1" aria-label="{% if language == 'az' %}Şəkli aç{% elif language == 'en' %}Open photo{% else %}Открыть фото{% endif %} {{ forloop.counter }}">
-            {% include 'catalog/includes/event_poster_media.html' with poster=item alt=event.name_i18n whole=True sizes='(max-width: 600px) 86vw, 460px' %}
-          </a>
-          {% if item.caption.title %}
-            <figcaption class="event-gallery__caption">
-              <span>{{ item.caption.title }}</span>
-              {% if item.caption.credits %}
-                <details class="event-gallery__credits">
-                  <summary>{% if language == 'az' %}Müəllif və lisenziya{% elif language == 'en' %}Photo credit and license{% else %}Автор и лицензия{% endif %}</summary>
-                  <p>{% include 'catalog/includes/event_credit_links.html' with parts=item.caption.credits %}</p>
-                </details>
-              {% endif %}
-            </figcaption>
-          {% endif %}
-        </figure>
-      {% endfor %}
+  <div class="km-car{% if items|length < 2 %} km-car--single{% endif %}" data-km-car aria-roledescription="{% if language == 'az' %}karusel{% elif language == 'en' %}carousel{% else %}карусель{% endif %}" aria-labelledby="event-gallery-title">
+    <div class="km-car__head">
+      <h2 id="event-gallery-title">{% if language == 'az' %}Fotoqalereya{% elif language == 'en' %}Photo gallery{% else %}Фотогалерея{% endif %}</h2>
+      {% if items|length > 1 %}<span class="km-car__count" data-km-car-count aria-live="polite">1 / {{ items|length }}</span>{% endif %}
+    </div>
+    <div class="km-car__stage">
+      {% if items|length > 1 %}
+      <button type="button" class="km-car__arrow km-car__arrow--prev km-nav km-nav--prev" data-km-car-prev aria-label="{% if language == 'az' %}Əvvəlki şəkil{% elif language == 'en' %}Previous photo{% else %}Предыдущее фото{% endif %}">{% include 'includes/km_nav_icon.html' with icon='arrow' %}</button>
+      {% endif %}
+      <div class="km-car__track" data-km-car-track>
+        {% for item in items %}
+          <figure class="km-car__item" data-km-car-item style="--ratio:{{ item.ratio|default:'1.3333' }};--i:{{ forloop.counter0 }}">
+            <a class="km-car__frame" href="{{ item.original }}" data-km-lb-open="{% if event_poster %}{{ forloop.counter }}{% else %}{{ forloop.counter0 }}{% endif %}" aria-label="{% if language == 'az' %}Şəkli aç{% elif language == 'en' %}Open photo{% else %}Открыть фото{% endif %} {{ forloop.counter }} / {{ items|length }}">
+              {% include 'catalog/includes/event_poster_media.html' with poster=item alt=event.name_i18n whole=True sizes='(max-width: 600px) 80vw, 600px' %}
+            </a>
+            {% if item.caption.title %}
+              <figcaption class="event-gallery__caption">
+                <span>{{ item.caption.title }}</span>
+                {% if item.caption.credits %}
+                  <details class="event-gallery__credits">
+                    <summary>{% if language == 'az' %}Müəllif və lisenziya{% elif language == 'en' %}Photo credit and license{% else %}Автор и лицензия{% endif %}</summary>
+                    <p>{% include 'catalog/includes/event_credit_links.html' with parts=item.caption.credits %}</p>
+                  </details>
+                {% endif %}
+              </figcaption>
+            {% endif %}
+          </figure>
+        {% endfor %}
+      </div>
+      {% if items|length > 1 %}
+      <button type="button" class="km-car__arrow km-car__arrow--next km-nav km-nav--next km-nav--ring" data-km-car-next aria-label="{% if language == 'az' %}Növbəti şəkil{% elif language == 'en' %}Next photo{% else %}Следующее фото{% endif %}">{% include 'includes/km_nav_icon.html' with icon='arrow' %}</button>
+      {% endif %}
     </div>
     {% if items|length > 1 %}
-    <div class="km-stack__nav">
-      <button type="button" class="km-round-btn" data-km-stack-prev aria-label="{% if language == 'az' %}Əvvəlki şəkil{% elif language == 'en' %}Previous photo{% else %}Предыдущее фото{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">arrow_back</span></button>
-      <span class="km-stack__count" data-km-stack-count aria-live="polite">1 / {{ items|length }}</span>
-      <button type="button" class="km-round-btn" data-km-stack-next aria-label="{% if language == 'az' %}Növbəti şəkil{% elif language == 'en' %}Next photo{% else %}Следующее фото{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></button>
+    <div class="km-car__bar">
+    <button type="button" class="km-car__ctl km-nav km-nav--prev" data-km-car-prev aria-label="{% if language == 'az' %}Əvvəlki şəkil{% elif language == 'en' %}Previous photo{% else %}Предыдущее фото{% endif %}">{% include 'includes/km_nav_icon.html' with icon='arrow' %}</button>
+    <div class="km-car__dots" data-km-car-dots>
+      {% for item in items %}<button type="button" class="km-car__dot" data-km-car-dot="{{ forloop.counter0 }}" aria-label="{% if language == 'az' %}Şəkil{% elif language == 'en' %}Photo{% else %}Фото{% endif %} {{ forloop.counter }}"{% if forloop.first %} aria-current="true"{% endif %}><span class="km-car__fill" aria-hidden="true"></span></button>{% endfor %}
+    </div>
+    <button type="button" class="km-car__ctl km-nav km-nav--next km-nav--ring" data-km-car-next aria-label="{% if language == 'az' %}Növbəti şəkil{% elif language == 'en' %}Next photo{% else %}Следующее фото{% endif %}">{% include 'includes/km_nav_icon.html' with icon='arrow' %}</button>
     </div>
     {% endif %}
-    <div class="km-stack__caption event-gallery__caption" data-km-stack-caption aria-live="polite"></div>
-    <p class="km-stack__hint visually-hidden" id="event-gallery-hint">{% if language == 'az' %}Şəkilləri ← → oxları ilə vərəqləyin, Enter ilə tam ekranda açın.{% elif language == 'en' %}Use ← → to flip through photos and Enter to open full screen.{% else %}Листайте фото клавишами ← →, Enter открывает на весь экран.{% endif %}</p>
   </div>
 </section>
 {% endif %}

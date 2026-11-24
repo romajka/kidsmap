@@ -57,12 +57,54 @@ class OrganizationFlowConsistencyTests(TestCase):
         response = self.client.get(reverse('admin:catalog_organization_changelist'), {'status': 'pending'})
         self.assertEqual(list(response.context['cl'].queryset.values_list('pk', flat=True)), [self.org.pk])
 
+    def test_independent_reviewer_can_read_and_approve_from_organization_card(self):
+        revision = self.candidate()
+        reviewer = get_user_model().objects.create_user('org_flow_reviewer', is_staff=True)
+        reviewer.user_permissions.add(*Permission.objects.filter(
+            content_type__app_label='catalog', codename__in=['view_organization', 'change_place'],
+        ))
+        self.client.force_login(reviewer)
+        card = reverse('admin:catalog_organization_change', args=[self.org.pk])
+        response = self.client.get(card)
+        self.assertContains(response, 'Creative lessons for children')
+        self.assertContains(response, 'name="action" value="approve"')
+        self.assertFalse(response.context['has_change_permission'])
+        self.assertEqual(self.client.post(card, {'name_az': 'Unauthorized rename'}).status_code, 403)
+        transition = reverse('admin:catalog_organization_transition', args=[self.org.pk])
+        self.assertRedirects(self.client.post(transition, {
+            'action': 'approve', 'revision_version': revision.version,
+        }), card)
+        self.org.refresh_from_db()
+        self.assertEqual(self.org.status, 'published')
+        self.assertEqual(self.org.name_az, 'Flow network')
+        self.assertEqual(self.org.description_az, 'Creative lessons for children')
+
+    def test_view_only_staff_can_open_organization_without_review_controls(self):
+        revision = self.candidate()
+        viewer = get_user_model().objects.create_user('org_flow_viewer', is_staff=True)
+        viewer.user_permissions.add(Permission.objects.get(
+            content_type__app_label='catalog', codename='view_organization',
+        ))
+        self.client.force_login(viewer)
+        card = reverse('admin:catalog_organization_change', args=[self.org.pk])
+        response = self.client.get(card)
+        self.assertNotContains(response, 'name="action" value="approve"')
+        self.assertNotContains(response, reverse('admin:catalog_place_organization_connections'))
+        transition = reverse('admin:catalog_organization_transition', args=[self.org.pk])
+        self.assertEqual(self.client.post(transition, {
+            'action': 'approve', 'revision_version': revision.version,
+        }).status_code, 403)
+
     def test_published_with_pending_changes_is_visible_in_both_filters(self):
         Organization.objects.filter(pk=self.org.pk).update(status='published', approved_at=timezone.now())
         self.org.refresh_from_db()
         self.candidate()
         counts = self.model_admin._dashboard_counts()
         self.assertEqual((counts['published'], counts['pending'], counts['draft']), (1, 1, 0))
+        self.client.force_login(self.staff)
+        card = self.client.get(reverse('admin:catalog_organization_change', args=[self.org.pk]))
+        self.assertContains(card, 'name="action" value="approve"')
+        self.assertNotContains(card, 'name="action" value="unpublish"')
 
     def test_bulk_publication_cannot_claim_unsubmitted_draft_is_published(self):
         self.candidate(submit=False)

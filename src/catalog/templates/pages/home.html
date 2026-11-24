@@ -18,11 +18,11 @@
 <link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261103_mobile_compact" />
 <link rel="stylesheet" href="{% static 'css/pages/home_map_fx.css' %}?v=20261120_fx5" />
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_mobile_intro" />
-<link rel="stylesheet" href="{% static 'css/pages/home_specialists.css' %}?v=20261124_spx2" />
+<link rel="stylesheet" href="{% static 'css/pages/home_specialists.css' %}?v=20261124_spx3" />
 <link rel="stylesheet" href="{% static 'css/pages/home_refresh.css' %}?v=20261119_stage1" />
 <link rel="stylesheet" href="{% static 'css/pages/home_hero_stage.css' %}?v=20261119_stage6" />
 <script defer src="{% static 'js/mappy.js' %}?v=20261119_specialists"></script>
-{% if upcoming_events or home_map_events or map_places %}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_budget" />{% endif %}
+{% if upcoming_events or home_map_events or map_places %}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2" />{% endif %}
 {% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 
@@ -89,13 +89,13 @@
           </div>
         </div>
 
-        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-prev" data-home-hero-slider-prev
+        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-prev km-nav km-nav--prev" data-home-hero-slider-prev
           aria-label="{% trans 'Предыдущие фото' %}">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          {% include 'includes/km_nav_icon.html' with icon='arrow' %}
         </button>
-        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-next" data-home-hero-slider-next
+        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-next km-nav km-nav--next" data-home-hero-slider-next
           aria-label="{% trans 'Следующие фото' %}">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          {% include 'includes/km_nav_icon.html' with icon='arrow' %}
         </button>
 
         <div class="home-hero-slider-dots" role="group" aria-label="{% trans 'Переключение фото' %}">
@@ -559,7 +559,7 @@
 
 {% block extra_body %}
 {% if hero_topics %}<script src="{% static 'js/home_hero_rotator.js' %}?v=20261119_stage2" defer></script>{% endif %}
-{% if home_specialists.mode == 'featured' %}<script src="{% static 'js/home_specialists.js' %}?v=20261124_spx2" defer></script>{% endif %}
+{% if home_specialists.mode == 'featured' %}<script src="{% static 'js/home_specialists.js' %}?v=20261124_spx3" defer></script>{% endif %}
 {% if home_rail_places %}<script src="{% static 'js/home_places_rail.js' %}?v=20261119_manual" defer></script>{% endif %}
 {% if upcoming_events or home_map_events %}<script src="{% static 'js/event_timer.js' %}?v=20261123_budget" defer></script>{% endif %}
 {% if upcoming_events %}<script src="{% static 'js/home_afisha.js' %}?v=20261120_r3" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endif %}

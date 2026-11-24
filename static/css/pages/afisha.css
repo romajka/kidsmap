@@ -430,7 +430,7 @@
 .km-afisha-stat span { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 0.74rem; font-weight: 700; color: rgba(255, 255, 255, 0.85); }
 .km-afisha-stat--total { background: #fff; color: var(--ev-deep); }
 .km-afisha-stat--total span { color: var(--ev-muted); }
-.km-afisha-stat--live i { position: relative; width: 7px; height: 7px; border-radius: 50%; background: #7dff9f; }
+.km-afisha-stat--live i { position: relative; flex: none; width: 7px; height: 7px; border-radius: 50%; background: #7dff9f; }
 .km-afisha-stat--live i::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid #7dff9f; animation: km-ping 1.6s var(--ev-ease) infinite; }
 @keyframes km-float { 50% { transform: translate(-12px, 14px); } }
 
@@ -623,9 +623,11 @@ a.km-cal__day:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset:
 
 @media (max-width: 640px) {
   .km-afisha-hero { padding: 20px 18px; border-radius: 22px; margin-top: 10px; }
-  .km-afisha-stats { width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 8px; }
-  .km-afisha-stat { min-width: 0; padding: 9px 10px; }
-  .km-afisha-stat b { font-size: 1.35rem; }
+  .km-afisha-stats { width: 100%; gap: 8px; }
+  .km-afisha-stat { flex: 1; min-width: min-content; padding: 8px 6px 9px; border-radius: 14px; }
+  .km-afisha-stat b { font-size: 1.25rem; }
+  .km-afisha-stat span { gap: 4px; font-size: 0.66rem; line-height: 1.15; }
+  .km-afisha-hero p { font-size: 0.9rem; }
   .km-cal__board { padding: 12px 10px; border-radius: 20px; }
   .km-cal__weekdays, .km-cal__grid { gap: 3px; }
   .km-cal__day { min-height: 0; padding: 5px 1px 3px; border-radius: 10px; }
@@ -634,6 +636,9 @@ a.km-cal__day:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset:
   .km-cal__tz { display: none; }
   .km-ev-grid.events-list-v2 { gap: 14px; }
   .km-cal__agenda-head h2 { font-size: 1.2rem; }
+}
+@media (max-width: 359px) {
+  .km-afisha-stats:has(.km-afisha-stat--live) .km-afisha-stat { flex-basis: calc((100% - 8px) / 2); }
 }
 
 /* ─── HOME AFISHA BLOCK (light) ────────────────────────────── */
@@ -749,17 +754,8 @@ a.km-cal__day:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset:
   top: 38%;
   display: none;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--ev-line);
-  border-radius: 50%;
-  background: #fff;
-  color: var(--ev-deep);
-  box-shadow: 0 10px 24px -12px rgba(13, 73, 36, 0.6);
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.25s var(--ev-spring);
+  /* drawn by .km-nav (components/km_nav.css) */
 }
-.km-home-afisha__arrow:hover { transform: scale(1.08); }
 .km-home-afisha__arrow:disabled { opacity: 0; pointer-events: none; }
 .km-home-afisha__arrow--prev { left: 10px; }
 .km-home-afisha__arrow--next { right: 10px; }
@@ -813,13 +809,6 @@ a.km-cal__day:focus-visible { outline: 3px solid var(--ev-leaf); outline-offset:
 }
 .km-timer--mini .km-timer__label { white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .km-timer--mini .km-timer__label > span:last-child { overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 640px) {
-  .km-afisha-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .km-afisha-stat { padding: 8px 8px 9px; border-radius: 14px; }
-  .km-afisha-stat b { font-size: 1.25rem; }
-  .km-afisha-stat span { font-size: 0.66rem; line-height: 1.15; }
-  .km-afisha-hero p { font-size: 0.9rem; }
-}
 .km-cal .km-cal__pop a, .km-cal .km-cal__pop a:hover, .km-cal .km-cal__pop a span { color: #fff; text-decoration: none; }
 .km-cal .km-cal__pop a:hover span { text-decoration: underline; }
 
@@ -1323,7 +1312,9 @@ dialog.km-suggest.is-closing::backdrop { animation: km-fade-out 0.22s ease both;
 .km-suggest__grip { display: none; }
 .km-suggest__close { position: absolute; top: 14px; right: 14px; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: #f2f5f3; color: var(--ev-ink); cursor: pointer; transition: transform 0.25s var(--ev-spring), background 0.2s; }
 .km-suggest__close:hover { transform: rotate(90deg); background: #e7ece9; }
-.km-suggest__head { display: flex; gap: 14px; align-items: flex-start; margin: 0 40px 18px 0; }
+.km-suggest__head { display: flex; gap: 14px; align-items: flex-start; margin: 0 0 18px; }
+.km-suggest__head > div { min-width: 0; overflow-wrap: anywhere; }
+dialog.km-suggest .km-suggest__head { margin-inline-end: 40px; }
 .km-suggest__badge { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(135deg, #ff7a59, #f0476a); color: #fff; box-shadow: 0 12px 22px -12px rgba(240, 71, 106, 0.9); animation: km-suggest-badge 0.7s var(--ev-spring) 0.1s both; }
 .km-suggest__badge .material-symbols-rounded { font-size: 1.7rem; }
 .km-suggest__head h1, .km-suggest__head h2 { margin: 2px 0 6px; font-family: var(--font-display, inherit); font-size: clamp(1.3rem, 3vw, 1.6rem); line-height: 1.15; }
@@ -1393,7 +1384,7 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   dialog.km-suggest.is-closing .km-suggest__sheet { animation: km-suggest-sheet-out 0.22s ease both; }
   .km-suggest__grip { display: block; width: 44px; height: 5px; margin: 0 auto 10px; border-radius: 3px; background: #d6ddd9; }
   .km-suggest__close { top: 10px; right: 10px; width: 36px; height: 36px; }
-  .km-suggest__head { margin-right: 36px; }
+  dialog.km-suggest .km-suggest__head { margin-inline-end: 36px; }
   .km-suggest__badge { width: 44px; height: 44px; border-radius: 14px; }
   .km-suggest__grid { grid-template-columns: 1fr; gap: 10px; }
   .km-suggest__actions { flex-direction: column; position: sticky; bottom: -16px; margin: 14px -16px 0; padding: 10px 16px 6px; background: linear-gradient(transparent, #fff 30%); }
@@ -1569,7 +1560,8 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   .km-ev-card:hover { transform: translateY(-3px); }
   .km-ev-card:hover .km-ev-card__media img { transform: scale(1.1); transition: transform 6s var(--ev-poster-ease); }
 }
-.km-ev-card__rowdate, .km-ev-card__foot, .km-timer__short, .km-timer__ring { display: none; }
+.km-ev-card__rowdate, .km-ev-card__age, .km-ev-card__rowprice, .km-timer__short, .km-timer__ring { display: none; }
+.km-ev-card__foot { display: contents; }
 
 /* showtimes of one show on one day */
 .km-ev-card__times { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 0; padding: 0; list-style: none; }
@@ -1594,19 +1586,19 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
      with the price on the left and the countdown on the right */
   .km-ev-card {
     display: grid;
-    grid-template-columns: 125px minmax(0, 1fr);
-    grid-template-rows: repeat(6, auto);
+    grid-template-columns: min(40%, 125px) minmax(0, 1fr);
+    grid-template-rows: repeat(7, auto);
     align-content: start;
     height: auto;
     column-gap: 12px;
-    padding: 10px 10px 0;
+    padding: 10px;
     border-radius: 16px;
   }
-  .km-ev-card__body, .km-ev-card--compact .km-ev-card__body, .km-ev-card__foot { display: contents !important; }
+  .km-ev-card__body { display: contents; }
   .km-ev-card__media,
   .km-ev-card--compact .km-ev-card__media {
-    grid-column: 1; grid-row: 1 / 6; align-self: start;
-    width: 125px; height: 106px; aspect-ratio: auto;   /* the catalog's phone thumbnail, 1.18:1 */
+    grid-column: 1; grid-row: 1 / 7; align-self: start;
+    width: 100%; aspect-ratio: 125 / 106;
     border-radius: 12px; overflow: hidden;
     background: #e9efeb;
   }
@@ -1615,37 +1607,37 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   .km-ev-card__media .km-ev-card__placeholder { object-fit: cover; }
   .km-ev-card__shade, .km-ev-card__stamp, .km-ev-card__chips, .km-ev-card__langs, .km-ev-card__price,
   .km-ev-card__when, .km-ev-card__meta, .km-ev-card__actions { display: none !important; }
-  .km-ev-card__body > *, .km-ev-card__foot > * { grid-column: 2; min-width: 0; }
+  .km-ev-card__body > * { grid-column: 2; min-width: 0; }
   .km-ev-card__rowdate { display: block; grid-row: 1; margin: 2px 0 3px; color: var(--ev-hot-ink); font-weight: 800; font-size: 12px; line-height: 1.3; }
   .km-ev-card__title,
   .km-ev-card--compact .km-ev-card__title {
-    grid-row: 2; margin: 0 0 4px; font-size: 16.5px; line-height: 1.25;
+    grid-row: 2; margin: 0 0 4px; font-size: 16.5px; line-height: 1.25; overflow-wrap: anywhere;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .km-ev-card__place { grid-row: 3; margin: 0 0 4px; font-size: 12px; color: var(--ev-muted); }
   .km-ev-card__place .material-symbols-rounded { font-size: 0.9rem; }
-  .km-ev-card__age { grid-row: 4; justify-self: start; margin: 0 0 6px; padding: 2px 8px; border-radius: 999px; background: var(--ev-mint); color: var(--ev-deep); font-size: 12px; font-weight: 800; }
+  .km-ev-card__age { display: block; grid-row: 4; justify-self: start; margin: 0 0 6px; padding: 2px 8px; border-radius: 999px; background: var(--ev-mint); color: var(--ev-deep); font-size: 12px; font-weight: 800; }
   .km-ev-card__times { grid-row: 5; align-self: start; gap: 5px; margin: 0 0 8px; }
-  /* the bottom bar, separated by a hairline as on place cards */
-  .km-ev-card::after { content: ""; grid-column: 1 / -1; grid-row: 6; align-self: start; height: 1px; margin-top: 4px; background: var(--ev-line); }
-  .km-ev-card__rowprice, .km-ev-card .km-timer { grid-column: 1 / -1 !important; grid-row: 6; align-self: center; margin: 14px 0 10px !important; }
-  .km-ev-card__rowprice { justify-self: start; padding: 0; color: var(--ev-ink); font-family: var(--font-display, inherit); font-size: 17px; font-weight: 800; }  /* as "550 ₼ / ay" on place cards */
-  .km-ev-card__rowprice.is-free { color: var(--ev-ink); }
-  .km-ev-card .km-timer { justify-self: end; }
-  .km-ev-card:not(:has(.km-ev-card__rowprice)) .km-timer { justify-self: start; }
-  .km-ev-card:not(:has(.km-ev-card__rowprice)):not(:has(.km-timer))::after { display: none; }
+  .km-ev-card__foot:has(> *) {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px;
+    grid-column: 1 / -1; grid-row: 7;
+    margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--ev-line);
+  }
+  .km-ev-card__rowprice {
+    display: block; max-width: 100%; overflow-wrap: anywhere;
+    color: var(--ev-ink); font-family: var(--font-display, inherit); font-size: 17px; line-height: 1.25; font-weight: 800;
+  }
   .km-ev-card__rowdate.is-live { color: #0b6b30; display: inline-flex; align-items: center; gap: 6px; }
   .km-ev-card__live-dot { position: relative; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
   .km-ev-card__live-dot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid currentColor; animation: km-ping 1.6s var(--ev-ease) infinite; }
 
   /* countdown: one calm pill — "• До начала 05:56:29" or "• До начала 68 дн 06 ч" */
-  .km-ev-card .km-timer,
-  .km-ev-card--compact .km-ev-card .km-timer {
-    display: inline-flex; flex-direction: row; align-items: center; gap: 7px;
-    width: fit-content; max-width: 100%; padding: 5px 12px 5px 9px;
-    border-radius: 999px; line-height: 1; position: relative; z-index: 1;
+  .km-ev-card .km-timer {
+    display: inline-flex; flex-flow: row wrap; align-items: center; gap: 4px 7px;
+    max-width: 100%; margin: 0; padding: 5px 12px 5px 9px;
+    border-radius: 999px; line-height: 1; position: relative; pointer-events: none;
   }
-  .km-ev-card .km-timer__label { gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0; text-transform: none; white-space: nowrap; }
+  .km-ev-card .km-timer__label { min-width: 0; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0; text-transform: none; overflow-wrap: anywhere; }
   .km-ev-card .km-timer__label [data-km-timer-label] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .km-ev-card .km-timer__short { display: inline; }
   /* seconds ring around a clock hand: fills once a minute, colour follows the state */
@@ -1685,7 +1677,10 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   .km-ev-card .km-timer__seg[data-unit="d"].is-zero ~ .km-timer__seg .km-timer__unit { display: none; }
   .km-ev-card:active { transform: scale(0.985); transition-duration: 0.12s; }
 
-  .km-ev-card__cancelled { inset-block-start: auto; inset-block-end: 10px; inset-inline-end: 10px; padding: 3px 9px; font-size: 0.72rem; }
+  .km-ev-card__cancelled {
+    position: static; grid-column: 2; grid-row: 6; justify-self: start; min-width: 0;
+    margin-bottom: 4px; padding: 3px 9px; font-size: 0.72rem;
+  }
   .km-ev-card:has(.km-ev-card__title a:focus-visible) { outline-offset: 0; }
 
   /* home block: a vertical list of rows, no horizontal rail */
@@ -1724,10 +1719,10 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
   .km-ev-agenda[data-phase="ended"] { opacity: 0.6; }
   .km-ev-agenda__time { display: flex; flex-direction: column; gap: 2px; font-variant-numeric: tabular-nums; }
   .km-ev-agenda__time b { font-family: var(--font-display, inherit); font-size: 17px; line-height: 1.05; color: var(--ev-ink); }
-  .km-ev-agenda__time b.is-date { font-size: 13px; font-family: inherit; font-weight: 800; }
+  .km-ev-agenda__time b.is-date { font-size: 13px; font-family: inherit; font-weight: 800; overflow-wrap: anywhere; }
   .km-ev-agenda__time small { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--ev-muted); }
-  .km-ev-agenda__time span { font-size: 11px; font-weight: 800; color: var(--ev-hot-ink); }
-  .km-ev-agenda__time span.is-free { color: #0b6b30; }
+  .km-ev-agenda__price { font-size: 11px; line-height: 1.35; font-weight: 800; color: var(--ev-hot-ink); overflow-wrap: anywhere; }
+  .km-ev-agenda__price.is-free { color: #0b6b30; }
   .km-ev-agenda__main { min-width: 0; display: grid; gap: 2px; }
   .km-ev-agenda__title {
     color: var(--ev-ink); font-weight: 800; font-size: 14px; line-height: 1.25; text-decoration: none;

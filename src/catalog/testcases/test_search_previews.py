@@ -1,17 +1,21 @@
 """Preview images describe public page content, never a fabricated venue photo."""
 
 import json
+from datetime import timedelta
 from io import BytesIO
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from urllib.parse import urljoin
 
 from PIL import Image
+from django.contrib.staticfiles import finders
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import AnonymousUser
 from django.template.loader import render_to_string
 from django.test import RequestFactory, TestCase, override_settings
+from django.utils import timezone
 
+from catalog.models import Category, Event, SiteSettings
 from catalog.testcases.test_parent_guide_images import ImageMarkup
 from catalog.testcases.utils import create_quality_place
 
@@ -102,12 +106,58 @@ class SearchPreviewTests(TestCase):
         cases = [
             ('organization_list', {'cards': [{'photos': [{'url':photo.url, 'name':'Visible branch'}]}]}),
             ('specialist_list', {'specialists': [SimpleNamespace(photo=photo, has_valid_photo=True, name='Visible educator')]}),
-            ('events_landing', {'events': [SimpleNamespace(photo=photo, name_i18n=lambda lang:'Visible event')]}),
         ]
         for route, context in cases:
             with self.subTest(route=route):
                 self.assert_preview(self.base(route, **context), 'http://testserver/media/visible.webp')
                 self.assertNotIn('og:image', self.base(route).meta)
+
+    @override_settings(PUBLIC_BASE_URL='https://kidsmap.az')
+    def test_events_landing_shares_one_branded_cover_in_every_language_and_view(self):
+        site = SiteSettings.get_solo()
+        site.events_section_enabled = True
+        site.save(update_fields=['events_section_enabled'])
+        category = Category.objects.create(code='share-preview', name_az='Share preview')
+        start = timezone.now() + timedelta(days=1)
+        event = Event.objects.create(
+            name='Share preview fixture', category=category, status=Event.STATUS_PUBLISHED,
+            start_datetime=start, end_datetime=start + timedelta(hours=1),
+            photo='events/share-preview-fixture.jpg',
+        )
+        for language, prefix, alt in (
+            ('az', '', 'KidsMap. Uşaqlar üçün afişa. Bakıda açıq havada ailəvi tədbirin illüstrasiyası.'),
+            ('ru', '/ru', 'KidsMap. Афиша для детей. Иллюстрация семейного события под открытым небом в Баку.'),
+            ('en', '/en', 'KidsMap. Kids’ events. Illustration of an outdoor family event in Baku.'),
+        ):
+            asset_path = f'img/events/share-{language}.jpg'
+            cover = 'https://kidsmap.az/static/' + asset_path
+            for query in ({}, {'view': 'calendar'}, {'q': 'missing-preview-fixture'}):
+                with self.subTest(prefix=prefix, query=query):
+                    response = self.client.get(f'{prefix}/events/', query)
+                    self.assertEqual(response.status_code, 200)
+                    parsed = ImageMarkup(response.content.decode())
+                    self.assertContains(response, 'property="og:image"', count=1)
+                    self.assertContains(response, 'name="twitter:image"', count=1)
+                    self.assertEqual(parsed.meta.get('og:image'), cover)
+                    self.assertEqual(parsed.meta.get('twitter:image'), cover)
+                    self.assertEqual(parsed.meta.get('og:image:alt'), alt)
+                    self.assertEqual(parsed.meta.get('twitter:image:alt'), alt)
+                    self.assertEqual(parsed.meta.get('twitter:card'), 'summary_large_image')
+                    self.assertEqual(parsed.meta.get('og:image:type'), 'image/jpeg')
+                    self.assertEqual(parsed.meta.get('og:image:width'), '1200')
+                    self.assertEqual(parsed.meta.get('og:image:height'), '630')
+                    if not query:
+                        original_image = next(row for row in parsed.schemas
+                                              if row.get('@type') == 'WebPage')['primaryImageOfPage']
+                        self.assertEqual(original_image['url'], 'https://kidsmap.az' + event.photo.url)
+                    self.assertFalse(any(img.get('src') == '/static/' + asset_path
+                                         for img in parsed.images))
+            with self.subTest(asset=asset_path):
+                path = finders.find(asset_path)
+                self.assertIsNotNone(path)
+                with Image.open(path) as asset:
+                    self.assertEqual(asset.format, 'JPEG')
+                    self.assertEqual(asset.size, (1200, 630))
 
     def test_landing_photos_follow_public_category_filters_in_all_languages(self):
         from catalog.models import CatalogContentSettings

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -14,6 +15,8 @@ from ..models import Category, Event, Place, PlaceReview, SiteReview
 from ..models import FunnelEvent
 from ..services.content_quality import approved_review_queryset, public_place_queryset, public_review_queryset
 from ..services.pricing_plans import public_pricing_plans
+from ..services.public_urls import build_public_absolute_uri
+from ..services.seo import build_section_breadcrumbs
 from ..services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
 from ..services.features import is_events_section_enabled
 from .decorators import noindex_response
@@ -150,7 +153,31 @@ def events_landing(request):
 
     if not is_events_section_enabled():
         return _retired_public_page(request)
+    if request.method in {"GET", "HEAD"} and set(request.GET) == {"page"} and request.GET.getlist("page") == ["1"]:
+        return redirect(request.path, permanent=True)
+
     context = place_controller.build_events_landing_context(request)
+    request._seo_events_page_number = context["page_obj"].number
+    if not request.GET:
+        _, context["events_breadcrumbs_json"] = build_section_breadcrumbs(
+            request, context["events_heading"], request.path,
+        )
+
+    share_alt = {
+        "az": "KidsMap. Uşaqlar üçün afişa. Bakıda açıq havada ailəvi tədbirin illüstrasiyası.",
+        "ru": "KidsMap. Афиша для детей. Иллюстрация семейного события под открытым небом в Баку.",
+        "en": "KidsMap. Kids’ events. Illustration of an outdoor family event in Baku.",
+    }
+    language = context["language"]
+    if language not in share_alt:
+        language = "az"
+    context["social_share_image"] = {
+        "url": build_public_absolute_uri(request, static(f"img/events/share-{language}.jpg")),
+        "alt": share_alt[language],
+        "type": "image/jpeg",
+        "width": 1200,
+        "height": 630,
+    }
     return render(request, "catalog/events_landing.html", context)
 
 def _render_place_list(request, force_new_only=False, created_after=None):
