@@ -1,4 +1,4 @@
-/* Event page media: the photo stack ("Fotoqalereya") and the full-screen viewer.
+/* Event page media: the photo carousel ("Fotoqalereya") and the full-screen viewer.
    No libraries: pointer events + Web Animations API. Without JS the poster and
    photos stay ordinary links to the original files. */
 (() => {
@@ -38,7 +38,7 @@
       if (!el || !el.isConnected) return null;
       const pic = el.querySelector('.km-fit__img') || el.querySelector('img') || el;
       const r = pic.getBoundingClientRect();
-      if (!r.width || !r.height || r.bottom < 0 || r.top > window.innerHeight) return null;
+      if (!r.width || !r.height || r.bottom < 0 || r.top > window.innerHeight || r.right < 0 || r.left > window.innerWidth) return null;
       const contained = getComputedStyle(pic).objectFit === 'contain';
       if (!contained || !item.w || !item.h) return r;
       const ratio = item.w / item.h;
@@ -67,7 +67,7 @@
     }
     function open(i, from, getSource) {
       if (busy || !items.length) return;
-      opener = (from && from.closest('[data-km-stack-deck]')) || from || document.activeElement;
+      opener = from || document.activeElement;
       sourceFor = getSource || (() => from);
       const item = show(i);
       root.showModal();
@@ -136,12 +136,17 @@
   }
 
   const lbIndex = el => parseInt(el.getAttribute('data-km-lb-open'), 10) || 0;
-  const sourceByIndex = i => document.querySelector(`[data-km-lb-open="${i}"]`)?.closest('.km-stack__card[data-pos]:not([data-pos="0"])')
-    ? null : document.querySelector(`[data-km-lb-open="${i}"]`);
+  // The frame a photo flies from / back to. A carousel photo is first brought
+  // to the middle (no animation), so closing the viewer lands it in its card.
+  const sourceByIndex = i => {
+    const el = document.querySelector(`[data-km-lb-open="${i}"]`);
+    const car = el && el.closest('[data-km-car]');
+    if (car && car.kmGoTo) car.kmGoTo(el.closest('[data-km-car-item]'), true);
+    return el;
+  };
 
-  // Hero poster (and any other plain opener outside the stack).
+  // Hero poster and carousel photos.
   document.querySelectorAll('[data-km-lb-open]').forEach(link => {
-    if (link.closest('[data-km-stack]')) return;
     link.addEventListener('click', e => {
       if (!viewer || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       e.preventDefault();
@@ -149,122 +154,193 @@
     });
   });
 
-  /* ─── Stack ──────────────────────────────────────────────── */
-  document.querySelectorAll('[data-km-stack]').forEach(stack => {
-    const deck = stack.querySelector('[data-km-stack-deck]');
-    const cards = Array.from(stack.querySelectorAll('[data-km-stack-card]'));
-    const counter = stack.querySelector('[data-km-stack-count]');
-    const captionSlot = stack.querySelector('[data-km-stack-caption]');
-    if (!deck || !cards.length) return;
-    let order = cards.map((_, i) => i);   // order[0] is the top card
-    let animating = false;
-    stack.classList.add('is-ready');
+  /* ─── Hero poster tilt ───────────────────────────────────── */
+  // Mouse only: the postcard leans toward the pointer and catches the light.
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)');
+  document.querySelectorAll('.event-poster .event-cover').forEach(card => {
+    if (!fine.matches || reduce.matches) return;
+    card.classList.add('is-tiltable');
+    let raf = 0, last = null;
+    const paint = () => {
+      raf = 0;
+      if (!last) return;
+      const r = card.getBoundingClientRect();
+      const x = Math.max(0, Math.min(1, (last.clientX - r.left) / r.width));
+      const y = Math.max(0, Math.min(1, (last.clientY - r.top) / r.height));
+      card.style.setProperty('--ry', `${((x - .5) * 12).toFixed(2)}deg`);
+      card.style.setProperty('--rx', `${((.5 - y) * 10).toFixed(2)}deg`);
+      card.style.setProperty('--gx', `${(x * 100).toFixed(1)}%`);
+      card.style.setProperty('--gy', `${(y * 100).toFixed(1)}%`);
+    };
+    card.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') card.classList.add('is-tilting'); });
+    card.addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse') return;
+      last = e;
+      if (!raf) raf = requestAnimationFrame(paint);
+    });
+    card.addEventListener('pointerleave', () => {
+      last = null;
+      card.classList.remove('is-tilting');
+      ['--rx', '--ry'].forEach(v => card.style.removeProperty(v));
+    });
+  });
 
-    function layout() {
-      order.forEach((cardIndex, pos) => {
-        const card = cards[cardIndex];
-        const sign = pos % 2 ? -1 : 1;
-        card.dataset.pos = pos;
-        card.style.zIndex = String(cards.length - pos);
-        card.style.opacity = pos > 3 ? '0' : '1';
-        card.style.transform = pos === 0 ? 'none'
-          : `translateY(${pos * 13}px) scale(${1 - pos * 0.05}) rotate(${sign * (2 + pos * 1.5)}deg)`;
-        card.setAttribute('aria-hidden', pos === 0 ? 'false' : 'true');
-        card.querySelectorAll('a, summary').forEach(el => { el.tabIndex = pos === 0 && el.tagName === 'SUMMARY' ? 0 : -1; });
-      });
-      if (counter) counter.textContent = `${order[0] + 1} / ${cards.length}`;
-      if (captionSlot) {
-        const source = cards[order[0]].querySelector('figcaption');
-        captionSlot.innerHTML = source ? source.innerHTML : '';
+  /* ─── Carousel ───────────────────────────────────────────── */
+  document.querySelectorAll('[data-km-car]').forEach(car => {
+    const track = car.querySelector('[data-km-car-track]');
+    const items = Array.from(car.querySelectorAll('[data-km-car-item]'));
+    const dots = Array.from(car.querySelectorAll('[data-km-car-dot]'));
+    const counter = car.querySelector('[data-km-car-count]');
+    const rings = Array.from(car.querySelectorAll('.km-nav--ring'));
+    if (!track || !items.length) return;
+    car.classList.add('is-ready');
+    const many = items.length > 1;
+    let active = -1;
+
+    const center = it => it.offsetLeft - track.offsetLeft + it.offsetWidth / 2;
+    function goTo(it, instant) {
+      if (!it) return;
+      track.scrollTo({ left: center(it) - track.clientWidth / 2, behavior: instant || reduce.matches ? 'instant' : 'smooth' });
+    }
+    car.kmGoTo = goTo;
+    const step = dir => goTo(items[(Math.max(active, 0) + dir + items.length) % items.length]);
+
+    // First and last photo can reach the middle: side padding = half the track minus half the photo.
+    function pad() {
+      const w = track.clientWidth;
+      track.style.setProperty('--pad-l', `${Math.max(8, (w - items[0].offsetWidth) / 2)}px`);
+      track.style.setProperty('--pad-r', `${Math.max(8, (w - items[items.length - 1].offsetWidth) / 2)}px`);
+    }
+
+    function setActive(i) {
+      if (i === active) return;
+      const first = active === -1;
+      active = i;
+      items.forEach((it, k) => it.classList.toggle('is-active', k === i));
+      dots.forEach((d, k) => { if (k !== i) d.removeAttribute('aria-current'); else d.setAttribute('aria-current', 'true'); });
+      restartRing();
+      if (counter) {
+        counter.innerHTML = `<b>${i + 1}</b> / ${items.length}`;
+        if (!first && !reduce.matches) { counter.classList.remove('is-ticking'); void counter.offsetWidth; counter.classList.add('is-ticking'); }
       }
     }
-    function flyOut(dir) {
-      if (animating || cards.length < 2) return;
-      const top = cards[order[0]];
-      const finish = () => {
-        order.push(order.shift());
-        top.classList.add('is-dragging');      // jump to the back without a visible trip
-        top.style.opacity = '0';
-        layout();
-        top.style.opacity = '0';
-        requestAnimationFrame(() => { top.classList.remove('is-dragging'); top.style.opacity = order.indexOf(cards.indexOf(top)) > 3 ? '0' : '1'; animating = false; });
-      };
-      if (reduce.matches) { animating = true; finish(); return; }
-      animating = true;
-      top.style.transform = `translateX(${dir * 130}%) rotate(${dir * 20}deg)`;
-      top.style.opacity = '0';
-      setTimeout(finish, 450);
-    }
-    function bringBack() {
-      if (animating || cards.length < 2) return;
-      animating = true;
-      const last = order.pop();
-      order.unshift(last);
-      const card = cards[last];
-      card.classList.add('is-dragging');
-      card.style.transform = 'translateX(-130%) rotate(-20deg)';
-      card.style.opacity = '0';
-      card.style.zIndex = String(cards.length + 1);
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        card.classList.remove('is-dragging');
-        layout();
-        setTimeout(() => { animating = false; }, reduce.matches ? 0 : 450);
-      }));
-    }
-    const openTop = () => {
-      const link = cards[order[0]].querySelector('[data-km-lb-open]');
-      if (!viewer || !link) { if (link) window.location.href = link.href; return; }
-      viewer.open(lbIndex(link), link, i => {
-        const el = document.querySelector(`[data-km-lb-open="${i}"]`);
-        const card = el && el.closest('[data-km-stack-card]');
-        return card && card.dataset.pos !== '0' ? null : el;
-      });
-    };
 
-    // Drag the top card; a short tap opens the viewer.
-    let drag = null;
-    deck.addEventListener('pointerdown', e => {
-      const card = e.target.closest('[data-km-stack-card]');
-      if (animating || !card || card.dataset.pos !== '0' || e.target.closest('details') || e.button > 0) return;
-      drag = { card, x: e.clientX, y: e.clientY, t: performance.now(), dx: 0, moved: false, id: e.pointerId };
+    // Every scroll frame: how far each card is from the middle drives scale, turn and dimming.
+    function update() {
+      const mid = track.scrollLeft + track.clientWidth / 2;
+      let best = 0, bestDist = Infinity;
+      items.forEach((it, k) => {
+        const dist = center(it) - mid;
+        const unit = (it.offsetWidth + 20) || 1;
+        const s = Math.max(-1, Math.min(1, dist / unit));
+        it.style.setProperty('--s', s.toFixed(3));
+        it.style.setProperty('--d', Math.abs(s).toFixed(3));
+        if (Math.abs(dist) < bestDist) { bestDist = Math.abs(dist); best = k; }
+      });
+      setActive(best);
+    }
+
+    /* autoplay: runs on the dot's fill animation; stops for good once you touch the carousel */
+    const canPlay = many && !reduce.matches;
+    let stopped = !canPlay, inView = false, hovered = false, focused = false;
+    const sync = () => {
+      const held = !inView || hovered || focused || document.hidden;
+      car.classList.toggle('is-playing', !stopped);
+      car.classList.toggle('is-paused', held);
+      rings.forEach(r => { r.classList.toggle('is-counting', !stopped); r.classList.toggle('is-held', held); });
+    };
+    // The ring round "next" counts down the same seconds as the bar under the photo.
+    function restartRing() {
+      if (stopped) return;
+      rings.forEach(r => { r.classList.remove('is-counting'); void r.offsetWidth; r.classList.add('is-counting'); });
+    }
+    const stop = () => { if (!stopped) { stopped = true; sync(); } };
+    car.addEventListener('animationend', e => {
+      if (!stopped && e.animationName === 'km-car-fill') step(1);
     });
-    deck.addEventListener('pointermove', e => {
+    car.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { hovered = true; sync(); } });
+    car.addEventListener('pointerleave', () => { hovered = false; sync(); });
+    car.addEventListener('focusin', () => { focused = true; sync(); });
+    car.addEventListener('focusout', e => { if (!car.contains(e.relatedTarget)) { focused = false; sync(); } });
+    document.addEventListener('visibilitychange', sync);
+    ['pointerdown', 'wheel', 'touchstart', 'keydown'].forEach(type => track.addEventListener(type, stop, { passive: true }));
+
+    // Entrance when it comes into view; autoplay only runs while it is on screen.
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(entries => {
+        entries.forEach(en => {
+          inView = en.isIntersecting;
+          if (inView) car.classList.add('is-inview');
+          sync();
+        });
+      }, { rootMargin: '0px 0px -15% 0px' }).observe(car);
+    } else { inView = true; car.classList.add('is-inview'); sync(); }
+
+    car.querySelectorAll('[data-km-car-prev]').forEach(b => b.addEventListener('click', () => { stop(); step(-1); }));
+    car.querySelectorAll('[data-km-car-next]').forEach(b => b.addEventListener('click', () => { stop(); step(1); }));
+    dots.forEach((d, k) => d.addEventListener('click', () => { stop(); goTo(items[k]); }));
+
+    // A tap on a side photo brings it to the middle; only the middle one opens full screen.
+    track.addEventListener('click', e => {
+      const it = e.target.closest('[data-km-car-item]');
+      if (dragged) { e.preventDefault(); e.stopPropagation(); return; }
+      if (it && many && items.indexOf(it) !== active && e.target.closest('[data-km-lb-open]')) {
+        e.preventDefault(); e.stopPropagation(); stop(); goTo(it);
+      }
+    }, true);
+
+    // ← → between photos while one of them has focus.
+    track.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      const links = items.map(it => it.querySelector('[data-km-lb-open]'));
+      const at = links.indexOf(document.activeElement);
+      if (at < 0) return;
+      e.preventDefault();
+      const to = (at + (e.key === 'ArrowRight' ? 1 : -1) + items.length) % items.length;
+      links[to].focus({ preventScroll: true });
+      goTo(items[to]);
+    });
+
+    // Mouse: drag it like on a phone; the nearest photo snaps to the middle on release.
+    let drag = null, dragged = false;
+    track.addEventListener('pointerdown', e => {
+      if (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('details')) return;
+      drag = { x: e.clientX, left: track.scrollLeft, id: e.pointerId, moved: false };
+    });
+    track.addEventListener('pointermove', e => {
       if (!drag || e.pointerId !== drag.id) return;
-      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      const dx = e.clientX - drag.x;
       if (!drag.moved) {
-        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
-        if (Math.abs(dy) > Math.abs(dx)) { drag = null; return; }   // vertical: let the page scroll
+        if (Math.abs(dx) < 6) return;
         drag.moved = true;
-        drag.card.classList.add('is-dragging');
-        deck.setPointerCapture(e.pointerId);
+        track.classList.add('is-grabbing');
+        track.setPointerCapture(e.pointerId);
       }
-      drag.dx = dx;
-      drag.card.style.transform = `translateX(${dx}px) rotate(${dx / 18}deg)`;
+      track.scrollLeft = drag.left - dx;
     });
-    const end = e => {
+    const endDrag = e => {
       if (!drag || e.pointerId !== drag.id) return;
-      const { card, dx, moved, t } = drag;
+      dragged = drag.moved;
       drag = null;
-      card.classList.remove('is-dragging');
-      if (!moved) {
-        if (e.type === 'pointerup' && performance.now() - t < 400) { e.preventDefault(); openTop(); }
-        return;
+      if (dragged) {
+        track.classList.remove('is-grabbing');
+        update();
+        goTo(items[active]);
+        setTimeout(() => { dragged = false; }, 0);
       }
-      if (Math.abs(dx) > 90) flyOut(dx > 0 ? 1 : -1);
-      else layout();
     };
-    deck.addEventListener('dragstart', e => e.preventDefault());   // links/images must not start a native drag
-    deck.addEventListener('pointerup', end);
-    deck.addEventListener('pointercancel', end);
-    deck.addEventListener('click', e => { if (e.target.closest('[data-km-lb-open]')) e.preventDefault(); });
-    deck.addEventListener('keydown', e => {
-      if (e.target !== deck) return;
-      if (e.key === 'ArrowRight') { e.preventDefault(); flyOut(-1); }
-      if (e.key === 'ArrowLeft') { e.preventDefault(); bringBack(); }
-      if (e.key === 'Enter') { e.preventDefault(); openTop(); }
-    });
-    stack.querySelector('[data-km-stack-next]')?.addEventListener('click', () => flyOut(-1));
-    stack.querySelector('[data-km-stack-prev]')?.addEventListener('click', bringBack);
-    layout();
+    track.addEventListener('pointerup', endDrag);
+    track.addEventListener('pointercancel', endDrag);
+    track.addEventListener('dragstart', e => e.preventDefault());
+
+    let frame = 0;
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; update(); }); };
+    track.addEventListener('scroll', schedule, { passive: true });
+    const relayout = () => { pad(); goTo(items[Math.max(active, 0)], true); update(); };
+    if ('ResizeObserver' in window) new ResizeObserver(relayout).observe(track);
+    else window.addEventListener('resize', relayout);
+    pad();
+    update();
+    sync();
   });
 })();

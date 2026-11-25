@@ -29,9 +29,9 @@
   </div>
   <div class="home-parent-guide__footer">
   <div class="home-parent-guide__controls" data-guide-controls hidden>
-    <button type="button" data-guide-prev aria-controls="home-guide-track" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Əvvəlki bələdçilər{% elif request.LANGUAGE_CODE == 'en' %}Previous guides{% else %}Предыдущие гиды{% endif %}"><span aria-hidden="true">←</span></button>
-    <button type="button" data-guide-motion hidden aria-pressed="false" data-pause-label="{% if request.LANGUAGE_CODE == 'az' %}Animasiyanı dayandır{% elif request.LANGUAGE_CODE == 'en' %}Pause animation{% else %}Остановить анимацию{% endif %}" data-play-label="{% if request.LANGUAGE_CODE == 'az' %}Animasiyanı davam etdir{% elif request.LANGUAGE_CODE == 'en' %}Resume animation{% else %}Включить анимацию{% endif %}"><span data-guide-motion-icon aria-hidden="true">Ⅱ</span></button>
-    <button type="button" data-guide-next aria-controls="home-guide-track" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Növbəti bələdçilər{% elif request.LANGUAGE_CODE == 'en' %}Next guides{% else %}Следующие гиды{% endif %}"><span aria-hidden="true">→</span></button>
+    <button type="button" class="km-nav km-nav--prev" data-guide-prev aria-controls="home-guide-track" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Əvvəlki bələdçilər{% elif request.LANGUAGE_CODE == 'en' %}Previous guides{% else %}Предыдущие гиды{% endif %}">{% include 'includes/km_nav_icon.html' with icon='arrow' %}</button>
+    <button type="button" class="km-nav" data-guide-motion hidden aria-pressed="false" data-pause-label="{% if request.LANGUAGE_CODE == 'az' %}Animasiyanı dayandır{% elif request.LANGUAGE_CODE == 'en' %}Pause animation{% else %}Остановить анимацию{% endif %}" data-play-label="{% if request.LANGUAGE_CODE == 'az' %}Animasiyanı davam etdir{% elif request.LANGUAGE_CODE == 'en' %}Resume animation{% else %}Включить анимацию{% endif %}"><span data-guide-motion-icon aria-hidden="true">Ⅱ</span></button>
+    <button type="button" class="km-nav km-nav--next" data-guide-next aria-controls="home-guide-track" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Növbəti bələdçilər{% elif request.LANGUAGE_CODE == 'en' %}Next guides{% else %}Следующие гиды{% endif %}">{% include 'includes/km_nav_icon.html' with icon='arrow' %}</button>
   </div>
 
     <nav class="home-parent-guide__shortcuts" aria-label="{% if request.LANGUAGE_CODE == 'az' %}İstirahət üçün seçimlər{% elif request.LANGUAGE_CODE == 'en' %}Plan your day out{% else %}Варианты отдыха с детьми{% endif %}">

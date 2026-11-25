@@ -6,12 +6,12 @@
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block structured_data %}<script type="application/ld+json">{{ event_schema_json|safe }}</script>{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261123_posters"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_budget">{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261124_nav"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2">{% endblock %}
 
 {% block content %}
 <article class="event-detail-page">
   <a class="event-back" href="{% url 'events_landing' %}"><span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>{% if language == 'az' %}Bütün tədbirlər{% elif language == 'en' %}All events{% else %}Все мероприятия{% endif %}</a>
-  <header class="event-poster{% if not event_poster %} event-poster--no-photo{% else %} event-poster--{{ event_poster.orientation }}{% endif %}">
+  <header class="event-poster{% if not event_poster %} event-poster--no-photo{% else %} event-poster--{{ event_poster.orientation }}{% if event_poster.ratio %} event-poster--sized{% endif %}{% endif %}">
     <div class="event-poster-intro">
       <div class="event-poster-meta">
         {% if event.get_category_display %}<span class="event-category"><span class="material-symbols-rounded" aria-hidden="true">confirmation_number</span>{{ event.get_category_display }}</span>{% endif %}
@@ -61,7 +61,7 @@
 
     {% if event_poster %}
       <div class="event-detail-media">
-        <a class="event-cover event-photo-link" data-km-lb-open="0" href="{{ event_poster.original }}" aria-label="{% if language == 'az' %}Afişaya tam ölçüdə bax{% elif language == 'en' %}View the full poster{% else %}Открыть афишу целиком{% endif %}">
+        <a class="event-cover event-photo-link{% if event_poster.ratio %} event-cover--sized{% endif %}"{% if event_poster.ratio %} style="--ratio:{{ event_poster.ratio }}"{% endif %} data-km-lb-open="0" href="{{ event_poster.original }}" aria-label="{% if language == 'az' %}Afişaya tam ölçüdə bax{% elif language == 'en' %}View the full poster{% else %}Открыть афишу целиком{% endif %}">
           {% include 'catalog/includes/event_poster_media.html' with poster=event_poster alt=event.name_i18n eager=True whole=True sizes='(max-width: 767px) 92vw, 460px' %}
           <span class="event-expand material-symbols-rounded" aria-hidden="true">open_in_full</span>
         </a>
@@ -112,4 +112,4 @@
 </article>
 {% include 'catalog/includes/event_suggest_dialog.html' %}
 {% endblock %}
-{% block extra_body %}<script src="{% static 'js/event_detail_registration.js' %}?v=20261123_posters" defer></script><script src="{% static 'js/event_media.js' %}?v=20261123" defer></script><script src="{% static 'js/event_timer.js' %}?v=20261123_budget" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endblock %}
+{% block extra_body %}<script src="{% static 'js/event_detail_registration.js' %}?v=20261123_posters" defer></script><script src="{% static 'js/event_media.js' %}?v=20261124_nav" defer></script><script src="{% static 'js/event_timer.js' %}?v=20261123_budget" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endblock %}

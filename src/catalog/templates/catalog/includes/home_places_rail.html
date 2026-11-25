@@ -16,15 +16,11 @@
         </span>
       </a>
       <div class="home-rail-nav-group" aria-label="{% trans 'Навигация по карточкам' %}">
-        <button type="button" class="home-rail-nav-btn home-rail-nav-prev" data-rail-prev aria-label="{% trans 'Предыдущее место' %}" title="{% trans 'Предыдущее место' %}">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
+        <button type="button" class="home-rail-nav-btn home-rail-nav-prev km-nav km-nav--prev" data-rail-prev aria-label="{% trans 'Предыдущее место' %}" title="{% trans 'Предыдущее место' %}">
+          {% include 'includes/km_nav_icon.html' with icon='arrow' %}
         </button>
-        <button type="button" class="home-rail-nav-btn home-rail-nav-next" data-rail-next aria-label="{% trans 'Следующее место' %}" title="{% trans 'Следующее место' %}">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
+        <button type="button" class="home-rail-nav-btn home-rail-nav-next km-nav km-nav--next" data-rail-next aria-label="{% trans 'Следующее место' %}" title="{% trans 'Следующее место' %}">
+          {% include 'includes/km_nav_icon.html' with icon='arrow' %}
         </button>
       </div>
       <button type="button" class="home-rail-toggle" data-rail-toggle hidden aria-controls="home-rail-viewport"

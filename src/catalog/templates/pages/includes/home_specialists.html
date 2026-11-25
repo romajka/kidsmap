@@ -55,6 +55,7 @@
           </div>
           <div class="home-spx-card__body">
             <h3 class="home-spx-card__name"><a class="home-spx-card__link" href="{{ person.url }}">{{ person.name }}</a></h3>
+            {% if person.specialty %}<span class="home-spx-card__role">{{ person.specialty }}</span>{% endif %}
             {% if person.rating %}<span class="home-spx-card__rating" aria-label="{{ person.rating }} / 5"><span class="home-spx-card__stars" style="--r:{{ person.rating_fraction }}" aria-hidden="true"></span><b>{{ person.rating }}</b><small>{% if hl == 'az' %}({{ person.rating_count }} rəy){% elif hl == 'en' %}({{ person.rating_count }} reviews){% else %}({{ person.rating_count }} отз.){% endif %}</small></span>{% endif %}
             {% if person.experience or person.ages %}<span class="home-spx-card__facts">{% if person.experience %}<span>{{ person.experience }}</span>{% endif %}{% if person.ages %}<span>{{ person.ages }}</span>{% endif %}</span>{% endif %}
             {% if person.bio %}<p class="home-spx-card__bio">{{ person.bio }}</p>{% endif %}
@@ -81,10 +82,10 @@
       </li>
     </ul>
     <div class="home-spx__nav">
-      <button type="button" class="home-spx__arrow" data-spx-step="-1" aria-label="{% if hl == 'az' %}Əvvəlki{% elif hl == 'en' %}Previous{% else %}Назад{% endif %}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+      <button type="button" class="home-spx__arrow km-nav km-nav--prev" data-spx-step="-1" aria-label="{% if hl == 'az' %}Əvvəlki{% elif hl == 'en' %}Previous{% else %}Назад{% endif %}">{% include 'includes/km_nav_icon.html' with icon='arrow' %}</button>
       <span class="home-spx__progress" aria-hidden="true"><i></i></span>
       <span class="home-spx__dots" role="group" data-label="{% if hl == 'az' %}Kart{% elif hl == 'en' %}Card{% else %}Карточка{% endif %}" aria-label="{% if hl == 'az' %}Kartlar{% elif hl == 'en' %}Cards{% else %}Карточки{% endif %}"></span>
-      <button type="button" class="home-spx__arrow" data-spx-step="1" aria-label="{% if hl == 'az' %}Növbəti{% elif hl == 'en' %}Next{% else %}Вперёд{% endif %}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+      <button type="button" class="home-spx__arrow km-nav km-nav--next" data-spx-step="1" aria-label="{% if hl == 'az' %}Növbəti{% elif hl == 'en' %}Next{% else %}Вперёд{% endif %}">{% include 'includes/km_nav_icon.html' with icon='arrow' %}</button>
     </div>
   </div>
 </section>

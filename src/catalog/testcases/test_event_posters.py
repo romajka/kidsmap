@@ -13,7 +13,7 @@ from django.utils import timezone
 from PIL import Image
 
 from catalog.models import Category, Event, EventPhoto, SiteSettings
-from catalog.services.event_images import clamp_focus, dominant_color, orientation_for
+from catalog.services.event_images import clamp_focus, dominant_color, frame_ratio, orientation_for
 from catalog.services.event_sessions import by_day, group_sessions, session_key
 
 BAKU = ZoneInfo('Asia/Baku')
@@ -40,6 +40,14 @@ class PosterFactsTests(SimpleTestCase):
         self.assertEqual(orientation_for(121, 100), 'landscape')
         self.assertEqual(orientation_for(0, 100), '')
         self.assertEqual(orientation_for(None, None), '')
+
+    def test_frame_ratio_follows_the_photo_within_bounds(self):
+        self.assertEqual(frame_ratio(1440, 1000), '1.4400')       # stage photo: its own shape
+        self.assertEqual(frame_ratio(1240, 1754), '0.7070')       # A4 poster
+        self.assertEqual(frame_ratio(540, 1200), '0.5625')        # taller than 9:16 is capped
+        self.assertEqual(frame_ratio(3000, 1000), '2.0000')       # panorama is capped at 2:1
+        self.assertEqual(frame_ratio(0, 100), '')
+        self.assertEqual(frame_ratio(None, 100), '')
 
     def test_focus_is_clamped_for_display(self):
         self.assertEqual(clamp_focus(-5), 0)
