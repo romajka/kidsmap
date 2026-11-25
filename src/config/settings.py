@@ -355,6 +355,7 @@ TASK33_R1_WRITE_USER_IDS = tuple(
 )
 
 MIDDLEWARE = [
+    "config.middleware.ServerTimingMiddleware",
     "catalog.middleware.CanonicalPublicHostMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -374,7 +375,37 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 if HAS_WHITENOISE:
-    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+    MIDDLEWARE.insert(2, "whitenoise.middleware.WhiteNoiseMiddleware")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "timing_stdout": {"class": "logging.StreamHandler", "stream": "ext://sys.stdout"},
+    },
+    "loggers": {
+        "kidsmap.timing": {"handlers": ["timing_stdout"], "level": "INFO", "propagate": False},
+    },
+}
+
+_sentry_dsn = os.getenv("SENTRY_DSN", "").strip()
+if _sentry_dsn:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    try:
+        _sentry_sample_rate = float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1"))
+        if not 0 <= _sentry_sample_rate <= 1:
+            raise ValueError
+    except ValueError as exc:
+        raise ImproperlyConfigured("SENTRY_TRACES_SAMPLE_RATE must be a number between 0 and 1.") from exc
+    sentry_sdk.init(
+        dsn=_sentry_dsn,
+        integrations=[DjangoIntegration()],
+        send_default_pii=False,
+        traces_sample_rate=_sentry_sample_rate,
+    )
+
 
 ROOT_URLCONF = "config.urls"
 
