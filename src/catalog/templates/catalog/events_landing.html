@@ -5,7 +5,7 @@
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261104_public_mobile_r2"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_places">{% include "pages/includes/editorial_styles.html" %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261104_public_mobile_r2"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_budget">{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 {% block content %}
 <div class="events-page-wrap">
@@ -238,4 +238,4 @@
 </div>
 {% include 'catalog/includes/event_suggest_dialog.html' %}
 {% endblock %}
-{% block extra_body %}<script src="{% static 'js/events_filters.js' %}?v=20261026" defer></script><script src="{% static 'js/event_timer.js' %}?v=20261123_ring" defer></script><script src="{% static 'js/events_calendar.js' %}?v=20261120" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endblock %}
+{% block extra_body %}<script src="{% static 'js/events_filters.js' %}?v=20261026" defer></script><script src="{% static 'js/event_timer.js' %}?v=20261123_budget" defer></script><script src="{% static 'js/events_calendar.js' %}?v=20261120" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script>{% endblock %}

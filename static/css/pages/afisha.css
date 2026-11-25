@@ -1413,7 +1413,9 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
 /* seconds tile fills along the bottom as the minute passes */
 .km-timer__seg[data-unit="s"]::before {
   content: ""; position: absolute; left: 0; bottom: 0; height: 3px; border-radius: 0 3px 3px 0;
-  width: calc(var(--km-sec, 0) * 100%); background: var(--t-accent); opacity: 0.55; transition: width 0.95s linear;
+  /* scaleX instead of width: the same bar, but the browser does not re-lay out the page every frame */
+  width: 100%; transform: scaleX(var(--km-sec, 0)); transform-origin: 0 50%;
+  background: var(--t-accent); opacity: 0.55; transition: transform 0.95s linear;
 }
 /* tiles flip in when the timer comes alive */
 .km-timer.is-live .km-timer__seg { animation: km-tile-in 0.6s var(--ev-spring) backwards; }
@@ -1429,8 +1431,9 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
 @keyframes km-label-nudge { 0%, 85%, 100% { transform: none; } 90% { transform: translateX(3px); } 95% { transform: translateX(-2px); } }
 /* running: how much of the event has already gone */
 .km-timer[data-state="running"]::after {
-  content: ""; position: absolute; left: 0; bottom: 0; height: 4px; width: calc(var(--km-run, 0) * 100%);
-  background: linear-gradient(90deg, #39c06e, #0f8a3e); border-radius: 0 4px 4px 0; transition: width 1s linear;
+  content: ""; position: absolute; left: 0; bottom: 0; height: 4px; width: 100%;
+  transform: scaleX(var(--km-run, 0)); transform-origin: 0 50%;
+  background: linear-gradient(90deg, #39c06e, #0f8a3e); border-radius: 0 4px 4px 0; transition: transform 1s linear;
 }
 .km-timer[data-state="running"]::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
@@ -1904,7 +1907,7 @@ html.km-suggest-open:has(dialog.km-suggest[open]) { overflow: hidden; }
     transform: rotate(-90deg); transform-origin: 50% 50%;
     transition: stroke-dashoffset .95s linear, stroke .3s;
   }
-  .km-timer.is-wrap .km-timer__ring-bar, .km-timer.is-wrap .km-timer__seg[data-unit="s"]::before { transition: none; }
+  .km-timer.is-wrap .km-timer__ring-bar { transition: none; }
   .km-timer__ring-hand { fill: none; stroke: var(--t-accent); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transform-origin: 10px 10px; }
   .km-timer[data-state="running"] .km-timer__ring-hand { animation: km-hand 4s linear infinite; }
   @keyframes km-hand { to { transform: rotate(360deg); } }
