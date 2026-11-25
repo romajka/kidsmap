@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{% static 'css/components/specialist_subjects.css' %}?v=20261105_subjects_r2">
   <link rel="stylesheet" href="{% static 'css/pages/specialist_detail.css' %}?v=20261104_soft_motion_r1">
   <link rel="stylesheet" href="{% static 'css/pages/specialists_refresh.css' %}?v=20261118_sp_r2">
+  <link rel="stylesheet" href="{% static 'css/pages/specialists_portrait.css' %}?v=20261125_portrait4">
   <link rel="stylesheet" href="{% static 'css/components/official_reviews.css' %}?v=20261120_threads">
 {% endblock %}
 
@@ -16,10 +17,12 @@
   <a href="{% url 'specialist_list' %}" class="sp-back"><span aria-hidden="true">←</span> {% if language == 'az' %}Mütəxəssislər{% elif language == 'en' %}Specialists{% else %}Специалисты{% endif %}</a>
   <header class="sp-card sp-header">
     <div class="sp-identity">
-      <div class="sp-avatar{% if specialist.photo %} has-photo{% endif %}">
+      {% if specialist.photo %}{% responsive_image specialist.photo as portrait %}{% endif %}
+      {% if specialist.photo %}<button type="button" class="sp-avatar has-photo" data-sp-photo-open aria-haspopup="dialog" aria-label="{% if language == 'az' %}Fotonu böyüt: {{ specialist.name }}{% elif language == 'en' %}Enlarge photo: {{ specialist.name }}{% else %}Открыть фото: {{ specialist.name }}{% endif %}">{% else %}<div class="sp-avatar">{% endif %}
         {% with parts=specialist.name.split %}<span class="sp-avatar__initials" aria-hidden="true">{{ parts.0|slice:":1"|upper }}{% if parts|length > 1 %}{{ parts|last|slice:":1"|upper }}{% endif %}</span>{% endwith %}
-        {% if specialist.photo %}<img src="{{ specialist.photo.url }}" alt="{{ specialist.name }}" class="sp-photo" width="160" height="160" fetchpriority="high" onerror="this.parentNode.classList.remove('has-photo');this.remove()">{% endif %}
-      </div>
+        {% if specialist.photo %}<img src="{{ portrait.src|default:specialist.photo.url }}"{% if portrait.srcset %} srcset="{{ portrait.srcset }}" sizes="(max-width: 760px) 124px, 216px"{% endif %} alt="{{ specialist.name }}" class="sp-photo" width="216" height="270" fetchpriority="high" onerror="this.parentNode.classList.remove('has-photo');this.remove()">
+        <span class="sp-avatar__zoom" aria-hidden="true"><span class="material-symbols-rounded">zoom_in</span></span>{% endif %}
+      {% if specialist.photo %}</button>{% else %}</div>{% endif %}
       <div class="sp-identity-text">
         <h1>{{ specialist.name }}</h1>
         {% if specialist_subjects %}<ul class="km-subject-tags" aria-label="{% if language == 'az' %}Fənlər{% elif language == 'en' %}Subjects{% else %}Предметы{% endif %}">{% for item in specialist_subjects %}<li><span class="material-symbols-rounded" aria-hidden="true">{{ item.icon }}</span>{{ item.label }}</li>{% endfor %}</ul>{% endif %}
@@ -41,6 +44,12 @@
       {% if specialist.experience_years != None %}<div data-fact="exp"><dt>{% if language == 'az' %}Təcrübə (il){% elif language == 'en' %}Experience (years){% else %}Стаж (лет){% endif %}</dt><dd>{{ specialist.experience_years }}</dd></div>{% endif %}
     </dl>
   </header>
+  {% if specialist.photo %}
+  <dialog class="sp-photo-dialog" data-sp-photo-dialog aria-label="{{ specialist.name }}">
+    <form method="dialog"><button class="sp-photo-dialog__close" aria-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}Закрыть{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">close</span></button></form>
+    <figure style="margin:0"><img data-src="{{ specialist.photo.url }}"{% if portrait.srcset %} data-srcset="{{ portrait.srcset }}" data-sizes="(max-width: 760px) 92vw, 720px"{% endif %} alt="{{ specialist.name }}"><figcaption>{{ specialist.name }}</figcaption></figure>
+  </dialog>
+  {% endif %}
 
   <div class="sp-layout">
     <aside class="sp-contact-column">
@@ -220,6 +229,6 @@
   </nav>{% endif %}
   {{ specialist_map_locations|json_script:'specialist-map-locations' }}
   {% if has_coords %}<script src="{% static 'js/google_maps_markers.js' %}?v=20261104_mobile_r1"></script>{% endif %}
-  <script src="{% static 'js/specialist_detail.js' %}?v=20261104_mobile_r1"></script>
+  <script src="{% static 'js/specialist_detail.js' %}?v=20261125_portrait"></script>
   {% if has_coords and google_maps_api_key %}<script async src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&callback=kidsMapInitSpecialistMap"></script>{% endif %}
 {% endblock %}

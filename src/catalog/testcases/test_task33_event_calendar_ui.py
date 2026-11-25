@@ -34,7 +34,7 @@ class EventCalendarUITests(TestCase):
             status=Event.STATUS_PUBLISHED, **values)
 
     def get(self, **params):
-        response = self.client.get('/ru/events/', params)
+        response = self.client.get('/ru/afisha/', params)
         self.assertEqual(response.status_code, 200)
         html = response.content.decode()
         return response, html, Elements(html).items
@@ -101,7 +101,7 @@ class EventCalendarUITests(TestCase):
         for language in ('ru', 'en'):
             for mode in ('list', 'calendar'):
                 with self.subTest(language=language, mode=mode):
-                    response = self.client.get('/'+language+'/events/',
+                    response = self.client.get({'ru': '/ru/afisha/', 'en': '/en/events/'}[language],
                         {'view':mode,'month':'2032-02','date':'2032-02-02'})
                     self.assertEqual(response.status_code, 200)
                     elements = Elements(response.content.decode()).items

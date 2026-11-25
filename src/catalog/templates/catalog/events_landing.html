@@ -5,11 +5,16 @@
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block structured_data %}{% if events_breadcrumbs_json %}<script type="application/ld+json">{{ events_breadcrumbs_json|safe }}</script>{% endif %}{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261124_compact_hub3"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2">{% include "pages/includes/editorial_styles.html" %}
+{% block structured_data %}{% if events_breadcrumbs_json %}<script type="application/ld+json">{{ events_breadcrumbs_json|safe }}</script>{% endif %}{% for schema in afisha_schemas %}<script type="application/ld+json">{{ schema|safe }}</script>{% endfor %}{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261124_compact_hub3"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2"><link rel="stylesheet" href="{% static 'css/pages/afisha-collections.css' %}?v=20261125_collections">{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 {% block content %}
 <div class="events-page-wrap">
+  {% if collection_crumbs %}
+  <nav class="km-col-crumbs" aria-label="{% if language == 'az' %}Naviqasiya zənciri{% elif language == 'en' %}Breadcrumb{% else %}Навигационная цепочка{% endif %}">
+    <ol>{% for crumb in collection_crumbs %}<li>{% if forloop.last %}<span aria-current="page">{{ crumb.name }}</span>{% else %}<a href="{{ crumb.url }}">{{ crumb.name }}</a>{% endif %}</li>{% endfor %}</ol>
+  </nav>
+  {% endif %}
   {% with st=events_quick_stats %}
   <header class="km-afisha-hero" id="events-hero">
     <div class="km-afisha-hero__copy">
@@ -18,14 +23,29 @@
       <p>{{ events_intro }}</p>
       <a class="km-afisha-hero__add" href="{% url 'event_suggest' %}" data-event-suggest><span class="material-symbols-rounded" aria-hidden="true">add_circle</span><span>{% if language == 'az' %}Tədbir əlavə et{% elif language == 'en' %}Add your event{% else %}Добавить мероприятие{% endif %}</span></a>
     </div>
+    {% if collection_stats %}
+    <ul class="km-afisha-stats" aria-label="{{ collection_label }}">
+      {% for stat in collection_stats %}<li class="km-afisha-stat{% if stat.kind == 'live' %} km-afisha-stat--live{% elif stat.kind == 'total' %} km-afisha-stat--total{% endif %}"><b>{{ stat.value }}</b><span>{% if stat.kind == 'live' %}<i aria-hidden="true"></i>{% endif %}{{ stat.label }}</span></li>{% endfor %}
+    </ul>
+    {% else %}
     <ul class="km-afisha-stats" aria-label="{{ events_stat_label }}">
       {% if st.running %}<li class="km-afisha-stat km-afisha-stat--live"><b>{{ st.running }}</b><span><i aria-hidden="true"></i>{% if language == 'az' %}indi gedir{% elif language == 'en' %}on now{% else %}идут сейчас{% endif %}</span></li>{% endif %}
       <li class="km-afisha-stat"><b>{{ st.today }}</b><span>{% if language == 'az' %}bu gün{% elif language == 'en' %}today{% else %}сегодня{% endif %}</span></li>
       <li class="km-afisha-stat"><b>{{ st.weekend }}</b><span>{% if language == 'az' %}həftəsonu{% elif language == 'en' %}this weekend{% else %}в выходные{% endif %}</span></li>
       <li class="km-afisha-stat km-afisha-stat--total"><b>{{ st.total }}</b><span>{% if language == 'az' %}hamısı{% elif language == 'en' %}upcoming{% else %}всего в афише{% endif %}</span></li>
     </ul>
+    {% endif %}
   </header>
   {% endwith %}
+  {% if afisha_answer %}
+  <section class="km-afisha-answer" aria-label="{% if language == 'az' %}Qısa xülasə{% elif language == 'en' %}In short{% else %}Коротко{% endif %}">
+    <span class="km-afisha-answer__icon" aria-hidden="true"><span class="material-symbols-rounded">tips_and_updates</span></span>
+    <div>
+      <p class="km-afisha-answer__text">{{ afisha_answer }}</p>
+      <span class="km-afisha-answer__meta"><span class="km-afisha-answer__pulse" aria-hidden="true"></span>{% if language == 'az' %}Yenilənib{% elif language == 'en' %}Updated{% else %}Обновлено{% endif %} {{ afisha_updated }}</span>
+    </div>
+  </section>
+  {% endif %}
   <div class="events-hub">
     <div class="events-hub-top">
       <div class="events-quick-chips" role="navigation" aria-label="{% if language == 'az' %}Tarix üzrə sürətli filtrlər{% elif language == 'en' %}Quick date filters{% else %}Быстрый выбор даты{% endif %}">
@@ -181,6 +201,8 @@
             <h2 class="km-state-card__title">
               {% if events_when %}
                 {% if language == 'az' %}Son 12 ayda keçmiş tədbir tapılmadı{% elif language == 'en' %}No past events in the last 12 months{% else %}За последние 12 месяцев прошедших событий не нашлось{% endif %}
+              {% elif collection %}
+                {% if language == 'az' %}Bu seçimdə hələ tədbir yoxdur{% elif language == 'en' %}Nothing in this selection yet{% else %}В этой подборке пока нет событий{% endif %}
               {% elif request.GET %}
                 {% if language == 'az' %}Bu filtrlərə uyğun tədbir yoxdur{% elif language == 'en' %}No events match these filters{% else %}По этим фильтрам событий нет{% endif %}
               {% else %}
@@ -188,14 +210,21 @@
               {% endif %}
             </h2>
             <p class="km-state-card__desc">
-              {% if request.GET %}
+              {% if collection %}
+                {% if language == 'az' %}Yeni tədbirlər burada avtomatik görünəcək. Hələlik afişanın ən yaxın tədbirlərinə baxın.{% elif language == 'en' %}New events will appear here automatically. Meanwhile, see what’s coming up on the afisha.{% else %}Новые события появятся здесь автоматически. А пока — ближайшие мероприятия афиши ниже.{% endif %}
+              {% elif request.GET %}
                 {% if language == 'az' %}Tarix aralığını və ya digər filtrləri dəyişərək yenidən yoxlayın.{% elif language == 'en' %}Try changing the date range or other filter criteria.{% else %}Попробуйте выбрать другие даты или сбросить фильтры.{% endif %}
               {% else %}
                 {% if language == 'az' %}Tezliklə yeni ustad dərsləri və festivallar əlavə olunacaq. Siz daimi dərslər kataloquna baxa bilərsiniz.{% elif language == 'en' %}New masterclasses and festivals will be added soon. You can explore regular clubs and activities.{% else %}Скоро появятся новые мастер-классы и праздники. Вы можете посмотреть регулярные кружки и секции в каталоге.{% endif %}
               {% endif %}
             </p>
             <div class="km-state-card__actions">
-              {% if request.GET %}
+              {% if collection %}
+                <a class="km-state-btn km-state-btn--primary" href="{% url 'events_landing' %}">
+                  <span class="material-symbols-rounded" aria-hidden="true">celebration</span>
+                  <span>{% if language == 'az' %}Bütün afişa{% elif language == 'en' %}All events{% else %}Вся афиша{% endif %}</span>
+                </a>
+              {% elif request.GET %}
                 <a class="km-state-btn km-state-btn--primary" href="{% url 'events_landing' %}">
                   <span class="material-symbols-rounded" aria-hidden="true">filter_alt_off</span>
                   <span>{% if language == 'az' %}Filtrləri sıfırla{% elif language == 'en' %}Reset filters{% else %}Сбросить фильтры{% endif %}</span>
@@ -235,6 +264,33 @@
         {% endif %}
       </nav>
     {% endif %}
+  {% endif %}
+
+  {% if collection_fallback %}
+  <section class="km-col-section km-col-fallback" aria-labelledby="km-col-fallback-title">
+    <h2 class="km-col-section__title" id="km-col-fallback-title"><span class="material-symbols-rounded" aria-hidden="true">upcoming</span>{% if language == 'az' %}Afişada ən yaxın tədbirlər{% elif language == 'en' %}Coming up on the afisha{% else %}Ближайшие события афиши{% endif %}</h2>
+    <div class="events-list-v2 km-ev-grid" data-km-stagger>
+      {% for group in collection_fallback %}{% include 'catalog/includes/event_listing_card.html' with event=group.event group=group %}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if afisha_links %}
+  <section class="km-col-section" aria-labelledby="km-col-links-title">
+    <h2 class="km-col-section__title" id="km-col-links-title"><span class="material-symbols-rounded" aria-hidden="true">auto_awesome_motion</span>{{ afisha_links_title }}</h2>
+    <ul class="km-col-links">
+      {% for link in afisha_links %}<li><a class="km-col-link" href="{{ link.url }}"><span class="material-symbols-rounded" aria-hidden="true">{{ link.icon }}</span><span>{{ link.label }}</span><span class="km-col-link__count">{{ link.count }}</span></a></li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if afisha_faq %}
+  <section class="km-col-section" aria-labelledby="km-col-faq-title">
+    <h2 class="km-col-section__title" id="km-col-faq-title"><span class="material-symbols-rounded" aria-hidden="true">help</span>{% if language == 'az' %}Valideynlərin tez-tez verdiyi suallar{% elif language == 'en' %}Questions parents ask{% else %}Частые вопросы родителей{% endif %}</h2>
+    <div class="km-col-faq">
+      {% for item in afisha_faq %}<details class="km-col-faq__item"{% if forloop.first %} open{% endif %}><summary>{{ item.q }}<span class="km-col-faq__chevron" aria-hidden="true"><span class="material-symbols-rounded">expand_more</span></span></summary><p class="km-col-faq__answer">{{ item.a }}</p></details>{% endfor %}
+    </div>
+  </section>
   {% endif %}
 </div>
 {% include 'catalog/includes/event_suggest_dialog.html' %}

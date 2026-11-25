@@ -42,6 +42,15 @@ def prepare_responsive_photos(sender, instance, raw=False, **kwargs):
             generate_variants(image)
 
 
+@receiver(post_save, sender='catalog.Specialist')
+def prepare_specialist_portrait(sender, instance, raw=False, **kwargs):
+    """Profile photos are shown large; serve WebP sizes instead of the upload."""
+    if raw or not instance.photo:
+        return
+    from catalog.services.responsive_images import generate_variants
+    generate_variants(instance.photo)
+
+
 @receiver(post_delete, sender='catalog.SpecialistProposalDocument')
 def discard_proposal_document_file(sender, instance, using, **kwargs):
     from django.db import transaction

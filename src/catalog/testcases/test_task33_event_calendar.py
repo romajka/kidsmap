@@ -26,7 +26,7 @@ class EventCalendarContractTests(TestCase):
     def calendar(self, params=None, events=(), now=None):
         from catalog.services.event_calendar import build_event_calendar
         return build_event_calendar(params or {}, events,
-            now=now or datetime(2032, 2, 15, 12, tzinfo=BAKU), path='/ru/events/')
+            now=now or datetime(2032, 2, 15, 12, tzinfo=BAKU), path='/ru/afisha/')
 
     def test_calendar_contract_exists(self):
         self.assertIsNotNone(find_spec('catalog.services.event_calendar'))
@@ -51,13 +51,13 @@ class EventCalendarContractTests(TestCase):
         start = datetime(2032, 2, 2, 12, tzinfo=BAKU)
         for offset in range(14):
             self.event(start+timedelta(days=offset), start+timedelta(days=offset, hours=1))
-        response = self.client.get('/ru/events/', {'view':'calendar', 'month':'2032-02',
+        response = self.client.get('/ru/afisha/', {'view':'calendar', 'month':'2032-02',
             'date':'2032-02-02', 'page':'2'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['calendar_events']), 14)
         self.assertEqual(response.context['events_mode'], 'calendar')
         self.assertEqual(len(response.context['event_calendar']['selected_events']), 1)
-        list_response = self.client.get('/ru/events/', {'view':'list','month':'2032-02'})
+        list_response = self.client.get('/ru/afisha/', {'view':'list','month':'2032-02'})
         self.assertEqual(list_response.status_code, 200)
         self.assertEqual(len(list_response.context['events']), 12)
         self.assertEqual(list_response.context['results_total'], 14)
@@ -71,7 +71,7 @@ class EventCalendarContractTests(TestCase):
             ('q','category','age_from','age_to','format','district','free','sort')}
         for key in ('prev_url','next_url','list_url','calendar_url'):
             parsed = urlsplit(result[key])
-            self.assertEqual(parsed.path, '/ru/events/')
+            self.assertEqual(parsed.path, '/ru/afisha/')
             self.assertFalse(parsed.netloc)
             query = parse_qs(parsed.query)
             for name, value in expected.items():
@@ -95,7 +95,7 @@ class EventCalendarContractTests(TestCase):
     def test_explicit_day_outside_month_is_fail_closed_full_http(self):
         start = datetime(2032, 2, 2, tzinfo=BAKU)
         self.event(start, start+timedelta(hours=1))
-        response = self.client.get('/ru/events/', {'view':'calendar','month':'2032-02',
+        response = self.client.get('/ru/afisha/', {'view':'calendar','month':'2032-02',
             'date':'2032-03-01'})
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.context['event_calendar']['valid'])
@@ -116,7 +116,7 @@ class EventCalendarContractTests(TestCase):
         start = datetime(2020, 1, 30, tzinfo=BAKU)
         event = self.event(start, start+timedelta(days=3), event_format=Event.FORMAT_ONLINE,
             occurrence_state=Event.OCCURRENCE_CANCELLED)
-        response = self.client.get('/ru/events/', {'view':'calendar','month':'2020-02',
+        response = self.client.get('/ru/afisha/', {'view':'calendar','month':'2020-02',
             'date':'2020-02-01','format':'online'})
         self.assertEqual(response.status_code, 200)
         result = response.context['event_calendar']
@@ -130,7 +130,7 @@ class EventCalendarContractTests(TestCase):
         settings = SiteSettings.get_solo()
         settings.events_section_enabled = False
         settings.save()
-        response = self.client.get('/ru/events/', {'view':'calendar','month':'2032-02'})
+        response = self.client.get('/ru/afisha/', {'view':'calendar','month':'2032-02'})
         self.assertEqual(response.status_code, 410)
 
     def test_filter_taxonomy_uses_public_events_without_place_inventory(self):
@@ -139,7 +139,7 @@ class EventCalendarContractTests(TestCase):
         hidden_category = Category.objects.create(code='calendar-hidden', name_az='Hidden')
         Event.objects.create(name_az='Private fixture', category=hidden_category,
             start_datetime=start, end_datetime=start+timedelta(hours=1), status=Event.STATUS_DRAFT)
-        response = self.client.get('/ru/events/', {'view':'calendar','month':'2032-02'})
+        response = self.client.get('/ru/afisha/', {'view':'calendar','month':'2032-02'})
         self.assertEqual(response.status_code, 200)
         values = {str(option['value']) for option in response.context['categories']}
         self.assertIn(self.category.code, values)
@@ -147,7 +147,7 @@ class EventCalendarContractTests(TestCase):
         option = next(option for option in response.context['categories']
                       if option['value'] == self.category.code)
         self.assertEqual(option['label'], 'Calendar (AZ)')
-        selected = self.client.get('/ru/events/', {'view':'calendar','month':'2032-02',
+        selected = self.client.get('/ru/afisha/', {'view':'calendar','month':'2032-02',
             'district':'legacy_archive_district'})
         self.assertEqual(selected.status_code, 200)
         self.assertIn('legacy_archive_district',

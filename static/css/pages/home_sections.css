@@ -1057,3 +1057,181 @@ body.page-home .home-search-popular-chips {
   }
   body.page-home .home-hero .home-redesign-actions .home-redesign-secondary .home-btn-icon { display: none !important; }
 }
+
+
+/* ==========================================================================
+   Compact unified #add-place & #faq (2026-11-25)
+   ========================================================================== */
+body.page-home #add-place.home-join {
+  margin-top: clamp(24px, 3vw, 38px);
+  margin-bottom: clamp(24px, 3vw, 38px);
+  padding: clamp(20px, 2.8vw, 32px) clamp(18px, 3vw, 36px);
+  border-radius: var(--radius-lg, 24px);
+}
+
+body.page-home #add-place .home-join__head {
+  margin-bottom: 18px;
+}
+
+body.page-home #add-place .home-join__head h2 {
+  margin: 0;
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-size: clamp(22px, 2.2vw, 28px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--brand-spruce, #0d4924);
+  max-width: none;
+}
+
+body.page-home #add-place .home-join__head p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  max-width: 68ch;
+  color: var(--muted, rgba(22, 42, 30, 0.72));
+}
+
+body.page-home #add-place .home-join__cards {
+  gap: 16px;
+}
+
+body.page-home #add-place .home-join-card {
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: var(--tint-turf-050, #f1f9f4);
+  border: 1px solid rgba(19, 111, 56, 0.14);
+  box-shadow: none;
+  gap: 12px;
+}
+
+body.page-home #add-place .home-join-card--specialist {
+  background: #ffffff;
+  border-color: rgba(19, 111, 56, 0.18);
+}
+
+body.page-home #add-place .home-join-card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+body.page-home #add-place .home-join-card__icon {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--brand-turf, #136f38);
+  color: #ffffff;
+  box-shadow: 0 8px 18px -8px rgba(19, 111, 56, 0.45);
+}
+
+body.page-home #add-place .home-join-card--specialist .home-join-card__icon {
+  background: var(--brand-spruce, #0d4924);
+}
+
+body.page-home #add-place .home-join-card h3 {
+  margin: 0;
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-size: 17px;
+  line-height: 1.25;
+  color: var(--ink, #162a1e);
+}
+
+body.page-home #add-place .home-join-card__list {
+  margin: 0;
+  gap: 6px;
+}
+
+body.page-home #add-place .home-join-card__list li {
+  font-size: 13.5px;
+  line-height: 1.38;
+}
+
+body.page-home #add-place .home-join-card--specialist .home-join-card__list li svg {
+  color: var(--brand-turf, #136f38);
+}
+
+body.page-home #add-place .home-join-card__cta {
+  padding: 10px 16px;
+  font-size: 13.5px;
+  border-radius: 12px;
+  background: var(--brand-turf, #136f38);
+  color: #ffffff;
+}
+
+body.page-home #add-place .home-join-card--specialist .home-join-card__cta {
+  background: var(--brand-spruce, #0d4924);
+  color: #ffffff;
+}
+
+body.page-home #add-place .home-join-card--specialist .home-join-card__cta:hover {
+  background: var(--brand-turf, #136f38);
+  color: #ffffff;
+}
+
+/* Compact #faq */
+body.page-home #faq.home-faq-panel {
+  margin-top: clamp(20px, 2.5vw, 32px) !important;
+  padding: clamp(20px, 2.6vw, 28px) clamp(18px, 3vw, 34px) !important;
+}
+
+body.page-home #faq .home-faq-head {
+  margin-bottom: 14px;
+}
+
+body.page-home #faq .home-faq-head h2 {
+  font-size: clamp(22px, 2.2vw, 26px);
+}
+
+body.page-home #faq .home-faq-list {
+  gap: 8px;
+}
+
+body.page-home #faq .home-faq-question {
+  padding: 12px 16px;
+}
+
+body.page-home #faq .home-faq-list[data-faq-compact="true"]:not(.is-expanded) .home-faq-item:nth-child(n+4) {
+  display: none;
+}
+
+body.page-home #faq .home-faq-foot-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 18px;
+  margin-top: 14px;
+}
+
+body.page-home #faq .home-faq-foot-row .home-faq-foot {
+  margin: 0;
+}
+
+body.page-home #faq .home-faq-more-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(19, 111, 56, 0.22);
+  background: var(--tint-turf-050, #f1f9f4);
+  color: var(--brand-turf, #136f38);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast, 160ms) ease,
+    transform var(--dur-fast, 160ms) var(--ease-spring, ease-out);
+}
+
+body.page-home #faq .home-faq-more-btn:hover {
+  background: var(--tint-turf-100, #e3f2e8);
+}
+
+body.page-home #faq .home-faq-more-btn[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
