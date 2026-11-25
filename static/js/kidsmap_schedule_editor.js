@@ -395,6 +395,13 @@
     wrapper.appendChild(dropdown);
     activeDropdown = dropdown;
 
+    var rect = wrapper.getBoundingClientRect();
+    if (window.innerHeight - rect.bottom < 190 && rect.top > 190) {
+      dropdown.classList.add("is-upwards");
+      dropdown.style.top = "auto";
+      dropdown.style.bottom = "calc(100% + 4px)";
+    }
+
     var currentVal = input.value;
     if (currentVal) {
       var match = Array.from(dropdown.children).find(function (child) {

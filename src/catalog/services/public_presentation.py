@@ -6,10 +6,12 @@ live Program/Organization inheritance requires a current published affiliation.
 import copy
 import re
 from urllib.parse import urlsplit
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.translation import get_language, override
 from catalog.models import Place, Organization, Program, Activity
 from catalog.services.organization_ownership import affiliation_current
+from catalog.services.phone_numbers import format_phone, normalize_whatsapp, safe_phone
 from catalog.services.pricing_plans import build_public_price_summary, format_price_amount, plan_billing_unit
 
 
@@ -66,21 +68,52 @@ def safe_web_url(value):
 def contact_data(obj):
     place = obj.place if isinstance(obj, Activity) else obj if isinstance(obj, Place) else None
     org = current_organization(place) if place else obj if isinstance(obj, Organization) and visible(obj) else None
-    phones = list(place.phone_numbers) if place else []
+    region = getattr(place, 'phone_country', 'AZ') or 'AZ'
+    local_phones = list(place.phone_numbers) if place else []
+    phone_source = 'place' if local_phones else 'organization' if org and org.phone else ''
+    raw_phones = local_phones or ([org.phone] if org and org.phone else [])
+    # Do not guess a replacement for a malformed legacy local contact, or mutate
+    # stored values while rendering. Its owner must review it explicitly.
+    phones = list(dict.fromkeys(number for value in raw_phones
+                               if (number := safe_phone(value, default_region=region if local_phones else 'AZ'))))
     local_website = safe_web_url(place.website_url()) if place else ''
-    phone_source = 'place' if phones else 'organization' if org and org.phone else ''
-    if not phones and org and org.phone:
-        phones = [org.phone]
     website = safe_web_url(local_website or (org.website if org else ''))
     website_source = 'place' if local_website else 'organization' if website else ''
-    whatsapp_contact = phones[0] if phone_source == 'place' else (org.whatsapp if org else '') or (phones[0] if phones else '')
-    whatsapp = re.sub(r'\D', '', whatsapp_contact)
-    if whatsapp.startswith('0'):
-        whatsapp = '994' + whatsapp[1:]
-    return {'phones': phones, 'has_phone': bool(phones), 'website_url': website,
-        'whatsapp_url': 'https://wa.me/' + whatsapp if whatsapp else '',
-        'source': 'organization' if phone_source == 'organization' or website_source == 'organization' else 'place' if place else '',
-        'sources': {'phone': phone_source, 'website': website_source}}
+    mode = getattr(place, 'whatsapp_mode', 'legacy') if place else 'legacy'
+    whatsapp_source = ''
+    whatsapp_number = ''
+    if mode == 'separate':
+        whatsapp_contact = getattr(place, 'whatsapp_number', '')
+        whatsapp_source = 'place'
+    elif mode == 'same':
+        whatsapp_contact = phones[0] if phones else ''
+        whatsapp_source = phone_source
+    elif mode == 'legacy':
+        whatsapp_contact = local_phones[0] if local_phones else ((org.whatsapp if org else '') or (phones[0] if phones else ''))
+        whatsapp_source = 'place' if local_phones else 'organization' if org else ''
+    else:
+        # Explicit none (and an unknown future value) never falls back to calls.
+        whatsapp_contact = ''
+    if whatsapp_contact:
+        try:
+            whatsapp_number = normalize_whatsapp(whatsapp_contact, default_region=region if whatsapp_source == 'place' else 'AZ')
+        except ValidationError:
+            pass
+    if not whatsapp_number:
+        whatsapp_source = ''
+    whatsapp_url = 'https://wa.me/' + whatsapp_number[1:] if whatsapp_number else ''
+    sources = {'phone': phone_source if phones else '', 'website': website_source, 'whatsapp': whatsapp_source}
+    return {'phones': phones, 'has_phone': bool(phones), 'has_whatsapp': bool(whatsapp_url),
+        'has_contact': bool(phones or whatsapp_url), 'website_url': website, 'whatsapp_url': whatsapp_url,
+        'source': 'organization' if 'organization' in sources.values() else 'place' if place else '',
+        'sources': sources}
+
+
+def revealed_contacts(contacts):
+    """Validated payload shared by the protected endpoint and private preview."""
+    return {'phones': [{'number': number, 'href': 'tel:' + number,
+                        'display': format_phone(number)} for number in contacts['phones']],
+            'whatsapp': contacts['whatsapp_url']}
 
 
 def public_url(obj, language=None):

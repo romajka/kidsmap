@@ -2495,6 +2495,10 @@ def specialist_list(request):
 
     from catalog.models import Specialist, SpecialistSpecialization, Region, District, MetroStation, SpecialistPracticeLocation
     from catalog.services.public_filter_options import build_public_specialist_filter_options
+    from catalog.services.specialist_filtering import (
+        apply_specialist_price_filter, get_specialist_max_price,
+        normalize_specialist_price_bounds,
+    )
     from django.db import models
     from django.core.paginator import Paginator
 
@@ -2562,21 +2566,15 @@ def specialist_list(request):
             & (models.Q(age_to__isnull=True) | models.Q(age_to__gte=age_val))
         )
 
-    # 6. Price range
-    price_from = (request.GET.get("price_from") or "").strip()
-    price_to = (request.GET.get("price_to") or "").strip()
-    if price_from.isdigit():
-        p_from = int(price_from)
-        qs = qs.filter(
-            models.Q(price_from__gte=p_from) |
-            models.Q(practice_locations__price_per_session__gte=p_from, practice_locations__is_active=True)
-        )
-    if price_to.isdigit():
-        p_to = int(price_to)
-        qs = qs.filter(
-            models.Q(price_to__lte=p_to) |
-            models.Q(practice_locations__price_per_session__lte=p_to, practice_locations__is_active=True)
-        )
+    # 6. One global ceiling and semantic bounds for SQL, chips and forms.
+    specialist_price_max = get_specialist_max_price()
+    price_lower, price_upper = normalize_specialist_price_bounds(
+        request.GET.get("price_from"), request.GET.get("price_to"),
+        ceiling=specialist_price_max,
+    )
+    price_from = str(price_lower) if price_lower is not None else ""
+    price_to = str(price_upper) if price_upper is not None else ""
+    qs = apply_specialist_price_filter(qs, price_lower, price_upper)
 
     # 6a. Consultation Language
     consult_lang = (request.GET.get("language") or "").strip()
@@ -2623,14 +2621,18 @@ def specialist_list(request):
     active_filter_chips = []
     language = (request.LANGUAGE_CODE or "az").split("-")[0]
 
-    def rebuild_url(*exclude_params):
-        params = request.GET.copy()
-        for p in exclude_params:
-            params.pop(p, None)
-        return f"?{params.urlencode()}" if params else request.path
-
     specialist_query_params = request.GET.copy()
     specialist_query_params.pop("page", None)
+    for name, value in (("price_from", price_from), ("price_to", price_to)):
+        specialist_query_params.pop(name, None)
+        if value:
+            specialist_query_params[name] = value
+
+    def rebuild_url(*exclude_params):
+        params = specialist_query_params.copy()
+        for name in exclude_params:
+            params.pop(name, None)
+        return f"?{params.urlencode()}" if params else request.path
 
     if q:
         active_filter_chips.append({
@@ -2691,10 +2693,16 @@ def specialist_list(request):
             "remove_url": rebuild_url("age")
         })
     if price_from or price_to:
-        pf = price_from or "0"
-        pt = price_to or "..."
+        if price_to:
+            price_label = f"{price_from or '0'}–{price_to} ₼"
+        elif language == "az":
+            price_label = f"{price_from} ₼-dən"
+        elif language == "en":
+            price_label = f"from {price_from} ₼"
+        else:
+            price_label = f"от {price_from} ₼"
         active_filter_chips.append({
-            "label": f"{pf} - {pt} AZN",
+            "label": price_label,
             "remove_url": rebuild_url("price_from", "price_to")
         })
     if consult_lang:
@@ -2855,6 +2863,7 @@ def specialist_list(request):
                 specialist.card_price = "Razılaşma yolu ilə" if language == "az" else ("By agreement" if language == "en" else "По договорённости")
 
     context = {
+        "specialist_price_max": specialist_price_max,
         "page_obj": page_obj,
         "specialists": page_obj,
         "selected": {

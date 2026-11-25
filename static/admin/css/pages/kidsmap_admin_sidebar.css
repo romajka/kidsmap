@@ -176,6 +176,14 @@
   color: #ffffff;
 }
 
+.km-admin-sidebar .km-admin-sidebar__pending {
+  flex: 0 0 auto;
+  margin-inline: 8px;
+  color: #f6cb71;
+  font-size: 12px;
+  line-height: 1;
+}
+
 .km-admin-sidebar .km-admin-sidebar__group-title {
   display: flex;
   gap: 10px;
@@ -208,43 +216,106 @@
 }
 
 .km-admin-sidebar .km-admin-sidebar__link {
+  position: relative;
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
   min-width: 0;
-  min-height: 42px;
-  padding: 8px 10px;
-  border-radius: 11px;
-  color: #a9bac9;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  color: #9fb0bf;
   text-decoration: none;
-  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .km-admin-sidebar .km-admin-sidebar__link:hover,
 .km-admin-sidebar .km-admin-sidebar__link:focus-visible {
-  background: rgba(255, 255, 255, 0.06);
-  color: #f8fafc;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.05);
+  color: #f1f5f9;
+  border-color: rgba(255, 255, 255, 0.04);
+  transform: translateX(3px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.km-admin-sidebar .km-admin-sidebar__link.is-active {
-  background: linear-gradient(180deg, rgba(0, 154, 78, 0.26) 0%, rgba(0, 154, 78, 0.2) 100%);
-  color: #6df0ae;
-  box-shadow: inset 0 0 0 1px rgba(17, 213, 110, 0.18);
+.km-admin-sidebar .km-admin-sidebar__link.is-active,
+.km-admin-sidebar .km-admin-sidebar__link[aria-current="page"] {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.18) 0%, rgba(16, 185, 129, 0.06) 100%);
+  color: #ffffff;
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  font-weight: 500;
+  transform: none;
+}
+
+.km-admin-sidebar .km-admin-sidebar__link.is-active::before,
+.km-admin-sidebar .km-admin-sidebar__link[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  bottom: 7px;
+  width: 3.5px;
+  border-radius: 0 4px 4px 0;
+  background: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.8), 0 0 3px #10b981;
+  animation: km-sidebar-active-glow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes km-sidebar-active-glow {
+  0% { box-shadow: 0 0 6px rgba(16, 185, 129, 0.5); }
+  100% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.9), 0 0 4px #34d399; }
 }
 
 .km-admin-sidebar .km-admin-sidebar__icon-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 22px;
-  width: 22px;
-  color: currentColor;
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #8da2b5;
   font-size: 14px;
-  margin-top: 1px;
+  margin-top: 0;
+  transition: all 0.2s ease;
 }
 
-.km-admin-sidebar__icon-wrap .km-i {display:block;width:20px;height:20px;flex:none;fill:currentColor;}
+.km-admin-sidebar__icon-wrap .km-i {
+  display: block;
+  width: 17px;
+  height: 17px;
+  flex: none;
+  fill: currentColor;
+  transition: transform 0.2s ease, fill 0.2s ease;
+}
+
+.km-admin-sidebar .km-admin-sidebar__link:hover .km-admin-sidebar__icon-wrap {
+  background: rgba(255, 255, 255, 0.08);
+  color: #38bdf8;
+}
+
+.km-admin-sidebar .km-admin-sidebar__link:hover .km-admin-sidebar__icon-wrap .km-i {
+  transform: scale(1.08);
+}
+
+.km-admin-sidebar .km-admin-sidebar__link.is-active .km-admin-sidebar__icon-wrap,
+.km-admin-sidebar .km-admin-sidebar__link[aria-current="page"] .km-admin-sidebar__icon-wrap {
+  background: rgba(16, 185, 129, 0.22);
+  color: #34d399;
+}
+
+.km-admin-sidebar .km-admin-sidebar__link.is-active .km-admin-sidebar__icon-wrap .km-i,
+.km-admin-sidebar .km-admin-sidebar__link[aria-current="page"] .km-admin-sidebar__icon-wrap .km-i {
+  fill: #34d399;
+}
+
 .km-admin-sidebar__chevron .km-i {width:18px;height:18px;fill:currentColor;}
 .km-admin-sidebar__avatar .km-i {width:30px;height:30px;fill:currentColor;}
 .km-admin-sidebar__visibility-status .km-i {width:14px;height:14px;fill:currentColor;}
@@ -252,7 +323,6 @@
 .km-admin-sidebar .km-admin-sidebar__group.is-active>.km-admin-sidebar__group-toggle {background:rgba(17,213,110,.07);color:#e8fff2;}
 .km-admin-sidebar .km-admin-sidebar__group-toggle:focus-visible,
 .km-admin-sidebar .km-admin-sidebar__link:focus-visible {outline:2px solid #6df0ae;outline-offset:2px;}
-.km-admin-sidebar .km-admin-sidebar__link[aria-current="page"] {border-inline-start:3px solid #39d88c;}
 
 .km-admin-sidebar .km-admin-sidebar__text {
   display: flex;
@@ -278,9 +348,9 @@
 
 .km-admin-sidebar .km-admin-sidebar__sublist {
   display: grid;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
-  padding-left: 18px;
+  padding-left: 14px;
 }
 
 .km-admin-sidebar .km-admin-sidebar__badge {
@@ -291,21 +361,43 @@
   height: 22px;
   padding: 0 7px;
   border-radius: 999px;
-  background: rgba(17, 213, 110, 0.16);
+  background: rgba(16, 185, 129, 0.16);
   color: #6df0ae;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
   line-height: 1;
   flex: 0 0 auto;
+  transition: all 0.2s ease;
 }
 
 .km-admin-sidebar .km-admin-sidebar__badge--metric {
-  min-width: 34px;
-  padding-inline: 6px;
-  background: rgba(148, 163, 184, 0.16);
-  color: #d5dee7;
-  font-size: 11px;
+  min-width: 28px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 11.5px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.km-admin-sidebar .km-admin-sidebar__link:hover .km-admin-sidebar__badge--metric {
+  background: rgba(255, 255, 255, 0.14);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: scale(1.05);
+}
+
+.km-admin-sidebar .km-admin-sidebar__link.is-active .km-admin-sidebar__badge--metric,
+.km-admin-sidebar .km-admin-sidebar__link[aria-current="page"] .km-admin-sidebar__badge--metric {
+  background: rgba(16, 185, 129, 0.24);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.36);
+  font-weight: 700;
+  transform: none;
 }
 
 .km-admin-sidebar .km-admin-sidebar__visibility-status {
@@ -321,8 +413,8 @@
   font-size: 11px;
 }
 
-.km-admin-sidebar .km-admin-sidebar__group .km-admin-sidebar__link.is-active .km-admin-sidebar__badge {
-  background: rgba(255, 255, 255, 0.14);
+.km-admin-sidebar .km-admin-sidebar__group .km-admin-sidebar__link.is-active .km-admin-sidebar__badge:not(.km-admin-sidebar__badge--metric) {
+  background: rgba(255, 255, 255, 0.18);
   color: #ffffff;
 }
 
@@ -358,8 +450,146 @@ body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__user-cop
 body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__text,
 body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__chevron,
 body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__badge,
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__pending,
 body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__panel {
   display: none !important;
+}
+
+/* Compact destinations for infrequently used admin lists. */
+.km-admin-related-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-block: 12px;
+}
+
+.km-pf .km-admin-related-links .km-pf-btn {
+  min-height: 44px;
+  height: auto;
+  max-width: 100%;
+  padding-block: 10px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.change-form .km-business-links-grid {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Existing business-editor rules force a fixed height and nowrap. */
+.change-form .km-business-links-grid .km-pf-btn {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  height: auto !important;
+  padding: 10px 16px !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+
+.km-admin-navigation-hub {
+  width: 100%;
+  max-width: 1100px;
+  min-width: 0;
+}
+
+.km-admin-navigation-hub__heading {
+  margin-bottom: 20px;
+}
+
+.km-admin-navigation-hub__heading h1 {
+  margin: 0 0 6px;
+  color: var(--km-admin-text);
+  font-size: 24px;
+  font-weight: 650;
+}
+
+.km-admin-navigation-hub__heading p,
+.km-admin-navigation-hub__empty {
+  margin: 0;
+  color: var(--km-admin-muted);
+}
+
+.km-admin-navigation-hub__groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  align-items: start;
+  gap: 20px;
+}
+
+.km-admin-navigation-hub__group {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--km-admin-border);
+  border-radius: 12px;
+  background: var(--km-admin-surface);
+}
+
+.km-admin-navigation-hub__group h2 {
+  margin: 0 0 10px;
+  color: var(--km-admin-text);
+  font-size: 16px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.km-admin-navigation-hub__list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.km-admin-navigation-hub__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px;
+  border-radius: 8px;
+  color: var(--km-admin-text);
+  text-decoration: none;
+}
+
+.km-admin-navigation-hub__link span {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.km-admin-navigation-hub__link .km-i {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  fill: currentColor;
+  color: var(--km-admin-primary);
+}
+
+.km-admin-navigation-hub__link:hover,
+.km-admin-navigation-hub__link:focus-visible {
+  background: var(--km-admin-surface-soft, #f3f7f5);
+  color: var(--km-admin-primary);
+  text-decoration: none;
+}
+
+.km-admin-navigation-hub__link:focus-visible {
+  outline: 2px solid var(--km-admin-primary);
+  outline-offset: 2px;
+}
+
+.km-admin-navigation-hub__link .km-admin-navigation-hub__arrow {
+  color: var(--km-admin-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .km-admin-sidebar .km-admin-sidebar__chevron,
+  .km-admin-sidebar .km-admin-sidebar__link {
+    transition: none;
+  }
 }
 
 body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__user-card {

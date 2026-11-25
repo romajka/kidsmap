@@ -2183,6 +2183,8 @@ class PlaceAdmin(admin.ModelAdmin):
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         from catalog.services.permanent_place_wizard import ui_copy
         context["km_place_entry_copy"] = ui_copy()
+        from .navigation import place_navigation
+        context["km_place_navigation"] = place_navigation(request, obj)
         if obj and obj.pk:
             context["km_place_site_preview_url"] = reverse(
                 "admin:catalog_place_site_preview", args=[obj.pk], current_app=self.admin_site.name)
@@ -2737,7 +2739,8 @@ class PlaceAdmin(admin.ModelAdmin):
         server_only = {
             "photo": bool(instance is not None and getattr(instance, "cover_photo", None)),
         }
-        from catalog.services.place_readiness import inherited_contact
+        from catalog.services.contact_policy import contact_client_config
+        contact_config = contact_client_config(instance)
         checklist_items = [
             {
                 "code": item.code,
@@ -2746,7 +2749,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "field": item.requirement.field,
                 "anchor": item.requirement.anchor,
                 "check": item.requirement.client_check,
-                "config": ({**item.requirement.client_config, "fields": ["phone1", "phone2", "phone3", "website"], "optional": getattr(instance, "nature", "") == "public_space", "inherited": bool(inherited_contact(instance))} if item.code == "phone" else item.requirement.client_config),
+                "config": ({**item.requirement.client_config, **contact_config} if item.code == "phone" else item.requirement.client_config),
                 "initial": item.is_complete,
                 "message": item.issue.message if item.issue else "",
                 "fallback": bool(server_only.get(item.code)) and item.is_complete,
@@ -4079,7 +4082,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "label": _("Всего"),
                 "count": counts["stat_total"],
                 "url": self._build_changelist_query_string(request, clear=("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact")),
-                "tone": "neutral",
+                "tone": "info",
                 "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>',
             },
             {
@@ -4107,7 +4110,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "label": _("Без координат"),
                 "count": counts["stat_without_coordinates"],
                 "url": self._build_changelist_query_string(request, clear=("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact"), coordinates_status="no"),
-                "tone": "info",
+                "tone": "warn",
                 "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
             },
         )

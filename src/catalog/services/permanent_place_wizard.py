@@ -71,8 +71,11 @@ def ui_copy():
         saving_error=t('Исправьте ошибки — карточка не сохранена', 'Səhvləri düzəldin — kart saxlanılmayıb', 'Correct the errors — listing not saved'),
         needs_check=t('Ввод изменён. Готовность проверит сервер при отправке.', 'Məlumat dəyişib. Hazırlığı göndərərkən server yoxlayacaq.', 'Values changed. The server will check readiness on submission.'),
         requirements=t('Требования к отправке', 'Göndərmə tələbləri', 'Submission requirements'),
-        requirements_hint=t('Эти пункты нужны для отправки. Неполный текст можно сохранить в черновике; выбранные фото сохраните отдельным явным действием.', 'Bu bəndlər göndərmək üçün lazımdır. Natamam mətni qaralamada saxlaya bilərsiniz; seçilmiş şəkilləri ayrıca açıq əməliyyatla saxlayın.', 'These items are needed to submit. Save incomplete text as a draft; save selected photos with an explicit action.'),
+        requirements_hint=t('Заполните данные о вашем месте. Неполный текст можно сохранить в черновике и вернуться в любой момент.', 'Məkanınız haqqında məlumatları doldurun. Natamam mətni qaralamada saxlaya və istənilən vaxt qayıda bilərsiniz.', 'Fill in the details about your place. Incomplete text can be saved as a draft and completed at any time.'),
         contact_choice=t('Один из контактов — для отправки', 'Əlaqələrdən biri — göndərmək üçün', 'One contact — needed to submit'),
+        contact_optional=t('Контакты, если известны. Для парков, бульваров и общественных детских площадок они необязательны.', 'Əlaqə məlumatları məlumdursa əlavə edin. Parklar, bulvarlar və ictimai uşaq meydançaları üçün məcburi deyil.', 'Add contact details if known. They are optional for parks, boulevards and public playgrounds.'),
+        contact_required=t('Укажите телефон, WhatsApp или сайт.', 'Telefon, WhatsApp və ya sayt göstərin.', 'Provide a phone number, WhatsApp or website.'),
+        contact_inherited=t('Используются подтверждённые контакты организации. Можно добавить контакты этого места.', 'Təşkilatın təsdiqlənmiş əlaqə məlumatlarından istifadə edilir. Bu məkanın əlaqələrini əlavə edə bilərsiniz.', 'The organization’s confirmed contacts are used. You can add this place’s own contacts.'),
         translations_hint=t('Переводы не создаются автоматически. Если текст на выбранном языке пуст, посетитель увидит текст AZ.', 'Tərcümələr avtomatik yaradılmır. Seçilmiş dildə mətn boşdursa, ziyarətçi AZ mətnini görəcək.', 'Translations are not created automatically. When the selected language is empty, visitors see AZ text.'),
         preview_language=t('Язык предпросмотра', 'Önbaxış dili', 'Preview language'),
         preview_hint=t('Краткий предпросмотр введённых данных. Отправка ещё не публикует место.', 'Daxil edilmiş məlumatın qısa önbaxışı. Göndərmək məkanı hələ dərc etmir.', 'A short preview of your input. Submission does not publish the place.'),
@@ -127,8 +130,11 @@ def ui_copy():
         inherited_contact=t('Контакт берётся из подтверждённой организации.', 'Əlaqə təsdiqlənmiş təşkilatdan götürülür.', 'Contact comes from the confirmed organization.'),
         local_contact=t('Местный контакт', 'Yerli əlaqə', 'Local contact'),
         title=t('Постоянное место', 'Daimi məkan', 'Permanent place'),
-        intro=t('Расскажите о месте. После проверки оно появится в каталоге.', 'Məkan haqqında məlumat verin. Yoxlamadan sonra kataloqda görünəcək.', 'Tell us about the place. It will appear in the catalog after review.'),
+        intro=t('Расскажите о месте. Заполните 4 простых шага, и мы поможем родителям найти вас!', 'Məkan haqqında məlumat verin. 4 sadə addımı tamamlayın və valideynlərin sizi tapmasına kömək edək!', 'Tell us about the place. Complete 4 simple steps to help parents find you!'),
         back=t('Назад', 'Geri', 'Back'), next=t('Дальше', 'Davam et', 'Continue'),
+        next_step=t('Далее', 'Davam et', 'Next'),
+        prev_step=t('Назад', 'Geri', 'Back'),
+        step_done=t('Готово', 'Hazırdır', 'Done'),
         draft=t('Сохранить черновик', 'Qaralamanı saxla', 'Save draft'),
         apply_changes=t('Применить изменения', 'Dəyişiklikləri tətbiq et', 'Apply changes'),
         submit=t('Отправить на модерацию', 'Moderasiyaya göndər', 'Send for review'),
@@ -265,6 +271,8 @@ def continuous_sections(form):
     """Four owner sections; legacy volunteer steps remain untouched."""
     steps = build_steps(form)
     titles = ui_copy()
+    steps[0]['fields'] = [field for field in steps[0]['fields'] if field.name != 'nature']
+    steps[3]['optional'] = []
     return [
         dict(number=1, title=titles['section_about'], parts=[steps[0]]),
         dict(number=2, title=titles['section_contact'], parts=[steps[3], steps[4]]),
