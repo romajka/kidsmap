@@ -151,16 +151,18 @@ def _row(actor, place, org, code):
         'waiting_for':('place_owner' if not pending.place_owner_confirmed_at else 'organization_owner') if can_read_request and pending and pending.relationship_kind == 'business' else None}
 
 
-def search_places(*, actor, organization_id, query='', cursor=0):
+def search_places(*, actor, organization_id, query='', cursor=0, relationship_kind='business', place_scope=None):
     actor = ownership._actor(actor); org = Organization.objects.get(pk=organization_id)
     try: offset = int(cursor)
     except (TypeError, ValueError): raise ValidationError('Invalid page.')
     if offset < 0: raise ValidationError('Invalid page.')
     qs = visible_places(actor).select_related('organization')
+    if place_scope is not None:
+        qs = qs.filter(pk__in=place_scope.order_by().values('pk'))
     for word in str(query).strip().split()[:10]:
         qs = qs.filter(Q(name__icontains=word) | Q(name_az__icontains=word) | Q(name_ru__icontains=word) | Q(name_en__icontains=word) | Q(address__icontains=word))
     total = qs.count(); places = list(qs.order_by('pk')[offset:offset+PAGE_SIZE])
-    return {'rows':[_row(actor,p,org,_decision(actor,p,org,'business')) for p in places],
+    return {'rows':[_row(actor,p,org,_decision(actor,p,org,relationship_kind)) for p in places],
         'total':total, 'next_cursor':offset+PAGE_SIZE if offset+PAGE_SIZE<total else None}
 
 

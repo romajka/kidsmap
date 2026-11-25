@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import F
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import Organization, OrganizationPlaceRequest, Place
@@ -216,6 +217,38 @@ class OrganizationConnectionTests(TestCase):
         self.assertEqual(OrganizationConnectionOperation.objects.get(pk=operation.pk).items.get().result,'connected')
         replay=self.client.post('/admin/catalog/place/organization-connections/',{'action':'confirm','preview_id':operation.pk,'idempotency_key':key,'consent':'1'})
         self.assertEqual(replay.status_code,302)
+
+    def test_admin_connects_selected_places_from_organization_card(self):
+        self.client.force_login(self.staff)
+        second = create_quality_place(owner=self.other, name='QA Second branch', name_az='QA Second branch', name_ru='QA Second branch')
+        card = reverse('admin:catalog_organization_change', args=[self.org.pk])
+        entry = reverse('admin:catalog_place_organization_connections') + f'?organization_id={self.org.pk}'
+        self.assertContains(self.client.get(card), f'href="{entry}"')
+        selection = self.client.get(entry + '&q=Second')
+        self.assertContains(selection, 'QA Second branch')
+        self.assertNotContains(selection, 'QA Клуб')
+        selection = self.client.post(entry, {
+            'action': 'search', 'q': 'Klub', 'place_ids': [second.pk], 'relationship_kind': 'informational',
+        })
+        self.assertContains(selection, 'QA Клуб')
+        self.assertEqual(selection.context['carried'], [second.pk])
+        cleared = self.client.post(entry, {
+            'action': 'clear', 'q': 'Klub', 'place_ids': [second.pk], 'relationship_kind': 'informational',
+        })
+        self.assertEqual(cleared.context['selection_count'], 0)
+        preview = self.client.post(entry, {
+            'action': 'preview', 'place_ids': [self.place.pk, second.pk], 'relationship_kind': 'informational',
+        })
+        self.assertEqual(preview.status_code, 200)
+        self.assertEqual(preview.context['result']['organization_id'], self.org.pk)
+        self.assertEqual(self.org.places.count(), 0)
+        completed = self.client.post(entry, {
+            'action': 'confirm', 'preview_id': preview.context['operation'].pk,
+            'idempotency_key': preview.context['idempotency_key'], 'consent': '1',
+        }, follow=True)
+        self.assertEqual(completed.status_code, 200)
+        self.assertEqual(set(self.org.places.values_list('pk', flat=True)), {self.place.pk, second.pk})
+        self.assertContains(completed, f'href="{entry}"')
 
     def test_owner_return_does_not_make_old_preview_current(self):
         preview=self.preview()

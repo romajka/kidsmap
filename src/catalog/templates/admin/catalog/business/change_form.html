@@ -1,5 +1,24 @@
 {% extends 'admin/change_form.html' %}
 {% load i18n static %}
+{% block content_title %}
+  {% if km_business_kind == 'organization' %}
+    <span class="km-organization-title">{% if original %}{{ km_business_organization_name }}{% else %}{% translate 'Добавить организацию' %}{% endif %}</span>
+  {% else %}{{ block.super }}{% endif %}
+{% endblock %}
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_business_editor.css' %}?v=20261123.2">
+{% endblock %}
+{% block content %}
+  {{ block.super }}
+  {% if km_business_can_approve or km_business_can_unpublish %}
+    <form id="km-business-review-form" method="post" action="{{ km_business_transition_url }}" hidden>
+      {% csrf_token %}
+      {% if km_business_can_approve %}<input type="hidden" name="revision_version" value="{{ km_business_revision.version }}">{% endif %}
+      {% if km_business_can_unpublish %}<input type="hidden" name="source_version" value="{{ km_business_object.content_version }}">{% endif %}
+    </form>
+  {% endif %}
+{% endblock %}
 {% block form_top %}
   {{ block.super }}
   {% if km_business_kind == 'organization' and not original %}
@@ -8,133 +27,49 @@
 {% endblock %}
 {% block after_field_sets %}
   {{ block.super }}
-  <style>
-    .km-business-links-grid {
-      display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 10px !important;
-      margin-top: 8px !important;
-    }
-    .km-business-links-grid .km-pf-btn {
-      display: inline-flex !important;
-      align-items: center !important;
-      gap: 6px !important;
-      height: 36px !important;
-      padding: 0 16px !important;
-      border-radius: 8px !important;
-      border: 1px solid #d0d7d3 !important;
-      background: #ffffff !important;
-      font-size: 13px !important;
-      font-weight: 600 !important;
-      color: #3d4d45 !important;
-      text-decoration: none !important;
-      white-space: nowrap !important;
-      cursor: pointer !important;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
-      transition: all 140ms ease !important;
-    }
-    .km-business-links-grid .km-pf-btn:hover {
-      background: #f4f7f5 !important;
-      border-color: #136f38 !important;
-      color: #136f38 !important;
-    }
-    section.km-pf-group {
-      background: #ffffff !important;
-      border: 1px solid #e2e8f0 !important;
-      border-radius: 12px !important;
-      padding: 20px 24px !important;
-      margin: 0 0 20px 0 !important;
-      width: 100% !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
-    }
-    section.km-pf-group h2 {
-      color: #1e293b !important;
-      font-size: 1.1rem !important;
-      font-weight: 700 !important;
-      margin-top: 0 !important;
-      margin-bottom: 14px !important;
-      padding-bottom: 10px !important;
-      border-bottom: 1px solid #e2e8f0 !important;
-    }
-    section.km-pf-group table.table {
-      width: 100% !important;
-      border-collapse: collapse !important;
-      margin-top: 10px !important;
-      border: 1px solid #e2e8f0 !important;
-      border-radius: 8px !important;
-      overflow: hidden !important;
-    }
-    section.km-pf-group table.table th,
-    section.km-pf-group table.table td {
-      padding: 10px 14px !important;
-      border: 1px solid #e2e8f0 !important;
-      font-size: 13px !important;
-    }
-    section.km-pf-group table.table thead th {
-      background: #f8fafc !important;
-      font-weight: 600 !important;
-      color: #1e293b !important;
-    }
-    section.km-pf-group input[type="email"] {
-      display: block !important;
-      max-width: 400px !important;
-      width: 100% !important;
-      height: 38px !important;
-      padding: 6px 12px !important;
-      border-radius: 8px !important;
-      border: 1px solid #cbd5e1 !important;
-      margin: 8px 0 14px !important;
-    }
-    section.km-pf-group button.km-pf-btn {
-      height: 36px !important;
-      padding: 0 16px !important;
-      border-radius: 8px !important;
-      font-size: 13px !important;
-      font-weight: 600 !important;
-      cursor: pointer !important;
-      border: 1px solid #e2e8f0 !important;
-      background: #ffffff !important;
-    }
-    section.km-pf-group button.km-pf-btn--primary {
-      background: #009a4e !important;
-      border-color: #009a4e !important;
-      color: #ffffff !important;
-    }
-    .submit-row button[name="_save_draft"],
-    .submit-row button[name="_submit_candidate"] {
-      height: 38px !important;
-      padding: 0 18px !important;
-      border-radius: 8px !important;
-      font-weight: 600 !important;
-      font-size: 13px !important;
-      cursor: pointer !important;
-      border: 1px solid #e2e8f0 !important;
-      margin-left: 8px !important;
-    }
-    .submit-row button[name="_submit_candidate"] {
-      background: #009a4e !important;
-      color: #ffffff !important;
-      border-color: #009a4e !important;
-    }
-  </style>
-  {% if km_business_links %}
-    <section class="km-pf-group" aria-label="{% translate 'Связанные разделы' %}">
+  {% if km_business_changes %}
+    <section class="km-pf-group km-business-panel" aria-label="{% translate 'Текущие и предложенные данные' %}">
+      <h2>{% translate 'Текущие и предложенные данные' %}</h2>
+      <table class="table km-business-comparison" role="table">
+        <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">{% translate 'Поле' %}</th><th scope="col" role="columnheader">{% translate 'Сейчас' %}</th><th scope="col" role="columnheader">{% translate 'Предложено' %}</th></tr></thead>
+        <tbody role="rowgroup">
+          {% for change in km_business_changes %}
+            <tr role="row">
+              <th scope="row" role="rowheader">{{ change.label }}</th>
+              <td role="cell"><span class="km-business-comparison-label" aria-hidden="true">{% translate 'Сейчас' %}</span>{{ change.current|default:'—' }}</td>
+              <td role="cell"><span class="km-business-comparison-label" aria-hidden="true">{% translate 'Предложено' %}</span>{{ change.candidate|default:'—' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  {% endif %}
+  {% if km_business_can_approve or km_business_can_unpublish %}
+    <section class="km-pf-group km-business-panel" aria-labelledby="km-business-review-title">
+      <h2 id="km-business-review-title">{% translate 'Публикация' %}</h2>
+      <div class="km-business-links-grid">
+        {% if km_business_can_approve %}
+          <button class="km-pf-btn km-pf-btn--primary" type="submit" name="action" value="approve" form="km-business-review-form">{% translate 'Одобрить заявку' %}</button>
+        {% endif %}
+        {% if km_business_can_unpublish %}
+          <button class="km-pf-btn km-pf-btn--ghost" type="submit" name="action" value="unpublish" form="km-business-review-form">{% translate 'Снять с публикации' %}</button>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+  {% if km_business_links or km_business_connect_places_url %}
+    <section class="km-pf-group km-business-panel" aria-label="{% translate 'Связанные разделы' %}">
       <h2>{% translate 'Связанные разделы' %}</h2>
       <div class="km-business-links-grid">
+        {% if km_business_connect_places_url %}
+          <a class="km-pf-btn km-pf-btn--primary" href="{{ km_business_connect_places_url }}">{% translate 'Подключить существующие места' %}</a>
+        {% endif %}
         {% for label, url in km_business_links %}<a class="km-pf-btn km-pf-btn--ghost" href="{{ url }}">{{ label }}</a>{% endfor %}
       </div>
     </section>
   {% endif %}
-  {% if km_business_changes %}
-    <section class="km-pf-group" aria-label="{% translate 'Текущие и предложенные данные' %}">
-      <h2>{% translate 'Текущие и предложенные данные' %}</h2>
-      <table class="table"><thead><tr><th scope="col">{% translate 'Поле' %}</th><th scope="col">{% translate 'Сейчас' %}</th><th scope="col">{% translate 'Предложено' %}</th></tr></thead>
-        <tbody>{% for change in km_business_changes %}<tr><th scope="row">{{ change.label }}</th><td>{{ change.current|default:'—' }}</td><td>{{ change.candidate|default:'—' }}</td></tr>{% endfor %}</tbody>
-      </table>
-    </section>
-  {% endif %}
   {% if km_business_kind == 'activity' and km_business_object %}
-    <section class="km-pf-group" aria-label="{% translate 'Группы занятия' %}">
+    <section class="km-pf-group km-business-panel" aria-label="{% translate 'Группы занятия' %}">
       <h2>{% translate 'Группы занятия' %}</h2>
       {% for group in km_activity_groups %}
         <p><a href="{% url 'admin:catalog_offeringgroup_change' group.pk %}">{{ group.name_az|default:group.pk }}</a> · {% translate 'Тарифы' %}: {{ group.pricing_plan_records.count }}</p>
@@ -143,26 +78,12 @@
     </section>
   {% endif %}
   {% if km_business_can_invite %}
-    <section class="km-pf-group" aria-label="{% translate 'Сотрудники' %}">
+    <section class="km-pf-group km-business-panel" aria-label="{% translate 'Сотрудники' %}">
       <h2>{% translate 'Сотрудники' %}</h2>
       <p>{% translate 'Приглашённый редактор сможет менять организацию и общие программы после принятия приглашения.' %}</p>
       <label for="km-business-invite-email">{% translate 'Email сотрудника' %}</label>
       <input id="km-business-invite-email" type="email" name="email" autocomplete="email">
       <button class="km-pf-btn km-pf-btn--ghost" type="submit" name="action" value="invite" formaction="{{ km_business_transition_url }}" formmethod="post">{% translate 'Пригласить сотрудника' %}</button>
-    </section>
-  {% endif %}
-  {% if km_business_object %}
-    <section class="km-pf-group" aria-label="{% translate 'Публикация' %}">
-      <h2>{% translate 'Публикация' %}</h2>
-      <p>{% translate 'Черновик и проверка не меняют публичные данные до одобрения.' %}</p>
-      {% if km_business_object.status == 'published' %}
-        <input type="hidden" name="source_version" value="{{ km_business_object.content_version }}">
-        <button class="km-pf-btn km-pf-btn--ghost" type="submit" name="action" value="unpublish" formaction="{{ km_business_transition_url }}" formmethod="post">{% translate 'Снять с публикации' %}</button>
-      {% endif %}
-      {% if km_business_revision.status == 'pending' %}
-        <input type="hidden" name="revision_version" value="{{ km_business_revision.version }}">
-        <button class="km-pf-btn km-pf-btn--primary" type="submit" name="action" value="approve" formaction="{{ km_business_transition_url }}" formmethod="post">{% translate 'Одобрить заявку' %}</button>
-      {% endif %}
     </section>
   {% endif %}
 {% endblock %}

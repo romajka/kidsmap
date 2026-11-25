@@ -1,6 +1,6 @@
 {% load i18n %}{% get_current_language as CURRENT_LANGUAGE %}
 <table class="org-connect__table"><caption class="org-connect__sr">{% translate 'Карточки и состояние связи' %}</caption>
-  <thead><tr>{% if selectable %}<th scope="col">{% translate 'Выбрать' %}</th>{% endif %}<th scope="col">{% translate 'Место и адрес' %}</th><th scope="col">{% translate 'Текущая организация' %}</th><th scope="col">{% translate 'Состояние' %}</th></tr></thead>
+  <thead><tr>{% if selectable %}<th scope="col" class="org-connect__select-column">{% translate 'Выбрать' %}</th>{% endif %}<th scope="col">{% translate 'Место и адрес' %}</th><th scope="col">{% translate 'Текущая организация' %}</th>{% if not admin_pick or not selectable %}<th scope="col">{% translate 'Состояние' %}</th>{% endif %}</tr></thead>
   <tbody>{% for row in rows %}<tr data-result="{{ row.code }}">
     {% if selectable %}<td><input type="checkbox" name="place_ids" value="{{ row.id }}" id="place-{{ row.id }}" {% if row.selected %}checked{% endif %}><label for="place-{{ row.id }}" class="org-connect__sr">{{ row.name }} · {{ row.address }} · #{{ row.id }}</label></td>{% endif %}
     {% if row.redacted %}<td><strong>#{{ row.id }}</strong><span>{% translate 'Карточка недоступна для просмотра. Подтверждение относится только к связи места.' %}</span></td><td>—</td>{% else %}
@@ -10,10 +10,10 @@
       {% if row.current_kind == 'informational' %}<small>{% translate 'Информационная связь' %}</small>{% endif %}
     </td>
     {% endif %}
-    <td><span class="org-connect__badge">{{ row.message }}</span>
+    {% if not admin_pick or not selectable %}<td><span class="org-connect__badge">{{ row.message }}</span>
       {% if row.recovery_required %}<a href="{% url 'organization_join_recovery' row.recovery_organization_id row.request_id %}">{% if CURRENT_LANGUAGE == 'az' %}Sorğuya bax və ləğv et{% elif CURRENT_LANGUAGE == 'en' %}Review and cancel request{% else %}Просмотреть и отменить запрос{% endif %}</a>{% endif %}
       {% if row.request_id %}<small>{% translate 'Запрос' %} #{{ row.request_id }}</small>{% endif %}
       {% if row.request_status == 'approved' %}<small>{% translate 'Запрос подтверждён' %}</small>{% elif row.request_status == 'rejected' %}<small>{% translate 'Запрос отклонён' %}</small>{% elif row.request_status == 'canceled' %}<small>{% translate 'Запрос отменён' %}</small>{% endif %}
       {% if row.waiting_for == 'place_owner' %}<small>{% translate 'Ждём владельца места' %}</small>{% elif row.waiting_for == 'organization_owner' %}<small>{% translate 'Ждём владельца организации' %}</small>{% endif %}
-    </td></tr>{% empty %}<tr><td colspan="4">{% translate 'Доступных карточек не найдено. Измените название или адрес.' %}</td></tr>{% endfor %}</tbody>
+    </td>{% endif %}</tr>{% empty %}<tr><td colspan="{% if selectable and not admin_pick %}4{% else %}3{% endif %}">{% translate 'Доступных карточек не найдено. Измените название или адрес.' %}</td></tr>{% endfor %}</tbody>
 </table>
