@@ -1,0 +1,313 @@
+/*
+ * Specialists: large portraits and a photo viewer (2026-11).
+ * Loaded after specialists_refresh.css. The third :not(#ksp-c) outranks its
+ * ":not(#ksp-a):not(#ksp-b)" + !important rules without touching them.
+ */
+
+/* ======================================================================
+   Directory card — portrait leads
+   ====================================================================== */
+html body .km-specialist-card.sp-directory-card:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+  grid-template-columns: 136px minmax(0, 1fr) auto !important;
+  gap: 4px 22px !important;
+  padding: 18px 22px 18px 18px !important;
+}
+
+html body .sp-directory-card .sp-card-avatar:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+  width: 136px !important;
+  height: 170px !important;
+  border-radius: 22px !important;
+  font-size: 40px !important;
+  box-shadow: inset 0 0 0 1px rgba(22, 122, 63, 0.08), 0 10px 22px -18px rgba(17, 54, 33, 0.6) !important;
+}
+
+html body .sp-directory-card .sp-card-avatar img:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+  object-position: 50% 22% !important;
+  transition: transform 0.5s var(--ksp-out) !important;
+}
+
+@media (hover: hover) {
+  html body .sp-directory-card:not(#ksp-a):hover .sp-card-avatar img {
+    transform: scale(1.04) !important;
+  }
+}
+
+html body .sp-directory-card .sp-card-info:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+  gap: 8px !important;
+  padding-top: 2px !important;
+}
+
+html body .sp-directory-card .sp-card-info h3:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+  font-size: 21px !important;
+}
+
+html body .sp-directory-card .sp-card-action strong:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+  font-size: 19px !important;
+  color: var(--ksp-green-deep) !important;
+}
+
+/* ---------- Phones ---------- */
+@media (max-width: 760px) {
+  html body .km-specialist-card.sp-directory-card:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-template-columns: 104px minmax(0, 1fr) !important;
+    grid-auto-rows: auto !important;
+    align-items: start !important;
+    gap: 6px 14px !important;
+    padding: 14px !important;
+  }
+
+  html body .sp-directory-card .sp-card-avatar:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-column: 1 !important;
+    grid-row: 1 / span 4 !important;
+    width: 104px !important;
+    height: 130px !important;
+    border-radius: 18px !important;
+    font-size: 30px !important;
+  }
+
+  html body .sp-directory-card .sp-card-info > h3:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    align-self: start !important;
+    font-size: 18px !important;
+  }
+
+  html body .sp-directory-card .sp-card-info > .sp-card-alt:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    margin-top: -4px !important;
+  }
+
+  html body .sp-directory-card .sp-card-info > .sp-card-subjects:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-column: 2 !important;
+    grid-row: 3 !important;
+  }
+
+  /* A long specialty wraps inside its chip instead of touching the edges */
+  html body .sp-directory-card .sp-card-subjects li:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    height: auto !important;
+    min-height: 28px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    line-height: 1.25 !important;
+  }
+
+  html body .sp-directory-card .sp-card-info > .sp-card-reputation:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-column: 2 !important;
+    grid-row: 4 !important;
+    align-self: end !important;
+  }
+
+  html body .sp-directory-card .sp-card-info > :is(.sp-card-facts, .sp-card-bio):not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-column: 1 / -1 !important;
+  }
+
+  html body .sp-directory-card .sp-card-info > .sp-card-facts:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    margin-top: 6px !important;
+  }
+
+  html body .km-specialist-card.sp-directory-card:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-template-rows: auto auto auto 1fr !important;
+  }
+
+  /* Price and the button share one row; a long price wraps beside the button */
+  html body .sp-directory-card .sp-card-action:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  html body .sp-directory-card .sp-card-action strong:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    font-size: 17px !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+  }
+
+  html body .sp-directory-card .sp-profile-label:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    flex: none !important;
+    height: 40px !important;
+    padding: 0 14px !important;
+  }
+}
+
+/* ======================================================================
+   Profile header — a real portrait, tap to enlarge
+   ====================================================================== */
+html body .sp-detail .sp-identity:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+  grid-template-columns: 216px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 32px !important;
+}
+
+html body .sp-detail .sp-avatar:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+  width: 216px !important;
+  height: 270px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 34px !important;
+  font: inherit !important;
+}
+
+html body .sp-detail .sp-avatar .sp-photo:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+  object-position: 50% 22% !important;
+}
+
+html body .sp-detail .sp-avatar__initials:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+  font-size: 64px !important;
+}
+
+html body .sp-detail button.sp-avatar:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+  cursor: zoom-in !important;
+}
+
+html body .sp-detail button.sp-avatar:not(#ksp-a):not(#ksp-b):not(#ksp-c):focus-visible {
+  outline: 3px solid var(--ksp-green) !important;
+  outline-offset: 6px !important;
+}
+
+.sp-avatar__zoom {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ksp-green-deep);
+  box-shadow: 0 6px 16px -8px rgba(17, 54, 33, 0.6);
+  opacity: 0.92;
+  transition: transform 0.25s var(--ksp-out), opacity 0.2s;
+}
+.sp-avatar__zoom .material-symbols-rounded { font-size: 21px; }
+@media (hover: hover) {
+  .sp-detail button.sp-avatar:hover .sp-avatar__zoom { transform: scale(1.08); opacity: 1; }
+}
+
+html body .sp-detail .sp-identity-text h1:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+  font-size: clamp(30px, 3.4vw, 44px) !important;
+}
+
+/* Photo viewer */
+.sp-photo-dialog {
+  width: min(92vw, 720px);
+  max-height: 92vh;
+  padding: 0;
+  border: 0;
+  border-radius: 28px;
+  background: #0f1712;
+  overflow: hidden;
+  box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.7);
+}
+.sp-photo-dialog::backdrop { background: rgba(9, 20, 13, 0.72); backdrop-filter: blur(6px); }
+.sp-photo-dialog img { display: block; width: 100%; height: auto; max-height: 86vh; object-fit: contain; }
+.sp-photo-dialog figcaption {
+  padding: 12px 18px 14px;
+  color: #e8f3ec;
+  font-family: var(--ksp-display);
+  font-size: 16px;
+  font-weight: 800;
+}
+.sp-photo-dialog__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ksp-ink);
+  cursor: pointer;
+}
+.sp-photo-dialog__close:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.sp-photo-dialog[open] { animation: ksp-photo-in 0.35s var(--ksp-out) both; }
+/* Scale only: the photo stays visible even if the animation never runs. */
+@keyframes ksp-photo-in { from { transform: scale(0.96); } }
+
+/* ---------- Phones: photo and name side by side, chips full width ---------- */
+@media (max-width: 760px) {
+  html body .sp-detail .sp-identity:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-template-columns: 124px minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 6px 16px !important;
+  }
+
+  html body .sp-detail .sp-identity-text:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    display: contents !important;
+  }
+
+  html body .sp-detail .sp-avatar:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-column: 1 !important;
+    grid-row: 1 / span 4 !important;
+    width: 124px !important;
+    height: 155px !important;
+    border-radius: 26px !important;
+    box-shadow: 0 0 0 4px #fff, 0 0 0 5px rgba(22, 122, 63, 0.16), 0 14px 26px -16px rgba(17, 54, 33, 0.55) !important;
+  }
+
+  html body .sp-detail .sp-avatar__initials:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    font-size: 40px !important;
+  }
+
+  .sp-avatar__zoom { right: 8px; bottom: 8px; width: 30px; height: 30px; border-radius: 10px; }
+  .sp-avatar__zoom .material-symbols-rounded { font-size: 18px; }
+
+  html body .sp-detail .sp-identity-text h1:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    margin-top: 4px !important;
+    font-size: 24px !important;
+    line-height: 1.1 !important;
+    overflow-wrap: anywhere;
+  }
+
+  html body .sp-detail .sp-name-alt:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    margin: 0 !important;
+  }
+
+  html body .sp-detail .sp-rating-link:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-column: 2 !important;
+    grid-row: 3 !important;
+    flex-wrap: wrap !important;
+    gap: 4px 8px !important;
+    font-size: 13px !important;
+  }
+
+  html body .sp-detail :is(.sp-owner-link, .sp-claim-link, .sp-identity-text > a:last-child:not(.sp-rating-link)):not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-column: 2 !important;
+    grid-row: 4 !important;
+    align-self: end !important;
+  }
+
+  html body .sp-detail :is(.sp-tags, .sp-identity-text .km-subject-tags):not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    grid-column: 1 / -1 !important;
+    margin-top: 12px !important;
+  }
+
+  html body .sp-detail .sp-identity-text .km-subject-tags + .sp-name-alt + .sp-tags:not(#ksp-a):not(#ksp-b):not(#ksp-c),
+  html body .sp-detail .sp-identity-text .km-subject-tags ~ .sp-tags:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    margin-top: 0 !important;
+  }
+
+  html body .sp-detail :is(.sp-tags, .sp-identity-text .km-subject-tags) li:not(#ksp-a):not(#ksp-b):not(#ksp-c) {
+    height: 28px !important;
+    font-size: 13px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-photo-dialog[open],
+  html body .sp-directory-card .sp-card-avatar img:not(#ksp-a) { transition: none !important; animation: none !important; }
+}
