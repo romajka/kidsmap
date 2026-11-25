@@ -211,6 +211,19 @@ docker compose run --rm web ./scripts/migrate.sh
    - `/robots.txt`
    - `/admin/`
 
+## Request timing and Sentry
+
+Gunicorn captures the `kidsmap.timing` logger on stdout. Each page or API
+record contains the Django URL name, method, status, elapsed milliseconds,
+SQL count and cumulative database milliseconds. Static files, media, favicon
+and `/healthz` are excluded from this log. Django responses carry
+`Server-Timing` with the `app` and `db` durations in milliseconds.
+
+Set `SENTRY_DSN` in the deployment environment to enable Sentry for Django.
+An empty or unset DSN leaves the SDK inactive. `SENTRY_TRACES_SAMPLE_RATE`
+is the fraction of requests sampled for tracing, from 0 to 1 (default 0.1).
+Set it to 0 for error reporting alone. Default PII collection is disabled.
+
 ## IndexNow
 
 The key is never stored in git. Generate a value containing 8-128 letters,
