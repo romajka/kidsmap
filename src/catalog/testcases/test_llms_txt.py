@@ -32,6 +32,10 @@ class LlmsTxtTests(TestCase):
         self.site.events_section_enabled = False
         self.site.specialists_section_enabled = False
         self.site.save()
+        # A directory is advertised only once it has a public organization.
+        from django.utils import timezone
+        from catalog.models import Organization
+        Organization.objects.create(name_az='Şəbəkə', status='published', approved_at=timezone.now())
 
     def guide(self, **kwargs):
         response = self.client.get("/llms.txt", **kwargs)

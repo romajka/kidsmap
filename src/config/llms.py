@@ -30,6 +30,11 @@ def llms_txt(request):
         ("specialists_section_enabled", "specialist_list", "Specialists", "Public specialist profiles; check specialization, consultation format and age range."),
     ):
         if flags.get(flag):
+            if route == "organization_list":
+                # Do not advertise an empty directory to AI crawlers either.
+                from catalog.services.features import has_public_organizations
+                if not has_public_organizations():
+                    continue
             routes.append((route, title, description))
     routes.extend([
         ("about", "About KidsMap", "What the project does and who it serves."),

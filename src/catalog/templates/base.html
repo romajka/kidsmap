@@ -314,7 +314,7 @@
               </button></h3>
               <div class="footer-accordion-content">
                 <nav class="footer-nav-list" aria-label="{% trans 'Каталог' %}">
-                  {% if is_organizations_section_enabled %}
+                  {% if is_organizations_directory_listed %}
                     <a href="{% url 'organization_list' %}">{% if CURRENT_LANGUAGE == "az" %}Təşkilatlar{% elif CURRENT_LANGUAGE == "en" %}Organizations{% else %}Организации{% endif %}</a>
                   {% endif %}
                   <a href="{% url 'place_list' %}">{% if CURRENT_LANGUAGE == "az" %}Bütün dərnəklər və məkanlar{% elif CURRENT_LANGUAGE == "en" %}All clubs & venues{% else %}Все кружки и заведения{% endif %}</a>
