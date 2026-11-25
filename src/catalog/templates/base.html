@@ -142,7 +142,7 @@
     {% block navigation_motion %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=20261026_contacts_polish1">
     <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261120_header_fit">
-    <link rel="stylesheet" href="{% static 'css/components/foundation.css' %}?v=20261117_page_gutters">
+    <link rel="stylesheet" href="{% static 'css/components/foundation.css' %}?v=20261125_skip_link">
     <link rel="stylesheet" href="{% static 'css/components/km_controls.css' %}?v=20261119_marks">
     <script src="{% static 'js/km_controls.js' %}?v=20261119_home_sp4" defer></script>
     <link rel="stylesheet" href="{% static 'css/components/km_search.css' %}?v=20261118_search_r1">
@@ -156,6 +156,7 @@
     {% if site_preview %}data-site-preview="true"{% endif %}
     data-analytics-page-type="{{ analytics_page_type }}"
     data-page-language="{{ current_lang_code }}">
+    <a class="skip-link" href="#main">{% trans "Перейти к содержанию" %}</a>
     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
     <div hidden data-phone-config data-phone-endpoint="{% url 'place_phone_reveal' 0 %}">{% csrf_token %}</div>
     <script src="{% static 'js/place_phone_reveal.js' %}?v=20261121_administration"></script>
@@ -192,7 +193,7 @@
         </section>
       {% endif %}
 
-      <main>
+      <main id="main" tabindex="-1">
         {% block content %}{% endblock %}
       </main>
 

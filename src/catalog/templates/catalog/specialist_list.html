@@ -110,7 +110,7 @@
                 </div>
               {% endfor %}
             </div>
-            <select name="specialization" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
+            <select name="specialization" aria-labelledby="spec-select-label" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
               <option value="">{% if language == "az" %}Bütün istiqamətlər{% elif language == "en" %}All directions{% else %}Все направления{% endif %}</option>
               {% for spec in filter_options.specializations %}
                 <option value="{{ spec.value }}" {% if selected.specialization == spec.value %}selected{% endif %}>
@@ -166,7 +166,7 @@
                 </div>
               {% endfor %}
             </div>
-            <select name="region" id="filter-region" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
+            <select name="region" aria-labelledby="region-select-label" id="filter-region" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
               <option value="">{% if language == "az" %}Bütün regionlar{% elif language == "en" %}All regions{% else %}Все регионы{% endif %}</option>
               {% for reg in filter_options.regions %}
                 <option value="{{ reg.value }}" {% if selected.region == reg.value %}selected{% endif %}>
@@ -257,7 +257,7 @@
                 <span class="km-custom-select__opt-text">English</span>
               </div>
             </div>
-            <select name="language" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
+            <select name="language" aria-labelledby="lang-select-label" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
               <option value="">{% if language == "az" %}Bütün dillər{% elif language == "en" %}All languages{% else %}Все языки{% endif %}</option>
               <option value="az" {% if selected.language == "az" %}selected{% endif %}>Azərbaycanca</option>
               <option value="ru" {% if selected.language == "ru" %}selected{% endif %}>Русский</option>
@@ -378,7 +378,7 @@
                 <span class="km-custom-select__opt-text">{% if language == "az" %}Bahadan ucuza{% elif language == "en" %}Price: high to low{% else %}Сначала дорогие{% endif %}</span>
               </div>
             </div>
-            <select id="catalog-sort" name="sort" form="filters-form" onchange="this.form.requestSubmit()" class="km-filter-select km-sort-select km-visually-hidden" tabindex="-1" aria-hidden="true">
+            <select id="catalog-sort" aria-labelledby="sort-select-label" name="sort" form="filters-form" onchange="this.form.requestSubmit()" class="km-filter-select km-sort-select km-visually-hidden" tabindex="-1" aria-hidden="true">
               <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}Сначала новые{% endif %}</option>
               <option value="rating" {% if selected.sort == "rating" %}selected{% endif %}>{% if language == "az" %}Reytinqə görə{% elif language == "en" %}Highest rated{% else %}По рейтингу{% endif %}</option>
               <option value="experience" {% if selected.sort == "experience" %}selected{% endif %}>{% if language == "az" %}İş təcrübəsinə görə{% elif language == "en" %}Most experienced{% else %}По стажу работы{% endif %}</option>
