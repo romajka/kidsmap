@@ -395,7 +395,7 @@
           <a class="km-specialist-card sp-directory-card" href="{{ specialist.get_absolute_url }}" aria-labelledby="sp-profile-{{ specialist.pk }} sp-name-{{ specialist.pk }}">
             <div class="sp-card-avatar" aria-hidden="true">
               {{ specialist.card_initials }}
-              {% if specialist.has_valid_photo %}<img src="{{ specialist.photo.url }}" alt="" width="80" height="80" loading="lazy" onerror="this.hidden=true">{% endif %}
+              {% if specialist.has_valid_photo %}{% responsive_image specialist.photo portrait=True as portrait %}<img src="{{ portrait.preview }}"{% if portrait.srcset %} srcset="{{ portrait.srcset }}" sizes="(max-width: 760px) 60px, 92px"{% endif %} alt="" width="92" height="92"{% if not forloop.first %} loading="lazy"{% endif %} onerror="this.hidden=true">{% endif %}
             </div>
             <div class="sp-card-info">
               <h3 id="sp-name-{{ specialist.pk }}">{{ specialist.name }}</h3>
