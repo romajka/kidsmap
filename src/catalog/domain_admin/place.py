@@ -365,6 +365,7 @@ class PlaceAdmin(PlaceAdminLayoutMixin, PlaceAdminChangelistMixin, PlaceAdminOpe
         "mark_inactive",
         "mark_home_recommended",
         "unmark_home_recommended",
+        "mark_info_verified",
         "mark_draft",
 
 
