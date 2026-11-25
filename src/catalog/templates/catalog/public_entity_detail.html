@@ -515,7 +515,7 @@
       <article class="public-org-specialist-card">
         <div class="public-org-specialist-media">
           {% if item.photo %}
-            <img src="{{ item.photo }}" alt="{{ item.name }}" loading="lazy" decoding="async" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+            {% responsive_image item.specialist.photo portrait=True as portrait %}<img src="{{ portrait.preview }}"{% if portrait.srcset %} srcset="{{ portrait.srcset }}" sizes="72px"{% endif %} width="72" height="72" alt="{{ item.name }}" loading="lazy" decoding="async" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
             <div class="public-org-specialist-placeholder" style="display:none;" aria-hidden="true">
               <span class="material-symbols-rounded">person</span>
             </div>

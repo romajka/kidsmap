@@ -42,6 +42,16 @@ def prepare_responsive_photos(sender, instance, raw=False, **kwargs):
             generate_variants(image)
 
 
+@receiver(post_save, sender='catalog.Specialist')
+@receiver(post_save, sender='catalog_moderation.ModerationSpecialist')
+def prepare_specialist_portrait(sender, instance, raw, using, update_fields, **kwargs):
+    if raw or (update_fields is not None and update_fields.isdisjoint({'photo', 'status', 'is_active'})):
+        return
+    if instance.status == instance.STATUS_PUBLISHED and instance.is_active and instance.photo:
+        from catalog.services.specialist_portraits import prepare_published_portraits
+        prepare_published_portraits([instance.pk], using)
+
+
 @receiver(post_delete, sender='catalog.SpecialistProposalDocument')
 def discard_proposal_document_file(sender, instance, using, **kwargs):
     from django.db import transaction

@@ -255,9 +255,25 @@ Send all current public place URLs and indexable SEO landing URLs:
 docker compose exec -T web python manage.py submit_indexnow
 ```
 
-Automatic submissions run after a successful database commit. Failures are
-logged and do not roll back content changes. Redis provides the cross-worker
-per-URL cooldown configured by `INDEXNOW_MIN_INTERVAL_SECONDS`.
+Automatic submissions run after a content change commits. Redis stores a
+60-second per-URL lease and starts the `INDEXNOW_MIN_INTERVAL_SECONDS`
+cooldown only after HTTP 200 or 202. A failed submission releases its lease,
+so another edit can send the URL immediately. This also works without cron.
+The first change after upgrading may resend a URL because older Redis markers
+included failed submissions.
+
+To retry transient failures even when nobody edits the content, optionally
+install this entry on the Docker host with `crontab -e`:
+
+```cron
+* * * * * cd /opt/kidsmap && docker compose exec -T web python manage.py indexnow_retry
+```
+
+Each run sends up to 10,000 due URLs. HTTP 429, 5xx and network failures
+schedule up to three automatic retries in Redis, due 1, 5 and 30 minutes
+after the preceding failure. A successful edit clears any pending retry.
+HTTP 400, 403 and 422 end the retry sequence and log an error. Check the
+IndexNow key and URL before manually resubmitting.
 
 ## Production performance follow-up
 After deploy, validate that static/media are not the new bottleneck:

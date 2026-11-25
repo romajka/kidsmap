@@ -14,9 +14,9 @@ def localized_content(obj, field):
 
 
 @register.simple_tag
-def responsive_image(image):
+def responsive_image(image, *, portrait=False):
     from catalog.services.responsive_images import responsive_image as image_urls
-    return image_urls(image)
+    return image_urls(image, portrait=portrait)
 
 
 def _plural_form(count: int, language_code: str) -> str:

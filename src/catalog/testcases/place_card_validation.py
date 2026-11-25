@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.utils.translation import override
 
 from catalog.models import Category, Place, PlaceScheduleDay, PlaceScheduleInterval, PricingPlan
 from catalog.services.district_geometry import district_for_coordinates
@@ -106,11 +107,12 @@ class PlaceCardValidationTests(TestCase):
         filtered = self.client.get(reverse("admin:catalog_place_changelist"), {"publication_state": "unpublished"})
         self.assertContains(filtered, self.place.name_az)
 
+    @override("ru")
     def test_admin_error_summary_keeps_card_unchanged_after_failed_save(self):
         user = get_user_model().objects.create_superuser("form-admin", "form@example.com", "password")
         self.client.force_login(user)
         response = self.client.post(
-            reverse("admin:catalog_place_change", args=[self.place.pk]),
+            reverse("localized_admin:catalog_place_change", args=[self.place.pk]),
             {"_continue": "1"},
         )
         self.assertEqual(response.status_code, 200)

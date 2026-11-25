@@ -341,6 +341,7 @@ class TestEmailVerificationFlow(TestCase):
         self.assertEqual(mail.outbox[0].from_email, "KidsMap <info@kidsmap.az>")
 
     @override_settings(DEFAULT_FROM_EMAIL="KidsMap <info@kidsmap.az>")
+    @override("ru")
     def test_registration_code_sends_multipart_email_with_html_template(self):
         self._register(username="html_code_user", email="html-code@example.com", code="789012")
 

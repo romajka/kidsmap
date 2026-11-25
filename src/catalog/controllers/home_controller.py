@@ -155,6 +155,7 @@ class HomeController:
         from django.db.models import Count
         from catalog.models import Specialist, SpecialistSpecialization
         from catalog.services.features import is_specialists_section_enabled
+        from catalog.services.responsive_images import responsive_image
         from catalog.services.specialist_formats import public_format_label
         from catalog.services.specialist_presentation import specialist_card_price
 
@@ -207,11 +208,13 @@ class HomeController:
         for person in with_photo if mode == "rail" else with_photo[:4]:
             specialties_text = sorted(item.name_i18n(language_code) for item in person.specializations.all())
             name_parts = (person.name or "").split()
+            image = responsive_image(person.photo, portrait=True)
             people.append({
                 "name": person.name,
                 "initials": "".join(part[:1] for part in name_parts[:2]).upper() or "KM",
                 "url": person.get_absolute_url(),
-                "photo": person.photo.url if person.photo else "",
+                "photo": image["preview"],
+                "srcset": image["srcset"],
                 "specialty": ", ".join(specialties_text[:2]),
                 "rating": round(person.rating_avg, 1) if person.rating_count else None,
                 "rating_count": person.rating_count,
@@ -253,7 +256,7 @@ class HomeController:
         except ValidationError:
             whatsapp = ""
         name_parts = (person.name or "").split()
-        image = responsive_image(person.photo) if person.photo else {"src": "", "srcset": ""}
+        image = responsive_image(person.photo, portrait=True)
         years = person.experience_years or 0
         if not years:
             experience = ""
@@ -276,7 +279,7 @@ class HomeController:
             "name": person.name,
             "initials": "".join(part[:1] for part in name_parts[:2]).upper() or "KM",
             "url": person.get_absolute_url(),
-            "photo": image["src"],
+            "photo": image["preview"],
             "srcset": image["srcset"],
             "specialty": specialties[0] if specialties else "",
             "more_specialties": max(0, len(specialties) - 1),

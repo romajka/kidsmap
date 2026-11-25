@@ -450,7 +450,7 @@
                   <article class="detail-entity-card">
                     <div class="detail-entity-card__media">
                       {% if item.photo %}
-                        <img src="{{ item.photo }}" alt="{{ item.name }}" loading="lazy" decoding="async">
+                        {% responsive_image item.specialist.photo portrait=True as portrait %}<img src="{{ portrait.preview }}"{% if portrait.srcset %} srcset="{{ portrait.srcset }}" sizes="56px"{% endif %} width="56" height="56" alt="{{ item.name }}" loading="lazy" decoding="async">
                       {% else %}
                         <div class="detail-entity-card__placeholder">
                           <span class="material-symbols-rounded" aria-hidden="true">person</span>

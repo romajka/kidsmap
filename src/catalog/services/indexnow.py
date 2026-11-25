@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import logging
 import re
@@ -11,10 +10,11 @@ from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
 from django.conf import settings
-from django.core.cache import cache
 from django.db import transaction
 from django.urls import reverse
 from django.utils.translation import override
+
+from catalog.services.indexnow_cache import DeliveryBatch
 
 
 logger = logging.getLogger(__name__)
@@ -108,74 +108,74 @@ def seo_landing_canonical_urls(slug: str) -> list[str]:
     return localized_canonical_urls("seo_landing", kwargs={"seo_slug": slug})
 
 
-def _dedupe_cache_key(url: str) -> str:
-    digest = hashlib.sha256(url.encode("utf-8")).hexdigest()
-    return f"indexnow:submitted:{digest}"
+def _post(urls):
+    try:
+        request = Request(
+            settings.INDEXNOW_ENDPOINT,
+            data=json.dumps({
+                "host": CANONICAL_HOST, "key": settings.INDEXNOW_KEY,
+                "keyLocation": key_location(), "urlList": urls,
+            }).encode("utf-8"),
+            headers={"Content-Type": "application/json; charset=utf-8"},
+            method="POST",
+        )
+        with urlopen(request, timeout=settings.INDEXNOW_TIMEOUT_SECONDS) as response:
+            return int(response.status)
+    except HTTPError as exc:
+        exc.close()
+        return exc.code
+    except (URLError, TimeoutError, OSError) as exc:
+        logger.warning("IndexNow request failed: %s", type(exc).__name__)
+    except Exception:
+        logger.exception("Unexpected IndexNow submission failure")
+    return None
 
 
-def _eligible_urls(urls, *, force: bool) -> list[str]:
-    unique_urls: list[str] = []
-    for raw_url in urls:
-        url = canonical_indexnow_url(raw_url)
-        if not url or url in unique_urls:
-            continue
-        if not force:
-            ttl = max(1, int(getattr(settings, "INDEXNOW_MIN_INTERVAL_SECONDS", 3600)))
-            if not cache.add(_dedupe_cache_key(url), "1", timeout=ttl):
-                continue
-        unique_urls.append(url)
-    return unique_urls[:MAX_URLS_PER_REQUEST]
+def _deliver(batch, urls, *, scheduled=False, force=False):
+    claimed = {}
+    for url in urls:
+        attempt = batch.claim(url, scheduled=scheduled, force=force)
+        if attempt is not None:
+            claimed[url] = attempt
+            if len(claimed) == MAX_URLS_PER_REQUEST:
+                break
+    if not claimed:
+        return IndexNowSubmissionResult(submitted_count=0)
+
+    status = _post(list(claimed))
+    accepted = status in (200, 202)
+    permanent_error = status in (400, 403, 422)
+    cooldown = max(1, settings.INDEXNOW_MIN_INTERVAL_SECONDS) if accepted else 0
+    for url, attempt in claimed.items():
+        batch.finish(url, attempt, transient=not (accepted or permanent_error), cooldown=cooldown)
+    if accepted:
+        logger.info("IndexNow accepted status=%s urls=%s", status, len(claimed))
+    elif permanent_error:
+        logger.error("IndexNow rejected status=%s urls=%s", status, len(claimed))
+    else:
+        logger.warning("IndexNow failed status=%s urls=%s", status, len(claimed))
+    return IndexNowSubmissionResult(len(claimed), status, accepted)
 
 
 def submit_indexnow_urls(urls, *, force: bool = False) -> IndexNowSubmissionResult:
-    """Submit URLs synchronously. All network and protocol failures are contained."""
     if not indexnow_enabled():
         return IndexNowSubmissionResult(submitted_count=0)
+    canonical_urls = dict.fromkeys(filter(None, map(canonical_indexnow_url, urls)))
+    return _deliver(DeliveryBatch(), canonical_urls, force=force)
 
-    eligible_urls = _eligible_urls(urls, force=force)
-    if not eligible_urls:
+
+def retry_indexnow_urls() -> IndexNowSubmissionResult:
+    if not indexnow_enabled():
         return IndexNowSubmissionResult(submitted_count=0)
+    batch = DeliveryBatch()
+    return _deliver(batch, batch.due_urls(MAX_URLS_PER_REQUEST), scheduled=True)
 
-    payload = {
-        "host": CANONICAL_HOST,
-        "key": settings.INDEXNOW_KEY,
-        "keyLocation": key_location(),
-        "urlList": eligible_urls,
-    }
-    request = Request(
-        settings.INDEXNOW_ENDPOINT,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json; charset=utf-8"},
-        method="POST",
-    )
 
+def _submit_in_worker(urls):
     try:
-        with urlopen(request, timeout=settings.INDEXNOW_TIMEOUT_SECONDS) as response:
-            status_code = int(response.status)
-        accepted = status_code in {200, 202}
-        log = logger.info if accepted else logger.warning
-        log(
-            "IndexNow response status=%s urls=%s",
-            status_code,
-            len(eligible_urls),
-        )
-        return IndexNowSubmissionResult(
-            submitted_count=len(eligible_urls),
-            status_code=status_code,
-            accepted=accepted,
-        )
-    except HTTPError as exc:
-        logger.warning(
-            "IndexNow HTTP error status=%s urls=%s",
-            exc.code,
-            len(eligible_urls),
-        )
-    except (URLError, TimeoutError, OSError) as exc:
-        logger.warning("IndexNow request failed: %s", exc.__class__.__name__)
+        submit_indexnow_urls(urls)
     except Exception:
-        logger.exception("Unexpected IndexNow submission failure")
-
-    return IndexNowSubmissionResult(submitted_count=len(eligible_urls))
+        logger.exception("IndexNow background submission failed")
 
 
 def enqueue_indexnow_urls(urls) -> None:
@@ -188,7 +188,7 @@ def enqueue_indexnow_urls(urls) -> None:
 
     def enqueue() -> None:
         try:
-            _executor.submit(submit_indexnow_urls, canonical_urls)
+            _executor.submit(_submit_in_worker, canonical_urls)
         except Exception:
             logger.exception("Could not enqueue IndexNow submission")
 

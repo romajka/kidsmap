@@ -17,14 +17,16 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 from .image_uploads import MAX_IMAGE_SOURCE_BYTES, MAX_IMAGE_SOURCE_DIMENSION, MAX_IMAGE_SOURCE_PIXELS
 
 WIDTHS = (320, 640, 960, 1280)
+PORTRAIT_BYTE_LIMIT = 80_000
 logger = logging.getLogger(__name__)
 
 
-def _directory(image):
+def _directory(image, portrait):
     # A replacement at the same source path gets new, immutable derivative URLs.
     stamp = image.storage.get_modified_time(image.name).isoformat()
     size = image.storage.size(image.name)
-    revision = hashlib.sha256(f'v1:{image.name}:{stamp}:{size}'.encode()).hexdigest()[:32]
+    version = f'portrait-v1-{PORTRAIT_BYTE_LIMIT}' if portrait else 'v1'
+    revision = hashlib.sha256(f'{version}:{image.name}:{stamp}:{size}'.encode()).hexdigest()[:32]
     return f'responsive-images/v1/{revision}'
 
 
@@ -45,7 +47,7 @@ def _read_manifest(storage, name):
     return data
 
 
-def responsive_image(image, *, target_storage=None):
+def responsive_image(image, *, target_storage=None, portrait=False):
     """Return ready URLs or an original-only fallback, without generating files."""
     result = {'src': '', 'srcset': '', 'preview': '', 'width': None, 'height': None}
     if not image or not getattr(image, 'name', ''):
@@ -53,7 +55,7 @@ def responsive_image(image, *, target_storage=None):
     storage = target_storage if target_storage is not None else image.storage
     try:
         result['src'] = result['preview'] = image.url
-        manifest = f'{_directory(image)}/manifest.json'
+        manifest = f'{_directory(image, portrait)}/manifest.json'
         # Do not cache misses: a generation command in another process can
         # publish files while an existing Gunicorn worker keeps serving pages.
         if not storage.exists(manifest):
@@ -74,9 +76,24 @@ def responsive_image(image, *, target_storage=None):
     return result
 
 
-def generate_variants(image, *, target_storage=None):
+def _encode_webp(image, *, portrait, smallest):
+    # Preserve normal quality when it fits. Do not advertise a larger portrait
+    # that would exceed the budget even after compression.
+    while True:
+        for quality in ((80, 60, 40) if portrait else (80,)):
+            output = BytesIO()
+            image.save(output, format='WEBP', quality=quality, method=4)
+            if not portrait or output.tell() <= PORTRAIT_BYTE_LIMIT:
+                return output.getvalue()
+        if not smallest:
+            return None
+        # Even the smallest width can be expensive for a tall or transparent photo.
+        image.thumbnail((max(1, image.width // 2), max(1, image.height // 2)), Image.Resampling.LANCZOS)
+
+
+def generate_variants(image, *, target_storage=None, portrait=False):
     """Write bounded WebP derivatives, retaining the source byte-for-byte."""
-    existing = responsive_image(image, target_storage=target_storage)
+    existing = responsive_image(image, target_storage=target_storage, portrait=portrait)
     if existing['srcset']:
         return {**existing, 'generated': False}
     if not image or not getattr(image, 'name', ''):
@@ -85,7 +102,7 @@ def generate_variants(image, *, target_storage=None):
     try:
         if not image.storage.exists(image.name):
             return {**existing, 'generated': False}
-        directory = _directory(image)
+        directory = _directory(image, portrait)
         if image.storage.size(image.name) > MAX_IMAGE_SOURCE_BYTES:
             return {**existing, 'generated': False}
         with image.storage.open(image.name, 'rb') as f, Image.open(f) as decoded:
@@ -101,11 +118,11 @@ def generate_variants(image, *, target_storage=None):
                     if not storage.exists(name):
                         with oriented.convert('RGBA' if oriented.mode in ('RGBA', 'LA') or 'transparency' in oriented.info else 'RGB') as resized:
                             resized.thumbnail((target_width, max(1, round(height * target_width / width))), Image.Resampling.LANCZOS)
-                            # Keep the advertised width equal to the encoded width.
+                            encoded = _encode_webp(resized, portrait=portrait, smallest=not variants)
+                            if encoded is None:
+                                continue
                             target_width = resized.width
-                            output = BytesIO()
-                            resized.save(output, format='WEBP', quality=80, method=4)
-                        name = storage.save(name, ContentFile(output.getvalue()))
+                        name = storage.save(name, ContentFile(encoded))
                     variants.append({'name': name, 'width': target_width})
                 manifest = f'{directory}/manifest.json'
                 # Only derivative metadata can be replaced; never delete source files.
@@ -113,7 +130,7 @@ def generate_variants(image, *, target_storage=None):
                     storage.delete(manifest)
                 storage.save(manifest, ContentFile(json.dumps({'width': width, 'height': height, 'variants': variants}).encode()))
                 _read_manifest.cache_clear()
-        return {**responsive_image(image, target_storage=target_storage), 'generated': True}
+        return {**responsive_image(image, target_storage=target_storage, portrait=portrait), 'generated': True}
     except (OSError, ValueError, TypeError, AttributeError, NotImplementedError, UnidentifiedImageError, Image.DecompressionBombError) as exc:
         logger.warning('Responsive image generation skipped (%s)', type(exc).__name__)
         return {**existing, 'generated': False}

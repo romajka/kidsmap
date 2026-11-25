@@ -968,6 +968,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         self._require_moderation_permission(request)
         queryset = self._ready_for_review(request, queryset)
         newly_published = list(queryset.exclude(status=Specialist.STATUS_PUBLISHED).values_list("pk", flat=True))
+        portrait_ids = list(queryset.exclude(photo="").values_list("pk", flat=True))
         updated_count = queryset.update(
             status=Specialist.STATUS_PUBLISHED,
             is_active=True,
@@ -975,6 +976,8 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             updated_at=timezone.now(),
         )
         from catalog.services import specialist_moderation
+        from catalog.services.specialist_portraits import prepare_published_portraits
+        prepare_published_portraits(portrait_ids, queryset.db)
         for person in Specialist.objects.filter(pk__in=newly_published).select_related("created_by", "verified_person_user"):
             specialist_moderation.notify_decision(person, specialist_moderation.APPROVED, actor=request.user)
         self.message_user(

@@ -197,7 +197,7 @@
         </summary>
         <div class="home-search-refine-body">
           <div class="home-search-row home-search-filters-row">
-        <select name="district" class="home-filter-district-select" hidden>
+        <select name="district" class="home-filter-district-select" aria-label="{% trans 'Регион / район' %}" hidden>
           <option value="">{% trans "Регион / район" %}</option>
           {% for district in home_districts %}
           <option value="{{ district.value }}" data-label-current="{{ district.label }}"
@@ -229,7 +229,7 @@
             data-toggle-label="{% trans 'Переключить раздел' %}" hidden></div>
         </div>
 
-        <select id="home-search-category" name="category" hidden>
+        <select id="home-search-category" name="category" aria-label="{% trans 'Категория' %}" hidden>
           <option value="">{% trans "Все категории" %}</option>
           {% for item in home_categories %}
           <option value="{{ item.value }}" {% if request.GET.category == item.value %}selected{% endif %}>{% firstof item.label_with_count item.label %}</option>

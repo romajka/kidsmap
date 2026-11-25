@@ -252,6 +252,7 @@ class RelationalPricingPlanTests(TestCase):
         self.assertEqual(plans[1]["payment_type"], "per_lesson")
         self.assertEqual(plans[1]["price"], "40.00")
 
+    @override("ru")
     def test_pricing_plan_limit_is_twelve_and_reports_the_limit(self):
         valid_plan = {"product_type": "lesson", "price_kind": "exact", "price": 10}
         self.assertEqual(len(normalize_pricing_plans([valid_plan] * 12)), 12)

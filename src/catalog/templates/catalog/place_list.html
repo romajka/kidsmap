@@ -411,7 +411,7 @@
               </div>
             {% endfor %}
           </div>
-          <select class="filter-select km-visually-hidden" name="category" tabindex="-1" aria-hidden="true">
+          <select class="filter-select km-visually-hidden" name="category" aria-label="{% trans 'Категория' %}" tabindex="-1" aria-hidden="true">
             <option value="">{% if language == "az" %}Bütün kateqoriyalar{% elif language == "en" %}All categories{% else %}Все категории{% endif %}</option>
             {% for category in categories %}
               <option value="{{ category.value }}" {% if selected.category == category.value %}selected{% endif %}>{% firstof category.label_with_count category.label %}</option>
@@ -451,7 +451,7 @@
                 </div>
               {% endfor %}
             </div>
-            <select class="filter-select km-visually-hidden" name="subcategory" tabindex="-1" aria-hidden="true">
+            <select class="filter-select km-visually-hidden" name="subcategory" aria-label="{% trans 'Подкатегория' %}" tabindex="-1" aria-hidden="true">
               <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</option>
               {% for subcategory in subcategory_options_for_category %}
                 <option value="{{ subcategory.value }}" {% if selected.subcategory == subcategory.value %}selected{% endif %}>{% firstof subcategory.label_with_count subcategory.label %}</option>
@@ -527,7 +527,7 @@
             {% endif %}
           </div>
         {% endif %}
-        <select class="filter-select filter-select-fallback" name="district" aria-hidden="true" tabindex="-1">
+        <select class="filter-select filter-select-fallback" name="district" aria-label="{% trans 'Регион / район' %}" aria-hidden="true" tabindex="-1">
           <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</option>
           {% for district in district_options %}
             <option
@@ -764,7 +764,7 @@
         <div class="results-toolbar-sort" data-catalog-sort-wrap>
           <span class="results-toolbar-sort-label">{% if language == "az" %}Sıralama{% elif language == "en" %}Sort{% else %}{% trans "Сортировка" %}{% endif %}</span>
 
-          <select class="filter-select results-toolbar-sort-select visually-hidden" name="sort" form="filters-form" data-sort-submit id="catalog-sort-select" tabindex="-1" aria-hidden="true">
+          <select class="filter-select results-toolbar-sort-select visually-hidden" name="sort" aria-label="{% trans 'Сортировка' %}" form="filters-form" data-sort-submit id="catalog-sort-select" tabindex="-1" aria-hidden="true">
             <option value="new" {% if selected.sort == "new" or not selected.sort %}selected{% endif %}>{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}{% trans "Сначала новые" %}{% endif %}</option>
             {% if rating_sort_available %}<option value="rating" {% if selected.sort == "rating" %}selected{% endif %}>{% if language == "az" %}Reytinq üzrə{% elif language == "en" %}Highest rated{% else %}{% trans "По рейтингу" %}{% endif %}</option>{% endif %}
             <option value="reviews_desc" {% if selected.sort == "reviews_desc" %}selected{% endif %}>{% if language == "az" %}Ən çox rəy alanlar{% elif language == "en" %}Most reviewed{% else %}{% trans "По количеству отзывов" %}{% endif %}</option>

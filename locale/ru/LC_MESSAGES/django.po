@@ -5609,6 +5609,10 @@ msgstr "Программирование для детей в Азербайдж
 msgid "Перейти в каталог"
 msgstr "Перейти в каталог"
 
+#: src/catalog/templates/catalog/seo_landing.html:24
+msgid "Подборка KidsMap"
+msgstr "Подборка KidsMap"
+
 #: src/catalog/templates/catalog/seo_landing.html:19
 msgid "Что вы найдете на KidsMap"
 msgstr "Что вы найдете на KidsMap"
@@ -14558,9 +14562,13 @@ msgstr "есть ошибка"
 msgid "не заполнено"
 msgstr "не заполнено"
 
-#: src/catalog/templates/admin/catalog/place/change_form.html:122
+#: src/catalog/templates/admin/catalog/place/change_form.html:154
+#, python-format
 msgid "Карточка не сохранена — %(counter)s проблема"
-msgstr "Карточка не сохранена — %(counter)s проблема"
+msgid_plural "Карточка не сохранена — %(counter)s проблем(ы)"
+msgstr[0] "Карточка не сохранена — %(counter)s проблема"
+msgstr[1] "Карточка не сохранена — %(counter)s проблемы"
+msgstr[2] "Карточка не сохранена — %(counter)s проблем"
 
 #: src/catalog/templates/admin/catalog/place/change_form.html:129
 msgid ""
@@ -20923,6 +20931,10 @@ msgstr "«%(name)s» переведена в черновики."
 msgid "«%(name)s» опубликована и видна на сайте."
 msgstr "«%(name)s» опубликована и видна на сайте."
 
+
+#: src/catalog/templates/base.html:159
+msgid "Перейти к содержанию"
+msgstr "Перейти к содержанию"
 
 #: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
 msgid "Настройки изменились в другой вкладке. Ваш ввод не сохранён. Скопируйте нужные значения и откройте текущую версию отдельно."
