@@ -102,3 +102,42 @@ class SearchQueryVariantTests(TestCase):
             program_snapshot={'name_ru':'шахматы', 'category_id':'SPRT'})
         OfferingGroup.objects.create(activity=activity, name_az='Qrup', age_from=5, age_to=10)
         self.assertIn(place.pk, self.ids('shakhmaty', age='7'))
+
+
+class ExtendedActivityEquivalentTests(TestCase):
+    """Common activities are found whichever language or keyboard a parent uses."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.dance = create_quality_place(name='Dance fixture', name_ru='Танцевальная студия',
+            name_az='Rəqs studiyası', name_en='Dance studio', category='SPRT')
+        cls.football = create_quality_place(name='Ball fixture', name_ru='Детская футбольная школа',
+            name_az='Uşaq futbol məktəbi', name_en='Kids football school', category='SPRT')
+        cls.chess = create_quality_place(name='Chess fixture', name_ru='Шахматная школа',
+            name_az='Məktəb', category='EDU')
+        cls.official = create_quality_place(name='Official fixture', name_az='Rəsmi mərkəz',
+            name_ru='Центр', category='EDU')
+
+    def ids(self, query):
+        return set(PlaceListFilters(query=query).apply(Place.objects.all()).values_list('pk', flat=True))
+
+    def test_dance_is_found_from_every_language_and_latin_keyboard(self):
+        for query in ('танцы', 'tancy', 'dance', 'rəqs', 'reqs'):
+            with self.subTest(query=query):
+                self.assertIn(self.dance.pk, self.ids(query))
+                self.assertNotIn(self.football.pk, self.ids(query))
+
+    def test_football_is_found_from_every_language(self):
+        for query in ('футбол', 'futbol', 'football', 'soccer'):
+            with self.subTest(query=query):
+                self.assertIn(self.football.pk, self.ids(query))
+                self.assertNotIn(self.dance.pk, self.ids(query))
+
+    def test_stems_match_inflected_names(self):
+        self.assertIn(self.chess.pk, self.ids('шахматы'))
+        self.assertIn(self.chess.pk, self.ids('chess'))
+
+    def test_unlisted_words_are_not_expanded(self):
+        # "rəsm" is deliberately not a reviewed term: it would reach "Rəsmi".
+        self.assertEqual(self.ids('рисование'), set())
+        self.assertEqual(self.ids('бассейн'), set())

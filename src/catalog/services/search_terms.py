@@ -9,10 +9,40 @@ import unicodedata
 from django.db.models import Q
 
 
+# Reviewed activity names: (whole queries that trigger the group, substrings
+# searched for). Outputs are word stems so that inflected forms match
+# ("плавания", "шахматная"), and never a generic word that could reach an
+# unrelated card ("rəsm" is also part of "rəsmi"). A pool, a park or a venue is
+# deliberately not an equivalent of a lesson.
 _ACTIVITIES = (
-    ('плавание', 'swimming', 'üzgüçülük', 'uzguculuk'),
-    ('шахматы', 'chess', 'şahmat', 'shahmat'),
-    ('робототехника', 'robotics', 'robototexnika'),
+    (('плавание', 'swimming', 'swim', 'üzgüçülük', 'uzguculuk'),
+     ('плавани', 'swimming', 'üzgüçülük', 'uzguculuk')),
+    (('шахматы', 'chess', 'şahmat', 'shahmat', 'sahmat'),
+     ('шахмат', 'chess', 'şahmat')),
+    (('робототехника', 'robotics', 'robototexnika'),
+     ('робототехник', 'robotic', 'robototexnika')),
+    (('танцы', 'танец', 'dance', 'dancing', 'rəqs', 'reqs'),
+     ('танц', 'dance', 'rəqs')),
+    (('футбол', 'football', 'futbol', 'soccer'),
+     ('футбол', 'football', 'futbol')),
+    (('английский', 'английский язык', 'english', 'ingilis', 'ingilis dili'),
+     ('английск', 'english', 'ingilis')),
+    (('гимнастика', 'gymnastics', 'gimnastika'),
+     ('гимнаст', 'gymnast', 'gimnastika')),
+    (('бокс', 'boxing', 'boks'),
+     ('бокс', 'boxing', 'boks')),
+    (('каратэ', 'карате', 'karate'),
+     ('карат', 'karate')),
+    (('дзюдо', 'judo', 'cüdo', 'cudo'),
+     ('дзюдо', 'judo', 'cüdo')),
+    (('теннис', 'tennis', 'tenis'),
+     ('теннис', 'tennis', 'tenis')),
+    (('музыка', 'music', 'musiqi'),
+     ('музык', 'music', 'musiqi')),
+    (('программирование', 'programming', 'coding', 'proqramlaşdırma', 'proqramlasdirma'),
+     ('программирован', 'programming', 'coding', 'proqramlaşdırma')),
+    (('логопед', 'speech therapist', 'speech therapy', 'loqoped'),
+     ('логопед', 'speech therap', 'loqoped')),
 )
 _DIGRAPHS = {
     'shch': 'щ', 'sch': 'щ', 'zh': 'ж', 'kh': 'х', 'ts': 'ц',
@@ -42,8 +72,8 @@ def query_variants(query):
             transliterated = _TRANSLIT_PART.sub(
                 lambda m: _DIGRAPHS.get(m[0], m[0].translate(_LETTERS)), normalized)
             variants.append(transliterated)
-        for equivalents in _ACTIVITIES:
-            if any(term in equivalents for term in variants):
+        for triggers, equivalents in _ACTIVITIES:
+            if any(term in triggers for term in variants):
                 variants.extend(equivalents)
                 break
         # SQLite's LIKE is ASCII-only; keep initial capitals discoverable in

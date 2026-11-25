@@ -11,7 +11,13 @@ from .services.tracking import (
     PUBLIC_ANALYTICS_PAGE_TYPES,
     pop_queued_google_analytics_events,
 )
-from .services.features import is_events_section_enabled, is_specialists_section_enabled, is_organizations_section_enabled
+from .services.features import (
+    has_public_organizations,
+    is_events_section_enabled,
+    is_organizations_directory_listed,
+    is_organizations_section_enabled,
+    is_specialists_section_enabled,
+)
 from .services.public_urls import build_public_absolute_uri, filtered_query_string, public_origin
 from .services.auth_redirects import build_header_login_next, build_header_login_url
 
@@ -180,6 +186,9 @@ def seo_urls(request):
     if url_name in NOINDEX_URL_NAMES:
         robots_content = "noindex,follow"
     elif url_name in QUERY_NOINDEX_URL_NAMES and request.GET:
+        robots_content = "noindex,follow"
+    elif url_name == "organization_list" and not has_public_organizations():
+        # An empty directory is a thin page: keep it reachable, not indexed.
         robots_content = "noindex,follow"
 
     page_number = getattr(request, "_seo_catalog_page_number", None)
@@ -372,6 +381,7 @@ def site_settings(request):
             "is_specialists_section_enabled": False if is_preview else is_specialists_section_enabled(),
             "is_events_section_enabled": False if is_preview else is_events_section_enabled(),
             "is_organizations_section_enabled": False if is_preview else is_organizations_section_enabled(),
+            "is_organizations_directory_listed": False if is_preview else is_organizations_directory_listed(),
             **schema_payload,
         }
 
@@ -430,5 +440,6 @@ def site_settings(request):
         "is_specialists_section_enabled": is_specialists_section_enabled(),
         "is_events_section_enabled": is_events_section_enabled(),
         "is_organizations_section_enabled": is_organizations_section_enabled(),
+        "is_organizations_directory_listed": is_organizations_directory_listed(),
         **schema_payload,
     }
