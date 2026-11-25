@@ -3317,6 +3317,42 @@ class PlaceAdmin(admin.ModelAdmin):
             obj._km_list_readiness = result
         return result
 
+    def _list_publication_blockers(self, obj):
+        """Known source blockers, separate from saved form completeness.
+
+        This is a read-only list preflight. The publication service still
+        rechecks author, dependencies and source inside its transaction.
+        """
+        cached = getattr(obj, "_km_list_publication_blockers", None)
+        if cached is not None:
+            return cached
+        blockers = []
+        revision = (getattr(obj, "volunteer_revision", None)
+                    if getattr(obj, "km_saved_candidate_allowed", False) else None)
+        if self._list_readiness(obj).is_ready and revision is not None:
+            if revision.status in {"draft", "rejected"} and not evaluate_place_readiness(obj).is_ready:
+                blockers.append({
+                    "label": _("Проверить рабочую версию"), "anchor": "verification",
+                    "message": _("Поля рабочей версии заполнены, но основная карточка ещё не готова. Отправьте рабочую версию на проверку перед публикацией."),
+                })
+            elif revision.status == "pending":
+                from catalog.services import publication
+                live = publication.snapshot(obj, "place")
+                conflict = (revision.schema_version != publication.SCHEMA_VERSION or
+                            revision.dependencies != publication.dependencies(obj, "place") or
+                            any(live.get(key) != revision.base_snapshot.get(key)
+                                for key in revision.changed_fields))
+                if conflict:
+                    blockers.append({
+                        "label": _("Конфликт рабочей версии"), "anchor": "verification",
+                        "message": _("Исходные данные рабочей версии изменились. Откройте карточку и согласуйте версии перед публикацией."),
+                    })
+        obj._km_list_publication_blockers = tuple(blockers)
+        return obj._km_list_publication_blockers
+
+    def _list_is_publish_ready(self, obj):
+        return self._list_readiness(obj).is_ready and not self._list_publication_blockers(obj)
+
     def _ready_place_ids(self, request):
         ready_pks = getattr(request, "_km_ready_pks", None)
         if ready_pks is None:
@@ -3327,7 +3363,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 .prefetch_related(None)
                 .prefetch_related("gallery", "schedule_days__intervals", "pricing_plan_records")
             )
-            ready_pks = [place.pk for place in candidates if self._list_readiness(place).is_ready]
+            ready_pks = [place.pk for place in candidates if self._list_is_publish_ready(place)]
             if request is not None:
                 request._km_ready_pks = ready_pks
         return ready_pks
@@ -3341,10 +3377,12 @@ class PlaceAdmin(admin.ModelAdmin):
         if not self._list_can_publish(obj):
             return ""
         published = obj.status == Place.STATUS_PUBLISHED and obj.is_active
-        if not published and not readiness.is_ready:
+        blockers = self._list_publication_blockers(obj)
+        if not published and (not readiness.is_ready or blockers):
+            reason = "; ".join(str(item["message"]) for item in blockers) or format_readiness_issues(readiness)
             return format_html(
                 '<a href="{}" class="km-publication-fix" title="{}">{}</a>',
-                self._place_change_url(obj), format_readiness_issues(readiness), _("Исправить"))
+                self._place_change_url(obj), reason, _("Исправить"))
         label = _("Снять с публикации") if published else _("Опубликовать")
         return format_html(
             '<button type="button" class="km-publication-action {}" data-publication-action="toggle_pub" '
@@ -3376,7 +3414,8 @@ class PlaceAdmin(admin.ModelAdmin):
             hint = _("Исправить")
         else:
             status_text = _("Не опубликовано")
-            hint = _("Готово к публикации") if readiness.is_ready else lifecycle_text
+            hint = (_("Проверить рабочую версию") if self._list_publication_blockers(obj)
+                    else _("Готово к публикации") if readiness.is_ready else lifecycle_text)
         revision = getattr(obj, "volunteer_revision", None)
         revision_hint = ""
         if getattr(obj, "km_saved_candidate_allowed", False) and revision is not None:
@@ -3592,9 +3631,12 @@ class PlaceAdmin(admin.ModelAdmin):
     @admin.display(description=_("Действия"))
     def col_actions(self, obj):
         can_toggle = self._list_can_publish(obj) and (
-            (obj.status == Place.STATUS_PUBLISHED and obj.is_active) or self._list_readiness(obj).is_ready)
+            (obj.status == Place.STATUS_PUBLISHED and obj.is_active) or self._list_is_publish_ready(obj))
         reason = (format_readiness_issues(self._list_readiness(obj)) if self._list_can_publish(obj)
                   else str(_("Недостаточно прав для этого действия.")))
+        blockers = self._list_publication_blockers(obj)
+        if blockers:
+            reason = "; ".join(str(item["message"]) for item in blockers)
         obj = saved_presentation(obj)
         edit_url = self._place_change_url(obj)
         view_url = self._place_view_url(obj)
@@ -3637,6 +3679,8 @@ class PlaceAdmin(admin.ModelAdmin):
         pres = saved_presentation(obj)
         name = (pres.name_i18n() if callable(getattr(pres, "name_i18n", None)) else (getattr(pres, "name_i18n", "") or pres.name_az or pres.name_ru or pres.name_en or pres.name)) or f"Place #{obj.pk}"
         readiness = self._list_readiness(obj)
+        publication_blockers = self._list_publication_blockers(obj)
+        is_publish_ready = readiness.is_ready and not publication_blockers
         score = readiness.percentage
         visibility = self._place_visibility_state(obj)
         can_pub = self._list_can_publish(obj)
@@ -3651,7 +3695,12 @@ class PlaceAdmin(admin.ModelAdmin):
             status_desc = _("Скрыто в корзине")
             status_tone = "muted"
             state_key = "deleted"
-        elif readiness.is_ready:
+        elif publication_blockers:
+            status_label = _("Проверить рабочую версию")
+            status_desc = publication_blockers[0]["message"]
+            status_tone = "warn"
+            state_key = "draft"
+        elif is_publish_ready:
             status_label = _("Готово к публикации")
             status_desc = _("Все требования выполнены")
             status_tone = "ready"
@@ -3667,7 +3716,8 @@ class PlaceAdmin(admin.ModelAdmin):
             status_tone = "draft"
             state_key = "draft"
 
-        readiness_tone = "good" if score >= 80 else ("warn" if score >= 50 else "danger")
+        readiness_tone = ("warn" if publication_blockers else
+                          "good" if score >= 80 else "warn" if score >= 50 else "danger")
 
         missing_items = []
         for item in readiness.items:
@@ -3697,8 +3747,11 @@ class PlaceAdmin(admin.ModelAdmin):
         action_base_url = edit_url.rsplit("change/", 1)[0]
         toggle_pub_url = reverse("admin:catalog_place_toggle_publication", args=[obj.pk])
         quick_action_url = f"{action_base_url}quick-action/"
-        can_toggle = can_pub and ((obj.status == Place.STATUS_PUBLISHED and obj.is_active) or readiness.is_ready)
+        can_toggle = can_pub and ((obj.status == Place.STATUS_PUBLISHED and obj.is_active) or is_publish_ready)
         pub_reason = format_readiness_issues(readiness) if can_pub else str(_("Недостаточно прав для этого действия."))
+
+        if publication_blockers:
+            pub_reason = "; ".join(str(item["message"]) for item in publication_blockers)
 
         updated_str = obj.updated_at.strftime("%d.%m.%Y %H:%M") if obj.updated_at else ""
 
@@ -3715,7 +3768,7 @@ class PlaceAdmin(admin.ModelAdmin):
             "category_url": cat_url,
             "subcategory_url": sub_url,
             "is_home_recommended": bool(obj.is_home_recommended),
-            "has_coordinates": bool(obj.has_coordinates),
+            "has_coordinates": bool(pres.has_coordinates),
             "address": address,
             "district": district,
             "metro": metro,
@@ -3727,18 +3780,20 @@ class PlaceAdmin(admin.ModelAdmin):
             "state_key": state_key,
             "readiness_score": score,
             "readiness_tone": readiness_tone,
-            "is_ready": readiness.is_ready,
+            "is_ready": is_publish_ready,
+            "publication_blockers": publication_blockers,
             "completed_count": readiness.completed_count,
             "required_count": readiness.required_count,
             "missing_items": missing_items,
             "missing_count": len(missing_items),
-            "first_missing_anchor": missing_items[0]["anchor"] if missing_items else "step-1",
+            "first_missing_anchor": (publication_blockers[0]["anchor"] if publication_blockers
+                                     else missing_items[0]["anchor"] if missing_items else "step-1"),
             "is_public": visibility["is_public"],
             "is_deleted": obj.is_deleted,
             "status": obj.status,
             "is_active_num": 1 if obj.is_active else 0,
             "is_deleted_num": 1 if obj.is_deleted else 0,
-            "has_coords_num": 1 if obj.has_coordinates else 0,
+            "has_coords_num": 1 if pres.has_coordinates else 0,
             "is_home_num": 1 if obj.is_home_recommended else 0,
             "can_toggle_num": 1 if can_toggle else 0,
             "can_publish": can_pub,

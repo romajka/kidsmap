@@ -121,3 +121,52 @@ class AdminPublicationListTests(TestCase):
         self.client.force_login(self.staff)
         self.listing()
         self.assertNotIn('data-publication-action',self.model_admin.col_state(viewer_row))
+
+    def test_ready_working_copy_cannot_offer_publish_when_stored_point_is_missing(self):
+        Place.objects.filter(pk=self.place.pk).update(status='draft', is_active=False, lat=None, lng=None)
+        self.place.refresh_from_db()
+        publication.propose(actor=self.staff, target_type='place', target_id=self.place.pk,
+            patch={'lat': 40.4, 'lng': 49.8}, schema_version=1,
+            expected_version=self.place.content_version, submit=False, explicit_save=False)
+        response = self.listing()
+        obj = self.row(response)
+        card = next(c for c in response.context['cl'].place_cards if c['pk'] == self.place.pk)
+        self.assertEqual(card['readiness_score'], 100)
+        self.assertTrue(card['has_coordinates'])
+        self.assertFalse(card['is_ready'])
+        self.assertTrue(card['publication_blockers'])
+        self.assertNotIn('>Опубликовать</button>', self.model_admin.col_state(obj))
+        self.assertIn('data-can-toggle-publication="0"', self.model_admin.col_actions(obj))
+        self.assertNotIn(self.place.pk, [p.pk for p in self.listing(publication_state='ready').context['cl'].result_list])
+
+    def test_pending_source_conflict_is_not_offered_as_ready(self):
+        Place.objects.filter(pk=self.place.pk).update(status='draft', is_active=False)
+        self.place.refresh_from_db()
+        publication.propose(actor=self.staff, target_type='place', target_id=self.place.pk,
+            patch={'address': 'Pending address'}, schema_version=1,
+            expected_version=self.place.content_version, submit=True, explicit_save=False)
+        Place.objects.filter(pk=self.place.pk).update(address='Concurrent address')
+        response = self.listing()
+        obj = self.row(response)
+        card = next(c for c in response.context['cl'].place_cards if c['pk'] == self.place.pk)
+        self.assertEqual(card['readiness_score'], 100)
+        self.assertFalse(card['is_ready'])
+        self.assertTrue(card['publication_blockers'])
+        self.assertNotIn('>Опубликовать</button>', self.model_admin.col_state(obj))
+        self.assertNotIn(self.place.pk, [p.pk for p in self.listing(publication_state='ready').context['cl'].result_list])
+
+    def test_pending_valid_point_is_ready_and_can_really_be_published(self):
+        Place.objects.filter(pk=self.place.pk).update(status='draft', is_active=False, lat=None, lng=None)
+        self.place.refresh_from_db()
+        publication.propose(actor=self.staff, target_type='place', target_id=self.place.pk,
+            patch={'lat': 40.4, 'lng': 49.8}, schema_version=1,
+            expected_version=self.place.content_version, submit=True, explicit_save=False)
+        response = self.listing(publication_state='ready')
+        card = next(c for c in response.context['cl'].place_cards if c['pk'] == self.place.pk)
+        self.assertTrue(card['is_ready'])
+        self.assertTrue(card['has_coordinates'])
+        result = self.client.post(reverse('admin:catalog_place_toggle_publication', args=[self.place.pk]),
+            {'intent': 'publish'}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200, result.content)
+        self.place.refresh_from_db()
+        self.assertTrue(self.place.is_public)

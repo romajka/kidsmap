@@ -316,87 +316,258 @@
     var form = document.querySelector(".km-specialist-owner-form");
     if (!form) return;
 
-    var steps = Array.from(form.querySelectorAll("[data-owner-step]"));
-    var navButtons = Array.from(form.querySelectorAll("[data-owner-step-target]"));
-    var nextButtons = Array.from(form.querySelectorAll("[data-owner-next]"));
-    var prevButtons = Array.from(form.querySelectorAll("[data-owner-prev]"));
-    var progressText = form.querySelector("[data-owner-progress-text]");
-    var progressBar = form.querySelector("[data-owner-progress-bar]");
-    var current = 0;
-    steps.forEach(function(step){var heading=step.querySelector("h2");if(heading)heading.tabIndex=-1;});
+    var isUnified = form.classList.contains("km-unified-form");
 
-    function updateStepErrors() {
-      steps.forEach(function (step, i) {
-        var hasError = step.querySelector(".auth-field-error, .auth-errors, .errorlist") !== null;
-        if (navButtons[i]) {
-          navButtons[i].classList.toggle("has-error", hasError);
+    if (isUnified) {
+      // 1. Ensure all unified sections remain visible on one page
+      var unifiedSections = Array.from(form.querySelectorAll(".km-unified-section"));
+      unifiedSections.forEach(function (sec) { sec.hidden = false; });
+
+      // 2. TOC Navigation with smooth scrolling and active link tracking
+      var tocLinks = Array.from(form.querySelectorAll("[data-toc-target]"));
+      tocLinks.forEach(function (link) {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          var targetId = link.getAttribute("data-toc-target");
+          var targetSec = document.getElementById(targetId);
+          if (targetSec) {
+            targetSec.scrollIntoView({ behavior: "smooth", block: "start" });
+            tocLinks.forEach(function (l) { l.classList.remove("is-active"); });
+            link.classList.add("is-active");
+          }
+        });
+      });
+
+      if ("IntersectionObserver" in window && unifiedSections.length) {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              var id = entry.target.id;
+              tocLinks.forEach(function (link) {
+                var isActive = link.getAttribute("data-toc-target") === id;
+                link.classList.toggle("is-active", isActive);
+              });
+            }
+          });
+        }, { rootMargin: "-15% 0px -55% 0px", threshold: 0 });
+        unifiedSections.forEach(function (sec) { observer.observe(sec); });
+      }
+
+      // 3. Mandatory Progress Bar & Live Section Checkmarks
+      function updateMandatoryProgress() {
+        var nameField = form.querySelector("#id_name");
+        var hasName = Boolean(nameField && nameField.value.trim().length > 0);
+
+        var specChecked = form.querySelectorAll('input[name="specializations"]:checked');
+        var hasSpecs = specChecked.length > 0;
+
+        var langChecked = form.querySelector("#id_language_az:checked, #id_language_ru:checked, #id_language_en:checked");
+        var hasLangs = Boolean(langChecked);
+
+        var fmtField = form.querySelector("#id_consultation_format");
+        var hasFmt = Boolean(fmtField && fmtField.value.trim().length > 0);
+
+        var phoneField = form.querySelector("#id_phone");
+        var waField = form.querySelector("#id_whatsapp");
+        var hasContacts = Boolean((phoneField && phoneField.value.trim().length > 0) || (waField && waField.value.trim().length > 0));
+
+        var hasBio = ["az", "ru", "en"].some(function (l) {
+          var el = form.querySelector("#id_bio_" + l);
+          return Boolean(el && el.value.trim().length > 0);
+        });
+
+        var totalReq = 6;
+        var doneCount = 0;
+        if (hasName) doneCount++;
+        if (hasSpecs) doneCount++;
+        if (hasLangs) doneCount++;
+        if (hasFmt) doneCount++;
+        if (hasContacts) doneCount++;
+        if (hasBio) doneCount++;
+
+        var pct = Math.round((doneCount / totalReq) * 100);
+        var isAllDone = doneCount === totalReq;
+
+        // Visual field highlight
+        if (nameField) nameField.classList.toggle("is-field-filled", hasName);
+        if (phoneField) phoneField.classList.toggle("is-field-filled", Boolean(phoneField.value.trim().length > 0));
+        if (waField) waField.classList.toggle("is-field-filled", Boolean(waField.value.trim().length > 0));
+
+        // Top Card Elements
+        var topFill = form.querySelector("[data-req-progress-fill]");
+        var topBadge = form.querySelector("[data-req-badge]");
+        var topStatus = form.querySelector("[data-req-status-text]");
+
+        if (topFill) {
+          topFill.style.width = pct + "%";
+          topFill.classList.toggle("is-low", pct < 50);
+          topFill.classList.toggle("is-mid", pct >= 50 && pct < 100);
+          topFill.classList.toggle("is-complete", isAllDone);
         }
-      });
-    }
-
-    function showStep(index, scroll) {
-      current = Math.max(0, Math.min(index, steps.length - 1));
-      steps.forEach(function (step, i) {
-        step.hidden = i !== current;
-      });
-      navButtons.forEach(function (button, i) {
-        var isActive = i === current;
-        button.classList.toggle("is-active", isActive);
-        button.setAttribute("aria-current", isActive ? "step" : "false");
-      });
-
-      var currentStep = steps[current];
-      var stepName = currentStep ? (currentStep.getAttribute("data-step-name") || "") : "";
-      if (progressText) {
-        var labelTemplate = progressText.getAttribute("data-label") || "Шаг {current} из {total}: {name}";
-        progressText.textContent = labelTemplate
-          .replace("{current}", current + 1)
-          .replace("{total}", steps.length)
-          .replace("{name}", stepName);
-      }
-      if (progressBar) {
-        progressBar.style.width = (((current + 1) / steps.length) * 100) + "%";
-      }
-
-      if (scroll) {
-        var header = form.querySelector(".km-owner-stepper, .owner-event-stepper, .km-owner-mobile-progress");
-        if (header) {
-          header.scrollIntoView({ behavior: "smooth", block: "start" });
-          var heading=currentStep.querySelector("h2");if(heading)heading.focus({preventScroll:true});
+        if (topBadge) {
+          topBadge.textContent = isAllDone ? "✓ 6 / 6" : doneCount + " / " + totalReq;
+          topBadge.classList.toggle("is-complete", isAllDone);
+          topBadge.classList.toggle("is-low", pct < 50);
         }
+        if (topStatus) {
+          var langCode = (document.documentElement.lang || "ru").toLowerCase();
+          if (isAllDone) {
+            topStatus.textContent = topStatus.getAttribute("data-all-done") || "Все обязательные поля заполнены! Анкету можно отправлять на модерацию.";
+            topStatus.classList.add("is-complete");
+          } else {
+            topStatus.classList.remove("is-complete");
+            var remaining = totalReq - doneCount;
+            if (langCode === "az") {
+              topStatus.textContent = "Doldurulub: " + doneCount + " / " + totalReq + " (" + pct + "%). Qalıb: " + remaining + ".";
+            } else if (langCode === "en") {
+              topStatus.textContent = "Completed: " + doneCount + " of " + totalReq + " (" + pct + "%). Remaining: " + remaining + ".";
+            } else {
+              topStatus.textContent = "Заполнено: " + doneCount + " из " + totalReq + " (" + pct + "%). Осталось: " + remaining + ".";
+            }
+          }
+        }
+
+        // Sidebar Elements
+        var sideFill = form.querySelector("[data-req-sidebar-fill]");
+        var sideBadge = form.querySelector("[data-req-sidebar-badge]");
+        var sideStatus = form.querySelector("[data-req-sidebar-status]");
+
+        if (sideFill) {
+          sideFill.style.width = pct + "%";
+          sideFill.classList.toggle("is-low", pct < 50);
+          sideFill.classList.toggle("is-mid", pct >= 50 && pct < 100);
+          sideFill.classList.toggle("is-complete", isAllDone);
+        }
+        if (sideBadge) {
+          sideBadge.textContent = isAllDone ? "✓ 6 / 6" : doneCount + " / " + totalReq;
+          sideBadge.classList.toggle("is-complete", isAllDone);
+          sideBadge.classList.toggle("is-low", pct < 50);
+        }
+        if (sideStatus) {
+          var langCode = (document.documentElement.lang || "ru").toLowerCase();
+          if (langCode === "az") {
+            sideStatus.textContent = "Məcburi: " + doneCount + " / " + totalReq + " (" + pct + "%)";
+          } else if (langCode === "en") {
+            sideStatus.textContent = "Required: " + doneCount + " of " + totalReq + " (" + pct + "%)";
+          } else {
+            sideStatus.textContent = "Обязательно: " + doneCount + " из " + totalReq + " (" + pct + "%)";
+          }
+        }
+
+        // TOC Status Checkmarks
+        function setTocStatus(secId, isDone) {
+          var statEl = form.querySelector('[data-sec-status="' + secId + '"]');
+          if (!statEl) return;
+          statEl.classList.toggle("is-done", isDone);
+          statEl.innerHTML = isDone
+            ? '<span class="material-symbols-rounded toc-done-icon" aria-hidden="true">check_circle</span>'
+            : '<span class="toc-req-dot" aria-hidden="true">*</span>';
+        }
+
+        setTocStatus("km-sec-basic", hasName);
+        setTocStatus("km-sec-directions", hasSpecs && hasLangs);
+        setTocStatus("km-sec-format-places", hasFmt);
+        setTocStatus("km-sec-pricing-contacts", hasContacts);
+        setTocStatus("km-sec-bio-experience", hasBio);
       }
-    }
 
-    navButtons.forEach(function (button, index) {
-      button.addEventListener("click", function () { showStep(index, true); });
-    });
-    nextButtons.forEach(function (button) {
-      button.addEventListener("click", function () { showStep(current + 1, true); });
-    });
-    prevButtons.forEach(function (button) {
-      button.addEventListener("click", function () { showStep(current - 1, true); });
-    });
+      form.addEventListener("input", updateMandatoryProgress);
+      form.addEventListener("change", updateMandatoryProgress);
+      setTimeout(updateMandatoryProgress, 50);
 
-    // Error Routing: jump directly to the first step containing an error
-    updateStepErrors();
-    var firstError = form.querySelector(".auth-field-error, .auth-errors, .errorlist");
-    if (firstError) {
-      var errorStep = firstError.closest("[data-owner-step]");
-      var errorIndex = steps.indexOf(errorStep);
-      if (errorIndex >= 0) {
-        current = errorIndex;
+      // Scroll to error if any
+      var firstError = form.querySelector(".auth-field-error, .auth-errors, .errorlist");
+      if (firstError) {
+        var errorTarget = firstError.closest(".km-unified-section") || firstError;
         setTimeout(function () {
-          var targetInput = errorStep.querySelector(".auth-field-error, .errorlist")
-            ? errorStep.querySelector("input:invalid, select:invalid, textarea:invalid, input:not([type=hidden]), select, textarea")
-            : null;
-          if (targetInput) targetInput.focus();
+          errorTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+          var input = errorTarget.querySelector("input:invalid, select:invalid, textarea:invalid, input:not([type=hidden]), select, textarea");
+          if (input) input.focus();
         }, 120);
       }
+    } else {
+      var steps = Array.from(form.querySelectorAll("[data-owner-step]"));
+      var navButtons = Array.from(form.querySelectorAll("[data-owner-step-target]"));
+      var nextButtons = Array.from(form.querySelectorAll("[data-owner-next]"));
+      var prevButtons = Array.from(form.querySelectorAll("[data-owner-prev]"));
+      var progressText = form.querySelector("[data-owner-progress-text]");
+      var progressBar = form.querySelector("[data-owner-progress-bar]");
+      var current = 0;
+      steps.forEach(function(step){var heading=step.querySelector("h2");if(heading)heading.tabIndex=-1;});
+
+      function updateStepErrors() {
+        steps.forEach(function (step, i) {
+          var hasError = step.querySelector(".auth-field-error, .auth-errors, .errorlist") !== null;
+          if (navButtons[i]) {
+            navButtons[i].classList.toggle("has-error", hasError);
+          }
+        });
+      }
+
+      function showStep(index, scroll) {
+        current = Math.max(0, Math.min(index, steps.length - 1));
+        steps.forEach(function (step, i) {
+          step.hidden = i !== current;
+        });
+        navButtons.forEach(function (button, i) {
+          var isActive = i === current;
+          button.classList.toggle("is-active", isActive);
+          button.setAttribute("aria-current", isActive ? "step" : "false");
+        });
+
+        var currentStep = steps[current];
+        var stepName = currentStep ? (currentStep.getAttribute("data-step-name") || "") : "";
+        if (progressText) {
+          var labelTemplate = progressText.getAttribute("data-label") || "Шаг {current} из {total}: {name}";
+          progressText.textContent = labelTemplate
+            .replace("{current}", current + 1)
+            .replace("{total}", steps.length)
+            .replace("{name}", stepName);
+        }
+        if (progressBar) {
+          progressBar.style.width = (((current + 1) / steps.length) * 100) + "%";
+        }
+
+        if (scroll) {
+          var header = form.querySelector(".km-owner-stepper, .owner-event-stepper, .km-owner-mobile-progress");
+          if (header) {
+            header.scrollIntoView({ behavior: "smooth", block: "start" });
+            var heading=currentStep.querySelector("h2");if(heading)heading.focus({preventScroll:true});
+          }
+        }
+      }
+
+      navButtons.forEach(function (button, index) {
+        button.addEventListener("click", function () { showStep(index, true); });
+      });
+      nextButtons.forEach(function (button) {
+        button.addEventListener("click", function () { showStep(current + 1, true); });
+      });
+      prevButtons.forEach(function (button) {
+        button.addEventListener("click", function () { showStep(current - 1, true); });
+      });
+
+      // Error Routing: jump directly to the first step containing an error
+      updateStepErrors();
+      var firstError = form.querySelector(".auth-field-error, .auth-errors, .errorlist");
+      if (firstError) {
+        var errorStep = firstError.closest("[data-owner-step]");
+        var errorIndex = steps.indexOf(errorStep);
+        if (errorIndex >= 0) {
+          current = errorIndex;
+          setTimeout(function () {
+            var targetInput = errorStep.querySelector(".auth-field-error, .errorlist")
+              ? errorStep.querySelector("input:invalid, select:invalid, textarea:invalid, input:not([type=hidden]), select, textarea")
+              : null;
+            if (targetInput) targetInput.focus();
+          }, 120);
+        }
+      }
+      form.showSpecialistStep=showStep;
+      form.addEventListener('click',function(event){var link=event.target.closest('a[href^="#id_"]');if(!link)return;var target=document.getElementById(link.hash.slice(1));if(!target)return;event.preventDefault();var step=target.closest('[data-owner-step]');if(step)showStep(steps.indexOf(step),false);var panel=target.closest('[data-owner-lang-panel]');if(panel){form.querySelectorAll('[data-owner-lang-panel]').forEach(function(p){p.hidden=p!==panel;p.classList.toggle('is-active',p===panel);});form.querySelectorAll('[data-owner-lang-tab]').forEach(function(t){var active=t.dataset.ownerLangTab===panel.dataset.ownerLangPanel;t.setAttribute('aria-selected',String(active));t.classList.toggle('is-active',active);});}var details=target.closest('details');if(details)details.open=true;target.scrollIntoView({block:'center'});target.focus({preventScroll:true});});
+      form.querySelectorAll('details').forEach(function(d){if(d.querySelector('.errorlist'))d.open=true;});
+      showStep(current, false);
     }
-    form.showSpecialistStep=showStep;
-    form.addEventListener('click',function(event){var link=event.target.closest('a[href^="#id_"]');if(!link)return;var target=document.getElementById(link.hash.slice(1));if(!target)return;event.preventDefault();var step=target.closest('[data-owner-step]');if(step)showStep(steps.indexOf(step),false);var panel=target.closest('[data-owner-lang-panel]');if(panel){form.querySelectorAll('[data-owner-lang-panel]').forEach(function(p){p.hidden=p!==panel;p.classList.toggle('is-active',p===panel);});form.querySelectorAll('[data-owner-lang-tab]').forEach(function(t){var active=t.dataset.ownerLangTab===panel.dataset.ownerLangPanel;t.setAttribute('aria-selected',String(active));t.classList.toggle('is-active',active);});}var details=target.closest('details');if(details)details.open=true;target.scrollIntoView({block:'center'});target.focus({preventScroll:true});});
-    form.querySelectorAll('details').forEach(function(d){if(d.querySelector('.errorlist'))d.open=true;});
-    showStep(current, false);
 
     // Format selection
     var formatSelect = form.querySelector("#id_consultation_format");
