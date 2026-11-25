@@ -150,6 +150,7 @@ class TestOwnershipWorkflow(TestCase):
         self.assertEqual(response.status_code, 301)
         self.assertEqual(response.url, f"{reverse('owner_places_dashboard')}?claim_q=%D0%94%D1%80%D1%83%D0%B3%D0%BE%D0%B9")
 
+    @override("ru")
     def test_legacy_owner_cabinet_url_does_not_render_legacy_request_sections(self):
         PlaceOwnershipRequest.objects.create(
             place=self.place,
@@ -171,7 +172,7 @@ class TestOwnershipWorkflow(TestCase):
         )
 
         self.client.login(username="owner_role_user", password="StrongPass123!!")
-        response = self.client.get(LEGACY_OWNER_CABINET_URL, follow=True)
+        response = self.client.get(f"/ru{LEGACY_OWNER_CABINET_URL}", follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Заявки на рассмотрении")
@@ -1823,6 +1824,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             0,
         )
 
+    @override("ru")
     def test_regular_user_can_open_places_dashboard(self):
         self.client.login(username="regular_for_owner_pages", password="StrongPass123!!")
         response = self.client.get(reverse("owner_places_dashboard"))
@@ -1838,6 +1840,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.redirect_chain[-1][0], reverse("owner_places_dashboard"))
         self.assertNotContains(response, "Этот раздел доступен только для расширенного доступа команды.")
 
+    @override("ru")
     def test_regular_user_can_open_place_create_flow(self):
         self.client.login(username="regular_for_owner_pages", password="StrongPass123!!")
         response = self.client.get(reverse("owner_place_create"))

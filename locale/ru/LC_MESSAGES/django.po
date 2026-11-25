@@ -14562,9 +14562,13 @@ msgstr "есть ошибка"
 msgid "не заполнено"
 msgstr "не заполнено"
 
-#: src/catalog/templates/admin/catalog/place/change_form.html:122
+#: src/catalog/templates/admin/catalog/place/change_form.html:154
+#, python-format
 msgid "Карточка не сохранена — %(counter)s проблема"
-msgstr "Карточка не сохранена — %(counter)s проблема"
+msgid_plural "Карточка не сохранена — %(counter)s проблем(ы)"
+msgstr[0] "Карточка не сохранена — %(counter)s проблема"
+msgstr[1] "Карточка не сохранена — %(counter)s проблемы"
+msgstr[2] "Карточка не сохранена — %(counter)s проблем"
 
 #: src/catalog/templates/admin/catalog/place/change_form.html:129
 msgid ""
