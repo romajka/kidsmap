@@ -8,7 +8,7 @@ from django.contrib.admin import helpers
 from django.core.exceptions import ValidationError
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import F, Q
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import path, reverse
 from django.views.decorators.http import require_GET
@@ -44,7 +44,9 @@ class PlaceAdminOperationsMixin:
         actions = super().get_actions(request)
         actions.pop("delete_selected", None)
         from catalog.services.staff_roles import is_volunteer
-        if is_volunteer(request.user): actions.pop('connect_to_organization',None)
+        if is_volunteer(request.user):
+            actions.pop('connect_to_organization',None)
+            actions.pop('mark_info_verified',None)
         return actions
 
     def has_connection_permission(self,request):
@@ -1120,6 +1122,32 @@ class PlaceAdminOperationsMixin:
             ngettext(
                 "%(count)d карточка убрана из рекомендаций.",
                 "%(count)d карточки убраны из рекомендаций.",
+                updated_count,
+            )
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    @admin.action(description=_("Отметить: сведения проверены сегодня"))
+    def mark_info_verified(self, request, queryset):
+        # The public card shows this date to parents, so only platform staff
+        # (not volunteers) may confirm that the information was checked.
+        from catalog.services.staff_roles import is_volunteer
+        if is_volunteer(request.user) or not request.user.is_staff:
+            raise PermissionDenied
+        now = timezone.now()
+        # Only the date of the check; the retired "verified" badge flag
+        # (is_verified) is deliberately left untouched.
+        updated_count = queryset.filter(deleted_at__isnull=True).update(
+            last_verified_at=now,
+            content_version=F("content_version") + 1,
+            updated_at=now,
+        )
+        self.message_user(
+            request,
+            ngettext(
+                "Отмечено как проверенное: %(count)d карточка.",
+                "Отмечено как проверенное: %(count)d карточки.",
                 updated_count,
             )
             % {"count": updated_count},

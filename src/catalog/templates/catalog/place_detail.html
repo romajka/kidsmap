@@ -1172,7 +1172,11 @@
             <div class="detail-disclaimer__body">
               <span class="detail-disclaimer__title">{% trans "Важно" %}</span>
               <p>{% trans "Часть данных на этой странице может быть получена из открытых источников и от третьих лиц. Перед посещением уточняйте расписание, цену, адрес и условия напрямую у организации." %}</p>
-              <span class="detail-disclaimer__meta">{% blocktrans with added=place.created_at|date:"d.m.Y" %}Карточка добавлена: {{ added }}{% endblocktrans %}</span>
+              {% if place.last_verified_at %}
+                <span class="detail-disclaimer__meta" data-verification="verified">{% blocktrans with verified=place.last_verified_at|date:"d.m.Y" %}Сведения проверены редакцией: {{ verified }}{% endblocktrans %}</span>
+              {% else %}
+                <span class="detail-disclaimer__meta" data-verification="unverified">{% trans "Сведения ещё не проверены редакцией" %}</span>
+              {% endif %}
             </div>
           </div>
 
