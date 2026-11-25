@@ -5,7 +5,8 @@
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261104_public_mobile_r2"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261123_budget">{% include "pages/includes/editorial_styles.html" %}
+{% block structured_data %}{% if events_breadcrumbs_json %}<script type="application/ld+json">{{ events_breadcrumbs_json|safe }}</script>{% endif %}{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261124_compact_hub3"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2">{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 {% block content %}
 <div class="events-page-wrap">
@@ -63,11 +64,11 @@
       </div>
 
       <nav class="events-mode" id="events-mode" aria-label="{% if language == 'az' %}Görünüş{% elif language == 'en' %}View{% else %}Вид{% endif %}">
-        <a class="events-mode-btn events-card-btn{% if events_mode == 'list' %} events-card-btn--primary events-mode-btn--active{% endif %}" data-events-mode="list" href="{{ events_mode_urls.list }}" {% if events_mode == 'list' %}aria-current="page"{% endif %}>
+        <a class="events-mode-btn events-card-btn{% if events_mode == 'list' %} events-card-btn--primary events-mode-btn--active{% endif %}" data-events-mode="list" href="{{ events_mode_urls.list }}" title="{% if language == 'az' %}Siyahı{% elif language == 'en' %}List{% else %}Список{% endif %}" {% if events_mode == 'list' %}aria-current="page"{% endif %}>
           <span class="material-symbols-rounded" aria-hidden="true">view_list</span>
           <span>{% if language == 'az' %}Siyahı{% elif language == 'en' %}List{% else %}Список{% endif %}</span>
         </a>
-        <a class="events-mode-btn events-card-btn{% if events_mode == 'calendar' %} events-card-btn--primary events-mode-btn--active{% endif %}" data-events-mode="calendar" href="{{ events_mode_urls.calendar }}" {% if events_mode == 'calendar' %}aria-current="page"{% endif %}>
+        <a class="events-mode-btn events-card-btn{% if events_mode == 'calendar' %} events-card-btn--primary events-mode-btn--active{% endif %}" data-events-mode="calendar" href="{{ events_mode_urls.calendar }}" title="{% if language == 'az' %}Təqvim{% elif language == 'en' %}Calendar{% else %}Календарь{% endif %}" {% if events_mode == 'calendar' %}aria-current="page"{% endif %}>
           <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
           <span>{% if language == 'az' %}Təqvim{% elif language == 'en' %}Calendar{% else %}Календарь{% endif %}</span>
         </a>
@@ -77,7 +78,7 @@
     <details class="events-filters" id="events-filters">
       <summary class="events-filters__toggle">
         <span class="material-symbols-rounded events-filters__toggle-icon" aria-hidden="true">tune</span>
-        <span>{% if language == 'az' %}Axtarış və filtrlər{% elif language == 'en' %}Search and filters{% else %}Поиск и фильтры{% endif %}</span>
+        <span class="events-filters__label">{% if language == 'az' %}Axtarış və filtrlər{% elif language == 'en' %}Search and filters{% else %}Поиск и фильтры{% endif %}</span><span class="events-filters__label-short">{% if language == 'az' %}Filtrlər{% elif language == 'en' %}Filters{% else %}Фильтры{% endif %}</span>
         {% if has_active_filters %}<span class="events-filters__active">{% if language == 'az' %}Aktiv{% elif language == 'en' %}Active{% else %}Применены{% endif %}</span>{% endif %}
         <span class="material-symbols-rounded events-filters__chevron" aria-hidden="true">expand_more</span>
       </summary>
@@ -216,7 +217,7 @@
     {% if page_obj.has_other_pages %}
       <nav class="km-afisha-pages{% if page_obj.paginator.num_pages > 3 %} km-afisha-pages--wide{% endif %}" aria-label="{% translate 'Пагинация' %}">
         {% if page_obj.has_previous %}
-          <a class="km-afisha-pages__prev" rel="prev" href="?{% if query_without_page %}{{ query_without_page }}&amp;{% endif %}page={{ page_obj.previous_page_number }}#events-feed" aria-label="{% translate 'Предыдущая страница' %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></a>
+          <a class="km-afisha-pages__prev" rel="prev" href="{% if not query_without_page and page_obj.previous_page_number == 1 %}{{ request.path }}{% else %}?{% if query_without_page %}{{ query_without_page }}&amp;{% endif %}page={{ page_obj.previous_page_number }}{% endif %}#events-feed" aria-label="{% translate 'Предыдущая страница' %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></a>
         {% endif %}
         <div class="km-afisha-pages__numbers">
           {% for number in event_page_numbers %}
@@ -225,7 +226,7 @@
             {% elif number == page_obj.number %}
               <span aria-current="page" aria-label="{% translate 'Страница' %} {{ number }}">{{ number }}</span>
             {% else %}
-              <a href="?{% if query_without_page %}{{ query_without_page }}&amp;{% endif %}page={{ number }}#events-feed" aria-label="{% translate 'Страница' %} {{ number }}">{{ number }}</a>
+              <a href="{% if not query_without_page and number == 1 %}{{ request.path }}{% else %}?{% if query_without_page %}{{ query_without_page }}&amp;{% endif %}page={{ number }}{% endif %}#events-feed" aria-label="{% translate 'Страница' %} {{ number }}">{{ number }}</a>
             {% endif %}
           {% endfor %}
         </div>

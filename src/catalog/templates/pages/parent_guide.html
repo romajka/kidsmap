@@ -82,6 +82,9 @@
       <div class="pg-situations__heading">
         <div><h3 id="guide-situations-title">{{ guide.situations_title }}</h3>
         <p class="pg-situations__intro">{{ guide.situations_intro }}</p></div>
+        {% if guide_slug == 'baku-with-kids' and is_events_section_enabled %}
+          <a class="pg-text-link" href="{% url 'events_landing' %}">{% if current_lang_code == 'az' %}Bakıda uşaq tədbirləri{% elif current_lang_code == 'en' %}Kids’ events in Baku{% else %}Детская афиша Баку{% endif %}</a>
+        {% endif %}
       </div>
       <div class="pg-situations__grid">
         {% for item in guide_situations %}

@@ -363,23 +363,35 @@ class PlaceController:
 
         # --- i18n strings ---
         if language_code == "az":
-            seo_title = "Uşaqlar üçün tədbirlər afişası | KidsMap"
-            heading = "Tədbirlər afişası"
-            intro = "Yaxın günlərdə uşaqlar üçün master-klaslar, açıq dərslər və tədbirləri izləyin."
+            seo_title = "Bakıda uşaqlar üçün tədbirlər afişası | KidsMap"
+            heading = "Bakıda uşaqlar üçün tədbirlər"
+            intro = "Tamaşalar, ustad dərsləri və ailəvi tədbirlər. Tarixə və uşağın yaşına görə seçin."
+            description = (
+                "Bakıda uşaqlar üçün tamaşalar, ustad dərsləri və ailəvi tədbirlər. "
+                "Bu gün və həftəsonu üçün tədbirləri tarixə, yaşa və rayona görə seçin."
+            )
             results_count_label = f"{page_obj.paginator.count} tədbir tapıldı"
             stat_label = f"Dərc olunub — bu gün və sonra: {active_total}"
             search_placeholder = "Tədbir axtar..."
         elif language_code == "en":
-            seo_title = "Kids events calendar | KidsMap"
-            heading = "Events"
-            intro = "Workshops, open classes and upcoming activities for kids."
+            seo_title = "Kids’ Events in Baku — What’s On | KidsMap"
+            heading = "Kids’ events in Baku"
+            intro = "Shows, workshops and family events. Find something for your child by date and age."
+            description = (
+                "Find kids’ shows, workshops and family events in Baku. "
+                "Browse what’s on today or this weekend by date, age and district."
+            )
             results_count_label = f"{page_obj.paginator.count} events found"
             stat_label = f"Published — today and later: {active_total}"
             search_placeholder = "Search events..."
         else:
-            seo_title = "Афиша детских мероприятий | KidsMap"
-            heading = "Афиша мероприятий"
-            intro = "Мастер-классы, открытые уроки и события для детей на ближайшие дни."
+            seo_title = "Детская афиша Баку — мероприятия для детей | KidsMap"
+            heading = "Детская афиша Баку"
+            intro = "Спектакли, мастер-классы и семейные события. Выбирайте по дате и возрасту ребёнка."
+            description = (
+                "Спектакли, мастер-классы и семейные мероприятия в Баку. "
+                "Найдите событие на сегодня или выходные по дате, возрасту ребёнка и району."
+            )
             results_count_label = ngettext(
                 "Найдено %(total)s мероприятие",
                 "Найдено %(total)s мероприятий",
@@ -418,7 +430,7 @@ class PlaceController:
             "language": language_code,
             "query_without_page": query_without_page,
             "seo_title": seo_title,
-            "meta_description": intro,
+            "meta_description": description,
             "events_heading": heading,
             "events_intro": intro,
             "events_stat_label": stat_label,
