@@ -1924,7 +1924,7 @@ msgstr "İkon faylı"
 #: src/catalog/domain_admin/category.py:132
 #| msgid "Образование"
 msgid "Например: Образование"
-msgstr "Məsələn: Образование"
+msgstr "Məsələn: Təhsil"
 
 #: src/catalog/domain_admin/category.py:133
 #| msgid "например 8"
@@ -2635,8 +2635,8 @@ msgstr "Qalereya"
 #, python-format
 msgid "%(count)s фото"
 msgid_plural "%(count)s фото"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s foto"
+msgstr[1] "%(count)s foto"
 
 #: src/catalog/domain_admin/owner.py:639
 #: src/catalog/domain_admin/place.py:1129
@@ -4479,6 +4479,11 @@ msgid ""
 "\n"
 "Продолжить?"
 msgstr ""
+"Seçdiyiniz {count} kartı «Silinənlər» bölməsindən bərpa etmək üzrəsiniz.\n"
+"\n"
+"Bərpadan sonra kartlar qeyri-aktiv qalacaq. Onları ayrıca dərc edə bilərsiniz.\n"
+"\n"
+"Davam edilsin?"
 
 #: src/catalog/domain_admin/place.py:3932
 #: src/catalog/domain_admin/place.py:3952
@@ -4502,6 +4507,11 @@ msgid ""
 "\n"
 "Продолжить?"
 msgstr ""
+"Seçdiyiniz {count} kartı «Silinənlər» bölməsinə köçürmək üzrəsiniz.\n"
+"\n"
+"Kartlar saytdan silinəcək, amma məlumat bazasında qalacaq. Onları bərpa edə biləcəksiniz.\n"
+"\n"
+"Davam edilsin?"
 
 #: src/catalog/domain_admin/place.py:3940
 msgid "Безопасное мягкое удаление с возможностью восстановления."
@@ -4913,8 +4923,8 @@ msgid ""
 "Из удалённых восстановлена %(count)d карточка. Она осталась неактивной."
 msgid_plural ""
 "Из удалённых восстановлено %(count)d карточки. Они остались неактивными."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "«Silinənlər» bölməsindən %(count)d kart bərpa edildi. Kart qeyri-aktiv qaldı."
+msgstr[1] "«Silinənlər» bölməsindən %(count)d kart bərpa edildi. Kartlar qeyri-aktiv qaldı."
 
 #: src/catalog/domain_admin/place.py:4998
 msgid "Повторно геокодировать выбранные карточки"
@@ -5013,8 +5023,8 @@ msgstr "%(name)s — yükləndi."
 #, python-format
 msgid "%(count)d фото не добавлено: лимит галереи — 10 фотографий."
 msgid_plural "%(count)d фото не добавлены: лимит галереи — 10 фотографий."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)d foto əlavə edilmədi: qalereyaya ən çox 10 foto əlavə etmək olar."
+msgstr[1] "%(count)d foto əlavə edilmədi: qalereyaya ən çox 10 foto əlavə etmək olar."
 
 #: src/catalog/domain_admin/place.py:5329
 msgid "Черновик сохранён. Можно вернуться и продолжить заполнение позже."
@@ -5341,6 +5351,11 @@ msgid ""
 "\n"
 "Продолжить?"
 msgstr ""
+"Seçdiyiniz {count} rəyi gizlətmək üzrəsiniz.\n"
+"\n"
+"Rəylər məlumat bazasında qalacaq. Onları yenidən dərc edə biləcəksiniz.\n"
+"\n"
+"Davam edilsin?"
 
 #: src/catalog/domain_admin/review.py:529
 #| msgid "Отправить отзыв"
@@ -5356,6 +5371,11 @@ msgid ""
 "\n"
 "Продолжить?"
 msgstr ""
+"Seçdiyiniz {count} rəyi rədd etmək üzrəsiniz.\n"
+"\n"
+"Rəylər məlumat bazasında gizli qalacaq. Onları daha sonra əl ilə dərc edə biləcəksiniz.\n"
+"\n"
+"Davam edilsin?"
 
 #: src/catalog/domain_admin/review.py:530
 #| msgid "Карточка появится на карте после публикации."
@@ -5400,6 +5420,11 @@ msgid ""
 "\n"
 "Продолжить?"
 msgstr ""
+"Seçdiyiniz {count} rəyi silmək üzrəsiniz.\n"
+"\n"
+"Django idarəetmə panelinin standart təsdiq səhifəsində əməliyyatı təsdiqlədikdən sonra rəylər məlumat bazasından silinəcək.\n"
+"\n"
+"Davam edilsin?"
 
 #: src/catalog/domain_admin/review.py:531
 #| msgid "Пока нет общих отзывов о сайте."
@@ -6466,6 +6491,9 @@ msgid ""
 "\n"
 "Продолжить?"
 msgstr ""
+"Seçdiyiniz {count} regionu silmək üzrəsiniz.\n"
+"\n"
+"Davam edilsin?"
 
 #: src/catalog/domain_admin/specialist.py:317
 #| msgid "Последние добавления"
@@ -11641,6 +11669,11 @@ msgid ""
 "Запрос: #%(request)s\n"
 "Проверка: %(url)s"
 msgstr ""
+"Namizəd: %(target)s\n"
+"Sorğunu göndərən: %(actor)s\n"
+"Yaradılma vaxtı: %(created)s\n"
+"Sorğu: #%(request)s\n"
+"Sorğuya baxmaq üçün: %(url)s"
 
 #: src/catalog/services/staff_role_workflow.py:225
 msgid "Нельзя повысить неактивного сотрудника."
@@ -11853,7 +11886,13 @@ msgid_plural ""
 "                Исправьте проблемы ниже и сохраните категорию ещё раз.\n"
 "              "
 msgstr[0] ""
+"\n"
+"                Aşağıdakı problemi aradan qaldırın və kateqoriyanı yenidən yadda saxlayın.\n"
+"              "
 msgstr[1] ""
+"\n"
+"                Aşağıdakı problemləri aradan qaldırın və kateqoriyanı yenidən yadda saxlayın.\n"
+"              "
 
 #: src/catalog/templates/admin/catalog/category/change_form.html:88
 #: src/catalog/templates/admin/catalog/specialist/change_form.html:85
@@ -12108,8 +12147,8 @@ msgstr "Görünürlük"
 #, python-format
 msgid "%(counter)s ошибка"
 msgid_plural "%(counter)s ошибки"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(counter)s xəta"
+msgstr[1] "%(counter)s xəta"
 
 #: src/catalog/templates/admin/catalog/event/change_form.html:275
 #| msgid "Приглашений пока нет."
@@ -13911,6 +13950,9 @@ msgid ""
 "        Кружок “%(escaped_object)s” будет перемещен в раздел удаленных. Он исчезнет с сайта, но останется в базе и его можно будет восстановить из админки.\n"
 "      "
 msgstr ""
+"\n"
+"        «%(escaped_object)s» dərnəyi «Silinənlər» bölməsinə köçürüləcək. Dərnək artıq saytda görünməyəcək, amma məlumat bazasında qalacaq. Onu idarəetmə panelindən bərpa edə bilərsiniz.\n"
+"      "
 
 #: src/catalog/templates/admin/catalog/place_delete_confirmation.html:38
 #| msgid "Сравните карточки"
@@ -13928,6 +13970,9 @@ msgid ""
 "        Выбранные кружки будут перемещены в раздел удаленных. Они исчезнут с сайта, но останутся в базе и их можно будет восстановить из админки.\n"
 "      "
 msgstr ""
+"\n"
+"        Seçilmiş dərnəklər «Silinənlər» bölməsinə köçürüləcək. Onlar artıq saytda görünməyəcək, amma məlumat bazasında qalacaq. Onları idarəetmə panelindən bərpa edə bilərsiniz.\n"
+"      "
 
 #: src/catalog/templates/admin/catalog/place_delete_selected_confirmation.html:40
 #| msgid "Избранные кружки"
@@ -13951,6 +13996,9 @@ msgid ""
 "        Карточка “%(escaped_object)s” будет восстановлена из раздела удалённых. После восстановления она останется неактивной, чтобы вы могли безопасно проверить её перед повторной публикацией.\n"
 "      "
 msgstr ""
+"\n"
+"        «%(escaped_object)s» kartı «Silinənlər» bölməsindən bərpa ediləcək. Kart qeyri-aktiv qalacaq ki, yenidən dərc etməzdən əvvəl onu yoxlaya biləsiniz.\n"
+"      "
 
 #: src/catalog/templates/admin/catalog/place_restore_confirmation.html:37
 #| msgid "Удалить карточку"
@@ -13991,7 +14039,13 @@ msgid_plural ""
 "                Исправьте проблемы ниже и сохраните форму ещё раз.\n"
 "              "
 msgstr[0] ""
+"\n"
+"                Aşağıdakı problemi aradan qaldırın və formanı yenidən yadda saxlayın.\n"
+"              "
 msgstr[1] ""
+"\n"
+"                Aşağıdakı problemləri aradan qaldırın və formanı yenidən yadda saxlayın.\n"
+"              "
 
 #: src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html:107
 #| msgid "Карточка уже удалена."
@@ -14081,7 +14135,13 @@ msgid_plural ""
 "                Исправьте проблемы ниже и сохраните карточку ещё раз.\n"
 "              "
 msgstr[0] ""
+"\n"
+"                Aşağıdakı problemi aradan qaldırın və kartı yenidən yadda saxlayın.\n"
+"              "
 msgstr[1] ""
+"\n"
+"                Aşağıdakı problemləri aradan qaldırın və kartı yenidən yadda saxlayın.\n"
+"              "
 
 #: src/catalog/templates/admin/catalog/placereview/change_form.html:112
 #| msgid "Открыть кабинет"
@@ -17549,6 +17609,9 @@ msgid ""
 "          Заявитель: %(applicant)s. Текущий статус: %(status)s.\n"
 "        "
 msgstr ""
+"\n"
+"          Müraciət edən: %(applicant)s. Hazırkı status: %(status)s.\n"
+"        "
 
 #: templates/admin/catalog/placechangeaudit/change_list.html:9
 msgid ""
@@ -18047,7 +18110,7 @@ msgstr "Haqqında (RU):"
 
 #, fuzzy
 #~ msgid "Нельзя опубликовать карточку. Обязательны для заполнения: {}"
-#~ msgstr "Ulduzla işarələnmiş sahələr mütləq doldurulmalıdır."
+#~ msgstr "Kartı dərc etmək mümkün deyil. Bu sahələr doldurulmalıdır: {}"
 
 #, fuzzy
 #~ msgid ""
@@ -18857,7 +18920,7 @@ msgstr "Haqqında (RU):"
 
 #, fuzzy, python-brace-format
 #~ msgid "Выбрано карточек: {count}"
-#~ msgstr "Ümumi kart sayı"
+#~ msgstr "Seçilmiş kartların sayı: {count}"
 
 #, fuzzy
 #~ msgid "Карточки"
@@ -18877,7 +18940,7 @@ msgstr "Haqqında (RU):"
 
 #, fuzzy, python-brace-format
 #~ msgid "Выбрано отзывов: {count}"
-#~ msgstr "Fayl seçildi:"
+#~ msgstr "Seçilmiş rəylərin sayı: {count}"
 
 #, fuzzy
 #~ msgid "Только оценка без комментария."
@@ -19080,11 +19143,11 @@ msgstr "Haqqında (RU):"
 
 #, fuzzy
 #~ msgid "GA4: динамика за 30 дней"
-#~ msgstr "Son %(days)s gündə nə yenidir"
+#~ msgstr "GA4: son 30 gün üzrə dinamika"
 
 #, fuzzy
 #~ msgid "Динамика за 30 дней"
-#~ msgstr "Son %(days)s gündə nə yenidir"
+#~ msgstr "Son 30 gün üzrə dinamika"
 
 #, fuzzy
 #~ msgid "Поиски"
@@ -21207,7 +21270,7 @@ msgstr ""
 
 #. Organization connection workflow.
 msgid "Отсоединение подтверждено"
-msgstr "Ayrılma təsdiqləndi"
+msgstr "Əlaqənin kəsilməsi təsdiqləndi"
 
 #. Organization connection workflow.
 msgid "Отсоединится после подтверждения"
@@ -23839,7 +23902,7 @@ msgstr "Baxılma müddətləri haqqında"
 
 #: src/catalog/templates/admin/moderation_sla.html
 msgid "Контроль регламентных сроков рассмотрения (Service Level Agreement)"
-msgstr "Baxılma müddətləri"
+msgstr "Xidmət səviyyəsi sazişində (SLA) müəyyən edilmiş baxılma müddətlərinə nəzarət"
 
 #: src/catalog/templates/admin/moderation_sla.html
 msgid "Доработка"

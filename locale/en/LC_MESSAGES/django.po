@@ -1915,7 +1915,7 @@ msgstr "Icon file"
 #: src/catalog/domain_admin/category.py:132
 #| msgid "Образование"
 msgid "Например: Образование"
-msgstr "For example: Образование"
+msgstr "For example: Education"
 
 #: src/catalog/domain_admin/category.py:133
 #| msgid "например 8"
@@ -2623,8 +2623,8 @@ msgstr "Gallery"
 #, python-format
 msgid "%(count)s фото"
 msgid_plural "%(count)s фото"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s photo"
+msgstr[1] "%(count)s photos"
 
 #: src/catalog/domain_admin/owner.py:639
 #: src/catalog/domain_admin/place.py:1129
@@ -3005,7 +3005,7 @@ msgstr "E.g., 49.867092"
 
 #: src/catalog/domain_admin/place.py:391
 msgid "Напр., +994 50 123-45-67"
-msgstr ""
+msgstr "E.g., +994 50 123-45-67"
 
 #: src/catalog/domain_admin/place.py:392
 #| msgid "например 12"
@@ -3452,7 +3452,7 @@ msgstr "The event has been saved but was manually unpublished."
 
 #: src/catalog/domain_admin/place.py:1131
 msgid "Событие видно на сайте и участвует в афише мероприятий."
-msgstr ""
+msgstr "The event is visible on the site and appears in the events calendar."
 
 #: src/catalog/domain_admin/place.py:1136
 #: src/catalog/domain_admin/place.py:1295 src/catalog/models/place.py:740
@@ -4462,6 +4462,11 @@ msgid ""
 "\n"
 "Продолжить?"
 msgstr ""
+"You are about to restore the selected listings ({count}) from the trash.\n"
+"\n"
+"The listings will remain inactive after you restore them. You can publish them separately.\n"
+"\n"
+"Continue?"
 
 #: src/catalog/domain_admin/place.py:3932
 #: src/catalog/domain_admin/place.py:3952
@@ -4485,6 +4490,11 @@ msgid ""
 "\n"
 "Продолжить?"
 msgstr ""
+"You are about to move the selected listings ({count}) to the trash.\n"
+"\n"
+"They will disappear from the site but remain in the database, so you can restore them.\n"
+"\n"
+"Continue?"
 
 #: src/catalog/domain_admin/place.py:3940
 msgid "Безопасное мягкое удаление с возможностью восстановления."
@@ -4663,7 +4673,7 @@ msgstr "The listing was removed from the homepage."
 #: src/catalog/domain_admin/place.py:4592
 msgid ""
 "Слот главной доступен только для опубликованных карточек с готовностью 100%."
-msgstr ""
+msgstr "Only published listings that are 100% complete can be featured on the homepage."
 
 #: src/catalog/domain_admin/place.py:4599
 msgid "Карточка добавлена в рекомендуемые на главной."
@@ -4888,8 +4898,8 @@ msgid ""
 "Из удалённых восстановлена %(count)d карточка. Она осталась неактивной."
 msgid_plural ""
 "Из удалённых восстановлено %(count)d карточки. Они остались неактивными."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)d listing was restored from the trash. It is still inactive."
+msgstr[1] "%(count)d listings were restored from the trash. They are still inactive."
 
 #: src/catalog/domain_admin/place.py:4998
 msgid "Повторно геокодировать выбранные карточки"
@@ -4987,8 +4997,8 @@ msgstr "%(name)s — uploaded."
 #, python-format
 msgid "%(count)d фото не добавлено: лимит галереи — 10 фотографий."
 msgid_plural "%(count)d фото не добавлены: лимит галереи — 10 фотографий."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)d photo was not added because the gallery is limited to 10 photos."
+msgstr[1] "%(count)d photos were not added because the gallery is limited to 10 photos."
 
 #: src/catalog/domain_admin/place.py:5329
 msgid "Черновик сохранён. Можно вернуться и продолжить заполнение позже."
@@ -5313,6 +5323,11 @@ msgid ""
 "\n"
 "Продолжить?"
 msgstr ""
+"You are about to hide the selected reviews ({count}).\n"
+"\n"
+"They will remain in the database, so you can publish them again.\n"
+"\n"
+"Continue?"
 
 #: src/catalog/domain_admin/review.py:529
 #| msgid "Отправить отзыв"
@@ -5328,6 +5343,11 @@ msgid ""
 "\n"
 "Продолжить?"
 msgstr ""
+"You are about to reject the selected reviews ({count}).\n"
+"\n"
+"They will remain hidden in the database. You can publish them manually later.\n"
+"\n"
+"Continue?"
 
 #: src/catalog/domain_admin/review.py:530
 #| msgid "Карточка появится на карте после публикации."
@@ -5372,6 +5392,11 @@ msgid ""
 "\n"
 "Продолжить?"
 msgstr ""
+"You are about to delete the selected reviews ({count}).\n"
+"\n"
+"The reviews will be deleted from the database after you confirm on the standard Django admin confirmation page.\n"
+"\n"
+"Continue?"
 
 #: src/catalog/domain_admin/review.py:531
 #| msgid "Пока нет общих отзывов о сайте."
@@ -6434,6 +6459,9 @@ msgid ""
 "\n"
 "Продолжить?"
 msgstr ""
+"You are about to delete the selected regions ({count}).\n"
+"\n"
+"Continue?"
 
 #: src/catalog/domain_admin/specialist.py:317
 #| msgid "Последние добавления"
@@ -9096,7 +9124,7 @@ msgstr "Level C (Manual Review Only)"
 
 #: src/catalog/models/seo.py:79
 msgid "Критическая"
-msgstr ""
+msgstr "Critical"
 
 #: src/catalog/models/seo.py:80
 #| msgid "Предложено"
@@ -10384,7 +10412,7 @@ msgstr "Site user"
 #: src/catalog/models/user.py:87
 #: src/catalog/templatetags/admin_dashboard_tags.py:251
 msgid "Сотрудник админки"
-msgstr ""
+msgstr "Admin staff member"
 
 #: src/catalog/models/user.py:98
 #| msgid "Только проверенные"
@@ -11579,6 +11607,11 @@ msgid ""
 "Запрос: #%(request)s\n"
 "Проверка: %(url)s"
 msgstr ""
+"Candidate: %(target)s\n"
+"Requested by: %(actor)s\n"
+"Created: %(created)s\n"
+"Request: #%(request)s\n"
+"Review the request: %(url)s"
 
 #: src/catalog/services/staff_role_workflow.py:225
 msgid "Нельзя повысить неактивного сотрудника."
@@ -11795,7 +11828,13 @@ msgid_plural ""
 "                Исправьте проблемы ниже и сохраните категорию ещё раз.\n"
 "              "
 msgstr[0] ""
+"\n"
+"                Fix the problem below and save the category again.\n"
+"              "
 msgstr[1] ""
+"\n"
+"                Fix the problems below and save the category again.\n"
+"              "
 
 #: src/catalog/templates/admin/catalog/category/change_form.html:88
 #: src/catalog/templates/admin/catalog/specialist/change_form.html:85
@@ -12046,8 +12085,8 @@ msgstr "Visibility"
 #, python-format
 msgid "%(counter)s ошибка"
 msgid_plural "%(counter)s ошибки"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(counter)s error"
+msgstr[1] "%(counter)s errors"
 
 #: src/catalog/templates/admin/catalog/event/change_form.html:275
 #| msgid "Приглашений пока нет."
@@ -13828,6 +13867,9 @@ msgid ""
 "        Кружок “%(escaped_object)s” будет перемещен в раздел удаленных. Он исчезнет с сайта, но останется в базе и его можно будет восстановить из админки.\n"
 "      "
 msgstr ""
+"\n"
+"        The club “%(escaped_object)s” will be moved to the trash. It will disappear from the site but remain in the database. You can restore it from the admin panel.\n"
+"      "
 
 #: src/catalog/templates/admin/catalog/place_delete_confirmation.html:38
 #| msgid "Сравните карточки"
@@ -13845,6 +13887,9 @@ msgid ""
 "        Выбранные кружки будут перемещены в раздел удаленных. Они исчезнут с сайта, но останутся в базе и их можно будет восстановить из админки.\n"
 "      "
 msgstr ""
+"\n"
+"        The selected clubs will be moved to the trash. They will disappear from the site but remain in the database. You can restore them from the admin panel.\n"
+"      "
 
 #: src/catalog/templates/admin/catalog/place_delete_selected_confirmation.html:40
 #| msgid "Избранные кружки"
@@ -13868,6 +13913,9 @@ msgid ""
 "        Карточка “%(escaped_object)s” будет восстановлена из раздела удалённых. После восстановления она останется неактивной, чтобы вы могли безопасно проверить её перед повторной публикацией.\n"
 "      "
 msgstr ""
+"\n"
+"        The listing “%(escaped_object)s” will be restored from the trash. It will remain inactive so you can review it before publishing it again.\n"
+"      "
 
 #: src/catalog/templates/admin/catalog/place_restore_confirmation.html:37
 #| msgid "Удалить карточку"
@@ -13908,7 +13956,13 @@ msgid_plural ""
 "                Исправьте проблемы ниже и сохраните форму ещё раз.\n"
 "              "
 msgstr[0] ""
+"\n"
+"                Fix the problem below and save the form again.\n"
+"              "
 msgstr[1] ""
+"\n"
+"                Fix the problems below and save the form again.\n"
+"              "
 
 #: src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html:107
 #| msgid "Карточка уже удалена."
@@ -13994,7 +14048,13 @@ msgid_plural ""
 "                Исправьте проблемы ниже и сохраните карточку ещё раз.\n"
 "              "
 msgstr[0] ""
+"\n"
+"                Fix the problem below and save the listing again.\n"
+"              "
 msgstr[1] ""
+"\n"
+"                Fix the problems below and save the listing again.\n"
+"              "
 
 #: src/catalog/templates/admin/catalog/placereview/change_form.html:112
 #| msgid "Открыть кабинет"
@@ -17423,6 +17483,9 @@ msgid ""
 "          Заявитель: %(applicant)s. Текущий статус: %(status)s.\n"
 "        "
 msgstr ""
+"\n"
+"          Applicant: %(applicant)s. Current status: %(status)s.\n"
+"        "
 
 #: templates/admin/catalog/placechangeaudit/change_list.html:9
 msgid ""
@@ -17920,7 +17983,7 @@ msgstr "About (RU):"
 
 #, fuzzy
 #~ msgid "Нельзя опубликовать карточку. Обязательны для заполнения: {}"
-#~ msgstr "Fields marked with an asterisk are required."
+#~ msgstr "This listing cannot be published. Please complete the required fields: {}"
 
 #, fuzzy
 #~ msgid ""
@@ -18750,7 +18813,7 @@ msgstr "About (RU):"
 
 #, fuzzy, python-brace-format
 #~ msgid "Выбрано карточек: {count}"
-#~ msgstr "Total listings"
+#~ msgstr "Listings selected: {count}"
 
 #, fuzzy
 #~ msgid "Карточки"
@@ -18770,7 +18833,7 @@ msgstr "About (RU):"
 
 #, fuzzy, python-brace-format
 #~ msgid "Выбрано отзывов: {count}"
-#~ msgstr "Files selected:"
+#~ msgstr "Reviews selected: {count}"
 
 #, fuzzy
 #~ msgid "Только оценка без комментария."
@@ -19178,11 +19241,11 @@ msgstr "Overview"
 
 #, fuzzy
 #~ msgid "GA4: динамика за 30 дней"
-#~ msgstr "What's new in %(days)s days"
+#~ msgstr "GA4: trends over the last 30 days"
 
 #, fuzzy
 #~ msgid "Динамика за 30 дней"
-#~ msgstr "What's new in %(days)s days"
+#~ msgstr "Trends over the last 30 days"
 
 #, fuzzy
 #~ msgid "Поиски"
@@ -21044,7 +21107,7 @@ msgstr ""
 
 #. Organization connection workflow.
 msgid "Отсоединение подтверждено"
-msgstr "Detached"
+msgstr "Unlinking confirmed"
 
 #. Organization connection workflow.
 msgid "Отсоединится после подтверждения"
@@ -23678,7 +23741,7 @@ msgstr "About review deadlines"
 
 #: src/catalog/templates/admin/moderation_sla.html
 msgid "Контроль регламентных сроков рассмотрения (Service Level Agreement)"
-msgstr "Review deadlines"
+msgstr "Monitoring review deadlines under the service level agreement (SLA)"
 
 #: src/catalog/templates/admin/moderation_sla.html
 msgid "Доработка"
