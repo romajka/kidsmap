@@ -35,6 +35,24 @@ def is_organizations_section_enabled() -> bool:
         return False
 
 
+def has_public_organizations() -> bool:
+    """At least one organization a visitor can actually open."""
+    from catalog.models import Organization
+    try:
+        return Organization.objects.filter(status="published", approved_at__isnull=False,
+                                           archived_at__isnull=True).exists()
+    except (OperationalError, ProgrammingError):
+        return False
+
+
+def is_organizations_directory_listed() -> bool:
+    """Promote the directory (menus, sitemap, indexing) only once it has content.
+
+    The section itself stays reachable, including the owner registration entry.
+    """
+    return is_organizations_section_enabled() and has_public_organizations()
+
+
 def require_organizations_section_enabled():
     if not is_organizations_section_enabled():
         raise Http404()

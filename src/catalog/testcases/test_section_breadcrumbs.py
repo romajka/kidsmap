@@ -21,6 +21,14 @@ def trails(body):
 
 
 class SectionBreadcrumbTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # An empty organization directory is noindex and carries no schema;
+        # this test covers the live section.
+        from django.utils import timezone
+        from catalog.models import Organization
+        Organization.objects.create(name_az='Şəbəkə', status='published', approved_at=timezone.now())
+
     sections = ("faq", "privacy", "terms", "listing-rules", "review-rules", "specialists",
                 "about", "contacts", "organizations", "add-place", "reviews")
 
