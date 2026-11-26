@@ -54,3 +54,17 @@ class PublicResponsePerformanceTests(TestCase):
         self.assertEqual(point["name"], "Детский парк")
         self.assertNotIn("members", point)
         self.assertIn("Детский парк", embedded.group(1))
+
+    def test_catalog_presents_each_place_once_for_map_and_list(self):
+        from catalog.services.public_presentation import present
+
+        displayed = []
+        def record(obj, *args, **kwargs):
+            if isinstance(obj, type(self.place)):
+                displayed.append(obj.pk)
+            return present(obj, *args, **kwargs)
+
+        with patch("catalog.services.public_presentation.present", side_effect=record):
+            response = self.client.get("/ru/catalog/")
+        self.assertContains(response, "Детский парк")
+        self.assertEqual(displayed.count(self.place.pk), 1)

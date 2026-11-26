@@ -132,3 +132,13 @@ class PageQueryBudgetTests(TestCase):
 
     def test_events_query_count_does_not_grow(self):
         self.assertLessEqual(self.large["events"], self.small["events"])
+
+    def test_two_hundred_places_keep_home_and_events_constant(self):
+        judo = Subcategory.objects.get(code="judo")
+        detail = add_places(judo, 61, 200)
+        pages = {key: page for key, page in fixture_pages(detail).items()
+                 if key in ("home_az", "home_ru", "events")}
+        counts = count_page_queries(pages, 200)
+        for page in pages:
+            with self.subTest(page=page):
+                self.assertLessEqual(counts[page], self.small[page])

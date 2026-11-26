@@ -49,12 +49,6 @@ class HomeController:
 
         from catalog.services.public_presentation import prepare_cards
         rail_limit = site_settings.home_recommendations_limit
-        recommendations = prepare_cards(
-            self.place_repository.top_popular(limit=max(4, rail_limit)), language_code
-        )
-        mark_liked_flags(recommendations, liked_ids)
-        popular_places = recommendations[:4]
-        home_rail_places = recommendations[:rail_limit]
         upcoming_events = []
         upcoming_event_groups = []
         events_quick_stats = None
@@ -75,10 +69,40 @@ class HomeController:
         from catalog.services.public_map_page import build_map_page, page_metadata
         filters = PlaceListFilters.from_request(request)
         map_queryset = filters.apply(self.place_repository.active_queryset())
-        map_page = cached(
-            'home_map', (language_code, filters.selected()),
-            lambda: build_map_page(map_queryset, language_code, filters, newest_first=True),
-        )
+        public_rows = {}
+
+        def build_map():
+            # Only share a complete membership snapshot when the map has no filters.
+            from catalog.services.catalog_aggregate_scope import can_share_home_rows, remember_public_rows
+            if request.GET or type(self.place_repository) is not DjangoPlaceRepository or not can_share_home_rows():
+                return build_map_page(map_queryset, language_code, filters, newest_first=True)
+            from django.db.models.functions import Coalesce
+            from catalog.services.map_payload import prepared_map_points
+            from django.utils.translation import override
+
+            ordered = map_queryset.annotate(km_publication_date=Coalesce("published_at", "created_at"))
+            with override(language_code):
+                cards = prepare_cards(ordered.order_by("-km_publication_date", "-pk"), language_code, filters=filters)
+                public_rows.update((place.pk, place) for place in cards)
+                points = prepared_map_points(cards, language_code)
+            remember_public_rows(public_rows)
+            return {"points": points, "count": sum(len(point["members"]) for point in points),
+                    "has_more": False, "next_cursor": None}
+
+        map_page = cached("home_map", (language_code, filters.selected()), build_map)
+        if public_rows:
+            recommendations = self.place_repository.top_popular(limit=max(4, rail_limit), public_rows=public_rows)
+            # An unfiltered home card also describes activities without a group.
+            needs_details = [place.pk for place in recommendations if place._has_public_activities]
+            if needs_details:
+                details = prepare_cards(self.place_repository.active_queryset().filter(pk__in=needs_details), language_code)
+                fresh = {place.pk: place for place in details}
+                recommendations = [fresh.get(place.pk, place) for place in recommendations]
+        else:
+            recommendations = prepare_cards(self.place_repository.top_popular(limit=max(4, rail_limit)), language_code)
+        mark_liked_flags(recommendations, liked_ids)
+        popular_places = recommendations[:4]
+        home_rail_places = recommendations[:rail_limit]
         map_places = map_page["points"]
         map_business_count = map_page["count"]
 
@@ -104,7 +128,7 @@ class HomeController:
         )
         public_filter_options = cached(
             'filter_options', home_filter_args,
-            lambda: build_public_place_filter_options(**home_filter_args),
+            lambda: build_public_place_filter_options(**home_filter_args, public_rows=public_rows.values() if public_rows else None),
         )
         home_districts = public_filter_options.districts
 

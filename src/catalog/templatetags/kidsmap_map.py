@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 register = template.Library()
 
 # Same escaping as Django's json_script: the payload can never close the tag.
-_SCRIPT_ESCAPES = {ord('>'): '\\u003E', ord('<'): '\\u003C', ord('&'): '\\u0026'}
+_SCRIPT_ESCAPES = (('>', '\\u003E'), ('<', '\\u003C'), ('&', '\\u0026'))
 
 
 def _compact_point(point):
@@ -31,7 +31,9 @@ def map_points_json(points, element_id):
     """Like ``json_script`` but without duplicate members and \\u-escaped letters
     (Azerbaijani and Russian text stays as UTF-8): about half the bytes."""
     data = json.dumps([_compact_point(point) for point in (points or [])], cls=DjangoJSONEncoder,
-                      ensure_ascii=False, separators=(',', ':')).translate(_SCRIPT_ESCAPES)
+                      ensure_ascii=False, separators=(',', ':'))
+    for char, escaped in _SCRIPT_ESCAPES:
+        data = data.replace(char, escaped)
     return format_html('<script id="{}" type="application/json">{}</script>', element_id, mark_safe(data))
 
 

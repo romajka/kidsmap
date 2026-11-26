@@ -4,7 +4,8 @@ from datetime import timedelta
 from decimal import Decimal
 from functools import cached_property
 
-from django.db.models import Exists, Max, OuterRef, Q
+from django.db.models import Case, Exists, F, OuterRef, Q, Value, When
+from django.db.models.functions import Coalesce, Greatest
 from django.utils import timezone
 
 
@@ -12,11 +13,11 @@ from django.utils import timezone
 def get_catalog_max_price(category="", subcategory=""):
     """Largest published AZN amount for the selected place or activity taxonomy."""
     from catalog.services.catalog_search import matching_groups
-    from catalog.models import Place, PricingPlan
-    from catalog.services.content_quality import public_place_queryset
+    from catalog.models import PricingPlan
+    from catalog.services.catalog_aggregate_scope import aggregate_places
     from catalog.services.pricing_plans import current_pricing_plan_q
 
-    public_places = public_place_queryset(Place.objects.all())
+    public_places = aggregate_places()
     public_ids = public_places.values("pk")
     eligible = PricingPlan.objects.filter(
         current_pricing_plan_q(), charge_role="primary", is_trial=False, currency="AZN",
@@ -32,24 +33,26 @@ def get_catalog_max_price(category="", subcategory=""):
     groups = live_group & Q(offering_group__activity__place_id__in=public_ids)
     if category or subcategory:
         groups &= Q(offering_group__in=matching_groups(scope))
-    plan_maxima = eligible.filter(
+    zero = Value(Decimal("0"))
+    plan_amounts = eligible.filter(
         Q(place_id__in=direct_places.values("pk"), offering_group__isnull=True) | groups
-    ).aggregate(
-        exact=Max("price", filter=Q(price_kind="exact")),
-        lower=Max("price_min", filter=Q(price_kind__in=("from", "range"))),
-        upper=Max("price_max", filter=Q(price_kind="range")),
-    )
+    ).order_by().annotate(amount=Case(
+        When(price_kind="exact", then=F("price")),
+        When(price_kind="from", then=F("price_min")),
+        When(price_kind="range", then=Greatest(Coalesce("price_min", zero), Coalesce("price_max", zero))),
+        default=zero,
+    )).values_list("amount", flat=True)
     # Even expired/foreign tariffs supersede potentially stale AZN projections.
     existing_plans = PricingPlan.objects.filter(charge_role="primary", is_trial=False).filter(
         Q(place_id=OuterRef("pk"), offering_group__isnull=True)
         | (live_group & Q(offering_group__activity__place_id=OuterRef("pk")))
     )
-    legacy_maxima = direct_places.filter(~Exists(existing_plans)).aggregate(
-        **{name: Max(name) for name in
-           ("price_from", "price_to", "price_per_month", "price_per_lesson")}
-    )
-    maximum = max((Decimal("0"), *(value for value in
-        (*plan_maxima.values(), *legacy_maxima.values()) if value is not None)))
+    legacy_amounts = direct_places.filter(~Exists(existing_plans)).order_by().annotate(
+        amount=Greatest(*(Coalesce(field, zero) for field in
+                          ("price_from", "price_to", "price_per_month", "price_per_lesson")))
+    ).values_list("amount", flat=True)
+    amounts = plan_amounts.union(legacy_amounts, all=True).order_by(F("amount").desc(nulls_last=True))
+    maximum = max(Decimal("0"), next(iter(amounts[:1]), None) or Decimal("0"))
     return int(maximum) if maximum == int(maximum) else maximum.normalize()
 
 

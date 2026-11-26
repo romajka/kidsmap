@@ -9,6 +9,7 @@ from django.db.models import Count, Q, Subquery
 
 from catalog.models import CatalogContentSettings, Place
 from catalog.services.content_quality import public_place_queryset
+from catalog.services.catalog_aggregate_scope import aggregate_places
 from catalog.services.filtering import PlaceListFilters
 
 
@@ -66,7 +67,7 @@ def _matching_counts(catalog_queries: set[str]) -> dict[str, int]:
     if not catalog_queries:
         return {}
 
-    public_places = public_place_queryset(Place.objects.all()).order_by().values("pk")
+    public_places = aggregate_places().order_by().values("pk")
     counts: dict[str, int] = {}
     aggregate_fields = {}
     aliases: dict[str, str] = {}

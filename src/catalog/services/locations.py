@@ -276,6 +276,19 @@ METRO_LEGACY_MAPPING = {
     "xocəsən": "xocasen",
 }
 
+def _alias_index(legacy, *tables):
+    aliases = dict(legacy)
+    for table in tables:
+        for key, labels in table.items():
+            for alias in (key, *(value.lower() for value in labels.values())):
+                aliases.setdefault(alias, key)
+    return aliases
+
+
+_LOCATION_ALIASES = _alias_index(LEGACY_MAPPING, AZERBAIJAN_REGIONS_MAP, BAKU_DISTRICTS_MAP)
+_METRO_ALIASES = _alias_index(METRO_LEGACY_MAPPING, BAKU_METRO_MAP)
+
+
 def get_metro_translation(value: str, language_code: str = None) -> str:
     if not value:
         return ""
@@ -287,12 +300,7 @@ def get_metro_translation(value: str, language_code: str = None) -> str:
         lang = "az"
 
     val = str(value).strip().lower()
-    key = METRO_LEGACY_MAPPING.get(val)
-    if not key:
-        for k, info in BAKU_METRO_MAP.items():
-            if val == k or val in [v.lower() for v in info.values()]:
-                key = k
-                break
+    key = _METRO_ALIASES.get(val)
     if key and key in BAKU_METRO_MAP:
         return BAKU_METRO_MAP[key].get(lang, value)
 
@@ -304,16 +312,7 @@ def normalize_to_key(value: str) -> str:
     if not value:
         return ""
     val = str(value).strip().lower()
-    if val in LEGACY_MAPPING:
-        return LEGACY_MAPPING[val]
-    # Check if there is a direct match in regions map by checking keys or values
-    for k, info in AZERBAIJAN_REGIONS_MAP.items():
-        if val == k or val in [v.lower() for v in info.values()]:
-            return k
-    for k, info in BAKU_DISTRICTS_MAP.items():
-        if val == k or val in [v.lower() for v in info.values()]:
-            return k
-    return val
+    return _LOCATION_ALIASES.get(val, val)
 
 def get_location_translation(value: str, language_code: str = None) -> str:
     if not language_code:

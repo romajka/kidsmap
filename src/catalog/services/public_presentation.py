@@ -70,7 +70,7 @@ def safe_web_url(value):
     return value if parsed.scheme in {'http', 'https'} and parsed.netloc and not parsed.username and not parsed.password else ''
 
 
-def contact_data(obj):
+def contact_data(obj, *, phone=safe_phone, whatsapp=normalize_whatsapp):
     place = obj.place if isinstance(obj, Activity) else obj if isinstance(obj, Place) else None
     org = current_organization(place) if place else obj if isinstance(obj, Organization) and visible(obj) else None
     region = getattr(place, 'phone_country', 'AZ') or 'AZ'
@@ -83,7 +83,7 @@ def contact_data(obj):
     # Do not guess a replacement for a malformed legacy local contact, or mutate
     # stored values while rendering. Its owner must review it explicitly.
     phones = list(dict.fromkeys(number for value in raw_phones
-                               if (number := safe_phone(value, default_region=region if local_phones else 'AZ'))))
+                               if (number := phone(value, default_region=region if local_phones else 'AZ'))))
     if public_space and LEGACY_DIRECTORY_PHONE in phones:
         phones.remove(LEGACY_DIRECTORY_PHONE)
     local_website = safe_web_url(place.website_url()) if place else ''
@@ -111,7 +111,7 @@ def contact_data(obj):
         whatsapp_contact = ''
     if whatsapp_contact:
         try:
-            whatsapp_number = normalize_whatsapp(whatsapp_contact, default_region=region if whatsapp_source == 'place' else 'AZ')
+            whatsapp_number = whatsapp(whatsapp_contact, default_region=region if whatsapp_source == 'place' else 'AZ')
         except ValidationError:
             pass
     if public_space and whatsapp_number == LEGACY_DIRECTORY_PHONE:
@@ -121,7 +121,7 @@ def contact_data(obj):
     whatsapp_url = 'https://wa.me/' + whatsapp_number[1:] if whatsapp_number else ''
     sources = {'phone': phone_source if phones else '', 'website': website_source, 'whatsapp': whatsapp_source}
     administration_name = obj.administration_name.strip() if isinstance(obj, Place) else ''
-    administration_phone = safe_phone(obj.administration_phone, default_region=region) if administration_name else ''
+    administration_phone = phone(obj.administration_phone, default_region=region) if administration_name else ''
     if public_space and administration_phone == LEGACY_DIRECTORY_PHONE:
         administration_phone = ''
     return {'phones': phones, 'has_phone': bool(phones), 'has_whatsapp': bool(whatsapp_url),
@@ -292,7 +292,7 @@ def activity_texts(activity, language, source):
             'supplement': supplement, 'supplement_language': supplement_lang}
 
 
-def present(obj, language=None, *, organizations_enabled=None):
+def present(obj, language=None, *, organizations_enabled=None, formatters=None):
     lang = language_code(language)
     kind = obj._meta.model_name
     result = {'kind':kind, 'id':obj.pk, 'visible':visible(obj), 'name':'', 'description':'',
@@ -315,7 +315,7 @@ def present(obj, language=None, *, organizations_enabled=None):
         result['translation_fallback'] = bool(result['supplement'] and text['supplement_language'] != lang)
     result.update(name=name, description=description, name_language=name_lang,
         description_language=description_lang, url=public_url(obj,lang),
-        contacts=contact_data(obj), content_language='az' if (name and name_lang != lang) or (description and description_lang != lang) else lang)
+        contacts=contact_data(obj, **formatters) if formatters else contact_data(obj), content_language='az' if (name and name_lang != lang) or (description and description_lang != lang) else lang)
     result['translation_fallback'] |= result['content_language'] != lang
     if isinstance(obj, Activity):
         from catalog.models import Category
@@ -359,6 +359,7 @@ def prepare_cards(places, language=None, *, filters=None):
     Batch trust markers exist only while materializing this snapshot. Direct
     detail/contact resolver calls still recheck visibility and affiliation.
     """
+    from functools import cache
     from django.db.models import BooleanField, Exists, ExpressionWrapper, OuterRef, Prefetch, Q, QuerySet
     from catalog.models import OfferingGroup, PricingPlan
     from catalog.services.catalog_search import matching_groups, has_offer_filters, place_audience_q
@@ -371,7 +372,8 @@ def prepare_cards(places, language=None, *, filters=None):
     if source == []:
         return []
     lookup = places.all().prefetch_related(None) if queryset_input else Place.objects.filter(pk__in=[p.pk for p in source])
-    if filters is not None:
+    exact = filters is not None and has_offer_filters(filters)
+    if exact:
         lookup = lookup.annotate(_matches_place_audience=ExpressionWrapper(place_audience_q(filters), output_field=BooleanField()))
     live_activities = Activity.objects.filter(place_id=OuterRef('pk'), status='published', archived_at__isnull=True)
     fresh = {p.pk:p for p in lookup
@@ -404,7 +406,6 @@ def prepare_cards(places, language=None, *, filters=None):
         activity.place = fresh[activity.place_id]
         by_place[activity.place_id].append(activity)
     prefetch_place_pricing_records(batch)
-    exact = filters is not None and has_offer_filters(filters)
     price_low, price_high = filters._normalized_price_bounds() if filters is not None else (None, None)
     budget_filtered = price_low is not None or price_high is not None
     tariff_filtered = exact or budget_filtered
@@ -440,6 +441,7 @@ def prepare_cards(places, language=None, *, filters=None):
                 place.price_from = place.price_to = None
                 for code in ('az', 'ru', 'en'):
                     setattr(place, 'custom_price_badge_' + code, '')
+    formatters = {"phone": cache(safe_phone), "whatsapp": cache(normalize_whatsapp)}
     marked=[]
     def mark(row, is_visible=True):
         row._public_batch=True;row._public_visible=is_visible;marked.append(row)
@@ -467,7 +469,7 @@ def prepare_cards(places, language=None, *, filters=None):
                     mark(program.organization, program.organization.status=='published' and program.organization.approved_at is not None and program.organization.archived_at is None)
                 if filters is not None and not activity._public_groups:
                     continue
-                data=present(activity,language,organizations_enabled=organizations_enabled)
+                data=present(activity,language,organizations_enabled=organizations_enabled,formatters=formatters)
                 activity_presentations.append(data)
                 offers.append({'id':activity.pk,'name':data['name'],'url':data['url'],'groups':data['groups']})
                 matched_plans.extend(p for g in activity._public_groups for p in g._public_plans)
@@ -479,7 +481,7 @@ def prepare_cards(places, language=None, *, filters=None):
                 place.price_from=place.price_to=None
                 for code in ('az','ru','en'):
                     setattr(place,'custom_price_badge_'+code,'')
-            presentation=present(place,language,organizations_enabled=organizations_enabled)
+            presentation=present(place,language,organizations_enabled=organizations_enabled,formatters=formatters)
             show_place_age = not exact or (place.age_varies_by_program and place._matches_place_audience)
             presentation.update(
                 matched_offers=offers, exact_filtered=exact, show_place_age=show_place_age,

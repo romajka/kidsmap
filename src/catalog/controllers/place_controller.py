@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext, override
 
 from catalog.services.public_cache import cached
+from catalog.services.catalog_aggregate_scope import aggregate_places, public_place_count
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository
 from catalog.models import Event, FunnelEvent, Place, Category, Subcategory
 from catalog.repositories.django_repositories import DjangoPlaceRepository, DjangoSettingsRepository
@@ -76,8 +77,9 @@ class PlaceController:
         events = []
         stats_qs = None
         map_places = []
+        page_cards = None
         map_page = {"points": [], "count": 0, "has_more": False, "next_cursor": None}
-        from catalog.services.public_map_page import build_map_page, page_metadata
+        from catalog.services.public_map_page import build_catalog_map_and_list, page_metadata
         showing_events = filters.event_type == "temporary" and not force_new_only
         rating_sort_available = False
 
@@ -87,13 +89,6 @@ class PlaceController:
             stats_qs = qs
             timeline_places = list(qs.order_by("-created_at", "-id")[:5])
             qs = qs.exclude(id__in=[place.id for place in timeline_places])
-        else:
-            map_page = cached(
-                'catalog_map', (language_code, created_after, filters.selected()),
-                lambda: build_map_page(qs, language_code, filters),
-            )
-            map_places = map_page["points"]
-
         if not force_new_only and not showing_events:
             rating_sort_available = (
                 filters.rating_sort_available
@@ -101,8 +96,21 @@ class PlaceController:
                 else rating_sort_is_available()
             )
 
+        unfiltered = not (request.GET or force_new_only or created_after) and type(self.place_repository) is DjangoPlaceRepository
         paginator = Paginator(qs, 12)
+        paginator.count = (cached("catalog_places_total", (), public_place_count) if unfiltered
+                           else qs.order_by().values("pk").count())
         page_obj = paginator.get_page(request.GET.get("page"))
+        if not force_new_only and not showing_events:
+            def build_map():
+                nonlocal page_cards
+                index = aggregate_places().order_by("-created_at", "-id") if unfiltered else qs
+                page_ids = list(index.values_list("pk", flat=True)[page_obj.start_index() - 1:page_obj.end_index()]) if paginator.count else []
+                payload, page_cards = build_catalog_map_and_list(qs, index, page_ids, language_code, filters)
+                return payload
+
+            map_page = cached("catalog_map", (language_code, created_after, filters.selected()), build_map)
+            map_places = map_page["points"]
         if not force_new_only:
             # Use the rendered page, including Paginator's invalid-page fallback,
             # so query variants never claim a canonical for nonexistent content.
@@ -111,8 +119,11 @@ class PlaceController:
             events = page_obj.object_list
 
         from catalog.services.public_presentation import prepare_cards, organization_matches
-        if not showing_events:
+        if page_cards is not None:
+            page_obj.object_list = page_cards
+        elif not showing_events:
             page_obj.object_list = prepare_cards(page_obj.object_list, language_code, filters=filters)
+        if timeline_places:
             timeline_places = prepare_cards(timeline_places, language_code, filters=filters)
         selected = filters.selected()
         query_without_page = urlencode(self._build_normalized_query_params(selected=selected, force_new_only=force_new_only))
@@ -165,7 +176,7 @@ class PlaceController:
         # Hero stats use the same public sources as the home page (no hand-written
         # "65+ places" / "17 categories" that drift from the real catalogue).
         catalog_places_total = cached(
-            'catalog_places_total', (), lambda: public_place_queryset(Place.objects.all()).count(),
+            'catalog_places_total', (), public_place_count,
         )
         catalog_categories_total = len(public_filter_options.categories)
 

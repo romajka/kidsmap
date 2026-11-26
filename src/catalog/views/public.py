@@ -3,6 +3,7 @@
 from functools import wraps
 
 from django.conf import settings
+from catalog.services.catalog_aggregate_scope import catalog_aggregate_scope
 from django.contrib import messages
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -128,6 +129,7 @@ def catalog_search_suggestions(request):
         "places": places_data,
     })
 
+@catalog_aggregate_scope()
 def home(request):
     context = home_controller.build_context(
         request=request,
@@ -290,6 +292,7 @@ def legacy_afisha_redirect(request, segment, rest):
         raise Http404
     return redirect(f"{target}?{query}" if query else target, permanent=True)
 
+@catalog_aggregate_scope()
 def _render_place_list(request, force_new_only=False, created_after=None):
     if request.GET.getlist("view"):
         normalized_query = place_controller.build_normalized_list_query(
