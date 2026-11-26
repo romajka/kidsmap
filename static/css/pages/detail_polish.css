@@ -158,6 +158,13 @@
   }
 }
 
+/* The schedule shares the page with a sidebar on desktop. Wrap days
+   according to the space in the card; phones have their own swipeable row. */
+@media (min-width: 761px) {
+  .detail-page .detail-week {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 6.5rem), 1fr));
+  }
+}
 
 .detail-age-program-note {
   margin: 6px 0 0; max-width: 65ch;
