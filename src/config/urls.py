@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from django.views.generic.base import RedirectView
 
 from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap, SpecialistSitemap, OrganizationSitemap, ActivitySitemap, EventSitemap
-from catalog.sitemaps import ParentGuideSitemap
+from catalog.sitemaps import EventCollectionSitemap, ParentGuideSitemap
 from catalog.views import admin_add_choice, place_pricing_api, catalog_search_suggestions
 from catalog.google_auth import google_login, google_callback
 from config.llms import llms_txt
@@ -30,6 +30,7 @@ sitemaps = {
     "seo": SeoLandingSitemap,
     "specialists": SpecialistSitemap,
     "events": EventSitemap,
+    "event_collections": EventCollectionSitemap,
 }
 
 handler404 = "config.views.public_not_found"

@@ -59,6 +59,13 @@ def parse_event_period(params, *, now=None, calendar=False):
             return EventPeriod(_midnight(selected), _midnight(selected + timedelta(days=1)))
         if get('month'):
             return _month(get('month'))
+        if get('upcoming_month'):
+            # Month collections: what parents can still attend this month.
+            month = _month(get('upcoming_month'))
+            start = max(month.start, now)
+            if start >= month.end:
+                return EventPeriod(None, None, valid=False)
+            return EventPeriod(start, month.end)
         if get('date_from') or get('date_to'):
             start = _day(get('date_from')) if get('date_from') else None
             end = _day(get('date_to')) if get('date_to') else None

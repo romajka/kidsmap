@@ -24,6 +24,12 @@ PUBLIC_QUERY_PARAMS = {
         "q", "category", "district", "date_filter", "age", "age_from", "age_to", "free", "sort", "page",
         "view", "month", "date", "date_from", "date_to", "format", "when", "lang",
     },
+    "event_collection": {"page"},
+    # Old /events/?… links keep their filters through the redirect.
+    "legacy_afisha_redirect": {
+        "q", "category", "district", "date_filter", "age", "age_from", "age_to", "free", "sort", "page",
+        "view", "month", "date", "date_from", "date_to", "format", "when", "lang",
+    },
     "specialist_list": {
         "q", "specialization", "subject", "format", "region", "district", "metro", "age", "age_from", "age_to",
         "price_from", "price_to", "sort", "language", "min_rating", "page",

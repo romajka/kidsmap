@@ -29,7 +29,7 @@ class EventCalendarIndependentReviewTests(TestCase):
         return Event.objects.create(**defaults)
 
     def page(self, **params):
-        response = self.client.get('/ru/events/', dict(view='calendar', month='2032-02', **params))
+        response = self.client.get('/ru/afisha/', dict(view='calendar', month='2032-02', **params))
         self.assertEqual(response.status_code, 200)
         return response.context
 
@@ -43,7 +43,7 @@ class EventCalendarIndependentReviewTests(TestCase):
         self.assertEqual(calendar['days'][0]['iso'], '2032-02-01')
         self.assertEqual(calendar['days'][-1]['iso'], '2032-02-29')
         self.assertEqual({e.pk for d in calendar['days'] for e in d['events']}, set(expected))
-        listing = self.client.get('/ru/events/', {'view': 'list', 'month': '2032-02'})
+        listing = self.client.get('/ru/afisha/', {'view': 'list', 'month': '2032-02'})
         self.assertEqual(listing.status_code, 200)
         self.assertEqual(len(listing.context['events']), 12)
         self.assertEqual(listing.context['page_obj'].paginator.count, 14)
@@ -70,7 +70,7 @@ class EventCalendarIndependentReviewTests(TestCase):
         context = self.page(date='2032-02-09')
         self.assertEqual([e.pk for e in context['calendar_events']], [public.pk])
         self.assertEqual([e.pk for e in context['event_calendar']['selected_events']], [public.pk])
-        response = self.client.get('/ru/events/', {'view':'calendar', 'month':'2032-02'})
+        response = self.client.get('/ru/afisha/', {'view':'calendar', 'month':'2032-02'})
         for text in ('PRIVATE_draft', 'PRIVATE_pending', 'PRIVATE_rejected', 'PRIVATE_DELETED'):
             self.assertNotContains(response, text)
 
@@ -91,7 +91,7 @@ class EventCalendarIndependentReviewTests(TestCase):
         params = dict(month='2032-02', q='Needle', category=self.category.code,
                       age_from='6', age_to='8', format='physical', free='1', district='baku_yasamal')
         for mode in ('list','calendar'):
-            response = self.client.get('/ru/events/', dict(params, view=mode))
+            response = self.client.get('/ru/afisha/', dict(params, view=mode))
             self.assertEqual(response.status_code, 200)
             items = response.context['calendar_events'] if mode == 'calendar' else response.context['events']
             self.assertEqual([e.pk for e in items], [matching.pk])
@@ -105,7 +105,7 @@ class EventCalendarIndependentReviewTests(TestCase):
         urls.append(calendar['days'][9]['url'])
         for value in urls:
             parsed = urlsplit(value)
-            self.assertEqual(parsed.path, '/ru/events/')
+            self.assertEqual(parsed.path, '/ru/afisha/')
             query = parse_qs(parsed.query)
             for key, expected in filters.items():
                 self.assertEqual(query[key], [expected])
@@ -114,12 +114,12 @@ class EventCalendarIndependentReviewTests(TestCase):
         changed = parse_qs(urlsplit(calendar['next_url']).query)
         self.assertEqual(changed['month'], ['2032-03'])
         self.assertEqual(changed['date'], ['2032-03-01'])
-        unsafe = self.client.get('/ru/events/', dict(filters, view='calendar', month='2032-02',
+        unsafe = self.client.get('/ru/afisha/', dict(filters, view='calendar', month='2032-02',
             date='2032-02-09', next='https://invalid.example/', utm_source='synthetic'))
         self.assertEqual(unsafe.status_code, 301)
         target = urlsplit(unsafe['Location'])
         self.assertFalse(target.netloc)
-        self.assertEqual(target.path, '/ru/events/')
+        self.assertEqual(target.path, '/ru/afisha/')
         cleaned = parse_qs(target.query)
         self.assertNotIn('next', cleaned)
         self.assertNotIn('utm_source', cleaned)
@@ -150,7 +150,7 @@ class EventCalendarIndependentReviewTests(TestCase):
         for params in ({'month':'2032-13'}, {'month':'9999-12'}, {'month':'0000-01'},
                        {'date':'2032-02-30'}, {'month':'2032-02','date':'2032-03-01'}):
             with self.subTest(params=params):
-                response = self.client.get('/ru/events/', dict(view='calendar', **params))
+                response = self.client.get('/ru/afisha/', dict(view='calendar', **params))
                 self.assertEqual(response.status_code, 200)
                 self.assertFalse(response.context['event_calendar']['valid'])
                 self.assertEqual(response.context['calendar_events'], [])
@@ -163,7 +163,7 @@ class EventCalendarIndependentReviewTests(TestCase):
         initial_count = Event.objects.count()
         history_count = EventOccurrenceChange.objects.count()
         for params in ({'month':'2032-02'}, {'month':'2032-03'}, {'month':'2032-02','date':'2032-02-09'}):
-            response = self.client.get('/ru/events/', dict(view='calendar', **params))
+            response = self.client.get('/ru/afisha/', dict(view='calendar', **params))
             self.assertEqual(response.status_code, 200)
         self.assertEqual(Event.objects.count(), initial_count)
         self.assertEqual(EventOccurrenceChange.objects.count(), history_count)
@@ -176,7 +176,7 @@ class EventCalendarIndependentReviewTests(TestCase):
         setting = SiteSettings.get_solo()
         setting.events_section_enabled = False
         setting.save()
-        self.assertEqual(self.client.get('/ru/events/', {'view':'calendar','month':'2032-02'}).status_code, 410)
+        self.assertEqual(self.client.get('/ru/afisha/', {'view':'calendar','month':'2032-02'}).status_code, 410)
         self.assertFalse(query_public_events({'month':'2032-02'}, calendar=True).exists())
         with patch('catalog.models.site.SiteSettings.get_solo', side_effect=OperationalError('synthetic')):
             self.assertFalse(is_events_section_enabled())

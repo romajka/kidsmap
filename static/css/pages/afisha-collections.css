@@ -1,0 +1,211 @@
+/* ═══════════════════════════════════════════════════════════════
+   KidsMap Afisha — collections (/ru/afisha/vyhodnye/ …) and hub extras:
+   breadcrumbs, answer card, quick-pick links, FAQ, fallback events.
+   Uses the afisha palette from pages/afisha.css (--ev-*).
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── BREADCRUMBS ─────────────────────────────────────────────── */
+.km-col-crumbs { margin: 14px 2px -4px; font-size: 0.8rem; font-weight: 700; color: var(--ev-muted); }
+.km-col-crumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; margin: 0; padding: 0; list-style: none; }
+.km-col-crumbs li { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+.km-col-crumbs li + li::before {
+  content: "chevron_right";
+  font-family: "Material Symbols Rounded";
+  font-size: 16px;
+  line-height: 1;
+  color: rgba(13, 73, 36, 0.35);
+  font-feature-settings: "liga";
+}
+.km-col-crumbs a { color: var(--ev-green); text-decoration: none; border-radius: 6px; }
+.km-col-crumbs a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.km-col-crumbs a:focus-visible { outline: 2px solid var(--ev-green); outline-offset: 2px; }
+.km-col-crumbs [aria-current="page"] { color: var(--ev-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ─── ANSWER CARD ─────────────────────────────────────────────── */
+.km-afisha-answer {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  margin: 0 0 18px;
+  padding: 16px 20px 16px 16px;
+  border: 1px solid var(--ev-line);
+  border-radius: var(--ev-radius);
+  background:
+    radial-gradient(90% 140% at 100% 0%, rgba(168, 213, 155, 0.18) 0%, transparent 60%),
+    #fff;
+  box-shadow: 0 1px 2px rgba(13, 73, 36, 0.04), 0 8px 24px -16px rgba(13, 73, 36, 0.25);
+  overflow: hidden;
+}
+.km-afisha-answer::before {
+  content: "";
+  position: absolute;
+  inset: 14px auto 14px 0;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, var(--ev-leaf), var(--ev-green));
+}
+.km-afisha-answer__icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-left: 4px;
+  border-radius: 14px;
+  background: var(--ev-mint);
+  color: var(--ev-green);
+}
+.km-afisha-answer__icon .material-symbols-rounded { font-size: 24px; }
+.km-afisha-answer__text { margin: 2px 0 0; color: var(--ev-ink); font-size: 0.98rem; line-height: 1.6; text-wrap: pretty; }
+.km-afisha-answer__text a { color: var(--ev-green); font-weight: 800; text-decoration: underline; text-decoration-color: rgba(19, 111, 56, 0.35); text-underline-offset: 3px; }
+.km-afisha-answer__text a:hover { text-decoration-color: currentColor; }
+.km-afisha-answer__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  color: var(--ev-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.km-afisha-answer__pulse { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--ev-leaf); }
+.km-afisha-answer__pulse::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--ev-leaf);
+  opacity: 0;
+  animation: km-col-pulse 2.4s var(--ev-ease) infinite;
+}
+@keyframes km-col-pulse {
+  0% { transform: scale(0.5); opacity: 0.7; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+/* ─── SECTION HEADINGS (links, FAQ, fallback) ─────────────────── */
+.km-col-section { margin: 34px 0 0; }
+.km-col-section__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  font-family: var(--font-display, inherit);
+  font-size: clamp(1.15rem, 2.4vw, 1.4rem);
+  line-height: 1.2;
+  color: var(--ev-deep);
+}
+.km-col-section__title .material-symbols-rounded {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: var(--ev-mint);
+  color: var(--ev-green);
+  font-size: 20px;
+}
+.km-col-section__lead { margin: -6px 0 14px; color: var(--ev-muted); font-size: 0.9rem; }
+
+/* ─── QUICK-PICK LINKS ────────────────────────────────────────── */
+.km-col-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.km-col-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 10px 8px 12px;
+  border: 1.5px solid rgba(19, 111, 56, 0.16);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ev-deep);
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform 0.25s var(--ev-ease), border-color 0.2s, background-color 0.2s, box-shadow 0.25s var(--ev-ease);
+}
+.km-col-link .material-symbols-rounded { font-size: 19px; color: var(--ev-green); }
+.km-col-link__count {
+  min-width: 24px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--ev-mint);
+  color: var(--ev-green);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.km-col-link:focus-visible { outline: 2px solid var(--ev-green); outline-offset: 2px; }
+@media (hover: hover) {
+  .km-col-link:hover {
+    border-color: var(--ev-green);
+    background: #f4faf5;
+    box-shadow: 0 6px 16px -8px rgba(13, 73, 36, 0.35);
+    transform: translateY(-1px);
+  }
+}
+
+/* ─── FAQ ─────────────────────────────────────────────────────── */
+.km-col-faq { display: grid; gap: 10px; }
+.km-col-faq__item {
+  border: 1px solid var(--ev-line);
+  border-radius: 18px;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.3s var(--ev-ease);
+}
+.km-col-faq__item[open] { border-color: rgba(19, 111, 56, 0.28); box-shadow: 0 10px 26px -18px rgba(13, 73, 36, 0.45); }
+.km-col-faq__item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 52px;
+  padding: 12px 16px 12px 18px;
+  color: var(--ev-ink);
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.35;
+  list-style: none;
+  cursor: pointer;
+  border-radius: 18px;
+}
+.km-col-faq__item summary::-webkit-details-marker { display: none; }
+.km-col-faq__item summary:focus-visible { outline: 2px solid var(--ev-green); outline-offset: 2px; }
+.km-col-faq__chevron {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--ev-mint);
+  color: var(--ev-green);
+  transition: transform 0.3s var(--ev-ease), background-color 0.2s;
+}
+.km-col-faq__item[open] .km-col-faq__chevron { transform: rotate(180deg); background: var(--ev-green); color: #fff; }
+.km-col-faq__answer { margin: 0; padding: 0 18px 16px; color: #3f4b45; font-size: 0.93rem; line-height: 1.6; }
+
+/* ─── FALLBACK EVENTS (thin collection) ───────────────────────── */
+.km-col-fallback .km-ev-grid { margin-top: 0; }
+
+/* ─── HERO EYEBROW BACK LINK ──────────────────────────────────── */
+.km-afisha-eyebrow--link { color: #fff; text-decoration: none; transition: background-color 0.2s; }
+.km-afisha-eyebrow--link:hover { background: rgba(255, 255, 255, 0.26); }
+.km-afisha-eyebrow--link:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  .km-afisha-answer { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 14px 16px 14px 18px; }
+  .km-afisha-answer__icon { width: 36px; height: 36px; margin: 0; border-radius: 12px; }
+  .km-afisha-answer__icon .material-symbols-rounded { font-size: 21px; }
+  .km-afisha-answer__text { font-size: 0.93rem; }
+  .km-col-section { margin-top: 28px; }
+  .km-col-links { gap: 8px; }
+  .km-col-link { font-size: 0.84rem; }
+  .km-col-faq__item summary { font-size: 0.93rem; padding: 12px 12px 12px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .km-afisha-answer__pulse::after { animation: none; }
+  .km-col-link, .km-col-faq__chevron, .km-col-faq__item { transition: none; }
+}

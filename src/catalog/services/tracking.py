@@ -139,6 +139,7 @@ PUBLIC_ANALYTICS_PAGE_TYPES = {
     "place_detail": "place_detail",
     "seo_landing": "seo_landing",
     "events_landing": "events",
+    "event_collection": "events",
     "event_detail": "event_detail",
     "specialist_list": "specialists",
     "specialist_detail": "specialist_detail",

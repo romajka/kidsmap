@@ -23,10 +23,13 @@ from django.urls import include, path, re_path, reverse_lazy
 from .forms import UserPasswordResetForm, UserSetPasswordForm
 from .phone_views import reveal_place_phones
 from .controllers.event_suggest import event_suggest
+from .services.afisha_urls import afisha_route
 from .photo_views import prepare_owner_photo, save_owner_photos, owner_photo_thumbnail
 from .views import (
     home,
     events_landing,
+    event_collection,
+    legacy_afisha_redirect,
     place_list,
     place_new,
     place_detail,
@@ -159,8 +162,9 @@ urlpatterns = [
     path("api/catalog/map/", public_map, name="public_map"),
     path("api/catalog/suggestions/", catalog_search_suggestions, name="catalog_search_suggestions"),
     path("", home, name="home"),
-    path("events/", events_landing, name="events_landing"),
-    path("events/suggest/", event_suggest, name="event_suggest"),
+    # Afisha: /tedbirler/ (az), /ru/afisha/, /en/events/ — see services/afisha_urls.py.
+    path(afisha_route(""), events_landing, name="events_landing"),
+    path(afisha_route("suggest/"), event_suggest, name="event_suggest"),
     path("catalog/", place_list, name="place_list"),
     path("catalog/new/", place_new, name="place_new"),
     path("catalog/<slug:seo_slug>/", seo_landing, name="seo_landing"),
@@ -303,4 +307,10 @@ urlpatterns = [
         place_detail_legacy,
         name="place_detail_root_legacy",
     ),
+    # Afisha collections, after every literal events/… route (events/track/).
+    path(afisha_route("<slug:first>/"), event_collection, name="event_collection"),
+    path(afisha_route("<slug:first>/<slug:second>/"), event_collection, name="event_collection"),
+    # Old /events/… and another language's segment -> this language's afisha URL.
+    re_path(r"^(?P<segment>events|tedbirler|afisha)/(?P<rest>.*)$", legacy_afisha_redirect,
+            name="legacy_afisha_redirect"),
 ]

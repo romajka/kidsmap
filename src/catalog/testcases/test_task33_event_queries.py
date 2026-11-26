@@ -29,11 +29,11 @@ class EventQueryContractTests(TestCase):
         Event.objects.filter(pk=event.pk).update(
             venue_snapshot={'label':'Old venue','address':'Original archive address','district':'baku_yasamal'},
             district='baku_sabail')
-        response=self.client.get('/ru/events/',{'date':'2020-01-01','district':'baku_yasamal'})
+        response=self.client.get('/ru/afisha/',{'date':'2020-01-01','district':'baku_yasamal'})
         self.assertEqual(response.status_code,200)
         self.assertEqual([item.pk for item in response.context['events']],[event.pk])
         self.assertContains(response,'Original archive address')
-        wrong=self.client.get('/ru/events/',{'date':'2020-01-01','district':'baku_sabail'})
+        wrong=self.client.get('/ru/afisha/',{'date':'2020-01-01','district':'baku_sabail'})
         self.assertEqual(wrong.status_code,200)
         self.assertEqual(list(wrong.context['events']),[])
 
@@ -46,10 +46,10 @@ class EventQueryContractTests(TestCase):
             {'view':'list','date_from':'2030-01-01','date_to':'2030-01-31','format':'online'},
         ):
             with self.subTest(params=params):
-                response=self.client.get('/ru/events/',params)
+                response=self.client.get('/ru/afisha/',params)
                 self.assertEqual(response.status_code,200)
                 self.assertEqual([item.pk for item in response.context['events']],[event.pk])
-                dirty=self.client.get('/ru/events/',dict(params,utm_source='synthetic'))
+                dirty=self.client.get('/ru/afisha/',dict(params,utm_source='synthetic'))
                 self.assertEqual(dirty.status_code,301)
                 cleaned=parse_qs(urlsplit(dirty['Location']).query)
                 self.assertEqual(cleaned,{key:[value] for key,value in params.items()})
