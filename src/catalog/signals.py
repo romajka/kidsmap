@@ -75,3 +75,11 @@ def prepare_event_image_meta(sender, instance, raw=False, **kwargs):
         return
     from catalog.services.event_images import refresh_meta
     refresh_meta(instance)
+
+
+@receiver(post_save)
+@receiver(post_delete)
+def invalidate_public_aggregates(sender, using, raw=False, **kwargs):
+    from catalog.services.public_cache import affects_public_data, invalidate_on_commit
+    if not raw and affects_public_data(sender):
+        invalidate_on_commit(using)

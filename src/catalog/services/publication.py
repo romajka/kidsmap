@@ -11,6 +11,7 @@ from django.db.models import F
 from django.utils import timezone
 from catalog.models import Place, Organization, Program, Activity, OfferingGroup, VolunteerPlaceRevision
 from catalog.services.catalog_structure import _lock
+from catalog.services.public_cache import invalidate_on_commit
 from catalog.services.business_team import platform_has_action
 
 SCHEMA_VERSION = 1
@@ -311,6 +312,8 @@ def _apply(target,kind,patch,*,allow_price_verification=False):
     if kind == 'offering_group' and any(name.startswith('conditions_') for name in patch):
         values['conditions_verified_at'] = None
     values.update(content_version=F('content_version')+1,updated_at=now);type(target).objects.filter(pk=target.pk).update(**values);target.refresh_from_db()
+    # Covers immediate edits and approved reviews, including publication in the same transaction.
+    invalidate_on_commit(target._state.db)
     if kind in {'activity', 'offering_group'} and ({'status', 'archived_at'} & set(patch)):
         from catalog.services.pricing_plans import sync_legacy_price_fields
         place_id = target.place_id if kind == 'activity' else target.activity.place_id
@@ -581,6 +584,7 @@ def publish(*,actor,place_id,expected_version,note=''):
         published_at=place.published_at or timezone.now(),moderated_at=timezone.now(),
         moderated_by=actor,content_version=F('content_version')+1,
         **place_publication_url_values(place))
+    invalidate_on_commit(place._state.db)
     place.refresh_from_db()
     if revision is None or revision.status == 'approved':
         _complete_publication_requests(actor=actor, place=place, source_version=source_version,
@@ -607,6 +611,7 @@ def unpublish(*, actor, target_type, target_id, expected_version):
     if target_type == 'place':
         values['is_active'] = False
     type(target).objects.filter(pk=target.pk).update(**values)
+    invalidate_on_commit(target._state.db)
     if target_type == 'activity':
         from catalog.services.pricing_plans import sync_legacy_price_fields
         if target.offering_groups.filter(pricing_plan_records__isnull=False).exists():

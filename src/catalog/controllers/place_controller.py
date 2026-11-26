@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext, override
 
+from catalog.services.public_cache import cached
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository
 from catalog.models import Event, FunnelEvent, Place, Category, Subcategory
 from catalog.repositories.django_repositories import DjangoPlaceRepository, DjangoSettingsRepository
@@ -87,7 +88,10 @@ class PlaceController:
             timeline_places = list(qs.order_by("-created_at")[:5])
             qs = qs.exclude(id__in=[place.id for place in timeline_places])
         else:
-            map_page = build_map_page(qs, language_code, filters)
+            map_page = cached(
+                'catalog_map', (language_code, created_after, filters.selected()),
+                lambda: build_map_page(qs, language_code, filters),
+            )
             map_places = map_page["points"]
 
         if not force_new_only and not showing_events:
@@ -144,25 +148,34 @@ class PlaceController:
         else:
             results_count_label = f"Найдено мест: {total_results}"
 
-        public_filter_options = build_public_place_filter_options(
+        filter_option_args = dict(
             language_code=language_code,
             selected_category=selected.get("category", ""),
             selected_subcategory=selected.get("subcategory", ""),
             selected_district=selected.get("district", ""),
             selected_metro=selected.get("metro", ""),
         )
+        public_filter_options = cached(
+            'filter_options', filter_option_args,
+            lambda: build_public_place_filter_options(**filter_option_args),
+        )
         district_options = public_filter_options.districts
         metro_options = public_filter_options.metro
 
         # Hero stats use the same public sources as the home page (no hand-written
         # "65+ places" / "17 categories" that drift from the real catalogue).
-        catalog_places_total = public_place_queryset(Place.objects.all()).count()
+        catalog_places_total = cached(
+            'catalog_places_total', (), lambda: public_place_queryset(Place.objects.all()).count(),
+        )
         catalog_categories_total = len(public_filter_options.categories)
 
         # Public recommendations follow the same eligibility as the sitemap.
-        catalog_seo_pages = build_seo_landing_visibility(
-            self.settings_repository.get_catalog_settings()
-        ).pages(language_code, indexable_only=True)
+        catalog_seo_pages = cached(
+            'catalog_seo_pages', (language_code,),
+            lambda: build_seo_landing_visibility(
+                self.settings_repository.get_catalog_settings()
+            ).pages(language_code, indexable_only=True),
+        )
 
         context = {
             "catalog_seo_pages": catalog_seo_pages,
@@ -833,7 +846,10 @@ class PlaceController:
                 distance_km=2.0 * 6371.0088 * ASin(Sqrt(Least(haversine, 1.0))),
             ).order_by(F("distance_km") - category_bonus, "distance_km", "pk")
 
-        distances = dict(ranked.values_list("pk", "distance_km")[:limit])
+        distances = cached(
+            'nearby_places', (place.pk, origin, place.category_id, limit),
+            lambda: dict(ranked.values_list("pk", "distance_km")[:limit]),
+        )
         cards = prepare_cards(base.filter(pk__in=distances), language_code)
         by_pk = {card.pk: card for card in cards}
         suggestions = []

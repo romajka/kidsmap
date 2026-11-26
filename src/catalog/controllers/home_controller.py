@@ -7,6 +7,7 @@ from django.db.models import Q
 from django.templatetags.static import static
 from django.utils.translation import gettext as _
 
+from catalog.services.public_cache import cached
 from catalog.homepage_copy import HOME_TITLES, HOME_SUBTITLES
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository
 from catalog.models import PlaceReview, SiteGalleryImage
@@ -74,7 +75,10 @@ class HomeController:
         from catalog.services.public_map_page import build_map_page, page_metadata
         filters = PlaceListFilters.from_request(request)
         map_queryset = filters.apply(self.place_repository.active_queryset())
-        map_page = build_map_page(map_queryset, language_code, filters, newest_first=True)
+        map_page = cached(
+            'home_map', (language_code, filters.selected()),
+            lambda: build_map_page(map_queryset, language_code, filters, newest_first=True),
+        )
         map_places = map_page["points"]
         map_business_count = map_page["count"]
 
@@ -93,10 +97,14 @@ class HomeController:
         )
         from catalog.services.locations import normalize_to_key
         selected_district = normalize_to_key(request.GET.get("district", ""))
-        public_filter_options = build_public_place_filter_options(
+        home_filter_args = dict(
             language_code=language_code,
             selected_category=request.GET.get("category", ""),
             selected_district=selected_district,
+        )
+        public_filter_options = cached(
+            'filter_options', home_filter_args,
+            lambda: build_public_place_filter_options(**home_filter_args),
         )
         home_districts = public_filter_options.districts
 

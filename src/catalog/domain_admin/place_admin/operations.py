@@ -16,6 +16,7 @@ from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _, ngettext
 
+from catalog.services.public_cache import invalidate_on_commit
 from catalog.models import (
     Place,
     PlaceChangeAudit,
@@ -1073,6 +1074,8 @@ class PlaceAdminOperationsMixin:
             deleted_by=None,
             updated_at=timezone.now(),
         )
+        if updated_count:
+            invalidate_on_commit(queryset.db)
         self.message_user(
             request,
             ngettext(
@@ -1147,6 +1150,8 @@ class PlaceAdminOperationsMixin:
             content_version=F("content_version") + 1,
             updated_at=now,
         )
+        if updated_count:
+            invalidate_on_commit(queryset.db)
         self.message_user(
             request,
             ngettext(
@@ -1221,6 +1226,7 @@ class PlaceAdminOperationsMixin:
                 if not place.is_public:
                     # A new unpublished card may show its queued lifecycle state.
                     Place.objects.filter(pk=place.pk).update(status=Place.STATUS_PENDING,is_active=False)
+                    invalidate_on_commit(place._state.db)
                 updated_count += 1
         self.message_user(request,
             _("Передано на модерацию: %(updated)d. Пропущено: %(skipped)d.")
