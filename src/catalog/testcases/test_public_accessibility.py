@@ -1,5 +1,7 @@
 from django.test import TestCase
 from django.test.html import Element, parse_html
+from django.urls import reverse
+from django.utils.translation import override
 
 from catalog.models import SiteSettings, Specialist
 from catalog.testcases.utils import create_quality_place
@@ -73,11 +75,12 @@ class PublicAccessibilityTests(TestCase):
         self.assertEqual(dict(mains[0].attributes).get("tabindex"), "-1")
 
     def test_skip_link_and_field_names_in_each_language(self):
-        pages = ("/", "/catalog/", "/events/", "/specialists/", "/catalog/new/", "/organizations/")
-        languages = (("", "Əsas məzmuna keç"), ("/ru", "Перейти к содержанию"), ("/en", "Skip to main content"))
-        for prefix, link_text in languages:
-            for page in pages:
-                path = prefix + page
+        routes = ("home", "place_list", "events_landing", "specialist_list", "place_new", "organization_list")
+        languages = (("az", "Əsas məzmuna keç"), ("ru", "Перейти к содержанию"), ("en", "Skip to main content"))
+        for language, link_text in languages:
+            for route in routes:
+                with override(language):
+                    path = reverse(route)
                 with self.subTest(path=path):
                     response = self.client.get(path)
                     self.assertEqual(response.status_code, 200)
