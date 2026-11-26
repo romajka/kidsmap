@@ -120,15 +120,50 @@ DEFAULT_PARENT_GUIDE_SLUG = 'baku-with-kids'
 
 @require_safe
 def parent_guide_index(request):
-    """Gracefully redirect root /parents/ to the flagship Baku guide."""
-    slug = DEFAULT_PARENT_GUIDE_SLUG if DEFAULT_PARENT_GUIDE_SLUG in GUIDE_PAGES else next(iter(GUIDE_PAGES), None)
-    if not slug:
+    """/parents/: the hub of every parent guide, grouped by rubric."""
+    from catalog import parent_guide_hub as hub
+
+    language = (get_language() or 'az').split('-', 1)[0]
+    copy = hub.HUB_COPY.get(language, hub.HUB_COPY['az'])
+    cards = hub.all_cards(language)
+    if not cards:
         raise Http404
-    target = reverse('parent_guide', kwargs={'slug': slug})
-    query = request.META.get('QUERY_STRING')
-    if query:
-        target = f"{target}?{query}"
-    return redirect(target, permanent=False)
+    canonical = build_public_absolute_uri(request, reverse('parent_guide_index'))
+    home_url = build_public_absolute_uri(request, reverse('home'))
+    item_list = {
+        '@type': 'ItemList',
+        'numberOfItems': len(cards),
+        'itemListElement': [
+            {'@type': 'ListItem', 'position': index, 'url': build_public_absolute_uri(request, card['url']),
+             'name': card['title']}
+            for index, card in enumerate(cards, start=1)
+        ],
+    }
+    collection = {
+        '@context': 'https://schema.org', '@type': 'CollectionPage',
+        '@id': canonical, 'url': canonical, 'name': copy['title'],
+        'description': copy['meta_description'], 'inLanguage': language,
+        'isPartOf': {'@type': 'WebSite', 'name': 'KidsMap', 'url': home_url},
+        'mainEntity': item_list,
+    }
+    breadcrumbs = {
+        '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+        'itemListElement': [
+            {'@type': 'ListItem', 'position': 1, 'name': 'KidsMap', 'item': home_url},
+            {'@type': 'ListItem', 'position': 2, 'name': copy['crumb'], 'item': canonical},
+        ],
+    }
+    rubric_list = hub.rubrics(language, cards)
+    return render(request, 'pages/parent_guide_index.html', {
+        'hub': copy, 'hub_rubrics': rubric_list, 'hub_guides': cards,
+        'hub_count_label': hub.guides_word(len(cards), language),
+        'hub_rubric_count': len(rubric_list),
+        'hub_updated': hub.last_updated(cards),
+        'hub_afisha': hub.afisha_card(None, language),
+        'hub_collection_json': _json_ld(collection), 'hub_breadcrumbs_json': _json_ld(breadcrumbs),
+        'seo_title': copy['seo_title'] + ' — KidsMap',
+        'language': language,
+    })
 
 
 @require_safe
@@ -321,11 +356,16 @@ def parent_guide(request, slug):
     }
     if definition.get('published'):
         article['datePublished'] = date.fromisoformat(definition['published']).isoformat()
+    from catalog import parent_guide_hub as hub
+    hub_copy = hub.HUB_COPY.get(language, hub.HUB_COPY['az'])
+    guide_afisha = hub.afisha_card(slug, language)
     breadcrumbs = {
         '@context': 'https://schema.org', '@type': 'BreadcrumbList',
         'itemListElement': [
             {'@type': 'ListItem', 'position': 1, 'name': 'KidsMap', 'item': home_url},
-            {'@type': 'ListItem', 'position': 2, 'name': guide['title'], 'item': canonical},
+            {'@type': 'ListItem', 'position': 2, 'name': hub_copy['crumb'],
+             'item': build_public_absolute_uri(request, reverse('parent_guide_index'))},
+            {'@type': 'ListItem', 'position': 3, 'name': guide['title'], 'item': canonical},
         ],
     }
     return render(request, 'pages/parent_guide.html', {
@@ -344,4 +384,7 @@ def parent_guide(request, slug):
         'seo_title': guide.get('seo_title', guide['title']) + ' — KidsMap',
         'guide_image': image, 'guide_webpage_json': _json_ld(webpage),
         'guide_article_json': _json_ld(article), 'guide_breadcrumbs_json': _json_ld(breadcrumbs),
+        'hub': hub_copy, 'guide_afisha': guide_afisha,
+        # One row: three neighbours plus the afisha, or four neighbours without it.
+        'guide_related': hub.related_guides(slug, language, limit=3 if guide_afisha else hub.RELATED_LIMIT),
     })

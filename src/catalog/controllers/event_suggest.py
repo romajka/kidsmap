@@ -139,6 +139,8 @@ def _wants_json(request):
 
 @require_http_methods(['GET', 'POST'])
 def event_suggest(request):
+    from catalog.services.afisha_urls import localized_route_paths
+    request._seo_localized_paths = localized_route_paths('event_suggest')
     copy = _copy(request)
     status, message, form = 200, '', EventSuggestionForm(copy=copy)
     if request.method == 'POST':

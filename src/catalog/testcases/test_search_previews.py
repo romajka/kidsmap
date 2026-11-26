@@ -125,15 +125,15 @@ class SearchPreviewTests(TestCase):
             photo='events/share-preview-fixture.jpg',
         )
         for language, prefix, alt in (
-            ('az', '', 'KidsMap. Uşaqlar üçün afişa. Bakıda açıq havada ailəvi tədbirin illüstrasiyası.'),
-            ('ru', '/ru', 'KidsMap. Афиша для детей. Иллюстрация семейного события под открытым небом в Баку.'),
-            ('en', '/en', 'KidsMap. Kids’ events. Illustration of an outdoor family event in Baku.'),
+            ('az', '/tedbirler', 'KidsMap. Uşaqlar üçün afişa. Bakıda açıq havada ailəvi tədbirin illüstrasiyası.'),
+            ('ru', '/ru/afisha', 'KidsMap. Афиша для детей. Иллюстрация семейного события под открытым небом в Баку.'),
+            ('en', '/en/events', 'KidsMap. Kids’ events. Illustration of an outdoor family event in Baku.'),
         ):
             asset_path = f'img/events/share-{language}.jpg'
             cover = 'https://kidsmap.az/static/' + asset_path
             for query in ({}, {'view': 'calendar'}, {'q': 'missing-preview-fixture'}):
                 with self.subTest(prefix=prefix, query=query):
-                    response = self.client.get(f'{prefix}/events/', query)
+                    response = self.client.get(f'{prefix}/', query)
                     self.assertEqual(response.status_code, 200)
                     parsed = ImageMarkup(response.content.decode())
                     self.assertContains(response, 'property="og:image"', count=1)

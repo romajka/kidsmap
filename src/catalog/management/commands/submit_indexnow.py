@@ -3,7 +3,9 @@ from django.core.management.base import BaseCommand, CommandError
 from catalog.models import CatalogContentSettings, Place
 from catalog.services.content_quality import public_place_queryset
 from catalog.services.indexnow import (
+    CANONICAL_ORIGIN,
     MAX_URLS_PER_REQUEST,
+    indexable_afisha_paths,
     indexnow_enabled,
     place_canonical_urls,
     seo_landing_canonical_urls,
@@ -13,7 +15,7 @@ from catalog.services.seo_landing_visibility import build_seo_landing_visibility
 
 
 class Command(BaseCommand):
-    help = "Submit current public place and indexable SEO landing URLs to IndexNow."
+    help = "Submit public places, SEO landings and indexable afisha URLs to IndexNow."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -75,4 +77,5 @@ class Command(BaseCommand):
         for slug in sorted(visibility.indexable_slugs):
             urls.extend(seo_landing_canonical_urls(slug))
 
+        urls.extend(CANONICAL_ORIGIN + path for path in sorted(indexable_afisha_paths()))
         return list(dict.fromkeys(urls))

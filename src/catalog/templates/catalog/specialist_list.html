@@ -10,6 +10,10 @@
 <script src="{% static 'js/specialists.js' %}?v=20261120_formats" defer></script>
 <link rel="stylesheet" href="{% static 'css/pages/specialist_directory.css' %}?v=20261120_format_filters" />
 <link rel="stylesheet" href="{% static 'css/pages/specialists_refresh.css' %}?v=20261118_sp_r2" />
+<link rel="stylesheet" href="{% static 'css/pages/specialists_portrait.css' %}?v=20261125_portrait4" />
+<link rel="stylesheet" href="{% static 'css/components/km_select.css' %}?v=20261125_kms4" />
+<link rel="stylesheet" href="{% static 'css/pages/specialists_filters.css' %}?v=20261125_filters5" />
+<script src="{% static 'js/km_select.js' %}?v=20261125_kms4" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -85,45 +89,16 @@
 
         <!-- Specialization (Custom Select) -->
         <div class="km-filter-group" data-spec-custom-select-wrap>
-          <label id="spec-select-label"><span class="material-symbols-rounded" aria-hidden="true">school</span> {% if language == "az" %}Fəaliyyət istiqaməti{% elif language == "en" %}Activity direction{% else %}Направление деятельности{% endif %}</label>
-          <div class="km-custom-select km-filter-custom-select" id="custom-select-specialization">
-            <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="spec-select-label custom-select-spec-val">
-              <span class="km-custom-select__value" id="custom-select-spec-val">
-                {% if selected.specialization %}
-                  {% for spec in filter_options.specializations %}{% if selected.specialization == spec.value %}{{ spec.label }}{% if spec.count %} ({{ spec.count }}){% endif %}{% endif %}{% endfor %}
-                {% else %}
-                  {% if language == "az" %}Bütün istiqamətlər{% elif language == "en" %}All directions{% else %}Все направления{% endif %}
-                {% endif %}
-              </span>
-              <span class="km-custom-select__arrow" aria-hidden="true">
-                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
-              </span>
-            </button>
-            <div class="km-custom-select__menu" role="listbox" aria-labelledby="spec-select-label" tabindex="-1">
-              <div class="km-custom-select__option{% if not selected.specialization %} is-selected{% endif %}" role="option" aria-selected="{% if not selected.specialization %}true{% else %}false{% endif %}" data-value="">
-                <span class="km-custom-select__opt-text">{% if language == "az" %}Bütün istiqamətlər{% elif language == "en" %}All directions{% else %}Все направления{% endif %}</span>
-              </div>
-              {% for spec in filter_options.specializations %}
-                <div class="km-custom-select__option{% if selected.specialization == spec.value %} is-selected{% endif %}" role="option" aria-selected="{% if selected.specialization == spec.value %}true{% else %}false{% endif %}" data-value="{{ spec.value }}">
-                  <span class="km-custom-select__opt-text">{% include "catalog/includes/specialization_icon.html" with code=spec.value only %}{{ spec.label }}</span>
-                  {% if spec.count %}<span class="km-custom-select__opt-count">{{ spec.count }}</span>{% endif %}
-                </div>
-              {% endfor %}
-            </div>
-            <select name="specialization" aria-labelledby="spec-select-label" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
-              <option value="">{% if language == "az" %}Bütün istiqamətlər{% elif language == "en" %}All directions{% else %}Все направления{% endif %}</option>
-              {% for spec in filter_options.specializations %}
-                <option value="{{ spec.value }}" {% if selected.specialization == spec.value %}selected{% endif %}>
-                  {{ spec.label }} {% if spec.count %}({{ spec.count }}){% endif %}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
+          <label id="spec-select-label" for="filter-specialization"><span class="material-symbols-rounded" aria-hidden="true">school</span> {% if language == "az" %}Fəaliyyət istiqaməti{% elif language == "en" %}Activity direction{% else %}Направление деятельности{% endif %}</label>
+          <select name="specialization" id="filter-specialization" class="km-filter-select" data-km-select>
+            <option value="">{% if language == "az" %}Bütün istiqamətlər{% elif language == "en" %}All directions{% else %}Все направления{% endif %}</option>
+            {% for spec in filter_options.specializations %}<option value="{{ spec.value }}"{% if selected.specialization == spec.value %} selected{% endif %}>{{ spec.label }}{% if spec.count %} ({{ spec.count }}){% endif %}</option>{% endfor %}
+          </select>
         </div>
 
         <div class="km-filter-group km-subject-filter">
           <label for="filter-subject"><span class="material-symbols-rounded" aria-hidden="true">menu_book</span> {% if language == 'az' %}Fənn{% elif language == 'en' %}Subject{% else %}Предмет{% endif %}</label>
-          <select name="subject" id="filter-subject" class="km-filter-select">
+          <select name="subject" id="filter-subject" class="km-filter-select" data-km-select>
             <option value="">{% if language == 'az' %}Bütün fənlər{% elif language == 'en' %}All subjects{% else %}Все предметы{% endif %}</option>
             {% for item in subject_options %}<option value="{{ item.value }}" {% if selected.subject == item.value %}selected{% endif %}>{{ item.label }} ({{ item.count }})</option>{% endfor %}
           </select>
@@ -131,62 +106,33 @@
 
         <fieldset class="km-filter-group km-format-checks">
           <legend class="km-filter-label">{% if language == "az" %}Qəbul formatı{% elif language == "en" %}Session format{% else %}Формат занятий{% endif %}</legend>
-          <div>
+          <div class="km-format-chips">
             {% for code, label in format_choices %}
-              <label><input type="checkbox" name="format" value="{{ code }}"{% if code in selected_formats %} checked{% endif %}> {{ label }}</label>
+              <label class="km-format-chip"><input type="checkbox" name="format" value="{{ code }}"{% if code in selected_formats %} checked{% endif %}><span class="km-format-chip__icon material-symbols-rounded" aria-hidden="true">{% if code == 'online' %}videocam{% elif code == 'visit' %}home{% else %}meeting_room{% endif %}</span><span>{{ label }}</span><span class="km-format-chip__tick material-symbols-rounded" aria-hidden="true">check</span></label>
             {% endfor %}
-            {% if 'offline' in selected_formats %}<label><input type="checkbox" name="format" value="offline" checked> {{ legacy_offline_label }}</label>{% endif %}
+            {% if 'offline' in selected_formats %}<label class="km-format-chip"><input type="checkbox" name="format" value="offline" checked><span class="km-format-chip__icon material-symbols-rounded" aria-hidden="true">meeting_room</span><span>{{ legacy_offline_label }}</span><span class="km-format-chip__tick material-symbols-rounded" aria-hidden="true">check</span></label>{% endif %}
           </div>
         </fieldset>
 
         <!-- City / Region (Custom Select) -->
         <div class="km-filter-group" id="location-filters-container"{% if online_only %} hidden{% endif %} data-spec-custom-select-wrap>
-          <label id="region-select-label"><span class="material-symbols-rounded" aria-hidden="true">location_on</span> {% if language == "az" %}Şəhər / Region{% elif language == "en" %}City / Region{% else %}Город / Регион{% endif %}</label>
-          <div class="km-custom-select km-filter-custom-select" id="custom-select-region">
-            <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="region-select-label custom-select-region-val">
-              <span class="km-custom-select__value" id="custom-select-region-val">
-                {% if selected.region %}
-                  {% for reg in filter_options.regions %}{% if selected.region == reg.value %}{{ reg.label }}{% if reg.count %} ({{ reg.count }}){% endif %}{% endif %}{% endfor %}
-                {% else %}
-                  {% if language == "az" %}Bütün regionlar{% elif language == "en" %}All regions{% else %}Все регионы{% endif %}
-                {% endif %}
-              </span>
-              <span class="km-custom-select__arrow" aria-hidden="true">
-                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
-              </span>
-            </button>
-            <div class="km-custom-select__menu" role="listbox" aria-labelledby="region-select-label" tabindex="-1">
-              <div class="km-custom-select__option{% if not selected.region %} is-selected{% endif %}" role="option" aria-selected="{% if not selected.region %}true{% else %}false{% endif %}" data-value="">
-                <span class="km-custom-select__opt-text">{% if language == "az" %}Bütün regionlar{% elif language == "en" %}All regions{% else %}Все регионы{% endif %}</span>
-              </div>
-              {% for reg in filter_options.regions %}
-                <div class="km-custom-select__option{% if selected.region == reg.value %} is-selected{% endif %}" role="option" aria-selected="{% if selected.region == reg.value %}true{% else %}false{% endif %}" data-value="{{ reg.value }}">
-                  <span class="km-custom-select__opt-text">{{ reg.label }}</span>
-                  {% if reg.count %}<span class="km-custom-select__opt-count">{{ reg.count }}</span>{% endif %}
-                </div>
-              {% endfor %}
-            </div>
-            <select name="region" aria-labelledby="region-select-label" id="filter-region" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
-              <option value="">{% if language == "az" %}Bütün regionlar{% elif language == "en" %}All regions{% else %}Все регионы{% endif %}</option>
-              {% for reg in filter_options.regions %}
-                <option value="{{ reg.value }}" {% if selected.region == reg.value %}selected{% endif %}>
-                  {{ reg.label }} {% if reg.count %}({{ reg.count }}){% endif %}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
+          <label id="region-select-label" for="filter-region"><span class="material-symbols-rounded" aria-hidden="true">location_on</span> {% if language == "az" %}Şəhər / Region{% elif language == "en" %}City / Region{% else %}Город / Регион{% endif %}</label>
+          <select name="region" id="filter-region" class="km-filter-select" data-km-select>
+            <option value="">{% if language == "az" %}Bütün regionlar{% elif language == "en" %}All regions{% else %}Все регионы{% endif %}</option>
+            {% for reg in filter_options.regions %}<option value="{{ reg.value }}"{% if selected.region == reg.value %} selected{% endif %}>{{ reg.label }}{% if reg.count %} ({{ reg.count }}){% endif %}</option>{% endfor %}
+          </select>
         </div>
 
         <div class="km-filter-group" data-specialist-district{% if online_only %} hidden{% endif %}>
           <label for="filter-district">{% if language == 'az' %}Rayon{% elif language == 'en' %}District{% else %}Район{% endif %}</label>
-          <select class="km-filter-select" name="district" id="filter-district">
+          <select class="km-filter-select" name="district" id="filter-district" data-km-select>
             <option value="">{% if language == 'az' %}Bütün rayonlar{% elif language == 'en' %}All districts{% else %}Все районы{% endif %}</option>
             {% for item in filter_options.districts %}<option data-region="{{ item.region }}" value="{{ item.value }}"{% if item.value == selected.district %} selected{% endif %}>{{ item.label }}{% if item.count %} ({{ item.count }}){% endif %}</option>{% endfor %}
           </select>
         </div>
         <div class="km-filter-group" data-specialist-metro{% if not office_allowed or selected.region and selected.region != 'baku' %} hidden{% endif %}>
           <label for="filter-metro">{% if language == 'az' %}Qəbul yerinə yaxın metro{% elif language == 'en' %}Metro near the specialist{% else %}Метро рядом с местом приёма{% endif %}</label>
-          <select class="km-filter-select" name="metro" id="filter-metro">
+          <select class="km-filter-select" name="metro" id="filter-metro" data-km-select>
             <option value="">{% if language == 'az' %}Bütün stansiyalar{% elif language == 'en' %}All stations{% else %}Все станции{% endif %}</option>
             {% for item in filter_options.metro_stations %}<option value="{{ item.value }}"{% if item.value == selected.metro %} selected{% endif %}>{{ item.label }}{% if item.count %} ({{ item.count }}){% endif %}</option>{% endfor %}
           </select>
@@ -230,40 +176,13 @@
 
         <!-- Consultation Language (Custom Select) -->
         <div class="km-filter-group" data-spec-custom-select-wrap>
-          <label id="lang-select-label"><span class="material-symbols-rounded" aria-hidden="true">translate</span> {% if language == "az" %}İş dili{% elif language == "en" %}Work language{% else %}Язык работы{% endif %}</label>
-          <div class="km-custom-select km-filter-custom-select" id="custom-select-language">
-            <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="lang-select-label custom-select-lang-val">
-              <span class="km-custom-select__value" id="custom-select-lang-val">
-                {% if selected.language == 'az' %}Azərbaycanca
-                {% elif selected.language == 'ru' %}Русский
-                {% elif selected.language == 'en' %}English
-                {% else %}{% if language == "az" %}Bütün dillər{% elif language == "en" %}All languages{% else %}Все языки{% endif %}{% endif %}
-              </span>
-              <span class="km-custom-select__arrow" aria-hidden="true">
-                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
-              </span>
-            </button>
-            <div class="km-custom-select__menu" role="listbox" aria-labelledby="lang-select-label" tabindex="-1">
-              <div class="km-custom-select__option{% if not selected.language %} is-selected{% endif %}" role="option" aria-selected="{% if not selected.language %}true{% else %}false{% endif %}" data-value="">
-                <span class="km-custom-select__opt-text">{% if language == "az" %}Bütün dillər{% elif language == "en" %}All languages{% else %}Все языки{% endif %}</span>
-              </div>
-              <div class="km-custom-select__option{% if selected.language == 'az' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.language == 'az' %}true{% else %}false{% endif %}" data-value="az">
-                <span class="km-custom-select__opt-text">Azərbaycanca</span>
-              </div>
-              <div class="km-custom-select__option{% if selected.language == 'ru' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.language == 'ru' %}true{% else %}false{% endif %}" data-value="ru">
-                <span class="km-custom-select__opt-text">Русский</span>
-              </div>
-              <div class="km-custom-select__option{% if selected.language == 'en' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.language == 'en' %}true{% else %}false{% endif %}" data-value="en">
-                <span class="km-custom-select__opt-text">English</span>
-              </div>
-            </div>
-            <select name="language" aria-labelledby="lang-select-label" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
-              <option value="">{% if language == "az" %}Bütün dillər{% elif language == "en" %}All languages{% else %}Все языки{% endif %}</option>
-              <option value="az" {% if selected.language == "az" %}selected{% endif %}>Azərbaycanca</option>
-              <option value="ru" {% if selected.language == "ru" %}selected{% endif %}>Русский</option>
-              <option value="en" {% if selected.language == "en" %}selected{% endif %}>English</option>
-            </select>
-          </div>
+          <label id="lang-select-label" for="filter-language"><span class="material-symbols-rounded" aria-hidden="true">translate</span> {% if language == "az" %}İş dili{% elif language == "en" %}Work language{% else %}Язык работы{% endif %}</label>
+          <select name="language" id="filter-language" class="km-filter-select" data-km-select>
+            <option value="">{% if language == "az" %}Bütün dillər{% elif language == "en" %}All languages{% else %}Все языки{% endif %}</option>
+            <option value="az"{% if selected.language == "az" %} selected{% endif %}>Azərbaycanca</option>
+            <option value="ru"{% if selected.language == "ru" %} selected{% endif %}>Русский</option>
+            <option value="en"{% if selected.language == "en" %} selected{% endif %}>English</option>
+          </select>
         </div>
 
         <!-- Rating selection (Pills matching catalog places) -->
@@ -345,47 +264,16 @@
     </button>
         </div>
         <div class="km-sort-wrapper">
-          <label id="sort-select-label">
+          <label id="sort-select-label" for="catalog-sort">
             {% if language == "az" %}Sıralama:{% elif language == "en" %}Sort by:{% else %}Сортировка:{% endif %}
           </label>
-          <div class="km-custom-select km-sort-custom-select" id="custom-select-sort">
-            <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="sort-select-label custom-select-sort-val">
-              <span class="km-custom-select__value" id="custom-select-sort-val">
-                {% if selected.sort == 'rating' %}{% if language == "az" %}Reytinqə görə{% elif language == "en" %}Highest rated{% else %}По рейтингу{% endif %}
-                {% elif selected.sort == 'experience' %}{% if language == "az" %}İş təcrübəsinə görə{% elif language == "en" %}Most experienced{% else %}По стажу работы{% endif %}
-                {% elif selected.sort == 'price_asc' %}{% if language == "az" %}Ucuzdan bahaya{% elif language == "en" %}Price: low to high{% else %}Сначала дешевые{% endif %}
-                {% elif selected.sort == 'price_desc' %}{% if language == "az" %}Bahadan ucuza{% elif language == "en" %}Price: high to low{% else %}Сначала дорогие{% endif %}
-                {% else %}{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}Сначала новые{% endif %}{% endif %}
-              </span>
-              <span class="km-custom-select__arrow" aria-hidden="true">
-                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
-              </span>
-            </button>
-            <div class="km-custom-select__menu" role="listbox" aria-labelledby="sort-select-label" tabindex="-1">
-              <div class="km-custom-select__option{% if selected.sort == 'new' or not selected.sort %} is-selected{% endif %}" role="option" aria-selected="{% if selected.sort == 'new' or not selected.sort %}true{% else %}false{% endif %}" data-value="new">
-                <span class="km-custom-select__opt-text">{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}Сначала новые{% endif %}</span>
-              </div>
-              <div class="km-custom-select__option{% if selected.sort == 'rating' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.sort == 'rating' %}true{% else %}false{% endif %}" data-value="rating">
-                <span class="km-custom-select__opt-text">{% if language == "az" %}Reytinqə görə{% elif language == "en" %}Highest rated{% else %}По рейтингу{% endif %}</span>
-              </div>
-              <div class="km-custom-select__option{% if selected.sort == 'experience' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.sort == 'experience' %}true{% else %}false{% endif %}" data-value="experience">
-                <span class="km-custom-select__opt-text">{% if language == "az" %}İş təcrübəsinə görə{% elif language == "en" %}Most experienced{% else %}По стажу работы{% endif %}</span>
-              </div>
-              <div class="km-custom-select__option{% if selected.sort == 'price_asc' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.sort == 'price_asc' %}true{% else %}false{% endif %}" data-value="price_asc">
-                <span class="km-custom-select__opt-text">{% if language == "az" %}Ucuzdan bahaya{% elif language == "en" %}Price: low to high{% else %}Сначала дешевые{% endif %}</span>
-              </div>
-              <div class="km-custom-select__option{% if selected.sort == 'price_desc' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.sort == 'price_desc' %}true{% else %}false{% endif %}" data-value="price_desc">
-                <span class="km-custom-select__opt-text">{% if language == "az" %}Bahadan ucuza{% elif language == "en" %}Price: high to low{% else %}Сначала дорогие{% endif %}</span>
-              </div>
-            </div>
-            <select id="catalog-sort" aria-labelledby="sort-select-label" name="sort" form="filters-form" onchange="this.form.requestSubmit()" class="km-filter-select km-sort-select km-visually-hidden" tabindex="-1" aria-hidden="true">
+          <select id="catalog-sort" name="sort" form="filters-form" onchange="this.form.requestSubmit()" class="km-filter-select km-sort-select" data-km-select data-km-select-clear="false" data-km-select-align="end">
               <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}Сначала новые{% endif %}</option>
               <option value="rating" {% if selected.sort == "rating" %}selected{% endif %}>{% if language == "az" %}Reytinqə görə{% elif language == "en" %}Highest rated{% else %}По рейтингу{% endif %}</option>
               <option value="experience" {% if selected.sort == "experience" %}selected{% endif %}>{% if language == "az" %}İş təcrübəsinə görə{% elif language == "en" %}Most experienced{% else %}По стажу работы{% endif %}</option>
               <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% if language == "az" %}Ucuzdan bahaya{% elif language == "en" %}Price: low to high{% else %}Сначала дешевые{% endif %}</option>
               <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% if language == "az" %}Bahadan ucuza{% elif language == "en" %}Price: high to low{% else %}Сначала дорогие{% endif %}</option>
             </select>
-          </div>
         </div>
       </div>
 
@@ -395,7 +283,7 @@
           <a class="km-specialist-card sp-directory-card" href="{{ specialist.get_absolute_url }}" aria-labelledby="sp-profile-{{ specialist.pk }} sp-name-{{ specialist.pk }}">
             <div class="sp-card-avatar" aria-hidden="true">
               {{ specialist.card_initials }}
-              {% if specialist.has_valid_photo %}{% responsive_image specialist.photo portrait=True as portrait %}<img src="{{ portrait.preview }}"{% if portrait.srcset %} srcset="{{ portrait.srcset }}" sizes="(max-width: 760px) 60px, 92px"{% endif %} alt="" width="92" height="92"{% if not forloop.first %} loading="lazy"{% endif %} onerror="this.hidden=true">{% endif %}
+              {% if specialist.has_valid_photo %}{% responsive_image specialist.photo portrait=True as portrait %}<img src="{{ portrait.preview }}"{% if portrait.srcset %} srcset="{{ portrait.srcset }}" sizes="(max-width: 760px) 104px, 136px"{% endif %} alt="" width="136" height="170"{% if not forloop.first %} loading="lazy"{% endif %} onerror="this.hidden=true">{% endif %}
             </div>
             <div class="sp-card-info">
               <h3 id="sp-name-{{ specialist.pk }}">{{ specialist.name }}</h3>

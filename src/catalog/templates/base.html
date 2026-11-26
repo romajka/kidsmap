@@ -142,7 +142,7 @@
     {% block navigation_motion %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=20261026_contacts_polish1">
     <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261120_header_fit">
-    <link rel="stylesheet" href="{% static 'css/components/foundation.css' %}?v=20261125_skip_link">
+    <link rel="stylesheet" href="{% static 'css/components/foundation.css' %}?v=20261126_width_skip">
     <link rel="stylesheet" href="{% static 'css/components/km_controls.css' %}?v=20261119_marks">
     <script src="{% static 'js/km_controls.js' %}?v=20261119_home_sp4" defer></script>
     <link rel="stylesheet" href="{% static 'css/components/km_search.css' %}?v=20261118_search_r1">
@@ -203,16 +203,32 @@
           <!-- Dedicated Parent Guides Shelf -->
           <section class="footer-guides-shelf" aria-labelledby="footer-guides-title">
             <div class="footer-guides-header">
-              <div class="footer-guides-badge">
-                <span class="footer-guides-badge-dot" aria-hidden="true"></span>
-                <span id="footer-guides-title" class="footer-guides-heading">{% if CURRENT_LANGUAGE == "az" %}Valideynlər üçün bələdçilər{% elif CURRENT_LANGUAGE == "en" %}Curated Parent Guides{% else %}Гиды для родителей{% endif %}</span>
+              <div class="footer-guides-title-group">
+                <div class="footer-guides-badge">
+                  <span class="footer-guides-badge-dot" aria-hidden="true"></span>
+                  <span id="footer-guides-title" class="footer-guides-heading">{% if CURRENT_LANGUAGE == "az" %}Valideynlər üçün bələdçilər{% elif CURRENT_LANGUAGE == "en" %}Curated Parent Guides{% else %}Гиды для родителей{% endif %}</span>
+                </div>
+                <p class="footer-guides-subtitle">
+                  {% if CURRENT_LANGUAGE == "az" %}Bakıda uşaqlarla gəzintilər, maraqlı məkanlar və istiqamətlər üzrə redaksiya tövsiyələri{% elif CURRENT_LANGUAGE == "en" %}Curated family walks, parks, and leisure activities in Baku{% else %}Проверенные прогулки, парки и подборки мест для отдыха с детьми в Баку{% endif %}
+                </p>
               </div>
-              <p class="footer-guides-subtitle">
-                {% if CURRENT_LANGUAGE == "az" %}Bakıda uşaqlarla gəzintilər, maraqlı məkanlar və istiqamətlər üzrə redaksiya tövsiyələri{% elif CURRENT_LANGUAGE == "en" %}Curated family walks, parks, and leisure activities in Baku{% else %}Проверенные прогулки, парки и подборки мест для отдыха с детьми в Баку{% endif %}
-              </p>
+              <div class="footer-guides-controls">
+                <div class="footer-guides-nav" aria-hidden="true">
+                  <button type="button" class="footer-guides-nav-btn" data-guides-prev aria-label="{% if CURRENT_LANGUAGE == 'az' %}Əvvəlki{% elif CURRENT_LANGUAGE == 'en' %}Previous{% else %}Назад{% endif %}">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <button type="button" class="footer-guides-nav-btn" data-guides-next aria-label="{% if CURRENT_LANGUAGE == 'az' %}Növbəti{% elif CURRENT_LANGUAGE == 'en' %}Next{% else %}Вперёд{% endif %}">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+                <a class="footer-guides-all-link" href="{% url 'parent_guide_index' %}"{% if request.resolver_match.url_name == 'parent_guide_index' %} aria-current="page"{% endif %}>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Hamısına bax{% elif CURRENT_LANGUAGE == "en" %}All guides{% else %}Все гиды{% endif %}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </a>
+              </div>
             </div>
-            <div class="footer-guides-grid">
-              <a href="{% url 'parent_guide' slug='parks' %}" class="footer-guide-card">
+            <div class="footer-guides-grid" data-guides-rail>
+              <a href="{% url 'parent_guide' slug='parks' %}" class="footer-guide-card"{% if request.resolver_match.url_name == 'parent_guide' and request.resolver_match.kwargs.slug == 'parks' %} aria-current="page"{% endif %}>
                 <div class="footer-guide-visual">
                   <img src="{% static 'img/guides/parks-hero-small.webp' %}" alt="" width="52" height="52" class="footer-guide-img" loading="lazy" decoding="async">
                   <span class="footer-guide-visual-badge footer-guide-visual-badge--parks" aria-hidden="true">
@@ -227,7 +243,7 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </span>
               </a>
-              <a href="{% url 'parent_guide' slug='baku-with-kids' %}" class="footer-guide-card">
+              <a href="{% url 'parent_guide' slug='baku-with-kids' %}" class="footer-guide-card"{% if request.resolver_match.url_name == 'parent_guide' and request.resolver_match.kwargs.slug == 'baku-with-kids' %} aria-current="page"{% endif %}>
                 <div class="footer-guide-visual">
                   <img src="{% static 'img/guides/family-hero.webp' %}" alt="" width="52" height="52" class="footer-guide-img" loading="lazy" decoding="async">
                   <span class="footer-guide-visual-badge footer-guide-visual-badge--family" aria-hidden="true">
@@ -242,7 +258,7 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </span>
               </a>
-              <a href="{% url 'parent_guide' slug='museums' %}" class="footer-guide-card">
+              <a href="{% url 'parent_guide' slug='museums' %}" class="footer-guide-card"{% if request.resolver_match.url_name == 'parent_guide' and request.resolver_match.kwargs.slug == 'museums' %} aria-current="page"{% endif %}>
                 <div class="footer-guide-visual">
                   <img src="{% static 'img/guides/museums-hero-small.webp' %}" alt="" width="52" height="52" class="footer-guide-img" loading="lazy" decoding="async">
                   <span class="footer-guide-visual-badge footer-guide-visual-badge--museums" aria-hidden="true">
@@ -257,7 +273,7 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </span>
               </a>
-              <a href="{% url 'parent_guide' slug='play-centers' %}" class="footer-guide-card">
+              <a href="{% url 'parent_guide' slug='play-centers' %}" class="footer-guide-card"{% if request.resolver_match.url_name == 'parent_guide' and request.resolver_match.kwargs.slug == 'play-centers' %} aria-current="page"{% endif %}>
                 <div class="footer-guide-visual">
                   <img src="{% static 'img/guides/play-centers-hero-small.webp' %}" alt="" width="52" height="52" class="footer-guide-img" loading="lazy" decoding="async">
                   <span class="footer-guide-visual-badge footer-guide-visual-badge--play" aria-hidden="true">
@@ -272,7 +288,7 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </span>
               </a>
-              <a href="{% url 'parent_guide' slug='sport' %}" class="footer-guide-card">
+              <a href="{% url 'parent_guide' slug='sport' %}" class="footer-guide-card"{% if request.resolver_match.url_name == 'parent_guide' and request.resolver_match.kwargs.slug == 'sport' %} aria-current="page"{% endif %}>
                 <div class="footer-guide-visual">
                   <img src="{% static 'img/guides/sport-hero.webp' %}" alt="" width="52" height="52" class="footer-guide-img" loading="lazy" decoding="async">
                   <span class="footer-guide-visual-badge footer-guide-visual-badge--sport" aria-hidden="true">
@@ -289,6 +305,31 @@
               </a>
             </div>
           </section>
+          <script>
+            (function () {
+              var shelf = document.querySelector('.footer-guides-shelf');
+              if (!shelf) return;
+              var rail = shelf.querySelector('[data-guides-rail]');
+              var prev = shelf.querySelector('[data-guides-prev]');
+              var next = shelf.querySelector('[data-guides-next]');
+              if (!rail || !prev || !next) return;
+              function syncNav() {
+                var max = Math.max(0, rail.scrollWidth - rail.clientWidth - 2);
+                prev.disabled = rail.scrollLeft <= 2;
+                next.disabled = rail.scrollLeft >= max;
+                shelf.classList.toggle('is-scrollable', rail.scrollWidth > rail.clientWidth + 4);
+              }
+              prev.addEventListener('click', function () {
+                rail.scrollBy({ left: -Math.max(260, rail.clientWidth * 0.72), behavior: 'smooth' });
+              });
+              next.addEventListener('click', function () {
+                rail.scrollBy({ left: Math.max(260, rail.clientWidth * 0.72), behavior: 'smooth' });
+              });
+              rail.addEventListener('scroll', syncNav, { passive: true });
+              window.addEventListener('resize', syncNav);
+              syncNav();
+            })();
+          </script>
           {% endif %}
 
           <div class="footer-grid">

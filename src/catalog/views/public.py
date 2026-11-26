@@ -151,6 +151,7 @@ def place_new(request):
 def _retired_public_page(request):
     return render(request, "pages/public_unavailable.html", status=410)
 
+@reuse_site_settings_for_render()
 def events_landing(request):
     # Events are retired rather than temporarily unavailable. A 410 removes
     # obsolete /events/ URLs from search indexes faster than a soft 404.
@@ -160,9 +161,26 @@ def events_landing(request):
         return _retired_public_page(request)
     if request.method in {"GET", "HEAD"} and set(request.GET) == {"page"} and request.GET.getlist("page") == ["1"]:
         return redirect(request.path, permanent=True)
+    from ..services import event_collections
+    from ..services.afisha_pages import apply_hub
+    from ..services.afisha_urls import afisha_language
+
+    language = afisha_language(request.LANGUAGE_CODE)
+    if request.method in {"GET", "HEAD"} and request.GET:
+        # Old ?date_filter=weekend links (and filters equal to a collection)
+        # move to the collection's own indexable URL.
+        categories = event_collections.category_rows() if request.GET.get("category") else {}
+        collection = event_collections.collection_for_query(request.GET, categories=categories)
+        if collection is not None:
+            target = collection.path(language, categories)
+            page = str(request.GET.get("page") or "")
+            if page.isdigit() and page != "1":
+                target += f"?page={page}"
+            return redirect(target, permanent=True)
 
     context = place_controller.build_events_landing_context(request)
     request._seo_events_page_number = context["page_obj"].number
+    apply_hub(request, context, language=language, now=timezone.now())
     if not request.GET:
         _, context["events_breadcrumbs_json"] = build_section_breadcrumbs(
             request, context["events_heading"], request.path,
@@ -184,6 +202,97 @@ def events_landing(request):
         "height": 630,
     }
     return render(request, "catalog/events_landing.html", context)
+
+
+def _event_share_image(request, language):
+    share_alt = {
+        "az": "KidsMap. Uşaqlar üçün afişa. Bakıda açıq havada ailəvi tədbirin illüstrasiyası.",
+        "ru": "KidsMap. Афиша для детей. Иллюстрация семейного события под открытым небом в Баку.",
+        "en": "KidsMap. Kids’ events. Illustration of an outdoor family event in Baku.",
+    }
+    language = language if language in share_alt else "az"
+    return {
+        "url": build_public_absolute_uri(request, static(f"img/events/share-{language}.jpg")),
+        "alt": share_alt[language],
+        "type": "image/jpeg",
+        "width": 1200,
+        "height": 630,
+    }
+
+
+@reuse_site_settings_for_render()
+def event_collection(request, first, second=None):
+    """Indexable afisha collection: /ru/afisha/vyhodnye/, /tedbirler/pulsuz/ …"""
+    if not is_events_section_enabled():
+        return _retired_public_page(request)
+    from ..services import event_collections as ec
+    from ..services.afisha_pages import apply_collection, build_with_params
+    from ..services.afisha_urls import afisha_language
+
+    language = afisha_language(request.LANGUAGE_CODE)
+    now = timezone.now()
+    categories = ec.category_rows()
+    segments = [first] + ([second] if second else [])
+    collection = ec.resolve_segments(segments, language, now=now, categories=categories)
+    if collection is ec.EXPIRED:
+        return redirect(ec.landing_path(language), permanent=True)
+    if collection is None:
+        raise Http404
+    # Other query parameters never reach here: PUBLIC_QUERY_PARAMS allows only ?page=.
+    canonical = collection.path(language, categories)
+    page = str(request.GET.get("page") or "")
+    if page == "1":
+        return redirect(canonical, permanent=True)
+    if request.path != canonical:
+        suffix = f"?page={page}" if page.isdigit() else ""
+        return redirect(canonical + suffix, permanent=True)
+
+    context = build_with_params(request, place_controller.build_events_landing_context, collection.params())
+    apply_collection(request, context, collection, language=language, now=now, categories=categories)
+    context["social_share_image"] = _event_share_image(request, language)
+    return render(request, "catalog/events_landing.html", context)
+
+
+def legacy_afisha_redirect(request, segment, rest):
+    """/events/… (old shared path) and /ru/tedbirler/… → this language's afisha URL."""
+    from django.http import QueryDict
+    from django.utils.translation import override
+
+    from ..services.public_urls import filtered_query_string_for_path
+    from ..services import event_collections as ec
+    from ..services.afisha_urls import afisha_language, afisha_segment
+
+    language = afisha_language(request.LANGUAGE_CODE)
+    if segment == afisha_segment(language) or (rest and not rest.endswith("/")):
+        raise Http404
+    parts = [part for part in rest.split("/") if part]
+    query = ""
+    if not parts:
+        target = ec.landing_path(language)
+        query = filtered_query_string_for_path(target, request.GET)
+        params = QueryDict(query)
+        categories = ec.category_rows() if params.get("category") else {}
+        collection = ec.collection_for_query(params, categories=categories) if params else None
+        if collection is not None:
+            target = collection.path(language, categories)
+            page = str(request.GET.get("page") or "")
+            return redirect(target + (f"?page={page}" if page.isdigit() and page != "1" else ""), permanent=True)
+        if set(params) == {"page"} and params.getlist("page") == ["1"]:
+            query = ""
+    elif parts == ["suggest"]:
+        with override(language):
+            target = reverse("event_suggest")
+    elif len(parts) <= 2:
+        categories = ec.category_rows()
+        collection = ec.resolve_segments(parts, language, categories=categories)
+        if collection is None:
+            raise Http404
+        target = ec.landing_path(language) if collection is ec.EXPIRED else collection.path(language, categories)
+        page = str(request.GET.get("page") or "")
+        query = f"page={page}" if collection is not ec.EXPIRED and page.isdigit() and page != "1" else ""
+    else:
+        raise Http404
+    return redirect(f"{target}?{query}" if query else target, permanent=True)
 
 @reuse_site_settings_for_render()
 def _render_place_list(request, force_new_only=False, created_after=None):

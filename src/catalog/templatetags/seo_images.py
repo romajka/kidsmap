@@ -13,7 +13,7 @@ register = template.Library()
 PUBLIC_IMAGE_ROUTES = frozenset({
     'seo_landing', 'home', 'place_list', 'place_new', 'place_detail', 'parent_guide',
     'organization_list', 'organization_detail', 'activity_detail',
-    'specialist_list', 'specialist_detail', 'events_landing', 'event_detail',
+    'specialist_list', 'specialist_detail', 'events_landing', 'event_collection', 'event_detail',
 })
 
 
@@ -48,7 +48,7 @@ def _page_image(context, route, language):
             card = getattr(place, '_card_presentation', {})
             if card.get('visible') and card.get('image_url'):
                 return card['image_url'], card.get('name', '')
-    if route in {'events_landing', 'place_list', 'place_new'}:
+    if route in {'events_landing', 'event_collection', 'place_list', 'place_new'}:
         for event in context.get('events') or []:
             if event.photo:
                 return event.photo.url, event.name_i18n(language)
