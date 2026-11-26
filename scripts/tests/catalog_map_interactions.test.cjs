@@ -10,13 +10,16 @@ function loadCatalogInternals(window) {
   return window.catalogTest;
 }
 
-test('opening the catalog while the Google SDK is loading waits for the map API before clustering', () => {
+test('opening the catalog while the Google SDK is loading waits for the map API before clustering', async () => {
   const dom = new JSDOM(`
     <button data-catalog-map-open></button>
     <section id="map-panel" data-catalog-map-panel data-map-provider="google" hidden>
       <div data-catalog-map></div><button data-catalog-map-close></button>
+      <div data-map-pagination="catalog" data-map-endpoint="/api/catalog/map/" data-language="ru" data-count="1">
+        <span data-map-status></span><button data-map-more></button>
+      </div>
     </section>
-    <script id="catalog-map-data" type="application/json">[{"id":1,"lat":40,"lng":49}]</script>
+
   `, {url: 'https://example.test/catalog/', runScripts: 'outside-only'});
   const {window} = dom;
   const {document} = window;
@@ -24,8 +27,23 @@ test('opening the catalog while the Google SDK is loading waits for the map API 
     window.matchMedia = () => ({matches: false, addEventListener() {}});
     window.requestAnimationFrame = callback => callback();
     window.google = {maps: {}};
+    const urls = [];
+    window.fetch = async url => {
+      urls.push(url);
+      return {ok: urls.length > 1, json: async () => ({count: 1, points: [{id: 1, lat: 40, lng: 49}]})};
+    };
+    window.eval(fs.readFileSync('static/js/map_paging.js', 'utf8'));
     window.eval(source);
+    assert.equal(urls.length, 0);
     document.querySelector('[data-catalog-map-open]').click();
+    await new Promise(resolve => setImmediate(resolve));
+    const retry = document.querySelector('[data-map-more]');
+    assert.equal(retry.hidden, false);
+    assert.equal(retry.textContent, 'Retry');
+    retry.click();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(urls.length, 2);
+    assert.equal(new URL(urls[1], window.location.href).searchParams.get('lang'), 'ru');
     const clusterScript = () => document.querySelector('script[src*="markerclusterer"]');
     assert.ok(document.querySelector('.catalog-map-loading'));
     assert.equal(clusterScript(), null, 'starting the cluster library early can disable clustering');
@@ -48,7 +66,7 @@ test('a delayed catalog viewport response preserves the current selection and ca
     window.KidsMapPaging = {create(options) { apply = options.onChange; return {}; }};
     const state = {
       panel: window.document.querySelector('section'), places: [selected], activePlace: selected,
-      googleMap: {}, motion: {cancel() { cancels++; }, select() {}},
+      googleMap: {}, initialized: true, motion: {cancel() { cancels++; }, select() {}},
       syncGooglePlaces() { synced = true; },
     };
     resetCatalogPaging(state);

@@ -5,6 +5,7 @@ from urllib.parse import urlsplit
 from django import template
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
+from django.utils.translation import gettext as _, override
 
 register = template.Library()
 validate_web_url = URLValidator(schemes=['https', 'http'])
@@ -53,30 +54,117 @@ def _has_photo_credits(parts):
     )
 
 
+# Hosts that only ever carry photo credits (author page, licence text).
+CREDIT_HOSTS = {'commons.wikimedia.org', 'upload.wikimedia.org', 'creativecommons.org'}
+LICENSE = re.compile(r'^(?:CC[\s-]|CC0\b|Public domain\b|Ictimai\b|Общественное достояние\b)', re.IGNORECASE)
+# "Tamaşanın dili — Azərbaycan dili." repeats the language badge in the hero.
+LANGUAGE_LINE = re.compile(
+    r'^(?:Tamaşanın dili|Tədbirin dili|Язык спектакля|Язык мероприятия|Language of the (?:show|event))\s*[—:–-]\s*\S',
+    re.IGNORECASE)
+# A paragraph that is mostly links (a "source: … https://…" line) is a reference, not story.
+SOURCE_TEXT_LIMIT = 160
+
+
+def _plain_text(parts):
+    return ''.join(piece.get('text', '') for piece in parts)
+
+
+def _is_source_line(paragraph, parts):
+    urls = [piece for piece in parts if 'url' in piece and piece['host'] not in CREDIT_HOSTS]
+    if not urls:
+        return False
+    if SCHEDULE.match(paragraph):
+        return True
+    rest = re.sub(r'[\s·•|,;:—–-]+', ' ', _plain_text(parts)).strip()
+    return len(rest) <= SOURCE_TEXT_LIMIT
+
+
+def _source_links(sources):
+    """One link per website, in the order they first appear; photo-credit hosts left out."""
+    links, seen = [], set()
+    for parts in sources:
+        for piece in parts:
+            host = piece.get('host')
+            if not host or host in CREDIT_HOSTS:
+                continue
+            label = host[4:] if host.startswith('www.') else host
+            if label in seen:
+                continue
+            seen.add(label)
+            links.append({'url': piece['url'], 'label': label})
+    return links
+
+
 @register.filter
 def event_story(value):
-    paragraphs, sources = [], []
+    paragraphs, sources, credits = [], [], []
     for paragraph in re.split(r'\n[ \t]*\n', str(value or '').replace('\r\n', '\n').strip()):
         if not paragraph:
             continue
         parts = _link_parts(paragraph)
-        if (SCHEDULE.match(paragraph) and any('url' in part for part in parts)
-                or PHOTO.match(paragraph) and _has_photo_credits(parts)):
+        if PHOTO.match(paragraph) and _has_photo_credits(parts):
+            credits.append(parts)
+        elif _is_source_line(paragraph, parts):
             sources.append(parts)
+        elif LANGUAGE_LINE.match(paragraph) and len(paragraph) <= 80:
+            continue
         else:
             paragraphs.append(paragraph)
-    return {'paragraphs': paragraphs, 'sources': sources}
+    if not sources and not credits:
+        return {'paragraphs': paragraphs, 'sources': []}
+    return {
+        'source_note': next((parts[0]['text'].strip() for parts in sources if SCHEDULE.match(parts[0]['text'])), ''),
+        'paragraphs': paragraphs,
+        'sources': sources + credits,
+        'links': _source_links(sources),
+        'credits': credits,
+    }
+
+
+def _credit(parts):
+    """{'author', 'license', 'file_url', 'license_url'} from "Author · CC BY-SA 4.0 · links"."""
+    tokens = [t.strip() for t in re.split(r'[·•|]', _plain_text(parts)) if t.strip(' .,;—–-')]
+    license_name = next((t for t in tokens if LICENSE.match(t)), '')
+    # every named creator stays (photographer, "retouch: …"): CC licences require it
+    author = ' · '.join(t for t in tokens if t != license_name and not re.fullmatch(r'\(?\d{4}\)?', t))
+    file_url = next((p['url'] for p in parts if p.get('host') == 'commons.wikimedia.org'), '')
+    license_url = next((p['url'] for p in parts if p.get('host') == 'creativecommons.org'), '')
+    return {'author': author, 'license': license_name, 'file_url': file_url, 'license_url': license_url}
 
 
 @register.filter
 def event_caption(value):
     caption = str(value or '').strip()
-    title, divider, rest = caption.partition(' — ')
-    if divider:
-        parts = _link_parts(rest)
-        if _has_photo_credits(parts):
-            return {'title': title, 'credits': parts}
-    return {'title': caption, 'credits': []}
+    for divider in (' — ', ' · '):
+        title, found, rest = caption.partition(divider)
+        if found:
+            parts = _link_parts(rest)
+            if _has_photo_credits(parts):
+                return {'title': title.strip(), 'credits': parts, 'credit': _credit(parts)}
+    return {'title': caption, 'credits': [], 'credit': None}
+
+
+AZ_LETTERS = re.compile(r'[əğıöüşçƏĞİÖÜŞÇ]')
+CYRILLIC = re.compile(r'[а-яёА-ЯЁ]')
+
+
+@register.filter
+def caption_for(title, language):
+    """"Kukla Teatrı / Театр кукол / Puppet Theatre (2015)" -> the part in the page's language."""
+    title = str(title or '').strip()
+    pieces = [p.strip() for p in title.split(' / ') if p.strip()]
+    if len(pieces) < 2:
+        return title
+    pieces = [re.sub(r'\s*\(\d{4}\)$', '', p) for p in pieces]
+    if language == 'ru':
+        pick = next((p for p in pieces if CYRILLIC.search(p)), None)
+    elif language == 'az':
+        pick = next((p for p in pieces if AZ_LETTERS.search(p)), None) or next(
+            (p for p in pieces if not CYRILLIC.search(p)), None)
+    else:
+        latin = [p for p in pieces if not CYRILLIC.search(p) and not AZ_LETTERS.search(p)]
+        pick = latin[-1] if latin else None
+    return pick or title
 
 
 @register.filter
@@ -106,6 +194,25 @@ def event_poster(event):
     """Poster facts (urls, orientation, focus, colour) for a card or hero; None without a photo."""
     from catalog.services.event_images import poster
     return poster(event)
+
+
+@register.simple_tag
+def event_duration(event, language):
+    """'1 saat' / '1 час 30 мин' / '1 h 30 min' for a same-day event up to 8 hours; '' otherwise."""
+    start, end = getattr(event, 'start_datetime', None), getattr(event, 'end_datetime', None)
+    if not start or not end or end <= start:
+        return ''
+    minutes = int((end - start).total_seconds() // 60)
+    if minutes > 8 * 60:
+        return ''
+    hours, minutes = divmod(minutes, 60)
+    with override(language):
+        if minutes and hours:
+            return _("%(hours)s ч %(minutes)s мин") % {"hours": hours, "minutes": minutes}
+        if minutes:
+            return _("%(minutes)s мин") % {"minutes": minutes}
+        return _("%(hours)s ч") % {"hours": hours}
+
 
 
 @register.simple_tag

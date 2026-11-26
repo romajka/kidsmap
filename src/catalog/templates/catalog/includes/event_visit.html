@@ -9,8 +9,8 @@
     {% firstof event_venue.address related_place_presentation.address as visit_address %}
     {% if visit_address %}
       <p>{{ visit_address }}</p>
-      <div class="event-visit-links">
-        <a href="https://www.google.com/maps/search/?api=1&amp;query={{ visit_address|urlencode }}" target="_blank" rel="noopener noreferrer">Google Maps<span class="material-symbols-rounded" aria-hidden="true">north_east</span></a>
+      <div class="event-visit-links event-visit-links--stub">
+        <a class="event-map-btn" href="https://www.google.com/maps/search/?api=1&amp;query={{ visit_address|urlencode }}" target="_blank" rel="noopener noreferrer"><span class="material-symbols-rounded" aria-hidden="true">map</span>Google Maps</a>
       </div>
     {% else %}
       <p>{% if language == 'az' %}Dəqiq ünvanı təşkilatçıdan öyrənin.{% elif language == 'en' %}Contact the organizer for the exact address.{% else %}Точный адрес уточните у организатора.{% endif %}</p>
@@ -23,7 +23,7 @@
     {% if event_organizer %}
       <p lang="{{ event_organizer.language }}">{% if event_organizer.url %}<a href="{{ event_organizer.url }}">{{ event_organizer.name }}</a>{% else %}{{ event_organizer.name }}{% endif %}</p>
     {% endif %}
-    <div class="event-visit-links">
+    <div class="event-visit-links event-visit-links--stub">
       {% if event.phone %}<a href="tel:{{ event.phone }}"><span class="material-symbols-rounded" aria-hidden="true">call</span>{{ event.phone }}</a>{% endif %}
       {% if event.instagram %}<a href="{{ event.instagram_url }}" target="_blank" rel="noopener noreferrer">Instagram<span class="material-symbols-rounded" aria-hidden="true">north_east</span></a>{% endif %}
     </div>

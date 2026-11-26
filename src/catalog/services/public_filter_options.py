@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass
 
 from django.db.models import Count
 
-from catalog.models import Category, Place, Subcategory
-from catalog.services.content_quality import public_place_queryset
+from catalog.models import Category, Subcategory
+from catalog.services.catalog_aggregate_scope import aggregate_places
 from catalog.services.options import build_localized_option, build_localized_options
 
 
@@ -89,11 +90,16 @@ def build_public_place_filter_options(
     selected_subcategory: str = "",
     selected_district: str = "",
     selected_metro: str = "",
+    public_rows=None,
 ) -> PublicPlaceFilterOptions:
-    public_qs = public_place_queryset(Place.objects.all())
+    public_qs = aggregate_places()
 
     from catalog.services.catalog_search import taxonomy_counts
-    category_counts, subcategory_counts = taxonomy_counts(public_qs)
+    if public_rows is not None and not any(place._has_public_activities for place in public_rows):
+        category_counts = Counter(place.category_id for place in public_rows if place.category_id)
+        subcategory_counts = Counter(str(place.subcategory_id) for place in public_rows if place.subcategory_id)
+    else:
+        category_counts, subcategory_counts = taxonomy_counts(public_qs)
     raw_district_counts = {}
     for item in (
         public_qs.order_by()

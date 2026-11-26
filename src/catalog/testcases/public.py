@@ -1528,7 +1528,7 @@ class TestPublicPagesSmoke(TestCase):
             self.assertIn("css/site.css", paths)
             self.assertIn("img/logo.svg", paths)
             self.assertIn("fonts/chiron/ChironGoRoundTC-PublicSubset.woff2", paths)
-            self.assertIn("js/bg_scene.js", paths)
+            self.assertIn("js/doodle_background.js", paths)
             self.assertIn("admin/css/pages/kidsmap_changelist.css", paths)
             self.assertIn("admin/css/kidsmap_taxonomy.css", paths)
             self.assertIn("admin/js/kidsmap_place_changelist.js", paths)
@@ -2539,7 +2539,7 @@ class TestCatalogEnhancements(TestCase):
             name_ru="Кружок с галереей",
             photo=SimpleUploadedFile("detail-main.png", b"main-image", content_type="image/png"),
         )
-        PlacePhoto.objects.create(
+        extra = PlacePhoto.objects.create(
             place=place,
             image=SimpleUploadedFile("detail-gallery.png", b"gallery-image", content_type="image/png"),
             order=1,
@@ -2548,13 +2548,28 @@ class TestCatalogEnhancements(TestCase):
         response = self.client.get(place.get_absolute_url(), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "data-place-gallery")
-        self.assertContains(response, "data-place-gallery-main")
-        self.assertContains(response, "swiper-wrapper")
-        self.assertContains(response, "place-gallery__backdrop")
-        self.assertContains(response, "place-gallery__image")
-        self.assertContains(response, "data-place-gallery-thumb")
-        self.assertContains(response, "static/js/place_gallery.js")
+        from html.parser import HTMLParser
+
+        expected_urls = {place.photo.url, extra.image.url}
+        gallery_photos = []
+
+        class Photos(HTMLParser):
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if tag == "img" and attrs.get("src") in expected_urls:
+                    gallery_photos.append((attrs["src"], attrs.get("alt", "").strip()))
+
+        Photos().feed(response.content.decode())
+        self.assertEqual({url for url, alt in gallery_photos}, expected_urls)
+        self.assertTrue(all(alt for url, alt in gallery_photos))
+
+    def test_single_place_photo_has_no_gallery_arrows(self):
+        place = create_quality_place(photo=SimpleUploadedFile("one-photo.png", b"one", content_type="image/png"))
+        with override("ru"):
+            response = self.client.get(place.get_absolute_url(), follow=True)
+        self.assertContains(response, place.photo.url)
+        self.assertNotContains(response, 'aria-label="Предыдущее фото"')
+        self.assertNotContains(response, 'aria-label="Следующее фото"')
 
     def test_catalog_card_does_not_render_redundant_more_details_block(self):
         create_quality_place(
@@ -2603,7 +2618,7 @@ class TestCatalogEnhancements(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "data-catalog-map-open")
-        self.assertContains(response, "catalog-map-data")
+        self.assertNotContains(response, 'id="catalog-map-data"')
         self.assertEqual(response.context["catalog_map_places_count"], 1)
         self.assertEqual(response.context["catalog_map_missing_count"], 1)
         language_code = response.context["language"]
@@ -2650,8 +2665,9 @@ class TestCatalogEnhancements(TestCase):
             matched_offers=[], translation_fallback=False,
             content_language=language_code, translation_label='')
         expected = [{**member, 'key': f'place:{matching_place.pk}', 'members': [{k: v for k, v in member.items() if k != 'category_icon_svg'}]}]
-        self.assertEqual(response.context["catalog_map_places"], expected)
-        actual_member = response.context["catalog_map_places"][0]["members"][0]
+        points = self.client.get(reverse("public_map"), {"district": "Ясамал"}).json()["points"]
+        self.assertEqual(points, expected)
+        actual_member = points[0]["members"][0]
         self.assertNotIn("phone1", actual_member)
         self.assertNotIn("whatsapp_url", actual_member)
 

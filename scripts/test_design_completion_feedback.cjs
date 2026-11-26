@@ -2,16 +2,8 @@
 // Run: node --test scripts/test_design_completion_feedback.cjs
 const {test} = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
 const {JSDOM} = require(process.env.KIDSMAP_JSDOM || '../.tmp/phone-dom/node_modules/jsdom');
-const template = fs.readFileSync(path.join(__dirname, '../src/catalog/templates/base.html'), 'utf8');
-const start = template.indexOf('const toastStack =');
-// The next independent controller marks the end; auth navigation now lives
-// in its own script, so this fixture must not depend on the removed anchor code.
-const end = template.indexOf('        (function () {', start);
-assert.ok(start > 0 && end > start, 'shared controller boundary must be present');
-const script = template.slice(start, end).replace(/{% trans (['"])(.*?)\1 %}/g, (_, quote, text) => text);
+const loadPublicActions = require('./tests/helpers/public_actions.cjs');
 const settle = () => new Promise(resolve => setImmediate(resolve));
 function setup(language='ru', fetch) {
   const dom = new JSDOM(`<html lang="${language}"><body><div data-toast-stack aria-live="polite"></div>
@@ -20,9 +12,9 @@ function setup(language='ru', fetch) {
   <template data-card-image-placeholder><div class="image-placeholder" data-category-placeholder role="img" aria-label="Photo coming soon"><span class="image-placeholder-icon" aria-hidden="true"><svg data-real-category="sport" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle></svg></span><span class="image-placeholder-text">Photo coming soon</span></div></template>
   </a><div class="card-price-pill">80 ₼</div></div>
   <form method="post" action="/like/7/" data-like-form><input name="csrfmiddlewaretoken" value="test"><button type="submit" class="like-btn" aria-pressed="false" data-favorite-add-label="Add" data-favorite-remove-label="Remove">Heart</button><span class="like-count">0</span></form></article>
-  </body></html>`, {url:'https://kidsmap.example/',runScripts:'outside-only'});
+  </body></html>`, {url:'https://kidsmap.example/',runScripts:'dangerously'});
   dom.window.fetch = fetch;
-  dom.window.eval(script);
+  loadPublicActions(dom.window);
   return dom;
 }
 test('failed card image keeps actual category placeholder, navigation and price', () => {

@@ -4,7 +4,7 @@
     {% if poster %}
       {% include 'catalog/includes/event_poster_media.html' with alt=event.name_i18n %}
     {% else %}
-      <img class="km-ev-card__placeholder" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="" loading="lazy" decoding="async">
+      <img width="900" height="524" class="km-ev-card__placeholder" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="" loading="lazy" decoding="async">
     {% endif %}
     <span class="km-ev-card__shade"></span>
     <span class="km-ev-card__stamp{% if facts.long %} km-ev-card__stamp--range{% endif %}">

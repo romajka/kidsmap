@@ -76,7 +76,7 @@ test("third-party tracker failure does not break contact actions", () => {
 });
 
 test("the actual shared emitter forwards once even when gtag is absent", () => {
-  const source = fs.readFileSync(path.join(__dirname, "../../../src/catalog/templates/base.html"), "utf8");
+  const source = fs.readFileSync(path.join(__dirname, "../public_actions.js"), "utf8");
   const emitter = source.match(/function emitAnalyticsEvent\(eventItem\) \{[\s\S]*?\n          \}/)[0];
   const f = fixture(); f.run();
   const context = vm.createContext({ window: f.window, sendGoogleAnalyticsEvent: () => {} });

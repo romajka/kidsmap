@@ -338,3 +338,47 @@
     }
   }
 }
+
+
+/* 6. FIRST PAINT IS FINAL (2026-11-26) ──────────────────────────────────────
+   Pages used to arrive pale: a 260ms cross-fade, then a 500ms rise on the place
+   hero, then .reveal-item blocks held at opacity 0 until JavaScript ran and
+   added .is-visible (+45ms per item). On a slow connection the content sat
+   half-transparent for seconds. Now:
+   - the page swap is a 140ms opacity-only fade;
+   - content is visible without JavaScript; the scroll reveal runs on the
+     compositor (animation-timeline) only where supported, and anything already
+     on screen at load is past its range, so it is simply there;
+   - card entrance is short and starts from visible. */
+::view-transition-old(root) { animation: kmFastOut 140ms ease-out both; }
+::view-transition-new(root) { animation: kmFastIn 140ms ease-out both; }
+@keyframes kmFastOut { to { opacity: 0; } }
+@keyframes kmFastIn { from { opacity: 0; } }
+
+.reveal-item,
+.reveal-item.is-visible {
+  opacity: 1;
+  transform: none;
+  transition: none;
+  transition-delay: 0s;
+  will-change: auto;
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal-item {
+      animation: kmReveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 22%;
+    }
+  }
+}
+@keyframes kmReveal { from { opacity: .35; transform: translateY(10px); } }
+
+@media (prefers-reduced-motion: no-preference) {
+  body.page-place_detail :is(.detail-title, .detail-hero__media, .detail-decision) {
+    animation-duration: .2s !important;
+    animation-delay: 0s !important;
+  }
+}
+.card.place-card { animation-duration: .18s !important; }
+@keyframes placeCardEntrance { from { opacity: .4; transform: translateY(6px); } to { opacity: 1; transform: none; } }

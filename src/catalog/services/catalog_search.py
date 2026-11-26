@@ -99,8 +99,11 @@ def place_audience_q(filters):
 
 
 def apply_offer_matching(qs,filters):
+    exact = has_offer_filters(filters)
+    if not exact and not filters.query:
+        return qs
     groups=matching_groups(filters).filter(activity__place_id=OuterRef('pk'))
-    if has_offer_filters(filters):
+    if exact:
         low,high=filters._normalized_age_bounds()
         admission = place_audience_q(filters)
         # Legacy taxonomy alone is useful browsing; category+age is never inferred.

@@ -95,5 +95,7 @@ class AIReferralTrackingEndpointTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'data-analytics-page-type="catalog"', html=False)
         self.assertContains(response, 'data-page-language="ru"', html=False)
-        self.assertContains(response, "window.kidsMapTrackEvent = send", html=False)
+        self.assertContains(response, "static/js/public_shell.js", html=False)
+        self.assertLess(response.content.index(b"static/js/public_shell.js"),
+                        response.content.index(b"static/js/ai_referral_tracking.js"))
         self.assertContains(response, "static/js/ai_referral_tracking.js", html=False)

@@ -156,6 +156,8 @@ if not CSRF_TRUSTED_ORIGINS and not DEBUG:
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = _env_bool("USE_X_FORWARDED_HOST", True)
 SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE", PRODUCTION_SECURITY_DEFAULTS)
+PAGE_CACHE_ENABLED = _env_bool("PAGE_CACHE_ENABLED", False)
+PAGE_CACHE_DEPLOY_SHA = os.getenv("PAGE_CACHE_DEPLOY_SHA", "")
 CSRF_COOKIE_SECURE = _env_bool("CSRF_COOKIE_SECURE", PRODUCTION_SECURITY_DEFAULTS)
 SESSION_COOKIE_HTTPONLY = _env_bool("SESSION_COOKIE_HTTPONLY", True)
 SECURE_CONTENT_TYPE_NOSNIFF = _env_bool("SECURE_CONTENT_TYPE_NOSNIFF", PRODUCTION_SECURITY_DEFAULTS)
@@ -357,6 +359,7 @@ TASK33_R1_WRITE_USER_IDS = tuple(
 MIDDLEWARE = [
     "config.middleware.ServerTimingMiddleware",
     "catalog.middleware.CanonicalPublicHostMiddleware",
+    "catalog.middleware.request_site_settings",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "catalog.middleware.AdminHostRedirectMiddleware",
@@ -373,6 +376,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "catalog.services.anonymous_page_cache.AnonymousPageCacheMiddleware",
 ]
 if HAS_WHITENOISE:
     MIDDLEWARE.insert(2, "whitenoise.middleware.WhiteNoiseMiddleware")
@@ -539,6 +543,11 @@ LOCALE_PATHS = [BASE_DIR / "locale"]
 
 # static
 STATIC_URL = "/static/"
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "config.public_scripts.PublicScriptFinder",
+]
 STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"

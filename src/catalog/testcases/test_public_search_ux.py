@@ -1,3 +1,4 @@
+from html.parser import HTMLParser
 from types import SimpleNamespace
 
 from django.core.paginator import Paginator
@@ -44,6 +45,19 @@ class PublicNoteLanguageTests(SimpleTestCase):
             self.assertNotIn('<script>', html)
 
 
+class SearchAndCompanionParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.elements = []
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        if tag == 'form' and 'data-home-map-filter-form' in attributes:
+            self.elements.append('search')
+        if 'data-mappy-helper' in attributes:
+            self.elements.append('companion')
+
+
 class PublicSearchMarkupTests(SimpleTestCase):
     def context(self, lang):
         request = RequestFactory().get('/' if lang == 'az' else f'/{lang}/')
@@ -61,8 +75,11 @@ class PublicSearchMarkupTests(SimpleTestCase):
                     context['map_places'] = places
                     html = render_to_string('pages/home.html', context)
                     self.assertEqual(html.count('id="home-hero-search-input"'), 1)
-                    self.assertEqual(html.count('data-home-map-filter-form'), 1)
-                    self.assertLess(html.index('data-home-map-filter-form'), html.index('data-mappy-helper'))
+                    parser = SearchAndCompanionParser()
+                    parser.feed(html)
+                    parser.close()
+                    self.assertEqual(parser.elements.count('search'), 1)
+                    self.assertLess(parser.elements.index('search'), parser.elements.index('companion'))
                     self.assertEqual('id="home-map-section"' in html, bool(places))
 
     def test_empty_catalog_class_uses_filtered_results(self):

@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const {JSDOM}=require(process.env.KIDSMAP_JSDOM || '../../.tmp/phone-dom/node_modules/jsdom');
 const source=fs.readFileSync('static/js/home_map.js','utf8');
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-function setup(){
+function setup(earlyQuery){
  const dom=new JSDOM(`<form data-home-map-filter-form><input name="q"><button data-home-search-clear type="button"></button><div id="home-search-autocomplete" hidden data-label-loading="Searching" data-label-error="Error"><p data-hs-ac-status hidden></p><ul data-hs-ac-list></ul><div data-hs-ac-empty hidden></div><div data-hs-ac-footer hidden><button type="button" data-hs-ac-show-all><span data-hs-ac-show-all-text></span></button></div></div></form>`,{runScripts:'outside-only',url:'http://localhost/ru/'});
  const w=dom.window,requests=[];let scheduled;
  w.setTimeout=fn=>{scheduled=fn;return 1;};w.clearTimeout=()=>{scheduled=null;};
@@ -13,6 +13,11 @@ function setup(){
  w.escapeHtml=s=>String(s).replaceAll('<','&lt;');w.highlightMatch=w.escapeHtml;w.formatAgeBadge=()=>'';
  w.eval(source.slice(source.indexOf('  function safeHomeMapUrl('),source.indexOf('  const CATEGORY_THEMES')));
  w.homeExplorer={showMap(){}};w.scrollToMap=()=>{};w.pendingFocusPlaceId=null;w.HTMLElement.prototype.scrollIntoView=function(){};
+ if (earlyQuery) {
+   const field = w.document.querySelector('input');
+   field.focus();
+   field.value = earlyQuery;
+ }
  w.eval(source.slice(source.indexOf('  function initHomeSearchAutocomplete('),source.indexOf('  function bindFilterListeners('))+'\ninitHomeSearchAutocomplete(()=>{});');
  const input=w.document.querySelector('input'),panel=w.document.querySelector('#home-search-autocomplete');
  return {w,requests,input,panel,type(value){input.value=value;input.dispatchEvent(new w.Event('input'));},flush(){const fn=scheduled;scheduled=null;fn?.();},close(){w.close();}};
@@ -45,4 +50,12 @@ test('photo tiles reject unsafe URLs and keep a fallback when a photo fails',asy
  t.input.dispatchEvent(new t.w.KeyboardEvent('keydown',{key:'ArrowDown'}));assert.equal(t.input.getAttribute('aria-activedescendant'),'home-search-option-0');
  t.input.dispatchEvent(new t.w.KeyboardEvent('keydown',{key:'Enter'}));assert.equal(t.input.value,'Art studio');assert.equal(t.panel.hidden,true);assert.equal(t.w.pendingFocusPlaceId,1);
  }finally{t.close();}
+});
+
+test('search picks up text entered before the map script arrives', () => {
+ const fixture = setup('judo');
+ try {
+   fixture.flush();
+   assert.equal(fixture.requests.length, 1);
+ } finally { fixture.close(); }
 });

@@ -1,0 +1,153 @@
+/* ═══ Place page as paper tickets (2026-11-26) ═══
+   Same language as the event page: cream poster paper, a dashed tear line under
+   every card's heading with two round bites at its ends, the summary card as a
+   ticket with a perforated stub for the call buttons. Loaded last on the page;
+   the :not(#kd-…) chain only matches the specificity the older layers use. */
+body.page-place_detail {
+  --tk-paper: #faf6e9;
+  --tk-line: #e6e1cb;
+  --tk-perf: #d6d1b8;
+  --tk-ink: var(--brand-spruce, #0d4a2a);
+  --tk-bite: 12px;
+  --tk-cut: 70px;
+}
+
+/* main column cards */
+body.page-place_detail .detail-main > .detail-card:not(#reviews):not(#kd-a):not(#kd-b):not(#kd-t) {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  margin: 0 0 16px !important;
+  padding: 18px clamp(18px, 2.4vw, 28px) 24px !important;
+  border: 0 !important;
+  border-radius: 22px !important;
+  background:
+    linear-gradient(90deg, var(--tk-perf) 55%, transparent 0) 0 calc(var(--tk-cut) - 1px) / 12px 2px repeat-x,
+    var(--tk-paper) !important;
+  box-shadow: inset 0 0 0 1px var(--tk-line) !important;
+  -webkit-mask:
+    radial-gradient(circle var(--tk-bite) at 0 var(--tk-cut), #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--tk-bite) at 100% var(--tk-cut), #0000 97%, #000) right / 51% 100% no-repeat !important;
+  mask:
+    radial-gradient(circle var(--tk-bite) at 0 var(--tk-cut), #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--tk-bite) at 100% var(--tk-cut), #0000 97%, #000) right / 51% 100% no-repeat !important;
+}
+body.page-place_detail .detail-main > .detail-card:not(#reviews):not(#kd-a):not(#kd-b):not(#kd-t):hover { box-shadow: inset 0 0 0 1px var(--tk-line) !important; }
+/* the heading row always sits above the tear line */
+body.page-place_detail .detail-main > .detail-card:not(#reviews) > :is(.detail-card__head, h2.detail-card__title):not(#kd-a):not(#kd-b) {
+  order: -1 !important;
+  display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important;
+  height: calc(var(--tk-cut) - 18px - 8px) !important; min-height: 0 !important; margin: 0 0 8px !important;
+}
+body.page-place_detail .detail-main > .detail-card > .detail-card__head > .detail-card__title,
+body.page-place_detail .detail-main > .detail-card > h2.detail-card__title {
+  min-width: 0 !important; margin: 0 !important; overflow: hidden !important; white-space: nowrap !important; text-overflow: ellipsis !important;
+  color: var(--tk-ink) !important; font-size: clamp(1.12rem, 1.6vw, 1.3rem) !important;
+}
+body.page-place_detail .detail-main > .detail-card > h2.detail-card__title:not(#kd-a):not(#kd-b) { justify-content: flex-start !important; gap: 10px !important; }
+body.page-place_detail .detail-main .detail-card__aside {
+  flex: none !important; padding: 4px 10px !important; border-radius: 999px !important; background: #fff !important; box-shadow: inset 0 0 0 1px var(--tk-line) !important;
+  color: var(--tk-ink) !important; font-size: .78rem !important; font-weight: 750 !important;
+}
+/* inner tiles on paper: white, quiet */
+body.page-place_detail .detail-main :is(.detail-week__day, .detail-facts__item, .detail-plans__item, .detail-plan, .detail-pricing__row):not(#kd-a) {
+  background: #fff !important; border-color: var(--tk-line) !important;
+}
+
+/* one line instead of seven identical tiles */
+.detail-week-uniform {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+  padding: 14px 16px; border-radius: 16px; background: #fff; box-shadow: inset 0 0 0 1px var(--tk-line);
+}
+.detail-week-uniform .material-symbols-rounded { color: var(--brand-turf, #1f8a4c); }
+.detail-week-uniform__days { color: #4b5a51; font-weight: 650; }
+.detail-week-uniform__time { color: var(--tk-ink); font: 800 1.15rem/1.2 var(--font-display); font-variant-numeric: tabular-nums; }
+
+/* summary card on the right: a ticket, the call buttons on its stub */
+body.page-place_detail .detail-side .detail-decision:not(#kd-a):not(#kd-b):not(#kd-t) {
+  border: 0 !important; border-radius: 22px !important; background: var(--tk-paper) !important;
+  box-shadow: inset 0 0 0 1px var(--tk-line), 0 18px 36px -28px rgb(13 73 36 / 45%) !important;
+}
+body.page-place_detail .detail-side .detail-decision__cta:not(#kd-a):not(#kd-b) {
+  margin: 4px -20px 0 !important; padding: 18px 20px 4px !important; border-top: 2px dashed var(--tk-perf) !important;
+}
+body.page-place_detail .detail-side :is(.detail-decision__cell, .detail-decision__grid > *):not(#kd-a) { background: #fff !important; border-color: var(--tk-line) !important; }
+
+body.page-place_detail .detail-side .detail-decision__facts:not(#kd-a):not(#kd-b) { border-bottom: 0 !important; padding-bottom: 0 !important; }
+body.page-place_detail .detail-side > .detail-card:not(#kd-a):not(#kd-b) {
+  border: 0 !important; border-radius: 22px !important; background: var(--tk-paper) !important; box-shadow: inset 0 0 0 1px var(--tk-line) !important;
+}
+
+/* extra phone numbers: a quiet line that opens */
+.detail-contacts__more { margin-top: 8px; }
+.detail-contacts__more summary {
+  display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px;
+  list-style: none; cursor: pointer; color: var(--tk-ink, #0d4a2a); font-size: .9rem; font-weight: 700;
+}
+.detail-contacts__more summary::-webkit-details-marker { display: none; }
+.detail-contacts__more summary .material-symbols-rounded { font-size: 1.1rem; }
+.detail-contacts__more-chevron { transition: transform .2s; }
+.detail-contacts__more[open] .detail-contacts__more-chevron { transform: rotate(180deg); }
+.detail-contacts__more .detail-contacts__secondary-items { display: grid; gap: 8px; padding-top: 6px; }
+
+/* where the facts come from: one quiet line at the end of the page */
+.detail-provenance {
+  display: flex; align-items: flex-start; gap: 10px; margin: 8px 4px 18px;
+  color: var(--muted, #5b6b62); font-size: .84rem; line-height: 1.5;
+}
+.detail-provenance > .material-symbols-rounded { flex: none; font-size: 1.1rem; margin-top: 1px; }
+.detail-provenance p { margin: 0; }
+.detail-provenance .detail-disclaimer__meta { font-weight: 700; color: #3f4f46; }
+.detail-provenance .detail-disclaimer__meta[data-verification="verified"] { color: var(--brand-turf, #1f8a4c); }
+.detail-provenance p > span + span::before { content: " · "; }
+.detail-sponsor-slot--main { margin: 0 0 24px; max-width: 420px; }
+
+@media (max-width: 767px) {
+  body.page-place_detail { --tk-cut: 64px; }
+  body.page-place_detail .detail-main > .detail-card:not(#reviews):not(#kd-a):not(#kd-b):not(#kd-t) { padding: 16px 16px 20px !important; border-radius: 20px !important; }
+  body.page-place_detail .detail-main > .detail-card:not(#reviews) > :is(.detail-card__head, h2.detail-card__title):not(#kd-a):not(#kd-b) { height: calc(var(--tk-cut) - 16px - 8px) !important; }
+  body.page-place_detail .detail-side .detail-decision__cta:not(#kd-a):not(#kd-b) { margin-inline: -16px !important; padding-inline: 16px !important; }
+}
+
+
+/* ═══ Reviews: the section is open, every review is its own little ticket ═══ */
+body.page-place_detail .detail-main > #reviews.detail-card:not(#kd-a):not(#kd-b) {
+  margin: 8px 0 16px !important; padding: 8px 0 0 !important; border: 0 !important; border-radius: 0 !important;
+  background: none !important; box-shadow: none !important; -webkit-mask: none !important; mask: none !important;
+}
+body.page-place_detail #reviews > .detail-card__head .detail-card__title { font-size: clamp(1.35rem, 2.2vw, 1.75rem) !important; color: var(--tk-ink) !important; }
+body.page-place_detail #reviews .detail-rating-summary:not(#kd-a) {
+  border: 0 !important; border-radius: 22px !important; background: var(--tk-ink) !important; color: #fffbee !important;
+}
+body.page-place_detail #reviews .detail-rating-summary :is(.detail-rating-summary__value, .detail-histogram__star, .detail-histogram__count, .detail-rating-summary__meta) { color: #fffbee !important; }
+body.page-place_detail #reviews .detail-histogram__track { background: rgb(255 255 255 / 16%) !important; }
+body.page-place_detail #reviews .detail-histogram__fill { background: #ffcc4d !important; }
+
+body.page-place_detail .detail-reviews-list:not(#kd-a) {
+  display: grid !important; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)) !important; gap: 16px !important;
+  filter: drop-shadow(0 1px 0 #e3dec8) drop-shadow(0 12px 18px rgb(13 73 36 / 11%));
+}
+body.page-place_detail .detail-reviews-list .review-item:not(#kd-a):not(#kd-b) {
+  --rv-cut: 74px;
+  display: flex !important; flex-direction: column !important; gap: 12px !important;
+  margin: 0 !important; padding: 0 20px 16px !important; border: 0 !important; border-radius: 20px !important;
+  background: var(--tk-paper) !important; box-shadow: none !important;
+  -webkit-mask:
+    radial-gradient(circle 11px at 0 var(--rv-cut), #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 11px at 100% var(--rv-cut), #0000 97%, #000) right / 51% 100% no-repeat !important;
+  mask:
+    radial-gradient(circle 11px at 0 var(--rv-cut), #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 11px at 100% var(--rv-cut), #0000 97%, #000) right / 51% 100% no-repeat !important;
+}
+body.page-place_detail .detail-reviews-list .km-review-byline:not(#kd-a) {
+  box-sizing: border-box; height: 74px !important; margin: 0 -20px !important; padding: 0 20px !important;
+  border-bottom: 2px dashed var(--tk-perf) !important; align-items: center !important;
+}
+body.page-place_detail .detail-reviews-list .km-review-byline__avatar { background: var(--brand-turf, #1f8a4c) !important; color: #fff !important; }
+body.page-place_detail .detail-reviews-list .km-review-byline h3 { color: var(--tk-ink) !important; }
+body.page-place_detail .detail-reviews-list .review-text { margin: 0 !important; color: #2c3a31; line-height: 1.65; }
+body.page-place_detail .detail-reviews-list .km-official-reply { border-radius: 16px !important; background: #fff !important; }
+body.page-place_detail #reviews :is(.detail-compose, .detail-reviews__empty, .detail-auth-gate, [class*="guest"]):not(#kd-a) {
+  border: 0 !important; border-radius: 20px !important; background: var(--tk-paper) !important; box-shadow: inset 0 0 0 1px var(--tk-line) !important;
+}

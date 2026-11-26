@@ -46,26 +46,28 @@ def coordinate_queryset(queryset, bounds=None):
     return qs
 
 
+def _map_window(qs, after):
+    window = qs.filter(pk__gt=after).order_by("pk").values_list("pk", flat=True)
+    ids = list(window[:PAGE_SIZE + 1])
+    has_more = len(ids) > PAGE_SIZE
+    total = qs.order_by().values("pk").count() if after or has_more else len(ids)
+    return ids[:PAGE_SIZE], total, has_more
+
+
 def build_map_page(queryset, language_code, filters=None, *, after=0, bounds=None, newest_first=False):
-    qs=coordinate_queryset(queryset,bounds)
-    total=qs.count()
+    qs = coordinate_queryset(queryset, bounds)
     if newest_first:
-        qs = qs.annotate(km_publication_date=Coalesce('published_at', 'created_at'))
-        ordering = ('-km_publication_date', '-pk')
-        # One complete snapshot mounts the homepage map once. Only its sidebar
-        # is revealed in batches; map pins must not depend on sidebar scrolling.
-        points = serialize_map_places(qs, language_code, filters, ordering=ordering)
-        return {'points': points, 'count': total, 'has_more': False, 'next_cursor': None}
-    else:
-        ordering = ('pk',)
-        window = qs.filter(pk__gt=after)
-        page_size = PAGE_SIZE
-    ids=list(window.order_by(*ordering).values_list('pk',flat=True)[:page_size+1])
-    has_more=len(ids)>page_size
-    selected=ids[:page_size]
-    points=serialize_map_places(qs.filter(pk__in=selected).order_by(*ordering),language_code,filters,
-        ordering=ordering if newest_first else None) if selected else []
-    return {'points':points,'count':total,'has_more':has_more,'next_cursor':selected[-1] if has_more else None}
+        qs = qs.annotate(km_publication_date=Coalesce("published_at", "created_at"))
+        points = serialize_map_places(qs, language_code, filters, ordering=("-km_publication_date", "-pk"),
+                                      already_filtered=True)
+        total = sum(len(point["members"]) for point in points)
+        return {"points": points, "count": total, "has_more": False, "next_cursor": None}
+    ids, total, has_more = _map_window(qs, after)
+    selected = qs.filter(pk__in=ids)
+    if filters is None:
+        selected = selected.order_by("pk")
+    points = serialize_map_places(selected, language_code, filters, already_filtered=True) if ids else []
+    return {"points": points, "count": total, "has_more": has_more, "next_cursor": ids[-1] if has_more else None}
 
 
 def page_metadata(page):

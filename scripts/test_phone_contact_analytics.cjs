@@ -5,9 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const {JSDOM, VirtualConsole} = require('../.tmp/phone-dom/node_modules/jsdom');
-const base = fs.readFileSync(path.join(__dirname, '../src/catalog/templates/base.html'), 'utf8');
-const bridgeStart = base.indexOf('function sendGoogleAnalyticsEvent');
-const bridge = base.slice(base.lastIndexOf('(function () {', bridgeStart), base.indexOf('// Footer Accordion toggles', bridgeStart));
+const loadPublicActions = require('./tests/helpers/public_actions.cjs');
 const phone = fs.readFileSync(path.join(__dirname, '../static/js/place_phone_reveal.js'), 'utf8');
 const contacts = {phones: [{number: '+994501234567', href: 'tel:+994501234567', display: '+994 50 123 45 67'}], whatsapp: 'https://wa.me/994501234567'};
 const settle = () => new Promise(resolve => setImmediate(resolve));
@@ -24,7 +22,7 @@ function setup(t, {compact = true, beacon = false, withBridge = true, preview = 
     <button data-phone-reveal="7" ${compact ? 'class="card-contact-toggle"' : ''}>Reveal</button>
     <button data-phone-reveal="7" data-phone-whatsapp="1">WhatsApp</button>
     <script id="site-preview-phones" type="application/json">${JSON.stringify({...contacts, place_id: 7})}</script>
-    </body></html>`, {url: 'https://kidsmap.example/ru/place/mock/', runScripts: 'outside-only', virtualConsole: console});
+    </body></html>`, {url: 'https://kidsmap.example/ru/place/mock/', runScripts: 'dangerously', virtualConsole: console});
   t.after(() => dom.window.close());
   const w = dom.window;
   w.gtag = (...args) => events.push(args);
@@ -37,7 +35,7 @@ function setup(t, {compact = true, beacon = false, withBridge = true, preview = 
     payloads.push(JSON.parse(options.body));
     return {ok: true};
   };
-  if (withBridge) w.eval(bridge);
+  if (withBridge) loadPublicActions(w);
   w.eval(phone);
   // Stop browser link navigation after the production click handlers run.
   w.document.addEventListener('click', event => { if (event.target.closest('a')) event.preventDefault(); });

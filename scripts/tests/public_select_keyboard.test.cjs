@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {JSDOM}=require(process.env.KIDSMAP_JSDOM||'jsdom');
 const read=p=>fs.readFileSync(path.join(__dirname,'../../',p),'utf8').replace(/\r\n/g,'\n');
-const catalog=read('src/catalog/templates/catalog/place_list.html').split('/* ─── Unified Custom Selects Interactivity ─── */')[1].split('\n\n\n    (function ()')[0];
+const catalog=read('static/js/catalog_filters.js').split('/* ─── Unified Custom Selects Interactivity ─── */')[1].split('\n\n\n    (function ()')[0];
 const organization=read('static/js/public_organization.js').split('    function initCustomSelects() {')[1].split('\n    function resetFilters()')[0];
 for(const [name,source] of [['catalog',catalog],['organization','function initCustomSelects(){'+organization+';initCustomSelects();']]){
  test(name+': keyboard opens, selects and restores focus',()=>{

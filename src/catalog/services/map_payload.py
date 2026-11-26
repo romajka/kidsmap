@@ -32,29 +32,51 @@ def map_identity(place):
     return (f'place:{place.pk}', coords) if coords else None
 
 
-def serialize_map_places(qs, language_code, filters=None, *, ordering=None):
+def serialize_map_places(qs, language_code, filters=None, *, ordering=None, already_filtered=False):
     from django.utils.translation import override
     with override(language_code):
-        return _serialize_map_places(qs, language_code, filters, ordering=ordering)
+        if filters is not None and not already_filtered:
+            qs = filters.apply(qs)
+        if ordering is not None:
+            qs = qs.order_by(*ordering)
+        return prepared_map_points(prepare_cards(qs, language_code, filters=filters), language_code)
 
 
-def _serialize_map_places(qs, language_code, filters=None, *, ordering=None):
-    if filters is not None:
-        qs = filters.apply(qs)
-    if ordering is not None:
-        qs = qs.order_by(*ordering)
+def prepared_map_points(cards, language_code):
     points = {}
     seen = set()
-    for place in prepare_cards(qs, language_code, filters=filters):
+    addresses = {}
+    categories = {}
+    district_labels = {}
+    metro_labels = {}
+    for place in cards:
         if place.pk in seen:
             continue
         seen.add(place.pk)
+        if place.district not in district_labels:
+            district_labels[place.district] = place.district_i18n(language_code)
+        if place.metro not in metro_labels:
+            metro_labels[place.metro] = place.metro_i18n(language_code)
+        district = district_labels[place.district]
+        metro = metro_labels[place.metro]
         identity = map_identity(place)
         if not identity:
             continue
         key, (lat, lng) = identity
         data = place._card_presentation
         category = place.category
+        if place.address not in addresses:
+            addresses[place.address] = place.address_i18n(language_code)
+        if place.category_id not in categories:
+            categories[place.category_id] = {
+                'category_color_bg': category.resolved_color_bg if category else '#F3F4F6',
+                'category_color_text': category.resolved_color_text if category else '#6B7280',
+                'category_icon_svg': category.icon_svg_source if category else '',
+                'category_icon_url': category.icon_file_url if category else '',
+                'category_icon_is_svg': category.icon_is_svg if category else False,
+                'category_icon_is_font': category.icon_is_font_class if category else False,
+                'category_icon_name': category.icon if category else '',
+            }
         # Match shared cards: exact filters display matched group ages instead.
         age = data['age_label']
         member = {
@@ -65,17 +87,11 @@ def _serialize_map_places(qs, language_code, filters=None, *, ordering=None):
             'image_url': data['image_url'], 'has_phone': data['contacts']['has_phone'],
             'has_whatsapp': data['contacts']['has_whatsapp'], 'has_contact': data['contacts']['has_contact'],
             'category': data['category_label'], 'category_code': place.category_code,
-            'category_color_bg': category.resolved_color_bg if category else '#F3F4F6',
-            'category_color_text': category.resolved_color_text if category else '#6B7280',
-            'category_icon_svg': category.icon_svg_source if category else '',
-            'category_icon_url': category.icon_file_url if category else '',
-            'category_icon_is_svg': category.icon_is_svg if category else False,
-            'category_icon_is_font': category.icon_is_font_class if category else False,
-            'category_icon_name': category.icon if category else '',
-            'address': place.address_i18n(language_code),
-            'district': place.district, 'district_label': place.district_i18n(language_code),
-            'metro': place.metro, 'metro_label': place.metro_i18n(language_code),
-            'location': ' / '.join(filter(None, (place.district_i18n(language_code), place.metro_i18n(language_code)))),
+            **categories[place.category_id],
+            'address': addresses[place.address],
+            'district': place.district, 'district_label': district,
+            'metro': place.metro, 'metro_label': metro,
+            'location': ' / '.join(filter(None, (district, metro))),
             'rating': float(place.rating_avg) if place.rating_avg is not None else None,
             'reviews_count': int(place.rating_count or 0),
             'schedule': place.schedule_summary or '',
@@ -106,3 +122,17 @@ def venue_identity_changed(previous, current, fields=None):
         name: getattr(current, name) for name in ('address', 'lat', 'lng')
         if fields is None or name in fields
     })
+
+
+def compact_map_point(point):
+    """Drop ``members`` when it only repeats the point itself.
+
+    A venue with one place is serialised as the place plus a one-item
+    ``members`` copy; every map script already treats a point without
+    ``members`` as ``[point]``.
+    """
+    members = point.get('members')
+    if isinstance(members, list) and len(members) == 1 and isinstance(members[0], dict):
+        if all(point.get(key) == value for key, value in members[0].items()):
+            return {key: value for key, value in point.items() if key != 'members'}
+    return point

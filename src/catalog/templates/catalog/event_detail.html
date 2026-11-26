@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% load i18n static tz catalog_i18n %}
+{% load i18n static tz catalog_i18n event_editorial %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block structured_data %}<script type="application/ld+json">{{ event_schema_json|safe }}</script>{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261124_nav"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2">{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261126_reviews"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2">{% endblock %}
 
 {% block content %}
 <article class="event-detail-page">
@@ -36,8 +36,8 @@
       {% endif %}
       {% if event_sessions|length > 1 %}
         <div class="event-sessions">
-          <span class="event-sessions__label">{% if language == 'az' %}Bu gün seanslar{% elif language == 'en' %}Showtimes this day{% else %}Сеансы в этот день{% endif %}</span>
-          <ul class="km-ev-card__times">{% for session in event_sessions %}<li><a class="km-ev-time{% if session.ended %} is-ended{% endif %}" href="{{ session.url }}"{% if session.event.pk == event.pk %} aria-current="true"{% endif %}>{% timezone 'Asia/Baku' %}<time datetime="{{ session.start|date:'c' }}">{{ session.start|date:'H:i' }}</time>{% endtimezone %}</a></li>{% endfor %}</ul>
+          <p class="event-sessions__label"><span class="material-symbols-rounded" aria-hidden="true">schedule</span>{% day_month event.start_datetime language %} · {% sessions_label event_sessions|length language %}</p>
+          <ul class="event-sessions__list">{% for session in event_sessions %}<li><a class="event-session{% if session.ended %} is-ended{% endif %}" href="{{ session.url }}"{% if session.event.pk == event.pk %} aria-current="true"{% endif %}>{% timezone 'Asia/Baku' %}<time datetime="{{ session.start|date:'c' }}">{{ session.start|date:'H:i' }}</time>{% endtimezone %}<span class="event-session__note">{% if session.event.pk == event.pk %}{% trans "выбран" %}{% elif session.ended %}{% trans "прошёл" %}{% else %}{% trans "выбрать" %}{% endif %}</span></a></li>{% endfor %}</ul>
         </div>
       {% endif %}
     </div>
@@ -99,12 +99,7 @@
     </section>
   {% endif %}
   {% include 'catalog/includes/event_suggest_cta.html' with variant='compact' %}
-  <section class="event-reviews" id="event-reviews">
-    <h2>{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}</h2>
-    {% if event_rating.count %}<p>{{ event_rating.average|floatformat:1 }} / 5 · {{ event_rating.count }}</p>{% endif %}
-    {% for review in event_reviews %}<article><h3>{{ review.author_name_i18n }}</h3><p>{{ review.current_revision.rating }} / 5</p><p>{{ review.current_revision.text|linebreaksbr }}</p></article>{% empty %}<p>{% if language == 'az' %}Hələ yayımlanmış rəy yoxdur.{% elif language == 'en' %}No published reviews yet.{% else %}Опубликованных отзывов пока нет.{% endif %}</p>{% endfor %}
-    {% include 'catalog/includes/typed_review_link.html' with review_kind='event' review_target=event %}
-  </section>
+  {% include 'catalog/includes/event_reviews.html' %}
 
   {% if not event.has_ended and event.occurrence_state != 'cancelled' %}{% include 'catalog/includes/event_more.html' %}{% endif %}
 

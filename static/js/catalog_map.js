@@ -180,17 +180,6 @@
     });
   }
 
-  function parsePlaces() {
-    const dataEl = document.getElementById("catalog-map-data");
-    if (!dataEl) return [];
-
-    try {
-      return JSON.parse(dataEl.textContent || "[]");
-    } catch (_error) {
-      return [];
-    }
-  }
-
   function hasValidCoordinates(place) {
     return (
       place &&
@@ -384,7 +373,9 @@
       mapEl: mapEl,
       openBtn: openBtn,
       closeBtn: closeBtn,
-      places: parsePlaces().filter(hasValidCoordinates),
+      places: [],
+      requested: false,
+      loaded: false,
       provider: (panel.dataset.mapProvider || "").trim(),
       detailsLabel: panel.dataset.detailsLabel || "",
       routeLabel: panel.dataset.routeLabel || "",
@@ -425,13 +416,18 @@
   function resetCatalogPaging(state) {
     state.paging?.destroy();
     const control=state.panel.querySelector('[data-map-pagination="catalog"]');
-    const metadata=document.getElementById("catalog-map-page");
-    if (!control || !metadata || !window.KidsMapPaging) return;
-    const initial=JSON.parse(metadata.textContent);
-    if (initial.has_more) state.panel.querySelector(".catalog-map-meta .chip")?.remove();
+    if (!control || !window.KidsMapPaging) return;
+    state.requested = false;
+    state.loaded = false;
+    if (!state.googleMap && !state.leafletMap) state.initialized = false;
     state.paging=window.KidsMapPaging.create({
-      control, initial:{...initial,points:state.places},
-      getParams:()=>new URLSearchParams(window.location.search),
+      control, initial: {count: Number(control.dataset.count), points: []},
+      getParams: () => {
+        const params = new URLSearchParams(window.location.search);
+        params.set("lang", control.dataset.language);
+        params.set("compact", "1");
+        return params;
+      },
       onChange:(points, page)=>{
         state.panel.querySelector(".catalog-map-meta .chip")?.remove();
         // A viewport request can finish after the visitor clicks a pin or
@@ -441,7 +437,15 @@
           state.motion?.cancel();
         }
         state.choice?.close(false);
-        state.places = points;
+        if (!state.loaded && !page.hasMore && page.pointsLabel) {
+          const chip = document.createElement("span");
+          chip.className = "chip";
+          chip.textContent = page.pointsLabel;
+          state.panel.querySelector(".catalog-map-meta")?.prepend(chip);
+        }
+        state.places = points.filter(hasValidCoordinates);
+        state.loaded = true;
+        if (!state.initialized && !state.panel.hidden) ensureCatalogMapInitialized();
         if (state.googleMap) {
           state.syncGooglePlaces();
           if (page.append && !page.bounds) revealCatalogResults(state);
@@ -1116,6 +1120,14 @@
     const state = ensureCatalogMapState();
     if (!state) return;
 
+    if (!state.loaded && state.paging) {
+      if (!state.requested) {
+        state.requested = true;
+        renderCatalogMapState(state.mapEl, state.loadingMessage, "catalog-map-empty");
+        state.paging.replace();
+      }
+      return;
+    }
     if (state.provider !== "google") {
       renderCatalogMapState(state.mapEl, state.fallbackMessage, "catalog-map-empty");
       state.initialized = true;
@@ -1280,7 +1292,7 @@
     if (state && state.panel === document.querySelector('[data-catalog-map-panel]')) {
       window.kidsMapCancelCatalogMapTransition();
       closeActiveCard(state);
-      state.places = parsePlaces().filter(hasValidCoordinates);
+      state.places = [];
       resetCatalogPaging(state);
       const openBtn = document.querySelector('[data-catalog-map-open]');
       if (openBtn && state.openBtn !== openBtn) {
@@ -1293,6 +1305,7 @@
         listBtn.addEventListener("click", () => setCatalogMapOpen(false));
       }
       syncCatalogViewControls(state);
+      if (!state.panel.hidden) ensureCatalogMapInitialized();
       if (state.googleMap) {
         state.syncGooglePlaces();
         google.maps.event.trigger(state.googleMap, 'resize');

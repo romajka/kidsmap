@@ -13,7 +13,7 @@
           alt=""
           width="38"
           height="44"
-          loading="eager"
+          loading="eager"{% if request.resolver_match.url_name == "home" %} fetchpriority="high"{% endif %}
         />
       </span>
       <span class="km-brand-title">{{ brand_name }}</span>

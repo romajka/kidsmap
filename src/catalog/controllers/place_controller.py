@@ -13,6 +13,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext, override
 
+from catalog.services.public_cache import cached
+from catalog.services.catalog_aggregate_scope import aggregate_places, public_place_count
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository
 from catalog.models import Event, FunnelEvent, Place, Category, Subcategory
 from catalog.repositories.django_repositories import DjangoPlaceRepository, DjangoSettingsRepository
@@ -74,9 +76,8 @@ class PlaceController:
         timeline_places = []
         events = []
         stats_qs = None
-        map_places = []
-        map_page = {"points": [], "count": 0, "has_more": False, "next_cursor": None}
-        from catalog.services.public_map_page import build_map_page, page_metadata
+        map_count = 0
+        from catalog.services.public_map_page import coordinate_queryset
         showing_events = filters.event_type == "temporary" and not force_new_only
         rating_sort_available = False
 
@@ -84,12 +85,8 @@ class PlaceController:
             qs = self._filtered_event_queryset()
         elif force_new_only:
             stats_qs = qs
-            timeline_places = list(qs.order_by("-created_at")[:5])
+            timeline_places = list(qs.order_by("-created_at", "-id")[:5])
             qs = qs.exclude(id__in=[place.id for place in timeline_places])
-        else:
-            map_page = build_map_page(qs, language_code, filters)
-            map_places = map_page["points"]
-
         if not force_new_only and not showing_events:
             rating_sort_available = (
                 filters.rating_sort_available
@@ -97,8 +94,16 @@ class PlaceController:
                 else rating_sort_is_available()
             )
 
+        unfiltered = not (request.GET or force_new_only or created_after) and type(self.place_repository) is DjangoPlaceRepository
         paginator = Paginator(qs, 12)
+        paginator.count = (cached("catalog_places_total", (), public_place_count) if unfiltered
+                           else qs.order_by().values("pk").count())
         page_obj = paginator.get_page(request.GET.get("page"))
+        if not force_new_only and not showing_events:
+            map_count = cached(
+                "catalog_map_count", (created_after, filters.selected()),
+                lambda: coordinate_queryset(aggregate_places() if unfiltered else qs).order_by().values("pk").count(),
+            )
         if not force_new_only:
             # Use the rendered page, including Paginator's invalid-page fallback,
             # so query variants never claim a canonical for nonexistent content.
@@ -109,6 +114,7 @@ class PlaceController:
         from catalog.services.public_presentation import prepare_cards, organization_matches
         if not showing_events:
             page_obj.object_list = prepare_cards(page_obj.object_list, language_code, filters=filters)
+        if timeline_places:
             timeline_places = prepare_cards(timeline_places, language_code, filters=filters)
         selected = filters.selected()
         query_without_page = urlencode(self._build_normalized_query_params(selected=selected, force_new_only=force_new_only))
@@ -144,25 +150,34 @@ class PlaceController:
         else:
             results_count_label = f"Найдено мест: {total_results}"
 
-        public_filter_options = build_public_place_filter_options(
+        filter_option_args = dict(
             language_code=language_code,
             selected_category=selected.get("category", ""),
             selected_subcategory=selected.get("subcategory", ""),
             selected_district=selected.get("district", ""),
             selected_metro=selected.get("metro", ""),
         )
+        public_filter_options = cached(
+            'filter_options', filter_option_args,
+            lambda: build_public_place_filter_options(**filter_option_args),
+        )
         district_options = public_filter_options.districts
         metro_options = public_filter_options.metro
 
         # Hero stats use the same public sources as the home page (no hand-written
         # "65+ places" / "17 categories" that drift from the real catalogue).
-        catalog_places_total = public_place_queryset(Place.objects.all()).count()
+        catalog_places_total = cached(
+            'catalog_places_total', (), public_place_count,
+        )
         catalog_categories_total = len(public_filter_options.categories)
 
         # Public recommendations follow the same eligibility as the sitemap.
-        catalog_seo_pages = build_seo_landing_visibility(
-            self.settings_repository.get_catalog_settings()
-        ).pages(language_code, indexable_only=True)
+        catalog_seo_pages = cached(
+            'catalog_seo_pages', (language_code,),
+            lambda: build_seo_landing_visibility(
+                self.settings_repository.get_catalog_settings()
+            ).pages(language_code, indexable_only=True),
+        )
 
         context = {
             "catalog_seo_pages": catalog_seo_pages,
@@ -239,11 +254,8 @@ class PlaceController:
                 available=metro_options,
                 preferred=("28 Май", "Гянджлик", "Эльмляр Академиясы", "Нариман Нариманов", "Иншаатчылар"),
             ),
-            "catalog_map_places": map_places,
-            "catalog_map_points_count": len(map_places),
-            "catalog_map_places_count": map_page["count"],
-            "catalog_map_page": page_metadata(map_page),
-            "catalog_map_missing_count": max(page_obj.paginator.count - map_page["count"], 0) if not force_new_only else 0,
+            "catalog_map_places_count": map_count,
+            "catalog_map_missing_count": max(paginator.count - map_count, 0) if not force_new_only else 0,
             "analytics_events": self._build_list_analytics_events(
                 selected=selected,
                 results_total=page_obj.paginator.count,
@@ -833,7 +845,10 @@ class PlaceController:
                 distance_km=2.0 * 6371.0088 * ASin(Sqrt(Least(haversine, 1.0))),
             ).order_by(F("distance_km") - category_bonus, "distance_km", "pk")
 
-        distances = dict(ranked.values_list("pk", "distance_km")[:limit])
+        distances = cached(
+            'nearby_places', (place.pk, origin, place.category_id, limit),
+            lambda: dict(ranked.values_list("pk", "distance_km")[:limit]),
+        )
         cards = prepare_cards(base.filter(pk__in=distances), language_code)
         by_pk = {card.pk: card for card in cards}
         suggestions = []

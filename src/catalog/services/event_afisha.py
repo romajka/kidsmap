@@ -70,11 +70,16 @@ def card_facts(event, *, now=None):
 def build_event_quick_stats(*, now=None):
     """Counts for quick chips; the same reader and periods as the afisha filters."""
     now = now or timezone.now()
-    stats = {key: query_public_events({'date_filter': key}, now=now).count() for key in QUICK_PERIODS}
-    stats['total'] = query_public_events({}, period=EventPeriod(now, None), now=now).count()
-    stats['running'] = query_public_events({}, period=EventPeriod(now, now + timedelta(seconds=1)), now=now).count()
-    stats['past'] = query_past_events({}, now=now).count()
-    return stats
+    from django.db.models import Count, Q
+    from catalog.services.event_queries import event_filter_condition, parse_event_period
+
+    periods = {key: parse_event_period({'date_filter': key}, now=now) for key in QUICK_PERIODS}
+    periods['total'] = EventPeriod(now, None)
+    periods['running'] = EventPeriod(now, now + timedelta(seconds=1))
+    counts = {key: Count('pk', filter=event_filter_condition({}, period)) for key, period in periods.items()}
+    counts['past'] = Count('pk', filter=event_filter_condition({}, EventPeriod(now - PAST_WINDOW, now))
+                           & Q(end_datetime__lte=now))
+    return query_public_events({}, period=EventPeriod(None, None), now=now).aggregate(**counts)
 
 
 def upcoming_events_for_home(*, limit=4, now=None):

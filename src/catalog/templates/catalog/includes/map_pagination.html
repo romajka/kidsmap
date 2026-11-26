@@ -1,5 +1,5 @@
 {% load i18n %}
-<div class="home-map-pagination" data-map-pagination="{{ map_kind }}" data-map-endpoint="{% url 'public_map' %}"
+<div class="home-map-pagination" data-map-pagination="{{ map_kind }}" data-map-endpoint="{% url 'public_map' %}"{% if map_kind == "catalog" %} data-language="{{ request.LANGUAGE_CODE }}" data-count="{{ catalog_map_places_count }}"{% endif %}
   data-shown-label="{% if request.LANGUAGE_CODE == 'az' %}Göstərilir: {shown} / {total}{% elif request.LANGUAGE_CODE == 'en' %}Shown: {shown} / {total}{% else %}Показано: {shown} / {total}{% endif %}"
   data-more-label="{% if request.LANGUAGE_CODE == 'az' %}Daha çox məkan göstər{% elif request.LANGUAGE_CODE == 'en' %}Show more places{% else %}Загрузить места{% endif %}"
   data-loading-label="{% if request.LANGUAGE_CODE == 'az' %}Yüklənir…{% elif request.LANGUAGE_CODE == 'en' %}Loading…{% else %}Загрузка…{% endif %}"

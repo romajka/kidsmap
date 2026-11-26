@@ -59,12 +59,20 @@ class DjangoPlaceRepository(IPlaceRepository):
     def active_queryset_with_gallery(self) -> QuerySet:
         return public_place_queryset(Place.objects.all()).select_related("owner").prefetch_related("gallery", "events")
 
-    def top_popular(self, limit: int) -> QuerySet:
+    def top_popular(self, limit: int, *, public_rows=None):
+        if public_rows is not None:
+            # Keep the DB's ordering, then return the same validated row snapshots.
+            permanent = [place for place in public_rows.values() if not place.is_temporary]
+            recommended = [place.pk for place in permanent if place.is_home_recommended]
+            ids = recommended or [place.pk for place in permanent]
+            ordering = ("home_recommended_order", "-updated_at", "-likes_count", "-id") if recommended else ("-likes_count", "-updated_at", "-id")
+            ranked = Place.objects.filter(pk__in=ids).order_by(*ordering).values_list("pk", flat=True)[:limit]
+            return [public_rows[pk] for pk in ranked]
         active_places = self.active_queryset().filter(is_temporary=False)
         recommended_places = active_places.filter(is_home_recommended=True)
         if recommended_places.exists():
-            return recommended_places.order_by("home_recommended_order", "-updated_at", "-likes_count")[:limit]
-        return active_places.order_by("-likes_count", "-updated_at")[:limit]
+            return recommended_places.order_by("home_recommended_order", "-updated_at", "-likes_count", "-id")[:limit]
+        return active_places.order_by("-likes_count", "-updated_at", "-id")[:limit]
 
     def map_ready_queryset(self, queryset: QuerySet | None = None) -> QuerySet:
         base_queryset = queryset if queryset is not None else self.active_queryset()

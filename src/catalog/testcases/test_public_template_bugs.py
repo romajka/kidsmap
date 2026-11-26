@@ -1,4 +1,5 @@
 """Public regressions for locale fallback, place type and free guide selection."""
+import json
 import re
 
 from django.test import TestCase, override_settings
@@ -29,19 +30,37 @@ class PublicTemplateBugTests(TestCase):
                 self.assertContains(response, heading)
                 self.assertNotContains(response, 'Пока нет отзывов с текстом')
 
-    def test_detail_uses_place_type_in_both_summary_and_facts(self):
-        place = create_quality_place(name='Synthetic athletics', lesson_format='individual', lesson_duration_minutes=60)
-        with override('en'):
-            response = self.client.get(place.get_absolute_url())
-        html = response.content.decode()
-        summary = html.split('detail-decision__grid', 1)[1].split('</div>\n\n', 1)[0]
-        facts = html.split('class="detail-facts"', 1)[1].split('</section>', 1)[0]
-        for section in (summary, facts):
-            self.assertIn('Place type', section)
-            self.assertIn('Permanent place', section)
-            self.assertNotIn('Individual', section)
-        self.assertContains(response, '60 min')
-        self.assertNotContains(response, '60 мин')
+    def test_place_type_is_visible_beside_name_and_absent_from_facts(self):
+        place = create_quality_place(name='Synthetic athletics', name_az='Atletika', name_ru='Атлетика',
+                                     name_en='Athletics', lesson_format='individual', lesson_duration_minutes=60)
+        for lang, kind, label in (
+            ('az', 'Daimi məkan', 'Məkan növü'),
+            ('ru', 'Постоянное место', 'Тип места'),
+            ('en', 'Permanent place', 'Place type'),
+        ):
+            with self.subTest(lang=lang), override(lang):
+                response = self.client.get(place.get_absolute_url())
+                html = response.content.decode()
+                intro = html.split('class="place-poster__intro"', 1)[1].split('</h1>', 1)[0] + '</h1>'
+                facts = html.split('class="detail-facts"', 1)[1].split('</section>', 1)[0]
+                self.assertInHTML(f'<span class="place-poster__kind">{kind}</span>', '<div' + intro + '</div>')
+                self.assertIn(place.name_i18n(lang), intro.split('<h1', 1)[1])
+                self.assertNotIn(kind, facts)
+                self.assertNotIn(label, facts)
+                for section in (intro, facts):
+                    self.assertNotIn('Individual', section)
+                if lang == 'en':
+                    self.assertContains(response, '60 min')
+                    self.assertNotContains(response, '60 мин')
+
+    def test_weekday_abbreviation_has_a_localized_screen_reader_name(self):
+        place = create_quality_place(with_schedule_days=True)
+        for lang, short, full in (('ru', 'Сб', 'Суббота'), ('az', 'Şən', 'Şənbə'), ('en', 'Sat', 'Saturday')):
+            with self.subTest(lang=lang), override(lang):
+                response = self.client.get(place.get_absolute_url())
+                self.assertContains(response, f'<abbr title="{full}"><span aria-hidden="true">{short}</span>'
+                                    f'<span class="visually-hidden">{full}</span></abbr>', html=True, count=1)
+                self.assertContains(response, '10:00–16:00')
 
     def test_english_detail_duration_does_not_fall_back_to_russian(self):
         place = create_quality_place(name='Synthetic duration', lesson_duration_minutes=60)
@@ -112,3 +131,25 @@ class PublicTemplateBugTests(TestCase):
         self.assertEqual(len(ids), 4)
         self.assertEqual(set(ids), {str(p.pk) for p in places})
         self.assertNotIn('data-rail-copy', rail)
+
+
+class PlaceDetailCleanupTests(TestCase):
+    def test_manat_has_a_screen_reader_code_and_keeps_the_offer_currency(self):
+        place = create_quality_place(with_pricing_plan=True)
+        for lang in ('az', 'ru', 'en'):
+            with self.subTest(lang=lang), override(lang):
+                response = self.client.get(place.get_absolute_url())
+                offer = json.loads(response.context['place_schema_json'])['offers']
+                self.assertEqual(offer['priceCurrency'], 'AZN')
+                html = response.content.decode()
+                for prefix in ('detail-decision__price-value', 'detail-plans__price'):
+                    field = html.split(f'class="{prefix}">', 1)[1]
+                    self.assertRegex(field, r'^80 <span aria-hidden="true">₼</span><span class="visually-hidden">AZN</span>')
+
+    def test_uniform_week_collapses_only_identical_open_days(self):
+        from catalog.templatetags.place_detail_extras import uniform_week
+        same = [{'lines': ['10:00–22:30'], 'is_closed': False} for _ in range(7)]
+        self.assertEqual(uniform_week(same), '10:00–22:30')
+        self.assertEqual(uniform_week(same[:6] + [{'lines': ['10:00–18:00'], 'is_closed': False}]), '')
+        self.assertEqual(uniform_week(same[:6] + [{'lines': [], 'is_closed': True}]), '')
+        self.assertEqual(uniform_week([]), '')

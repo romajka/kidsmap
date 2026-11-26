@@ -1,6 +1,5 @@
 """SQL ceilings for complete anonymous page requests on the Stage 1 fixture."""
 from datetime import datetime, time, timedelta
-from unittest import expectedFailure
 
 from django.core.cache import cache
 from django.db import connection
@@ -109,8 +108,8 @@ class PageQueryBudgetTests(TestCase):
         cls.large = count_page_queries(pages, 60)
 
     def test_twenty_place_ceilings(self):
-        ceilings = {"home_az": 39, "home_ru": 39, "catalog": 26, "events": 33,
-                    "specialists": 18, "place": 43, "seo": 17}
+        ceilings = {"home_az": 35, "home_ru": 35, "catalog": 26, "events": 22,
+                    "specialists": 13, "place": 34, "seo": 10}
         for page, ceiling in ceilings.items():
             with self.subTest(page=page):
                 self.assertLessEqual(self.small[page], ceiling)
@@ -121,18 +120,25 @@ class PageQueryBudgetTests(TestCase):
                 self.assertLessEqual(self.large[page], self.small[page])
 
     def test_known_growth_stays_within_measured_sixty_place_ceilings(self):
-        for page, ceiling in (("home_az", 43), ("home_ru", 43), ("events", 41)):
+        for page, ceiling in (("home_az", 35), ("home_ru", 35), ("events", 22)):
             with self.subTest(page=page):
                 self.assertLessEqual(self.large[page], ceiling)
 
-    @expectedFailure
     def test_az_home_query_count_does_not_grow(self):
         self.assertLessEqual(self.large["home_az"], self.small["home_az"])
 
-    @expectedFailure
     def test_ru_home_query_count_does_not_grow(self):
         self.assertLessEqual(self.large["home_ru"], self.small["home_ru"])
 
-    @expectedFailure
     def test_events_query_count_does_not_grow(self):
         self.assertLessEqual(self.large["events"], self.small["events"])
+
+    def test_two_hundred_places_keep_home_and_events_constant(self):
+        judo = Subcategory.objects.get(code="judo")
+        detail = add_places(judo, 61, 200)
+        pages = {key: page for key, page in fixture_pages(detail).items()
+                 if key in ("home_az", "home_ru", "events")}
+        counts = count_page_queries(pages, 200)
+        for page in pages:
+            with self.subTest(page=page):
+                self.assertLessEqual(counts[page], self.small[page])

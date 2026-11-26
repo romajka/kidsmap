@@ -90,7 +90,7 @@
     {% if presentation.translation_fallback %}<p class="meta" data-translation-fallback>{% if card_language == 'ru' %}Текст на азербайджанском{% elif card_language == 'en' %}Text in Azerbaijani{% else %}Mətn azərbaycancadır{% endif %}</p>{% endif %}
     <div class="card-tags-row{% if place.offers_adult_classes %} card-tags-row--with-adults{% endif %}">
       {% if presentation.age_label %}
-        <span class="card-meta-chip card-meta-chip--age">
+        <span class="card-meta-chip card-meta-chip--age"{% if presentation.age_hint %} title="{{ presentation.age_hint }}"{% endif %}>
           <span class="card-meta-chip__value">
             {{ presentation.age_label }} {% trans "лет" %}
             {% if place.offers_adult_classes %}
@@ -111,7 +111,6 @@
     </div>
 
 
-    {% if presentation.age_hint %}<p class="card-age-program-note">{{ presentation.age_hint }}</p>{% endif %}
 
     <p class="meta card-location{% if not place.district and not place.metro and not place.address %} is-empty{% endif %}">
       {% if place.district %}
@@ -139,7 +138,7 @@
     {% if not presentation.exact_filtered %}
     {% with desc=presentation.description %}
     <p class="card-description{% if not desc %} is-empty{% endif %}">
-      {% if desc %}{{ desc|striptags|truncatechars:92 }}{% else %}&nbsp;{% endif %}
+      {% if desc %}{{ desc|striptags|truncatewords:28 }}{% else %}&nbsp;{% endif %}
     </p>
     {% endwith %}
     {% endif %}
@@ -172,8 +171,8 @@
     {% if request.resolver_match.url_name == 'place_list' %}</details>{% endif %}
     {% endif %}
 
+    {% if place.rating_count %}
     <div class="card-rating-row">
-      {% if place.rating_count %}
       <span class="card-score"
         aria-label="{% blocktrans with score=place.rating_avg|floatformat:1 %}Рейтинг {{ score }} из 5{% endblocktrans %}">
         <span aria-hidden="true"><span class="card-score-star">★</span> {{ place.rating_avg|floatformat:1 }}</span>
@@ -181,13 +180,8 @@
       <span class="card-review-count">
         {{ place.rating_count|review_count }}
       </span>
-      {% else %}
-      <span class="card-score card-score-empty">
-        <span class="card-score-star card-score-star--empty">★</span>
-        {% trans "Нет отзывов" %}
-      </span>
-      {% endif %}
     </div>
+    {% endif %}
 
 
     {% if not presentation.map_available %}
@@ -197,8 +191,9 @@
     {% if request.resolver_match.url_name == 'place_list' %}</div>{% endif %}
     <div class="card-action-stack">
       <div class="card-bottom-row">
+        <span class="card-stub-price{% if not presentation.prices.label %} is-empty{% endif %}">{% if presentation.prices.label %}{{ presentation.prices.label }}{% else %}{% trans "Цена уточняется" %}{% endif %}</span>
         <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">
-          <span>{% if request.resolver_match.url_name == 'place_list' %}{% trans "Подробнее" %}{% else %}{% trans "Перейти" %}{% endif %}</span>
+          <span class="card-go-label">{% if request.resolver_match.url_name == 'place_list' %}{% trans "Подробнее" %}{% else %}{% trans "Перейти" %}{% endif %}</span>
           <span class="card-go-arrow" aria-hidden="true">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>
