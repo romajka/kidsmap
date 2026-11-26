@@ -85,7 +85,7 @@ class PlaceController:
             qs = self._filtered_event_queryset()
         elif force_new_only:
             stats_qs = qs
-            timeline_places = list(qs.order_by("-created_at")[:5])
+            timeline_places = list(qs.order_by("-created_at", "-id")[:5])
             qs = qs.exclude(id__in=[place.id for place in timeline_places])
         else:
             map_page = cached(

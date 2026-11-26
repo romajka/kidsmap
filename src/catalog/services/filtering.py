@@ -391,7 +391,7 @@ class PlaceListFilters:
             qs = qs.filter(metro__iexact=self.metro)
 
         if self.sort == "reviews_desc" and not self.force_new_only:
-            return qs.order_by("-rating_count", "-rating_avg", "-created_at")
+            return qs.order_by("-rating_count", "-rating_avg", "-created_at", "-id")
         if self.sort == "rating" and not self.force_new_only:
             from catalog.services.rating_ranking import (
                 apply_weighted_rating_ordering,
@@ -403,7 +403,7 @@ class PlaceListFilters:
             if calibration is not None:
                 return apply_weighted_rating_ordering(qs, calibration)
         self.sort = "new"
-        return qs.order_by("-created_at")
+        return qs.order_by("-created_at", "-id")
 
     def selected(self):
         age_from_int, age_to_int = self._normalized_age_bounds()
