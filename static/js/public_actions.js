@@ -1,3 +1,20 @@
+(function () {
+  function prepareForms() {
+    const fields = document.querySelectorAll("input[data-km-csrf]");
+    if (!fields.length) return;
+    const cookie = document.cookie.split("; ").find(value => value.startsWith("csrftoken="));
+    if (!cookie) return;
+    for (const field of fields) {
+      field.name = "csrfmiddlewaretoken";
+      field.value = cookie.slice("csrftoken=".length);
+    }
+  }
+
+  prepareForms();
+  document.addEventListener("DOMContentLoaded", prepareForms, { once: true });
+  document.addEventListener("submit", prepareForms, true);
+}());
+
       (function () {
         const labels = document.currentScript.dataset;
         const toastStack = document.querySelector("[data-toast-stack]");
