@@ -80,20 +80,18 @@ class YandexMetricaGateTests(SimpleTestCase):
                 self.assertIn('data-webvisor="true"', html)
                 self.assertIn("defer", html)
 
-    def test_base_template_uses_independent_event_bridge(self):
-        from pathlib import Path
-        from django.conf import settings
-        source = (settings.BASE_DIR / "src/catalog/templates/base.html").read_text()
-        self.assertEqual(source.count('{% include "includes/yandex_metrica.html" %}'), 1)
-        self.assertIn("window.kidsMapTrackYandexMetricaEvent(eventItem.name)", source)
-
-
 @override_settings(
     DEBUG=False, TESTING=False, PUBLIC_BASE_URL="https://kidsmap.az",
     ALLOWED_HOSTS=["*"], YANDEX_METRICA_COUNTER_ID="12345678",
     YANDEX_METRICA_WEBVISOR_ENABLED=False, GOOGLE_ANALYTICS_MEASUREMENT_ID="",
 )
 class YandexMetricaPageTests(TestCase):
+    def test_public_page_loads_one_metrica_bridge_with_google_disabled(self):
+        response = self.client.get("/ru/", HTTP_HOST="kidsmap.az", secure=True)
+        self.assertContains(response, 'id="kidsmap-yandex-metrica"', count=1)
+        self.assertContains(response, "static/js/public_shell.js", count=1)
+        self.assertNotContains(response, "googletagmanager.com/gtag/js")
+
     def test_rendered_public_pages_and_signed_in_exclusion(self):
         from django.contrib.auth import get_user_model
         from django.urls import reverse

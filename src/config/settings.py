@@ -543,6 +543,11 @@ LOCALE_PATHS = [BASE_DIR / "locale"]
 
 # static
 STATIC_URL = "/static/"
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "config.public_scripts.PublicScriptFinder",
+]
 STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"

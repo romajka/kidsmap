@@ -83,6 +83,7 @@
       })(document);
     </script>
     <link rel="stylesheet" href="{% static 'css/components/auth_navigation.css' %}?v=20261117" />
+    <link rel="preload" href="{% static 'fonts/chiron/ChironGoRoundTC-PublicSubset.woff2' %}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261120_audit" />
     <link rel="stylesheet" href="{% static 'css/components/states.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
@@ -145,13 +146,9 @@
     <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261120_header_fit">
     <link rel="stylesheet" href="{% static 'css/components/foundation.css' %}?v=20261126_width_skip">
     <link rel="stylesheet" href="{% static 'css/components/km_controls.css' %}?v=20261119_marks">
-    <script src="{% static 'js/km_controls.js' %}?v=20261119_home_sp4" defer></script>
     <link rel="stylesheet" href="{% static 'css/components/km_search.css' %}?v=20261118_search_r1">
     <link rel="stylesheet" href="{% static 'css/components/km_card.css' %}?v=20261118_card_r3">
     <link rel="stylesheet" href="{% static 'css/components/km_nav.css' %}?v=20261124_nav4">
-    <script src="{% static 'js/header.js' %}?v=20261119_lang_pc" defer></script>
-    <script src="{% static 'js/motion.js' %}?v=20261105_polish_r1"></script>
-    <script src="{% static 'js/motion_budget.js' %}?v=20261123" defer></script>
   </head>
   <body id="top" class="{% if site_preview %}{{ site_preview_page_class|default:'page-place_detail' }}{% elif request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
     {% if site_preview %}data-site-preview="true"{% endif %}
@@ -160,7 +157,7 @@
     <a class="skip-link" href="#main">{% trans "Перейти к содержанию" %}</a>
     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
     <div hidden data-phone-config data-phone-endpoint="{% url 'place_phone_reveal' 0 %}">{% csrf_token %}</div>
-    <script src="{% static 'js/place_phone_reveal.js' %}?v=20261121_administration"></script>
+    <script defer src="{% static 'js/place_phone_reveal.js' %}?v=20261121_administration"></script>
     <div class="site-shell">
       {% include "includes/header.html" %}
       {% include "catalog/includes/place_editor_result.html" %}
@@ -460,17 +457,16 @@
         <span class="km-back-to-top-tooltip">{% if CURRENT_LANGUAGE == 'az' %}Yuxarı{% elif CURRENT_LANGUAGE == 'en' %}Top{% else %}Наверх{% endif %}</span>
       </button>
     </div>
-    <script src="{% static 'js/public_actions.js' %}"
+    <script defer src="{% static 'js/public_shell.js' %}?v=20261126"
       data-login="{% trans 'Войти' %}"
       data-close="{% trans 'Закрыть' %}"
       data-failure="{% trans 'Не удалось выполнить действие. Попробуйте ещё раз.' %}"
       data-sign-in="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
       data-photo="{% trans 'Фото скоро будет.' %}"
       data-track-url="{% url 'track_event' %}"></script>
-    {% if not site_preview %}<script src="{% static 'js/ai_referral_tracking.js' %}"></script>{% endif %}
-    <script src="{% static 'js/auth_navigation.js' %}?v=20261117" defer></script>
-    <script src="{% static 'js/review_submission.js' %}?v=20261104_mobile_public" defer></script>
-    <script src="{% static 'js/mappy3d_boot.js' %}?v=20261123_budget" data-module="{% static '3d/mappy3d.js' %}?v=20261123_budget" data-model="{% static '3d/mappy.glb' %}" defer></script>
+    {% if not site_preview %}<script defer src="{% static 'js/ai_referral_tracking.js' %}"></script>{% endif %}
+    <template data-scripts-near="[data-review-submission]"><script src="{% static 'js/review_submission.js' %}?v=20261104_mobile_public" defer></script></template>
+    <template data-scripts-near="[data-mappy3d]"><script src="{% static 'js/mappy3d_boot.js' %}?v=20261123_budget" data-module="{% static '3d/mappy3d.js' %}?v=20261123_budget" data-model="{% static '3d/mappy.glb' %}" defer></script></template>
     {% if analytics_events %}
       {{ analytics_events|json_script:"kidsmap-analytics-events" }}
     {% endif %}
@@ -479,7 +475,7 @@
     {% endif %}
     {% if analytics_events or queued_analytics_events %}
       <script>
-        (function () {
+        document.addEventListener("DOMContentLoaded", function () {
           if (typeof window.kidsMapEmitAnalyticsEvent !== "function") return;
 
           ["kidsmap-analytics-events", "kidsmap-queued-analytics-events"].forEach(function (elementId) {
@@ -497,7 +493,7 @@
               window.kidsMapEmitAnalyticsEvent(eventItem);
             });
           });
-        })();
+        }, {once: true});
       </script>
     {% endif %}
     <script>
@@ -550,8 +546,8 @@
     {% endcomment %}
     {% if living_map_enabled %}
       <canvas class="living-map-background" data-living-map aria-hidden="true"></canvas>
-      <script src="{% static 'js/living_map_scene.js' %}?v=20261022_release_all_r1" defer></script>
-      <script src="{% static 'js/living_map_background.js' %}?v=20261022_release_all_r1" defer></script>
+      <template data-scripts-near="[data-living-map]"><script src="{% static 'js/living_map_scene.js' %}?v=20261022_release_all_r1" defer></script>
+      <script src="{% static 'js/living_map_background.js' %}?v=20261022_release_all_r1" defer></script></template>
     {% endif %}
     {% block extra_body %}{% endblock %}
   </body>

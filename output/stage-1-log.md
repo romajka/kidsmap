@@ -189,3 +189,160 @@ PostgreSQL: 305 тестов затронутых модулей и бюджет
 Исходный тест: три ошибки отсутствующего заголовка. После реализации тест массовой смены рекомендаций в админке поймал настоящий устаревший HIT. Добавлена инвалидация по завершении записывающих действий редактора каталога. Прямой SQL/ORM update произвольной команды не посылает сигнал Django; тест публикации использует реальные mark_draft и mark_published. Cache HIT/MISS не переносят cookie от первого посетителя. На страницах с кешем JS восстанавливает CSRF-поля из cookie текущего браузера. При CSRF в сессии, HttpOnly, нестандартном имени cookie, частичном запросе, неизвестной cookie или иных неподдерживаемых вариантах используется обычная страница.
 
 PostgreSQL: 51 модуль, включая auth/account/review/phone/publication/withdrawal, снимки и SQL-бюджет, Ran 736, OK (skipped=3). JS: 27/27. Playwright: форма входа из блока отзывов на HIT отправила POST, HTTP 200. При разрешённых анонимных отзывах тест с enforce_csrf_checks=True проверил запись отзыва в БД. Пять тёплых GET, медиана TTFB на локальном runserver, 200 мест: главная 4,59 мс, каталог 3,98, место 3,94, SEO 4,05, гид 3,65. Холодные первые GET соответственно 709, 313, 411, 372, 618 мс. Django check без замечаний и миграций. SHA берётся из git archive релиза, в локальном checkout — из Git; предусмотрено явное PAGE_CACHE_DEPLOY_SHA.
+
+## 1.6 · План перед правками
+
+Playwright 390×844, Fast 4G, три новых контекста и отключённый кеш. До изменений 29 JS-файлов, 1 125 533 Б JS, 89 локальных ответов, 8 923 347 Б всего, LCP 3300 мс, CLS 0,00615 (медианы). На мобильном поисковая форма, Mappy и карта уже в первом экране. Загрузка их кода должна срабатывать и при первом показе. Сохраню параметры карты из script.dataset, порядок зависимостей карты и ранний ввод поиска. Сделаю наблюдаемые группы скриптов и сборку общих обработчиков через Django staticfiles из тех же исходников. Проверю отложенную загрузку при прокрутке, размеры изображений, отсутствие ошибок JS, CLS, счётчики и скриншоты. Внешние сервисы при локальной съёмке отключены.
+
+Playwright на 200 местах, RU, три независимых контекста Chromium 390×844, RTT 60 мс, загрузка 9 Мбит/с, отдача 1,5 Мбит/с. До и после использованы одинаковые CDP-счётчики Network.loadingFinished, отключён кеш, разрешён только localhost.
+
+| Медиана | e002f776 | 1.6 |
+|---|---:|---:|
+| JS-файлы / все HTTP-ответы | 29 / 89 | 11 / 69 |
+| Передано JS / всего, Б | 1 125 533 / 8 923 347 | 1 033 960 / 8 466 763 |
+| LCP, мс | 3300 | 3192 |
+| CLS | 0,00615 | 0,06199 |
+
+На 390 и 1440 px восемь основных элементов главной совпали с e002f776 по x/y/ширине/высоте до пикселя. Подсказки получили уже введённый текст при задержанном home_map.js, карусели мест и гидов загрузились при прокрутке. На мобильном скрытый фон не запрашивается. В эталонах проверены прежние текст, ссылки, состав и порядок карточек, JSON-LD всех 37 ответов. В окончательном HTML RU главной нет img без width/height, у первого изображения fetchpriority=high. Каталог 199503 Б RU, 192260 Б AZ и 188961 Б EN.
+
+Первый запуск 362 тестов нашёл два старых утверждения, которые искали код аналитики непосредственно в HTML и в base.html. Проверки теперь подтверждают порядок подключения публичного JS и трекера, однократное подключение Метрики при выключенной GA. Браузер с локальным перехватом зарегистрировал переход из AI-источника и передачу цели обработчику Метрики. Отдельный падавший тест раннего ввода в поиске прошёл после исправления. PostgreSQL: 362 OK, после последней правки приоритета картинки 16 OK, включая 37 сравнений. Node: 105/105. Оба JS-пакета получаются в runserver и collectstatic из одних исходников. Django check без замечаний, makemigrations --check --dry-run — No changes detected.
+
+В RU на главной демонстрационного каталога отрисованы 45 Material Symbols, 23 разные лигатуры. Полный локальный шрифт — 3 084 048 Б. Возможен отдельный WOFF2 с объединением лигатур шаблонов, JS-состояний и админки. Список одной главной для этого неполон. Для Google Places Photo API вариант — хранить допустимый идентификатор фотографии, получать разрешённое для показа изображение через сервер и передавать атрибуцию. При собственных фотографиях с правом публикации можно использовать обычный медиаконвейер KidsMap. Условия хранения и атрибуцию нужно проверять перед отдельной работой. В этом этапе Google Photo API не вызывался.
+
+Исходные 20 ошибок SQLite сопоставлены по именам со списком sqlite-main.log. Сводка и перечень находятся в отчёте. Полный набор оставлен для CI по последнему указанию владельца. Скриншоты основной матрицы: 7 страниц × 2 языка × 2 ширины × 2 версии; ещё две съёмки главной сделаны в профиле Fast 4G.
+
+### Окончательные профили 1.3 поверх a4ac53b2
+
+Главная
+
+```text
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.458    0.458 client.py:1113(get)
+        1    0.000    0.000    0.458    0.458 client.py:467(get)
+        1    0.000    0.000    0.458    0.458 client.py:633(generic)
+        1    0.000    0.000    0.458    0.458 client.py:1066(request)
+        1    0.000    0.000    0.457    0.457 client.py:169(__call__)
+        1    0.000    0.000    0.456    0.456 base.py:137(get_response)
+     21/1    0.000    0.000    0.456    0.456 exception.py:52(inner)
+        1    0.000    0.000    0.456    0.456 middleware.py:17(__call__)
+        1    0.000    0.000    0.456    0.456 middleware.py:32(__call__)
+        1    0.000    0.000    0.456    0.456 middleware.py:116(__call__)
+        1    0.000    0.000    0.456    0.456 middleware.py:19(middleware)
+     11/1    0.000    0.000    0.456    0.456 deprecation.py:303(__call__)
+        1    0.000    0.000    0.456    0.456 middleware.py:53(__call__)
+        1    0.000    0.000    0.456    0.456 middleware.py:80(__call__)
+        1    0.000    0.000    0.456    0.456 middleware.py:87(__call__)
+        1    0.000    0.000    0.456    0.456 r1_middleware.py:20(__call__)
+        1    0.000    0.000    0.456    0.456 middleware.py:34(sync_middleware)
+        1    0.000    0.000    0.455    0.455 base.py:175(_get_response)
+        1    0.000    0.000    0.455    0.455 contextlib.py:78(inner)
+        1    0.000    0.000    0.455    0.455 public.py:132(home)
+```
+
+Каталог
+
+```text
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.513    0.513 client.py:1113(get)
+        1    0.000    0.000    0.513    0.513 client.py:467(get)
+        1    0.000    0.000    0.513    0.513 client.py:633(generic)
+        1    0.000    0.000    0.513    0.513 client.py:1066(request)
+        1    0.000    0.000    0.513    0.513 client.py:169(__call__)
+        1    0.000    0.000    0.512    0.512 base.py:137(get_response)
+     21/1    0.000    0.000    0.512    0.512 exception.py:52(inner)
+        1    0.000    0.000    0.512    0.512 middleware.py:17(__call__)
+        1    0.000    0.000    0.512    0.512 middleware.py:32(__call__)
+        1    0.000    0.000    0.512    0.512 middleware.py:116(__call__)
+        1    0.000    0.000    0.512    0.512 middleware.py:19(middleware)
+     11/1    0.000    0.000    0.512    0.512 deprecation.py:303(__call__)
+        1    0.000    0.000    0.512    0.512 middleware.py:53(__call__)
+        1    0.000    0.000    0.512    0.512 middleware.py:80(__call__)
+        1    0.000    0.000    0.512    0.512 middleware.py:87(__call__)
+        1    0.000    0.000    0.511    0.511 r1_middleware.py:20(__call__)
+        1    0.000    0.000    0.511    0.511 middleware.py:34(sync_middleware)
+        1    0.000    0.000    0.511    0.511 base.py:175(_get_response)
+        1    0.000    0.000    0.511    0.511 public.py:145(place_list)
+        1    0.000    0.000    0.511    0.511 contextlib.py:78(inner)
+```
+
+### Команды заключительных тематических прогонов
+
+Обёртка `QA_MANAGE` вызывает manage.py под DJANGO_TESTING=1 и DJANGO_DEBUG=1 в изолированном профиле PostgreSQL. Полные рабочие журналы этого прогона лежат локально в `/tmp/kidsmap-s1-nov26.faGqZOFG`.
+
+```bash
+"$QA_MANAGE" test catalog.testcases.auth_access \
+  catalog.testcases.auth_flow \
+  catalog.testcases.phone_reveal \
+  catalog.testcases.public \
+  catalog.testcases.test_account_dashboard_favorites \
+  catalog.testcases.test_account_deletion \
+  catalog.testcases.test_account_moved_favorites \
+  catalog.testcases.test_account_navigation_badges \
+  catalog.testcases.test_account_query_scaling \
+  catalog.testcases.test_account_settings_redesign \
+  catalog.testcases.test_admin_publication_list \
+  catalog.testcases.test_admin_review_workflow_fix \
+  catalog.testcases.test_anonymous_page_cache \
+  catalog.testcases.test_auth_navigation \
+  catalog.testcases.test_auth_throttle \
+  catalog.testcases.test_auth_throttle_redis \
+  catalog.testcases.test_catalog_render_snapshot \
+  catalog.testcases.test_google_auth \
+  catalog.testcases.test_judo_seo_landing \
+  catalog.testcases.test_mod_publication_toast_localization \
+  catalog.testcases.test_offer_qa09_partial_review_pricing \
+  catalog.testcases.test_official_review_inbox \
+  catalog.testcases.test_official_review_reply \
+  catalog.testcases.test_owner_reviews_redesign \
+  catalog.testcases.test_ownership_review_summary \
+  catalog.testcases.test_parent_guide_hub \
+  catalog.testcases.test_parent_guides \
+  catalog.testcases.test_phone_forms \
+  catalog.testcases.test_phone_inheritance \
+  catalog.testcases.test_phone_migration \
+  catalog.testcases.test_phone_numbers \
+  catalog.testcases.test_phone_public_contract \
+  catalog.testcases.test_phone_publication \
+  catalog.testcases.test_place_review_cooldown \
+  catalog.testcases.test_public_cache \
+  catalog.testcases.test_publication_request_completion \
+  catalog.testcases.test_query_budget \
+  catalog.testcases.test_rating_ranking \
+  catalog.testcases.test_review_confirmation \
+  catalog.testcases.test_review_inbox_notifications \
+  catalog.testcases.test_seo_landing_visibility \
+  catalog.testcases.test_social_qa07_activity_review_title \
+  catalog.testcases.test_specialist_qualification_review \
+  catalog.testcases.test_task33_event_calendar_review \
+  catalog.testcases.test_task33_publication \
+  catalog.testcases.test_task33_review_independent \
+  catalog.testcases.test_task33_review_migration \
+  catalog.testcases.test_task33_reviews \
+  catalog.testcases.test_task33_specialist_db_review \
+  catalog.testcases.test_task33_specialist_security_review \
+  catalog.testcases.test_withdrawal_policy --noinput
+```
+
+```bash
+"$QA_MANAGE" test catalog.testcases.public \
+  catalog.testcases.test_ai_referral_tracking \
+  catalog.testcases.test_anonymous_page_cache \
+  catalog.testcases.test_auth_navigation \
+  catalog.testcases.test_catalog_render_snapshot \
+  catalog.testcases.test_event_posters \
+  catalog.testcases.test_home_age_range \
+  catalog.testcases.test_home_delivery \
+  catalog.testcases.test_home_featured_specialists \
+  catalog.testcases.test_home_hero_topics \
+  catalog.testcases.test_home_parent_intent \
+  catalog.testcases.test_home_public_metrics \
+  catalog.testcases.test_parent_guide_images \
+  catalog.testcases.test_phone_public_contract \
+  catalog.testcases.test_public_cache \
+  catalog.testcases.test_public_map_paging \
+  catalog.testcases.test_public_response_performance \
+  catalog.testcases.test_query_budget \
+  catalog.testcases.test_yandex_metrica --noinput
+```
+
+После переноса общих обработчиков в пакет повторно проверена отправка формы из блока отзывов на HIT. Отдельный Playwright-тест motion_budget подтвердил остановку бесконечного эффекта вне экрана и возобновление при возврате.

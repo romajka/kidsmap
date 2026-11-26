@@ -844,6 +844,7 @@
     }
     queryInput.addEventListener('input', scheduleAutocomplete);
     queryInput.addEventListener('compositionend', scheduleAutocomplete);
+    if (document.activeElement === queryInput && queryInput.value.trim()) scheduleAutocomplete();
     clearBtn?.addEventListener('click', hideAutocomplete);
     form.addEventListener('submit', hideAutocomplete);
 
