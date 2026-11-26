@@ -140,7 +140,7 @@ async page => {
     const categoryValue=await categoryChip.getAttribute('data-select-value');await categoryChip.click();
     await p.waitForURL(url=>url.searchParams.get('category')===categoryValue);await p.waitForTimeout(400);
     check(await p.evaluate(()=>__map===__originalMap),'AJAX recreated Google Map');
-    check(await p.evaluate(()=>JSON.parse(document.querySelector('#catalog-map-data').textContent).every(place=>__markers.some(m=>m.__kidsMapPlace?.url===place.url&&m===__originalPins.get(place.url)))),'AJAX replaced unchanged markers');
+    check(await p.evaluate(()=>{const pins=__markers.filter(m=>m.__kidsMapPlace && __originalPins.has(m.__kidsMapPlace.url) && m.map);return pins.length>0 && pins.every(m=>m===__originalPins.get(m.__kidsMapPlace.url));}),'AJAX replaced unchanged markers');
     check(await p.evaluate(()=>performance.getEntriesByType('resource').filter(e=>/maps.googleapis.com\/maps\/api\/js\?/.test(e.name)).length)===1,'AJAX loads Google API twice');
     const cameraAfterFilter=await p.evaluate(()=>({center:__map.getCenter().toJSON(),zoom:__map.getZoom()}));
     await p.locator('.desktop-category-chip[data-select-value=""]').click();await p.waitForURL(url=>!url.searchParams.has('category'));await p.waitForTimeout(300);

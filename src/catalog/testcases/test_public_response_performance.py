@@ -1,6 +1,4 @@
 """Performance contracts for initial public page rendering."""
-import json
-import re
 from unittest.mock import patch
 
 from django.db import connection
@@ -45,15 +43,13 @@ class PublicResponsePerformanceTests(TestCase):
                 self.assertEqual(len(rail), limit)
                 self.assertEqual(featured[:limit], rail[:4])
 
-    def test_catalog_html_encodes_single_map_member_only_once(self):
-        response = self.client.get("/ru/catalog/")
-        embedded = re.search(r'<script id="catalog-map-data" type="application/json">(.*?)</script>',
-                             response.content.decode(), re.S)
-        self.assertIsNotNone(embedded)
-        point = next(item for item in json.loads(embedded.group(1)) if item["id"] == self.place.pk)
+    def test_catalog_map_transfers_single_member_only_once(self):
+        self.assertNotContains(self.client.get("/ru/catalog/"), 'id="catalog-map-data"')
+        response = self.client.get("/api/catalog/map/", {"lang": "ru", "compact": "1"})
+        point = next(item for item in response.json()["points"] if item["id"] == self.place.pk)
         self.assertEqual(point["name"], "Детский парк")
         self.assertNotIn("members", point)
-        self.assertIn("Детский парк", embedded.group(1))
+        self.assertContains(response, "Детский парк")
 
     def test_catalog_presents_each_place_once_for_map_and_list(self):
         from catalog.services.public_presentation import present

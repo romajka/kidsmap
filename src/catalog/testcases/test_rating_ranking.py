@@ -137,7 +137,8 @@ class RatingRankingCatalogueTests(TestCase):
         self.assertNotContains(response, "4.0625")
         self.assertNotContains(response, "rating_rank_score")
         self.assertIn("sort=rating", response.context["query_without_page"])
-        map_item = next(item for item in response.context["catalog_map_places"] if item["id"] == self.single.pk)
+        map_points = self.client.get(reverse("public_map"), {"sort": "rating"}).json()["points"]
+        map_item = next(item for item in map_points if item["id"] == self.single.pk)
         self.assertEqual(map_item["rating"], 5.0)
         self.assertEqual(map_item["reviews_count"], 1)
         self.assertNotIn("rating_rank_score", map_item)

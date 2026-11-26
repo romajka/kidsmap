@@ -122,3 +122,17 @@ def venue_identity_changed(previous, current, fields=None):
         name: getattr(current, name) for name in ('address', 'lat', 'lng')
         if fields is None or name in fields
     })
+
+
+def compact_map_point(point):
+    """Drop ``members`` when it only repeats the point itself.
+
+    A venue with one place is serialised as the place plus a one-item
+    ``members`` copy; every map script already treats a point without
+    ``members`` as ``[point]``.
+    """
+    members = point.get('members')
+    if isinstance(members, list) and len(members) == 1 and isinstance(members[0], dict):
+        if all(point.get(key) == value for key, value in members[0].items()):
+            return {key: value for key, value in point.items() if key != 'members'}
+    return point

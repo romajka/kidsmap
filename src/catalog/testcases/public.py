@@ -2618,7 +2618,7 @@ class TestCatalogEnhancements(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "data-catalog-map-open")
-        self.assertContains(response, "catalog-map-data")
+        self.assertNotContains(response, 'id="catalog-map-data"')
         self.assertEqual(response.context["catalog_map_places_count"], 1)
         self.assertEqual(response.context["catalog_map_missing_count"], 1)
         language_code = response.context["language"]
@@ -2665,8 +2665,9 @@ class TestCatalogEnhancements(TestCase):
             matched_offers=[], translation_fallback=False,
             content_language=language_code, translation_label='')
         expected = [{**member, 'key': f'place:{matching_place.pk}', 'members': [{k: v for k, v in member.items() if k != 'category_icon_svg'}]}]
-        self.assertEqual(response.context["catalog_map_places"], expected)
-        actual_member = response.context["catalog_map_places"][0]["members"][0]
+        points = self.client.get(reverse("public_map"), {"district": "Ясамал"}).json()["points"]
+        self.assertEqual(points, expected)
+        actual_member = points[0]["members"][0]
         self.assertNotIn("phone1", actual_member)
         self.assertNotIn("whatsapp_url", actual_member)
 

@@ -96,7 +96,7 @@ class PublicMapPagingTests(TestCase):
                 response=self.client.get(url)
                 self.assertEqual(response.status_code,200)
                 context=response.context
-                points=context['map_places'] if url=='/en/' else context['catalog_map_places']
+                points=context['map_places'] if url=='/en/' else self.points()['points']
                 self.assertEqual(sum(len(p['members']) for p in points),105 if url=='/en/' else 100)
                 self.assertLess(len(response.content),1_000_000)
                 if url=='/en/catalog/':
@@ -168,3 +168,18 @@ class PublicMapPagingTests(TestCase):
         sql,params=public_place_queryset(Place.objects.all()).query.sql_with_params()
         query_bytes=len(sql.encode())+sum(len(str(value).encode()) for value in params)
         self.assertLess(query_bytes,25_000,'Public visibility checks must not expand to hundreds of repeated text transforms')
+
+    def test_catalog_loads_filtered_map_separately_in_the_requested_language(self):
+        for lang, prefix in (("az", "/"), ("ru", "/ru/"), ("en", "/en/")):
+            with self.subTest(lang=lang):
+                params = {"q": "Paging10"}
+                listing = self.client.get(prefix + "catalog/", params)
+                self.assertNotContains(listing, 'id="catalog-map-data"')
+                actual = self.client.get("/api/catalog/map/", {**params, "lang": lang})
+                self.assertEqual(actual.status_code, 200)
+                self.assertEqual(actual.headers["Cache-Control"], "public, max-age=300")
+                self.assertEqual(actual.headers["Content-Language"], lang)
+                members = [m for point in actual.json()["points"] for m in point["members"]]
+                self.assertEqual({m["id"] for m in members}, {p.pk for p in listing.context["places"]})
+                self.assertNotIn(self.private, [m["id"] for m in members])
+                self.assertTrue(all(m["url"].startswith(prefix + "place/") for m in members))

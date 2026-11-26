@@ -51,7 +51,7 @@
         if (current !== generation || destroyed) return;
         points = merge(append ? points : [], payload.points); count = payload.count;
         cursor = payload.next_cursor; more = !!payload.has_more; bounds = windowBounds;
-        onChange(points, {count, append, bounds});
+        onChange(points, {count, append, bounds, hasMore: more, pointsLabel: payload.points_label});
       } catch (error) {
         if (current !== generation || destroyed || error.name === 'AbortError') return;
         failed = {append, bounds:windowBounds};

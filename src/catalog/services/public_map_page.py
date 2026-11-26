@@ -70,21 +70,5 @@ def build_map_page(queryset, language_code, filters=None, *, after=0, bounds=Non
     return {"points": points, "count": total, "has_more": has_more, "next_cursor": ids[-1] if has_more else None}
 
 
-def build_catalog_map_and_list(queryset, index, page_ids, language, filters):
-    from django.utils.translation import override
-    from catalog.services.map_payload import prepared_map_points
-    from catalog.services.public_presentation import prepare_cards
-
-    ids, total, has_more = _map_window(coordinate_queryset(index), 0)
-    map_ids = set(ids)
-    with override(language):
-        # The full public queryset still checks the visibility of every rendered row.
-        cards = prepare_cards(queryset.filter(pk__in=map_ids.union(page_ids)), language, filters=filters)
-        points = prepared_map_points((place for place in cards if place.pk in map_ids), language)
-    by_id = {place.pk: place for place in cards}
-    page_cards = [by_id[pk] for pk in page_ids if pk in by_id]
-    return {"points": points, "count": total, "has_more": has_more, "next_cursor": ids[-1] if has_more else None}, page_cards
-
-
 def page_metadata(page):
     return {key:page[key] for key in ('count','has_more','next_cursor')}

@@ -82,13 +82,14 @@ class PublicCacheTests(TransactionTestCase):
             response = self.client.get(path)
             self.assertEqual(response.status_code, 200)
             context = response.context
-            ids = {member['id'] for point in context[points_key] for member in point['members']}
+            points = context[points_key] if points_key else self.client.get('/ru/api/catalog/map/').json()['points']
+            ids = {member['id'] for point in points for member in point['members']}
             category_count = next((c['count'] for c in context[options_key] if c['value'] == place.category_id), 0)
             return place.pk in ids, context[count_key], category_count
 
         pages = [
             ('/ru/', 'map_places', 'map_business_count', 'home_categories'),
-            ('/ru/catalog/', 'catalog_map_places', 'catalog_places_total', 'categories'),
+            ('/ru/catalog/', None, 'catalog_places_total', 'categories'),
         ]
         for args in pages:
             self.assertEqual(public_counts(*args), (True, 1, 1))

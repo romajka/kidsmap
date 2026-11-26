@@ -76,10 +76,8 @@ class PlaceController:
         timeline_places = []
         events = []
         stats_qs = None
-        map_places = []
-        page_cards = None
-        map_page = {"points": [], "count": 0, "has_more": False, "next_cursor": None}
-        from catalog.services.public_map_page import build_catalog_map_and_list, page_metadata
+        map_count = 0
+        from catalog.services.public_map_page import coordinate_queryset
         showing_events = filters.event_type == "temporary" and not force_new_only
         rating_sort_available = False
 
@@ -102,15 +100,10 @@ class PlaceController:
                            else qs.order_by().values("pk").count())
         page_obj = paginator.get_page(request.GET.get("page"))
         if not force_new_only and not showing_events:
-            def build_map():
-                nonlocal page_cards
-                index = aggregate_places().order_by("-created_at", "-id") if unfiltered else qs
-                page_ids = list(index.values_list("pk", flat=True)[page_obj.start_index() - 1:page_obj.end_index()]) if paginator.count else []
-                payload, page_cards = build_catalog_map_and_list(qs, index, page_ids, language_code, filters)
-                return payload
-
-            map_page = cached("catalog_map", (language_code, created_after, filters.selected()), build_map)
-            map_places = map_page["points"]
+            map_count = cached(
+                "catalog_map_count", (created_after, filters.selected()),
+                lambda: coordinate_queryset(aggregate_places() if unfiltered else qs).order_by().values("pk").count(),
+            )
         if not force_new_only:
             # Use the rendered page, including Paginator's invalid-page fallback,
             # so query variants never claim a canonical for nonexistent content.
@@ -119,9 +112,7 @@ class PlaceController:
             events = page_obj.object_list
 
         from catalog.services.public_presentation import prepare_cards, organization_matches
-        if page_cards is not None:
-            page_obj.object_list = page_cards
-        elif not showing_events:
+        if not showing_events:
             page_obj.object_list = prepare_cards(page_obj.object_list, language_code, filters=filters)
         if timeline_places:
             timeline_places = prepare_cards(timeline_places, language_code, filters=filters)
@@ -263,11 +254,8 @@ class PlaceController:
                 available=metro_options,
                 preferred=("28 Май", "Гянджлик", "Эльмляр Академиясы", "Нариман Нариманов", "Иншаатчылар"),
             ),
-            "catalog_map_places": map_places,
-            "catalog_map_points_count": len(map_places),
-            "catalog_map_places_count": map_page["count"],
-            "catalog_map_page": page_metadata(map_page),
-            "catalog_map_missing_count": max(page_obj.paginator.count - map_page["count"], 0) if not force_new_only else 0,
+            "catalog_map_places_count": map_count,
+            "catalog_map_missing_count": max(paginator.count - map_count, 0) if not force_new_only else 0,
             "analytics_events": self._build_list_analytics_events(
                 selected=selected,
                 results_total=page_obj.paginator.count,

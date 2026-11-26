@@ -20,7 +20,7 @@ async page => {
   await p.route('**/ru/catalog/?*',async route=>{const response=await route.fetch();if(++requests===1)await new Promise(resolve=>setTimeout(resolve,700));try{await route.fulfill({response})}catch(e){if(!/closed|handled|disposed/i.test(e.message))throw e}});
   const chips=p.locator('.desktop-category-chip[data-select-value]:not([data-select-value=""]):visible');
   const second=await chips.nth(1).getAttribute('data-select-value');await chips.nth(0).click();await p.waitForTimeout(80);await chips.nth(1).click();await p.waitForURL(url=>url.searchParams.get('category')===second);await p.waitForTimeout(1100);
-  check(await p.evaluate(value=>JSON.parse(document.querySelector('#catalog-map-data').textContent).every(x=>x.category_code===value),second),'Stale AJAX response replaced latest places');check(await p.evaluate(()=>__map===__firstMap),'Rapid filters recreated map');
+  check(await p.evaluate(value=>{const shown=__markers.filter(m=>m.map && m.__kidsMapPlace);return shown.length>0 && shown.every(m=>m.__kidsMapPlace.category_code===value);},second),'Stale AJAX response replaced latest places');check(await p.evaluate(()=>__map===__firstMap),'Rapid filters recreated map');
   check(errors.length===0,JSON.stringify(errors));return {passed:true,manualZoom19Choice:true,nearZoomSequence:zooms,rapidAjaxRequests:requests,pageErrors:errors};
  }finally{await ctx.close()}
 }
