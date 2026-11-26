@@ -118,9 +118,12 @@ class EventEditorialPresentationTests(SimpleTestCase):
     def test_source_links_display_once_with_original_attribution(self):
         description = ('Tamaşa haqqında məlumat və cədvəl — Teatr, https://teatr.az/a.\n\n'
                        'Afişa — Teatr. https://teatr.az/b')
-        html = render_to_string('catalog/includes/event_story.html', {
-            'event': SimpleNamespace(description_az=description), 'language': 'az',
-        })
-        self.assertIn('Tamaşa haqqında məlumat və cədvəl —', html)
-        self.assertIn('href="https://teatr.az/a"', html)
-        self.assertNotIn('https://teatr.az/b', html)
+        for language in ('az', 'ru', 'en'):
+            with self.subTest(language=language), override(language):
+                html = render_to_string('catalog/includes/event_story.html', {
+                    'event': SimpleNamespace(description_az=description), 'language': language,
+                })
+                self.assertIn('<span lang="az">Tamaşa haqqında məlumat və cədvəl —', html)
+                self.assertEqual(html.count('href="https://teatr.az/a"'), 1)
+                self.assertNotIn('https://teatr.az/b', html)
+                self.assertEqual('data-source-language="az"' in html, language != 'az')
