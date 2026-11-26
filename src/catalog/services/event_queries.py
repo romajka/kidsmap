@@ -159,4 +159,4 @@ def query_public_events(params=None, *, period=None, now=None, calendar=False, i
     qs = qs.filter(event_filter_condition(params, period))
     # Unknown/mixed textual prices and venue likes are not comparable Event rankings.
     ordering = ('-created_at', 'pk') if str(params.get('sort') or '').strip() == 'new' else ('start_datetime', 'pk')
-    return qs.select_related('related_place', 'organizer_organization', 'organizer_specialist').order_by(*ordering)
+    return qs.select_related('category', 'related_place', 'organizer_organization', 'organizer_specialist').order_by(*ordering)

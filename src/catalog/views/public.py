@@ -15,7 +15,6 @@ from django.views.decorators.http import require_POST
 from ..legal_content import get_legal_page_content
 from ..models import Category, Event, Place, PlaceReview, SiteReview
 from ..models import FunnelEvent
-from ..models.site import reuse_site_settings_for_render
 from ..services.content_quality import approved_review_queryset, public_place_queryset, public_review_queryset
 from ..services.place_urls import moved_place_specialist_url
 from ..services.pricing_plans import public_pricing_plans
@@ -129,7 +128,6 @@ def catalog_search_suggestions(request):
         "places": places_data,
     })
 
-@reuse_site_settings_for_render()
 def home(request):
     context = home_controller.build_context(
         request=request,
@@ -151,7 +149,6 @@ def place_new(request):
 def _retired_public_page(request):
     return render(request, "pages/public_unavailable.html", status=410)
 
-@reuse_site_settings_for_render()
 def events_landing(request):
     # Events are retired rather than temporarily unavailable. A 410 removes
     # obsolete /events/ URLs from search indexes faster than a soft 404.
@@ -220,7 +217,6 @@ def _event_share_image(request, language):
     }
 
 
-@reuse_site_settings_for_render()
 def event_collection(request, first, second=None):
     """Indexable afisha collection: /ru/afisha/vyhodnye/, /tedbirler/pulsuz/ …"""
     if not is_events_section_enabled():
@@ -294,7 +290,6 @@ def legacy_afisha_redirect(request, segment, rest):
         raise Http404
     return redirect(f"{target}?{query}" if query else target, permanent=True)
 
-@reuse_site_settings_for_render()
 def _render_place_list(request, force_new_only=False, created_after=None):
     if request.GET.getlist("view"):
         normalized_query = place_controller.build_normalized_list_query(

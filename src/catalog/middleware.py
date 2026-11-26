@@ -13,6 +13,16 @@ from catalog.services.public_urls import (
 )
 
 
+def request_site_settings(get_response):
+    from catalog.models.site import settings_for_request
+
+    def middleware(request):
+        with settings_for_request():
+            return get_response(request)
+
+    return middleware
+
+
 class CanonicalPublicHostMiddleware:
     """Redirect the public www alias before Django emits host-dependent URLs."""
 

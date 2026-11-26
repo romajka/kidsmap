@@ -25,9 +25,13 @@ _public_settings_reader = ContextVar("kidsmap_public_settings_reader", default=N
 
 
 @contextmanager
-def reuse_site_settings_for_render():
-    """Share one lazy settings read across the controller and its rendered template."""
-    token = _public_settings_reader.set(cache(_get_solo_site_settings))
+def settings_for_request():
+    """Give each HTTP request fresh lazy readers for the two public singletons."""
+    @cache
+    def read(loader=_get_solo_site_settings):
+        return loader()
+
+    token = _public_settings_reader.set(read)
     try:
         yield
     finally:
@@ -72,6 +76,11 @@ def _get_solo_site_settings():
 
 
 def _get_solo_catalog_content_settings():
+    reader = _public_settings_reader.get()
+    return reader(_load_catalog_content_settings) if reader is not None else _load_catalog_content_settings()
+
+
+def _load_catalog_content_settings():
     obj = CatalogContentSettings.objects.order_by("id").first()
     if obj:
         return obj
@@ -82,10 +91,6 @@ def clear_singleton_caches() -> None:
     reader = _public_settings_reader.get()
     if reader is not None:
         reader.cache_clear()
-    if hasattr(_get_solo_site_settings, "cache_clear"):
-        _get_solo_site_settings.cache_clear()
-    if hasattr(_get_solo_catalog_content_settings, "cache_clear"):
-        _get_solo_catalog_content_settings.cache_clear()
 
 
 class SiteSettings(models.Model):

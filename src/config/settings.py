@@ -357,6 +357,7 @@ TASK33_R1_WRITE_USER_IDS = tuple(
 MIDDLEWARE = [
     "config.middleware.ServerTimingMiddleware",
     "catalog.middleware.CanonicalPublicHostMiddleware",
+    "catalog.middleware.request_site_settings",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "catalog.middleware.AdminHostRedirectMiddleware",
