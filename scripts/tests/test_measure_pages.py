@@ -54,6 +54,36 @@ class MeasurePagesTests(TestCase):
         self.assertIn("unavailable", result.stdout)
         self.assertIn("302", result.stderr)
 
+    def test_permanent_redirect_is_measured_without_following_it(self):
+        seen = []
+
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                seen.append(self.path)
+                self.send_response(301)
+                self.send_header("Location", "/ru/afisha/")
+                self.send_header("Server-Timing", "app;dur=1, db;dur=0")
+                self.end_headers()
+
+            def log_message(self, *args):
+                pass
+
+        with ThreadingHTTPServer(("127.0.0.1", 0), Handler) as server:
+            thread = Thread(target=server.serve_forever)
+            thread.start()
+            try:
+                result = subprocess.run(
+                    [sys.executable, str(SCRIPT), "--base", f"http://127.0.0.1:{server.server_port}",
+                     "--redirect", "/ru/events/", "/ru/afisha/"], capture_output=True, text=True, timeout=15,
+                )
+            finally:
+                server.shutdown()
+                thread.join()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(seen, ["/ru/events/"] * 5)
+        self.assertIn("5/5", result.stdout)
+        self.assertIn("db;dur=0.000", result.stdout)
+
     def test_first_byte_precedes_slow_headers_and_body(self):
         from scripts import measure_pages
 

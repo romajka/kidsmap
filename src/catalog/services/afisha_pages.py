@@ -9,7 +9,7 @@ from django.http import QueryDict
 from django.utils.translation import override
 
 from catalog.services import event_collections as ec
-from catalog.services.afisha_urls import AFISHA_LANGUAGES
+from catalog.services.afisha_urls import localized_route_paths
 from catalog.services.public_urls import build_public_absolute_uri
 from catalog.services.seo import _build_breadcrumb_schema, _build_item_list_schema, _serialize_json_ld
 
@@ -90,7 +90,7 @@ def _chip_urls(request, context, language, categories):
 def apply_hub(request, context, *, language, now):
     """Main afisha page: localized hreflang, collection links, answer card and FAQ."""
     categories = ec.category_rows()
-    request._seo_localized_paths = {code: ec.landing_path(code) for code in AFISHA_LANGUAGES}
+    request._seo_localized_paths = localized_route_paths('events_landing')
     if context.get('events_mode') == 'list':
         context['events_quick_urls'] = _chip_urls(request, context, language, categories)
     if request.GET:

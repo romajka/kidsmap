@@ -66,7 +66,7 @@ def fixture_pages(place):
         "home_az": ("/", "home", "Stage1 Judo"),
         "home_ru": ("/ru/", "home", "Stage1 Judo"),
         "catalog": ("/ru/catalog/", "place_list", "Stage1 Judo"),
-        "events": ("/ru/events/", "events_landing", "Stage1 Festival"),
+        "events": ("/ru/afisha/", "events_landing", "Stage1 Festival"),
         "specialists": ("/ru/specialists/", "specialist_list", "Stage1 Tutor"),
         "place": (detail_path, "place_detail", place.name_ru),
         "seo": (f"/ru/catalog/{SEO_SLUG}/", "seo_landing", "Stage1 Judo"),

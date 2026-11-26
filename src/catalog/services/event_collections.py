@@ -9,6 +9,7 @@ events stay reachable for people but are noindex and absent from sitemaps.
 from __future__ import annotations
 
 import re
+from collections import Counter
 from dataclasses import asdict, dataclass, replace
 
 from django.core.cache import cache
@@ -770,7 +771,35 @@ def related_links(collection, language, *, now=None, limit=10, categories=None) 
 def hub_links(language, *, now=None, limit=18, categories=None) -> list:
     """Collections linked from the main afisha page (single dimension, indexable)."""
     categories = categories if categories is not None else category_rows()
-    rows = [(c, count) for c, count, _last in indexable_collections(now) if len(c.dims()) == 1]
+    from catalog.services.event_queries import EventPeriod, event_filter_condition, parse_event_period
+
+    now = now or timezone.now()
+    # Only single-filter collections appear on the hub. Count the fixed filters
+    # together, including events earlier today that belong to a whole-day chip.
+    periods = [Collection(time=key) for key in (*QUICK_TIMES, *month_window(now))]
+    facets = periods + [Collection(age=band) for band in AGE_BANDS] + [Collection(free=True)]
+    facets.extend(Collection(lang=code) for code in EVENT_LANGUAGES)
+    predicates = {}
+    for index, facet in enumerate(facets):
+        params = facet.params()
+        period = parse_event_period(params, now=now)
+        predicates[f'facet_{index}'] = Count('pk', filter=event_filter_condition(params, period))
+    earliest = min(parse_event_period(facet.params(), now=now).start for facet in periods)
+    public = query_public_events(period=EventPeriod(earliest, None), now=now).order_by()
+    totals = public.aggregate(**predicates, active=Count('pk', filter=Q(end_datetime__gt=now)))
+    counts = Counter({facet: totals[f'facet_{index}'] for index, facet in enumerate(facets)})
+    districts = set(known_districts().values())
+    groups = (public.filter(end_datetime__gt=now).values('category_id', 'venue_snapshot__district')
+              .annotate(count=Count('pk')))
+    for row in groups:
+        if row['category_id']:
+            counts[Collection(category=row['category_id'])] += row['count']
+        district = row['venue_snapshot__district']
+        if isinstance(district, str) and district in districts:
+            counts[Collection(district=district)] += row['count']
+    rows = [(c, count) for c, count in counts.items()
+            if count >= MIN_INDEXABLE_EVENTS and _is_distinct(c, count, counts, totals['active'])]
+    rows.sort(key=lambda row: (_rank(row[0]), -row[1], row[0].key()))
     return [link(c, count, language, categories) for c, count in rows[:limit]]
 
 

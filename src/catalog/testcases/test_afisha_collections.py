@@ -76,6 +76,85 @@ class AfishaCollectionTests(TestCase):
                 response = self.client.get(old)
                 self.assertRedirects(response, new, status_code=301, fetch_redirect_response=False)
 
+    def test_legacy_links_arrive_in_one_hop_with_a_small_query_budget(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+
+        self.theatre_events()
+        cases = {
+            '/events/': '/tedbirler/',
+            '/ru/events/': '/ru/afisha/',
+            '/ru/events/?utm_source=share&date_filter=weekend': '/ru/afisha/vyhodnye/',
+            '/events/suggest/?utm_source=share': '/tedbirler/suggest/',
+            '/events/?page=1': '/tedbirler/',
+            '/ru/events/suggest/': '/ru/afisha/suggest/',
+            '/ru/events/?category=theatre-test': '/ru/afisha/teatr/',
+            '/events/teatr/': '/tedbirler/teatr/',
+            '/ru/events/teatr/': '/ru/afisha/teatr/',
+            '/ru/events/teatr/vyhodnye/?page=1': '/ru/afisha/vyhodnye/teatr/',
+            '/ru/events/teatr/?page=2': '/ru/afisha/teatr/?page=2',
+        }
+        for old, new in cases.items():
+            with self.subTest(old=old):
+                cache.clear()
+                with CaptureQueriesContext(connection) as queries:
+                    response = self.client.get(old)
+                self.assertLessEqual(len(queries), 1)
+                self.assertEqual(response.status_code, 301)
+                self.assertEqual(response['Location'], new)
+                self.assertEqual(self.client.get(new).status_code, 200)
+        self.assertEqual(self.client.get('/en/events/').status_code, 200)
+
+    def test_crawlable_links_use_the_published_routes(self):
+        from html.parser import HTMLParser
+        from catalog.management.commands.submit_indexnow import Command
+        from catalog.services.indexnow import canonical_indexnow_url
+
+        class Links(HTMLParser):
+            def __init__(self, response):
+                super().__init__()
+                self.hrefs = []
+                self.feed(response.content.decode())
+
+            def handle_starttag(self, tag, attrs):
+                if tag in ('a', 'link'):
+                    href = dict(attrs).get('href')
+                    if href:
+                        self.hrefs.append(urlsplit(href).path)
+
+        events = self.theatre_events()
+        old = ('/events/', '/ru/events/')
+        collections = {'az': '/tedbirler/teatr/', 'ru': '/ru/afisha/teatr/', 'en': '/en/events/theatre/'}
+        hubs = {'az': '/tedbirler/', 'ru': '/ru/afisha/', 'en': '/en/events/'}
+        sitemap = ElementTree.fromstring(self.client.get('/sitemap.xml').content)
+        locations = {urlsplit(el.text).path for el in sitemap.findall('.//{*}loc')}
+        locations.update(urlsplit(el.attrib['href']).path for el in sitemap.findall('.//{*}link'))
+        submissions = {urlsplit(url).path for url in Command._current_urls()}
+        llms = self.client.get('/llms.txt').content.decode()
+        for legacy in old:
+            self.assertFalse(any(p.startswith(legacy) for p in locations | submissions))
+            self.assertEqual(canonical_indexnow_url(legacy), '')
+            self.assertNotIn('http://testserver' + legacy, llms)
+        for lang, hub in hubs.items():
+            with self.subTest(lang=lang), override(lang):
+                collection = collections[lang]
+                for path in (hub, collection):
+                    self.assertIn(path, locations)
+                    self.assertIn(path, submissions)
+                    self.assertEqual(canonical_indexnow_url(path), 'https://kidsmap.az' + path)
+                    page = self.client.get(path)
+                    self.assertEqual(page.status_code, 200)
+                    hrefs = Links(page).hrefs
+                    self.assertFalse(any(href.startswith(old) for href in hrefs))
+                    for event in events:
+                        self.assertIn(event.get_absolute_url(), hrefs)
+                self.assertIn('http://testserver' + hub, llms)
+                form = Links(self.client.get(hub + 'suggest/')).hrefs
+                for other in hubs.values():
+                    self.assertIn(other + 'suggest/', form)
+        self.assertEqual(canonical_indexnow_url('/ru/afisha/weekend/'), '')
+        self.assertEqual(canonical_indexnow_url('/ru/afisha/suggest/'), '')
+
     def test_tracking_and_suggest_keep_working(self):
         for language in ('az', 'ru', 'en'):
             with self.subTest(language=language), override(language):

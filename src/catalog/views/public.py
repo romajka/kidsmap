@@ -151,6 +151,7 @@ def place_new(request):
 def _retired_public_page(request):
     return render(request, "pages/public_unavailable.html", status=410)
 
+@reuse_site_settings_for_render()
 def events_landing(request):
     # Events are retired rather than temporarily unavailable. A 410 removes
     # obsolete /events/ URLs from search indexes faster than a soft 404.
@@ -168,9 +169,10 @@ def events_landing(request):
     if request.method in {"GET", "HEAD"} and request.GET:
         # Old ?date_filter=weekend links (and filters equal to a collection)
         # move to the collection's own indexable URL.
-        collection = event_collections.collection_for_query(request.GET)
+        categories = event_collections.category_rows() if request.GET.get("category") else {}
+        collection = event_collections.collection_for_query(request.GET, categories=categories)
         if collection is not None:
-            target = collection.path(language)
+            target = collection.path(language, categories)
             page = str(request.GET.get("page") or "")
             if page.isdigit() and page != "1":
                 target += f"?page={page}"
@@ -218,6 +220,7 @@ def _event_share_image(request, language):
     }
 
 
+@reuse_site_settings_for_render()
 def event_collection(request, first, second=None):
     """Indexable afisha collection: /ru/afisha/vyhodnye/, /tedbirler/pulsuz/ …"""
     if not is_events_section_enabled():
@@ -252,8 +255,10 @@ def event_collection(request, first, second=None):
 
 def legacy_afisha_redirect(request, segment, rest):
     """/events/… (old shared path) and /ru/tedbirler/… → this language's afisha URL."""
+    from django.http import QueryDict
     from django.utils.translation import override
 
+    from ..services.public_urls import filtered_query_string_for_path
     from ..services import event_collections as ec
     from ..services.afisha_urls import afisha_language, afisha_segment
 
@@ -261,23 +266,30 @@ def legacy_afisha_redirect(request, segment, rest):
     if segment == afisha_segment(language) or (rest and not rest.endswith("/")):
         raise Http404
     parts = [part for part in rest.split("/") if part]
-    query = request.META.get("QUERY_STRING", "")
+    query = ""
     if not parts:
-        collection = ec.collection_for_query(request.GET) if request.GET else None
+        target = ec.landing_path(language)
+        query = filtered_query_string_for_path(target, request.GET)
+        params = QueryDict(query)
+        categories = ec.category_rows() if params.get("category") else {}
+        collection = ec.collection_for_query(params, categories=categories) if params else None
         if collection is not None:
-            target = collection.path(language)
+            target = collection.path(language, categories)
             page = str(request.GET.get("page") or "")
             return redirect(target + (f"?page={page}" if page.isdigit() and page != "1" else ""), permanent=True)
-        target = ec.landing_path(language)
+        if set(params) == {"page"} and params.getlist("page") == ["1"]:
+            query = ""
     elif parts == ["suggest"]:
         with override(language):
             target = reverse("event_suggest")
     elif len(parts) <= 2:
-        collection = ec.resolve_segments(parts, language)
+        categories = ec.category_rows()
+        collection = ec.resolve_segments(parts, language, categories=categories)
         if collection is None:
             raise Http404
-        return redirect(ec.landing_path(language) if collection is ec.EXPIRED else collection.path(language),
-                        permanent=True)
+        target = ec.landing_path(language) if collection is ec.EXPIRED else collection.path(language, categories)
+        page = str(request.GET.get("page") or "")
+        query = f"page={page}" if collection is not ec.EXPIRED and page.isdigit() and page != "1" else ""
     else:
         raise Http404
     return redirect(f"{target}?{query}" if query else target, permanent=True)

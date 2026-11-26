@@ -5,6 +5,7 @@ import logging
 import re
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+from functools import cache
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
@@ -45,7 +46,21 @@ def key_location() -> str:
     return f"{CANONICAL_ORIGIN}/{key}.txt" if key else ""
 
 
-def canonical_indexnow_url(url: str) -> str:
+def indexable_afisha_paths():
+    from catalog.services import event_collections
+    from catalog.services.afisha_urls import localized_route_paths
+    from catalog.services.features import is_events_section_enabled
+
+    if not is_events_section_enabled():
+        return set()
+    paths = set(localized_route_paths('events_landing').values())
+    categories = event_collections.category_rows()
+    for collection, _, _ in event_collections.indexable_collections():
+        paths.update(collection.paths(categories).values())
+    return paths
+
+
+def canonical_indexnow_url(url: str, *, afisha_paths=indexable_afisha_paths) -> str:
     """Return a canonical KidsMap URL eligible for IndexNow, or an empty string."""
     candidate = (url or "").strip()
     if not candidate:
@@ -77,7 +92,8 @@ def canonical_indexnow_url(url: str) -> str:
     if language_neutral_path.startswith(_PRIVATE_PREFIXES):
         return ""
     if not _PUBLIC_INDEXNOW_PATH_RE.fullmatch(path):
-        return ""
+        if not path.startswith(("/tedbirler/", "/ru/afisha/", "/en/events/")) or path not in afisha_paths():
+            return ""
 
     return f"{CANONICAL_ORIGIN}{path}"
 
@@ -157,10 +173,16 @@ def _deliver(batch, urls, *, scheduled=False, force=False):
     return IndexNowSubmissionResult(len(claimed), status, accepted)
 
 
+def _canonical_batch(urls):
+    # Eligibility may change between runs. Share the lookup only within one batch.
+    afisha_paths = cache(indexable_afisha_paths)
+    return dict.fromkeys(canonical for url in urls if (canonical := canonical_indexnow_url(url, afisha_paths=afisha_paths)))
+
+
 def submit_indexnow_urls(urls, *, force: bool = False) -> IndexNowSubmissionResult:
     if not indexnow_enabled():
         return IndexNowSubmissionResult(submitted_count=0)
-    canonical_urls = dict.fromkeys(filter(None, map(canonical_indexnow_url, urls)))
+    canonical_urls = _canonical_batch(urls)
     return _deliver(DeliveryBatch(), canonical_urls, force=force)
 
 
@@ -168,7 +190,14 @@ def retry_indexnow_urls() -> IndexNowSubmissionResult:
     if not indexnow_enabled():
         return IndexNowSubmissionResult(submitted_count=0)
     batch = DeliveryBatch()
-    return _deliver(batch, batch.due_urls(MAX_URLS_PER_REQUEST), scheduled=True)
+    due = batch.due_urls(MAX_URLS_PER_REQUEST)
+    eligible = _canonical_batch(due)
+    for url in due:
+        if url not in eligible:
+            attempt = batch.claim(url, scheduled=True, force=False)
+            if attempt is not None:
+                batch.finish(url, attempt, transient=False, cooldown=0)
+    return _deliver(batch, eligible, scheduled=True)
 
 
 def _submit_in_worker(urls):
@@ -182,7 +211,7 @@ def enqueue_indexnow_urls(urls) -> None:
     """Schedule a best-effort submission only after the database commit succeeds."""
     if not indexnow_enabled():
         return
-    canonical_urls = tuple(filter(None, (canonical_indexnow_url(url) for url in urls)))
+    canonical_urls = tuple(_canonical_batch(urls))
     if not canonical_urls:
         return
 
