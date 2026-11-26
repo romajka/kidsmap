@@ -1,0 +1,65 @@
+{% load i18n tz event_editorial %}{% comment %}
+Reviews of one event, as small paper tickets. Covers: none yet (an invitation),
+one or many (an average with its number and stars), long text (folded under
+"read more", no JS), anonymous authors, filtered text, and more than four
+(the first four here, the rest on the reviews page).
+{% endcomment %}{% url 'typed_reviews' 'event' event.pk as reviews_url %}
+<section class="event-reviews" id="event-reviews" aria-labelledby="event-reviews-title">
+  <div class="event-reviews__head">
+    <h2 id="event-reviews-title">{% trans "Отзывы" %}</h2>
+    {% if event_rating.count %}
+      <div class="event-reviews__score" aria-label="{% trans "Средняя оценка" %}: {{ event_rating.average|floatformat:1 }} / 5">
+        <strong>{{ event_rating.average|floatformat:1 }}</strong>
+        <span class="km-rv-stars" style="--r:{{ event_rating.average|stringformat:'.2f' }}" aria-hidden="true">★★★★★</span>
+        <small>{% blocktrans with count_label=event_rating.count %}Отзывов: {{ count_label }}{% endblocktrans %}</small>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if event_reviews %}
+    <ul class="event-reviews__list{% if event_reviews|length == 1 %} event-reviews__list--one{% endif %}">
+      {% for review in event_reviews|slice:':4' %}{% with rev=review.current_revision %}
+        <li class="km-rv">
+          <article class="km-rv__ticket">
+            <header class="km-rv__head">
+              <span class="km-rv__avatar{% if rev.is_anonymous %} km-rv__avatar--anon{% endif %}" aria-hidden="true">{% if rev.is_anonymous %}<span class="material-symbols-rounded">person</span>{% else %}{{ review.author_name_i18n|slice:':1'|upper }}{% endif %}</span>
+              <div class="km-rv__who">
+                <strong>{{ review.author_name_i18n }}</strong>
+                <time datetime="{{ rev.created_at|date:'c' }}">{% day_month rev.created_at language %} {% timezone 'Asia/Baku' %}{{ rev.created_at|date:'Y' }}{% endtimezone %}</time>
+              </div>
+              {% if rev.rating %}
+                <span class="km-rv__rating" aria-label="{% blocktrans with rating=rev.rating %}Оценка: {{ rating }} / 5{% endblocktrans %}">
+                  <span class="km-rv-stars" style="--r:{{ rev.rating }}" aria-hidden="true">★★★★★</span><b>{{ rev.rating }}</b><span aria-hidden="true">/5</span>
+                </span>
+              {% endif %}
+            </header>
+            {% if rev.text %}
+              {% if rev.text|length > 280 %}
+                <details class="km-rv__more">
+                  <summary><span class="km-rv__short">{{ rev.text|truncatechars:240 }}</span><span class="km-rv__toggle" data-open="{% trans "Свернуть" %}">{% trans "Читать полностью" %}</span></summary>
+                  <p class="km-rv__text">{{ rev.text|linebreaksbr }}</p>
+                </details>
+              {% else %}
+                <p class="km-rv__text">{{ rev.text|linebreaksbr }}</p>
+              {% endif %}
+            {% endif %}
+            {% if rev.contains_profanity %}<p class="km-rv__flag"><span class="material-symbols-rounded" aria-hidden="true">shield</span>{% trans "Часть слов скрыта модерацией" %}</p>{% endif %}
+          </article>
+        </li>
+      {% endwith %}{% endfor %}
+    </ul>
+    <div class="event-reviews__actions">
+      <a class="event-reviews__btn event-reviews__btn--primary" href="{{ reviews_url }}#write-review"><span class="material-symbols-rounded" aria-hidden="true">edit</span>{% trans "Написать отзыв" %}</a>
+      <a class="event-reviews__btn" href="{{ reviews_url }}">{% if event_reviews|length > 4 %}{% blocktrans with count_label=event_reviews|length %}Все отзывы ({{ count_label }}){% endblocktrans %}{% else %}{% trans "Все отзывы и ответы" %}{% endif %}<span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>
+    </div>
+  {% else %}
+    <div class="event-reviews__wrap"><div class="event-reviews__empty">
+      <span class="material-symbols-rounded" aria-hidden="true">rate_review</span>
+      <div>
+        <strong>{% trans "Отзывов пока нет" %}</strong>
+        <p>{% if event.has_ended %}{% trans "Были на спектакле? Помогите другим родителям — напишите первый отзыв." %}{% else %}{% trans "После спектакля поделитесь впечатлениями — это поможет другим родителям с выбором." %}{% endif %}</p>
+        <a class="event-reviews__btn event-reviews__btn--primary" href="{{ reviews_url }}#write-review"><span class="material-symbols-rounded" aria-hidden="true">edit</span>{% trans "Написать отзыв" %}</a>
+      </div>
+    </div></div>
+  {% endif %}
+</section>

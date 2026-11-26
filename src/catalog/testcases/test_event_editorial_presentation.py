@@ -63,3 +63,64 @@ class EventEditorialPresentationTests(SimpleTestCase):
                 rendered = render_to_string(template, {'event': event, 'event_detail_cta': detail, 'language': 'ru'})
                 self.assertIn('data-event-registration-kind="link"', rendered)
                 self.assertEqual('Билеты на iTicket' in rendered, expected and detail)
+
+    def test_reference_lines_become_one_link_per_site_and_captions_use_the_page_language(self):
+        from catalog.templatetags.event_editorial import caption_for, event_caption, event_story
+
+        story = event_story('Hekayə.\n\nTamaşa və cədvəl — Teatr — https://www.teatr.az/a · https://www.teatr.az/b\n\n'
+                            'Afişa — Teatr. https://www.teatr.az/a')
+        self.assertEqual(story['paragraphs'], ['Hekayə.'])
+        self.assertEqual(story['links'], [{'url': 'https://www.teatr.az/a', 'label': 'teatr.az'}])
+        cap = event_caption('Kukla Teatrı / Театр кукол / Puppet Theatre (2015) · Interfase · CC BY-SA 4.0 · '
+                            'https://commons.wikimedia.org/wiki/File:P.JPG · https://creativecommons.org/licenses/by-sa/4.0/')
+        self.assertEqual((cap['credit']['author'], cap['credit']['license']), ('Interfase', 'CC BY-SA 4.0'))
+        self.assertEqual([caption_for(cap['title'], lang) for lang in ('az', 'ru', 'en')],
+                         ['Kukla Teatrı', 'Театр кукол', 'Puppet Theatre'])
+
+    def test_language_line_repeating_the_badge_is_dropped_and_duration_is_readable(self):
+        import datetime
+        from types import SimpleNamespace
+        from catalog.templatetags.event_editorial import event_duration, event_story
+
+        story = event_story('Tamaşanın dili — Azərbaycan dili.\n\nHekayə.')
+        self.assertEqual(story['paragraphs'], ['Hekayə.'])
+        start = datetime.datetime(2026, 11, 29, 12, 0, tzinfo=datetime.timezone.utc)
+        event = SimpleNamespace(start_datetime=start, end_datetime=start + datetime.timedelta(minutes=90))
+        self.assertEqual(event_duration(event, 'az'), '1 saat 30 dəq')
+        self.assertEqual(event_duration(event, 'ru'), '1 ч 30 мин')
+        event.end_datetime = start + datetime.timedelta(days=2)
+        self.assertEqual(event_duration(event, 'az'), '')
+
+    def test_event_reviews_cover_empty_long_anonymous_and_many(self):
+        import datetime
+        from types import SimpleNamespace as N
+
+        def review(i, rating, text, anon=False):
+            rev = N(rating=rating, text=text, is_anonymous=anon, contains_profanity=False,
+                    created_at=datetime.datetime(2026, 11, 20, tzinfo=datetime.timezone.utc))
+            return N(pk=i, author_name_i18n='Anonim' if anon else f'User {i}', current_revision=rev)
+
+        event = N(pk=7, has_ended=False)
+        empty = render_to_string('catalog/includes/event_reviews.html', {
+            'event': event, 'language': 'az', 'event_reviews': [], 'event_rating': {'count': 0, 'average': 0}})
+        self.assertIn('Hələ rəy yoxdur', empty)
+        self.assertIn('#write-review', empty)
+
+        reviews = [review(1, 5, 'Uzun ' * 100), review(2, 4, 'Qısa', anon=True)] + [review(i, 3, 'ok') for i in range(3, 7)]
+        html = render_to_string('catalog/includes/event_reviews.html', {
+            'event': event, 'language': 'az', 'event_reviews': reviews, 'event_rating': {'count': 6, 'average': 3.5}})
+        self.assertEqual(html.count('class="km-rv"'), 4)          # four here, the rest on the reviews page
+        self.assertIn('Bütün 6 rəy', html)
+        self.assertIn('Davamını oxu', html)                       # long text folds
+        self.assertIn('km-rv__avatar--anon', html)
+        self.assertIn('Qiymət: 5 / 5', html)                      # the number is visible, not only stars
+
+    def test_source_links_display_once_with_original_attribution(self):
+        description = ('Tamaşa haqqında məlumat və cədvəl — Teatr, https://teatr.az/a.\n\n'
+                       'Afişa — Teatr. https://teatr.az/b')
+        html = render_to_string('catalog/includes/event_story.html', {
+            'event': SimpleNamespace(description_az=description), 'language': 'az',
+        })
+        self.assertIn('Tamaşa haqqında məlumat və cədvəl —', html)
+        self.assertIn('href="https://teatr.az/a"', html)
+        self.assertNotIn('https://teatr.az/b', html)
