@@ -1,0 +1,207 @@
+/* ═══ Place card as a little ticket (2026-11-26) ═══
+   Same family as the place and event pages: the photo, the facts a parent
+   scans, and a cream stub under a dashed tear line with the price on the left
+   and round "call" / "open" buttons on the right. The card itself is the link.
+   - every card's stub sits on the same line (desktop grid)
+   - in the catalogue on phones: photo on the left, facts on the right,
+     the stub across the full width; short, even, scannable
+   The :not(#kc-…) chain only matches the specificity of km_card.css. */
+html body .place-card:not(#kc-a):not(#kc-b) {
+  --pc-ink: #0d4a2a;
+  --pc-green: #136f38;
+  --pc-paper: #faf6e9;
+  --pc-perf: #d9d3b9;
+  --pc-pad: 16px;
+}
+
+/* the price moves from the photo to the stub */
+html body .place-card .card-price-pill:not(#kc-a):not(#kc-b) { display: none !important; }
+
+/* ── body: a column whose stub is always last and at the bottom ── */
+html body .place-card .card-body:not(#kc-a):not(#kc-b) {
+  display: flex !important; flex-direction: column !important; gap: 8px !important;
+  padding: 14px var(--pc-pad) 0 !important;
+}
+html body .place-card .card-body > .catalog-card-info:not(#kc-a) { display: flex !important; flex-direction: column !important; gap: 8px !important; flex: 1 1 auto !important; }
+html body .place-card .card-title:not(#kc-a):not(#kc-b) {
+  display: -webkit-box !important; -webkit-box-orient: vertical !important; -webkit-line-clamp: 2 !important; overflow: hidden !important;
+  min-height: 2.5em !important; margin: 0 !important; line-height: 1.25 !important;
+}
+html body .place-card .card-title a:not(#kc-a) { color: var(--pc-ink) !important; }
+html body .place-card .card-description:not(#kc-a):not(#kc-b) { min-height: calc(2 * 1.45em) !important; }
+html body .place-card .card-description.is-empty:not(#kc-a):not(#kc-b) { display: block !important; visibility: hidden !important; }
+html body .place-card .card-rating-row:not(#kc-a):not(#kc-b) { margin: 0 !important; }
+
+/* ── the stub ── */
+html body .place-card .card-action-stack:not(#kc-a):not(#kc-b) {
+  margin: auto calc(-1 * var(--pc-pad)) 0 !important; padding: 12px var(--pc-pad) 14px !important;
+  border-top: 2px dashed var(--pc-perf) !important; background: var(--pc-paper) !important;
+}
+html body .place-card .card-bottom-row:not(#kc-a):not(#kc-b) { display: flex !important; align-items: center !important; gap: 8px !important; }
+html body .place-card .card-stub-price:not(#kc-a) {
+  flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  color: var(--pc-ink); font: 850 1.08rem/1.2 var(--font-display, inherit); letter-spacing: -.01em;
+}
+html body .place-card .card-stub-price.is-empty:not(#kc-a) { color: #6b7a71; font-size: .9rem; font-weight: 700; }
+html body .place-card .card-bottom-row > :not(.card-go-btn):not(.card-stub-price):not(#kc-a) { order: 2; }
+html body .place-card .card-go-btn:not(#kc-a):not(#kc-b) {
+  order: 3; flex: 0 0 auto !important; width: 42px !important; height: 42px !important; padding: 0 !important;
+  border-radius: 50% !important; background: var(--pc-green) !important; color: #fff !important;
+  box-shadow: 0 6px 14px -8px rgb(19 111 56 / 80%) !important;
+}
+html body .place-card .card-go-btn .card-go-label:not(#kc-a) {
+  position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip: rect(0 0 0 0) !important; white-space: nowrap !important;
+}
+html body .place-card .card-go-btn .card-go-arrow:not(#kc-a) { display: grid; place-items: center; transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+html body .place-card .card-bottom-row > :not(.card-go-btn):not(.card-stub-price):not(#kc-a) :is(a, button),
+html body .place-card .card-bottom-row > :is(a, button):not(.card-go-btn):not(#kc-a):not(#kc-b) {
+  width: 42px !important; height: 42px !important; border-radius: 50% !important; background: #fff !important;
+  box-shadow: inset 0 0 0 1px #dcd6bf !important;
+}
+
+/* ── motion: the card answers the pointer ── */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html body .place-card:not(#kc-a):not(#kc-b):hover { transform: translateY(-3px) !important; box-shadow: 0 18px 34px -20px rgb(13 73 36 / 45%) !important; }
+  html body .place-card:not(#kc-a):hover .card-media-img { transform: scale(1.04); }
+  html body .place-card .card-media-img:not(#kc-a) { transition: transform .5s cubic-bezier(.2,.8,.2,1) !important; }
+  html body .place-card:not(#kc-a):hover .card-go-arrow { transform: translateX(3px); }
+}
+
+/* ═══ Catalogue on phones: a compact row ticket ═══
+   Replaces the older named-area grid of catalog_layout.css (≤820px). */
+@media (max-width: 820px) {
+  #top.page-place_list .grid .place-card:not(#kc-a):not(#kc-b):not(#kc-r) {
+    display: grid !important;
+    grid-template-columns: 108px minmax(0, 1fr) !important;
+    grid-template-areas: none !important;
+    grid-auto-rows: auto !important;
+    align-items: start !important;
+    column-gap: 12px !important; row-gap: 5px !important;
+    padding: 12px 12px 0 !important; border-radius: 20px !important; background: #fff !important;
+    min-height: 0 !important; height: auto !important; overflow: hidden !important;
+  }
+  #top.page-place_list .grid .place-card .card-media:not(#kc-a):not(#kc-b):not(#kc-r) {
+    display: block !important; position: relative !important;
+    grid-area: auto !important; grid-column: 1 !important; grid-row: 1 / span 4 !important;
+    width: 108px !important; height: 108px !important; aspect-ratio: 1 !important; min-height: 0 !important;
+    margin: 0 !important; border-radius: 14px !important; overflow: hidden !important;
+  }
+  #top.page-place_list .grid .place-card .card-media :is(.card-media-link, .image-placeholder):not(#kc-a):not(#kc-b):not(#kc-r) { display: block !important; width: 100% !important; height: 100% !important; }
+  #top.page-place_list .grid .place-card .card-media .card-media-img:not(#kc-a):not(#kc-b):not(#kc-r) { width: 100% !important; height: 100% !important; object-fit: cover !important; }
+  #top.page-place_list .grid .place-card :is(.card-body, .catalog-card-info):not(#kc-a):not(#kc-b):not(#kc-r) { display: contents !important; }
+  #top.page-place_list .grid .place-card :is(.card-title, .card-tags-row, .card-location, .card-rating-row, .meta[data-translation-fallback]):not(#kc-a):not(#kc-b):not(#kc-r) {
+    grid-area: auto !important; grid-column: 2 !important; grid-row: auto !important; margin: 0 !important; min-width: 0 !important;
+  }
+  #top.page-place_list .grid .place-card .card-title:not(#kc-a):not(#kc-b):not(#kc-r) { order: 1 !important; min-height: 0 !important; font-size: 16px !important; }
+  #top.page-place_list .grid .place-card .card-rating-row:not(#kc-a):not(#kc-b):not(#kc-r) { order: 2 !important; }
+  #top.page-place_list .grid .place-card .card-tags-row:not(#kc-a):not(#kc-b):not(#kc-r) { order: 3 !important; }
+  #top.page-place_list .grid .place-card .card-location:not(#kc-a):not(#kc-b):not(#kc-r) { order: 4 !important; font-size: 12.5px !important; }
+  #top.page-place_list .grid .place-card .card-meta-chip--type:not(#kc-a):not(#kc-b):not(#kc-r) { display: none !important; }
+  #top.page-place_list .grid .place-card :is(.card-description, .card-organization, .card-map-missing, .card-offer-details):not(#kc-a):not(#kc-b):not(#kc-r) { display: none !important; }
+  #top.page-place_list .grid .place-card .card-matched-offers:not(#kc-a):not(#kc-b):not(#kc-r) { grid-column: 1 / -1 !important; order: 5 !important; }
+  #top.page-place_list .grid .place-card .card-category-overlay:not(#kc-a):not(#kc-b):not(#kc-r) {
+    grid-area: auto !important; position: absolute !important; left: 6px !important; right: auto !important; top: auto !important; bottom: 6px !important;
+    max-width: calc(100% - 12px) !important; padding: 3px 7px !important; font-size: 10px !important; z-index: 2 !important;
+  }
+  #top.page-place_list .grid .place-card .card-category-overlay .category-icon:not(#kc-a):not(#kc-b):not(#kc-r) { display: none !important; }
+  #top.page-place_list .grid .place-card .like-form:not(#kc-a):not(#kc-b):not(#kc-r) {
+    grid-area: auto !important; position: absolute !important; top: 6px !important; right: 6px !important; left: auto !important; bottom: auto !important; z-index: 3 !important; margin: 0 !important;
+  }
+  #top.page-place_list .grid .place-card .like-btn:not(#kc-a):not(#kc-b):not(#kc-r) { width: 30px !important; height: 30px !important; min-width: 0 !important; }
+  #top.page-place_list .grid .place-card .card-action-stack:not(#kc-a):not(#kc-b):not(#kc-r) {
+    grid-area: auto !important; grid-column: 1 / -1 !important; grid-row: auto !important; order: 9 !important;
+    margin: 10px -12px 0 !important; padding: 10px 12px 12px !important; border-radius: 0 0 20px 20px !important;
+  }
+  #top.page-place_list .grid .place-card .card-stub-price:not(#kc-a):not(#kc-b):not(#kc-r) { font-size: 1rem !important; }
+}
+
+/* the price is text, not one of the round icon buttons of the old row */
+html body .place-card .card-bottom-row > .card-stub-price:not(#kc-a):not(#kc-b):not(#kc-r) {
+  flex: 1 1 auto !important; width: auto !important; height: auto !important; min-width: 0 !important;
+  display: block !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important;
+  background: none !important; box-shadow: none !important; text-align: left !important;
+}
+html body .place-card .card-bottom-row:not(#kc-a):not(#kc-b):not(#kc-r) { justify-content: flex-start !important; }
+@media (max-width: 820px) {
+  /* decorative layers of the old card must not become grid cells */
+  #top.page-place_list .grid .place-card:not(#kc-a):not(#kc-b):not(#kc-r)::before,
+  #top.page-place_list .grid .place-card:not(#kc-a):not(#kc-b):not(#kc-r)::after { display: none !important; }
+  #top.page-place_list .grid .place-card .card-media-blur-bg:not(#kc-a):not(#kc-b) { display: none !important; }
+}
+html body .place-card .card-bottom-row .card-contact-toggle:not(#kc-a):not(#kc-b):not(#kc-r) {
+  display: grid !important; place-items: center !important; width: 42px !important; height: 42px !important; padding: 0 !important;
+  border-radius: 50% !important; background: #fff !important; box-shadow: inset 0 0 0 1px #dcd6bf !important; color: var(--pc-green) !important;
+}
+/* long prices ("33 ₼-dən · dərs üçün") wrap to a second line instead of being cut */
+html body .place-card .card-bottom-row > .card-stub-price:not(#kc-a):not(#kc-b):not(#kc-r) {
+  white-space: normal !important; display: -webkit-box !important; -webkit-box-orient: vertical !important; -webkit-line-clamp: 2 !important;
+  font-size: 1rem !important; line-height: 1.2 !important;
+}
+html body .place-card .card-go-btn .card-go-arrow:not(#kc-a):not(#kc-b):not(#kc-r) { width: auto !important; height: auto !important; background: none !important; box-shadow: none !important; }
+
+/* ═══ Feel: hover, press and small rewards (2026-11-26) ═══
+   Everything here is transform/opacity only (compositor), short, and off under
+   prefers-reduced-motion. The ripple and the heart pop are started by
+   static/js/km_card_fx.js; without it the card still works, just quieter. */
+html body .place-card:not(#kc-a):not(#kc-b) {
+  transition: transform .35s cubic-bezier(.2, .8, .2, 1), box-shadow .35s cubic-bezier(.2, .8, .2, 1) !important;
+}
+html body .place-card .card-action-stack:not(#kc-a):not(#kc-b) { transition: border-color .3s ease, background-color .3s ease !important; }
+html body .place-card .like-btn:not(#kc-a):not(#kc-b) { transition: transform .18s cubic-bezier(.2, .8, .2, 1) !important; }
+html body .place-card :is(.card-go-btn, .card-contact-toggle):not(#kc-a):not(#kc-b) {
+  position: relative !important; overflow: hidden !important; isolation: isolate;
+  transition: transform .18s cubic-bezier(.2, .8, .2, 1), background-color .2s ease, color .2s ease, box-shadow .25s ease !important;
+}
+/* keyboard */
+html body .place-card :is(.card-go-btn, .card-contact-toggle, .like-btn, .card-title a):focus-visible { outline: 3px solid #9fd3a8 !important; outline-offset: 3px !important; }
+
+/* press: a real "button under the finger" */
+html body .place-card :is(.card-go-btn, .card-contact-toggle, .like-btn):not(#kc-a):not(#kc-b):active { transform: scale(.9) !important; }
+html body .place-card:not(#kc-a):not(#kc-b):active:not(:has(:is(button, a.card-go-btn, .card-contact-toggle):active)) { transform: scale(.985) !important; }
+
+/* ripple from the touch point */
+html body .place-card .km-ripple-dot {
+  position: absolute; left: var(--rx, 50%); top: var(--ry, 50%); z-index: -1;
+  width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%;
+  background: currentColor; opacity: .28; pointer-events: none;
+  animation: km-ripple .55s ease-out forwards;
+}
+@keyframes km-ripple { to { transform: scale(9); opacity: 0; } }
+
+/* the heart answers */
+html body .place-card .like-btn.km-pop:not(#kc-a) { animation: km-heart-pop .5s cubic-bezier(.2, 1.6, .4, 1); }
+html body .place-card .like-btn.km-pop:not(#kc-a)::after {
+  content: ""; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid #ef476f; pointer-events: none;
+  animation: km-heart-ring .55s ease-out forwards;
+}
+@keyframes km-heart-pop { 0% { transform: scale(1); } 35% { transform: scale(1.28); } 60% { transform: scale(.92); } 100% { transform: scale(1); } }
+@keyframes km-heart-ring { from { transform: scale(.7); opacity: .9; } to { transform: scale(1.7); opacity: 0; } }
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html body .place-card:not(#kc-a):not(#kc-b):hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 22px 40px -22px rgb(13 73 36 / 50%), 0 2px 6px rgb(13 73 36 / 6%) !important;
+  }
+  html body .place-card:not(#kc-a):hover .card-action-stack { border-top-color: #c3bb98 !important; background-color: #f6f0dc !important; }
+  html body .place-card:not(#kc-a):hover .card-go-btn { animation: km-go-breathe 1.6s ease-in-out infinite; }
+  /* the arrow leaves on the right and comes back from the left */
+  html body .place-card .card-go-btn:not(#kc-a):hover .card-go-arrow { animation: km-go-arrow .5s cubic-bezier(.5, 0, .2, 1) !important; }
+  html body .place-card .card-go-btn:not(#kc-a):not(#kc-b):hover { background: #0f5c2e !important; }
+  /* the phone rings once */
+  html body .place-card .card-contact-toggle:not(#kc-a):not(#kc-b):not(#kc-r):hover { background: #136f38 !important; color: #fff !important; box-shadow: none !important; }
+  html body .place-card .card-contact-toggle:not(#kc-a):hover svg { animation: km-ring .6s ease-in-out; transform-origin: 50% 60%; }
+  html body .place-card .like-btn:not(#kc-a):not(#kc-b):hover { transform: scale(1.1) !important; }
+}
+@keyframes km-go-breathe { 0%, 100% { box-shadow: 0 0 0 0 rgb(19 111 56 / 35%); } 50% { box-shadow: 0 0 0 7px rgb(19 111 56 / 0%); } }
+@keyframes km-go-arrow { 0% { transform: none; } 45% { transform: translateX(16px); opacity: 0; } 46% { transform: translateX(-16px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes km-ring { 0%, 100% { transform: rotate(0); } 15% { transform: rotate(-16deg); } 30% { transform: rotate(14deg); } 45% { transform: rotate(-10deg); } 60% { transform: rotate(8deg); } 75% { transform: rotate(-4deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html body .place-card :is(.km-ripple-dot, .like-btn.km-pop, .like-btn.km-pop::after) { animation: none !important; }
+}
+/* the round call button is an icon; its words stay in aria-label/title */
+html body .place-card .card-contact-toggle .km-phone-label:not(#kc-a):not(#kc-b) {
+  position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip: rect(0 0 0 0) !important; white-space: nowrap !important;
+}
+html body .place-card .card-contact-toggle .km-phone-icon:not(#kc-a) { display: grid !important; place-items: center !important; margin: 0 !important; }
+html body .place-card .card-contact-toggle .km-phone-icon svg { width: 19px; height: 19px; }

@@ -12,7 +12,7 @@ from django.core.files.storage import FileSystemStorage
 BUNDLES = {
     "js/public_shell.js": (
         "km_controls.js", "header.js", "motion.js", "motion_budget.js", "auth_navigation.js",
-        "public_actions.js", "lazy_sections.js",
+        "public_actions.js", "lazy_sections.js", "km_card_fx.js",
     ),
     "js/map_tools.js": (
         "kidsmap_map_pins.js", "google_maps_motion.js", "google_maps_markers.js",

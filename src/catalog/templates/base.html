@@ -131,6 +131,7 @@
     {% if page_image_preview and not guide_webpage_json and not moved_specialist_profile_json %}<script type="application/ld+json">{{ page_image_preview.schema_json|safe }}</script>{% endif %}
     {% block structured_data %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/components/km_card_refine.css' %}?v=20261126_card" />
+    <link rel="stylesheet" href="{% static 'css/components/km_card_fx.css' %}" />
     {% block extra_head %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/pages/doodle_background.css' %}?v=20261126_doodles_r6" />
     {% comment %}
@@ -455,7 +456,7 @@
         <span class="km-back-to-top-tooltip">{% if CURRENT_LANGUAGE == 'az' %}Yuxarı{% elif CURRENT_LANGUAGE == 'en' %}Top{% else %}Наверх{% endif %}</span>
       </button>
     </div>
-    <script defer src="{% static 'js/public_shell.js' %}?v=20261126"
+    <script defer src="{% static 'js/public_shell.js' %}?v=20261126_card_fx"
       data-login="{% trans 'Войти' %}"
       data-close="{% trans 'Закрыть' %}"
       data-failure="{% trans 'Не удалось выполнить действие. Попробуйте ещё раз.' %}"

@@ -7,7 +7,7 @@ from django.test import SimpleTestCase
 class PublicScriptDeliveryTests(SimpleTestCase):
     def test_development_and_collectstatic_resolve_the_same_bundles(self):
         for name, markers in {
-            "js/public_shell.js": (b"kidsMapEmitAnalyticsEvent", b"IntersectionObserver"),
+            "js/public_shell.js": (b"kidsMapEmitAnalyticsEvent", b"IntersectionObserver", b"km-ripple-dot"),
             "js/map_tools.js": (b"KidsMapPaging", b"KidsMap"),
         }.items():
             with self.subTest(name=name):

@@ -191,8 +191,9 @@
     {% if request.resolver_match.url_name == 'place_list' %}</div>{% endif %}
     <div class="card-action-stack">
       <div class="card-bottom-row">
+        <span class="card-stub-price{% if not presentation.prices.label %} is-empty{% endif %}">{% if presentation.prices.label %}{{ presentation.prices.label }}{% else %}{% trans "Цена уточняется" %}{% endif %}</span>
         <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">
-          <span>{% if request.resolver_match.url_name == 'place_list' %}{% trans "Подробнее" %}{% else %}{% trans "Перейти" %}{% endif %}</span>
+          <span class="card-go-label">{% if request.resolver_match.url_name == 'place_list' %}{% trans "Подробнее" %}{% else %}{% trans "Перейти" %}{% endif %}</span>
           <span class="card-go-arrow" aria-hidden="true">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>
