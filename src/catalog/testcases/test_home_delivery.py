@@ -1,7 +1,10 @@
 from pathlib import Path
+from shutil import rmtree
 
 from django.contrib.staticfiles import finders
 from django.test import SimpleTestCase
+
+from config.public_scripts import PublicScriptFinder
 
 
 class PublicScriptDeliveryTests(SimpleTestCase):
@@ -23,3 +26,11 @@ class PublicScriptDeliveryTests(SimpleTestCase):
                             with storage.open(name) as item:
                                 copies.append(item.read())
                 self.assertEqual(copies, [source])
+
+    def test_finder_rebuilds_bundles_after_its_temporary_directory_disappears(self):
+        finder = PublicScriptFinder()
+        name = "js/public_shell.js"
+        path = Path(finder.find(name))
+        source = path.read_bytes()
+        rmtree(path.parent.parent)
+        self.assertEqual(Path(finder.find(name)).read_bytes(), source)
