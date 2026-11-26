@@ -76,11 +76,13 @@ class ParentGuideHubTests(TestCase):
         self.assertContains(self.client.get('/ru/parents/'), 'href="/ru/afisha/vyhodnye/"')
 
     def test_footer_marks_the_open_guide(self):
-        response = self.client.get('/ru/parents/museums/')
-        self.assertContains(response, 'href="/ru/parents/museums/" class="footer-guide-card" aria-current="page"', html=False)
-        self.assertNotContains(response, 'href="/ru/parents/parks/" class="footer-guide-card" aria-current="page"', html=False)
-        hub_page = self.client.get('/ru/parents/')
-        self.assertContains(hub_page, 'class="footer-guides-all-link" href="/ru/parents/" aria-current="page"', html=False)
+        for language, prefix in (('az', ''), ('ru', '/ru'), ('en', '/en')):
+            with self.subTest(language=language):
+                hub_url = f'{prefix}/parents/'
+                response = self.client.get(f'{hub_url}museums/')
+                self.assertContains(response, f'href="{hub_url}museums/" class="footer-guide-card" aria-current="page"')
+                self.assertNotContains(response, f'href="{hub_url}parks/" class="footer-guide-card" aria-current="page"')
+                self.assertContains(self.client.get(hub_url), f'class="footer-guides-all-link" href="{hub_url}" aria-current="page"')
 
     def test_sitemap_has_the_hub_in_every_language(self):
         sitemap = ElementTree.fromstring(self.client.get('/sitemap.xml').content)
