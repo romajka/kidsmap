@@ -45,3 +45,28 @@ class CatalogOrderingTests(TestCase):
                 self.assertEqual(catalog.status_code, 200)
                 for points in (home.context["map_places"], catalog.json()["points"]):
                     self.assertEqual([member["id"] for point in points for member in point["members"]], expected)
+
+    def test_home_recommendations_break_full_ties_in_both_modes(self):
+        tied = Place.objects.filter(pk__in=(701, 702))
+        instant = datetime(2030, 1, 1, tzinfo=UTC)
+        tied.update(updated_at=instant, likes_count=100, home_recommended_order=1)
+        for editorial in (False, True):
+            tied.update(is_home_recommended=editorial)
+            for prefix in ("/", "/ru/", "/en/"):
+                with self.subTest(editorial=editorial, prefix=prefix):
+                    response = self.client.get(prefix)
+                    self.assertEqual(response.status_code, 200)
+                    self.assertEqual([place.pk for place in response.context["home_rail_places"][:2]], [702, 701])
+
+    def test_editorial_limit_selects_highest_ids_in_tied_group(self):
+        from catalog.models import SiteSettings
+
+        config = SiteSettings.get_solo()
+        config.home_recommendations_limit = 4
+        config.save(update_fields=["home_recommendations_limit"])
+        Place.objects.filter(pk__range=(701, 716)).update(is_home_recommended=True, home_recommended_order=1,
+            updated_at=datetime(2026, 1, 1, tzinfo=UTC), likes_count=10)
+        for prefix in ("/", "/ru/", "/en/"):
+            with self.subTest(prefix=prefix):
+                response = self.client.get(prefix)
+                self.assertEqual([p.pk for p in response.context["home_rail_places"]], [716, 715, 714, 713])

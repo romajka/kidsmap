@@ -63,8 +63,8 @@ class DjangoPlaceRepository(IPlaceRepository):
         active_places = self.active_queryset().filter(is_temporary=False)
         recommended_places = active_places.filter(is_home_recommended=True)
         if recommended_places.exists():
-            return recommended_places.order_by("home_recommended_order", "-updated_at", "-likes_count")[:limit]
-        return active_places.order_by("-likes_count", "-updated_at")[:limit]
+            return recommended_places.order_by("home_recommended_order", "-updated_at", "-likes_count", "-id")[:limit]
+        return active_places.order_by("-likes_count", "-updated_at", "-id")[:limit]
 
     def map_ready_queryset(self, queryset: QuerySet | None = None) -> QuerySet:
         base_queryset = queryset if queryset is not None else self.active_queryset()

@@ -71,3 +71,13 @@ class CatalogRenderSnapshotTests(TestCase):
                     with self.subTest(key=key):
                         self.assert_snapshot(key, prefix + "catalog/", {**filters, "page": page}, lang)
         self.assert_snapshot("ties-reviews-ru", "/ru/catalog/", {"sort": "reviews_desc"}, "ru")
+
+    def test_home_html_with_tied_recommendations(self):
+        for pk in (701, 702):
+            name = f"Studio {pk}"
+            create_ready_place(pk=pk, name=name, name_ru=name, name_en=name, name_az=name,
+                               subcategory=self.studio, district="baku_yasamal",
+                               is_home_recommended=True, home_recommended_order=1, likes_count=10)
+        for lang, prefix in LANGUAGES:
+            with self.subTest(lang=lang):
+                self.assert_snapshot(f"recommendations-{lang}", prefix, {}, lang)
