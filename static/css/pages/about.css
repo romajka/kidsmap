@@ -281,12 +281,14 @@
 /* ── Section Headers ── */
 .about-section-header {
   text-align: center;
-  max-width: 620px;
-  margin: 10px auto 0;
+  margin: 10px 0 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
 }
+
+.about-section-header > :is(h2, p) { max-width: 620px; }
 
 .about-section-badge {
   align-self: center;

@@ -58,3 +58,34 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSpecialistMap, {once: true});
   else initSpecialistMap();
 })();
+
+/* Portrait viewer (2026-11). */
+(function () {
+  'use strict';
+
+  function initPortrait() {
+    const trigger = document.querySelector('[data-sp-photo-open]');
+    const dialog = document.querySelector('[data-sp-photo-dialog]');
+    if (!trigger || !dialog || typeof dialog.showModal !== 'function') return;
+    trigger.addEventListener('click', function () {
+      if (!trigger.querySelector('img')) return; // the photo failed to load
+      const image = dialog.querySelector('img');
+      if (image && !image.getAttribute('src')) {
+        // The large file is fetched only when someone opens it.
+        if (image.dataset.srcset) {
+          image.sizes = image.dataset.sizes || '';
+          image.srcset = image.dataset.srcset;
+        }
+        image.src = image.dataset.src;
+      }
+      dialog.showModal();
+    });
+    dialog.addEventListener('click', function (event) {
+      if (event.target === dialog) dialog.close();
+    });
+  }
+
+  function init() { initPortrait(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once: true});
+  else init();
+})();

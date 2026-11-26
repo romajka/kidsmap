@@ -44,7 +44,8 @@ class EventPublicContractTests(TestCase):
                 self.assertEqual(urlsplit(json.loads(response.context['event_schema_json'])['url']).path, path)
                 for code, alternate in paths.items():
                     self.assertContains(response, f'hreflang="{code}" href="http://testserver{alternate}"')
-                self.assertContains(self.client.get(path.split('/event/')[0] + '/events/'), f'href="{path}"')
+                afisha = {'az': '/tedbirler/', 'ru': '/ru/afisha/', 'en': '/en/events/'}[lang]
+                self.assertContains(self.client.get(afisha), f'href="{path}"')
                 old_prefix = path.removesuffix('xalcalar-diyari/') + f'{event.pk}-'
                 for ending in ('xalcalar-diyari/', 'old-title/', 'old-title/?utm_source=shared'):
                     old = old_prefix + ending

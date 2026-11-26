@@ -68,18 +68,20 @@ class LlmsTxtTests(TestCase):
 
     def test_disabled_sections_are_omitted_and_each_enabled_section_appears(self):
         sections = {
-            "organizations_section_enabled": "organizations",
-            "events_section_enabled": "events",
-            "specialists_section_enabled": "specialists",
+            "organizations_section_enabled": ("organizations", "organizations", "organizations"),
+            # The afisha path is localized: /tedbirler/, /ru/afisha/, /en/events/.
+            "events_section_enabled": ("tedbirler", "afisha", "events"),
+            "specialists_section_enabled": ("specialists", "specialists", "specialists"),
         }
-        for field, section in sections.items():
-            with self.subTest(section=section):
-                self.assertNotIn(f"/{section}/", self.guide().content.decode())
+        for field, segments in sections.items():
+            with self.subTest(section=segments[2]):
+                for segment in segments:
+                    self.assertNotIn(f"/{segment}/", self.guide().content.decode())
                 setattr(self.site, field, True)
                 self.site.save(update_fields=[field])
                 body = self.guide().content.decode()
-                for prefix in ("", "/ru", "/en"):
-                    self.assertIn(f"https://kidsmap.az{prefix}/{section}/", body)
+                for prefix, segment in zip(("", "/ru", "/en"), segments):
+                    self.assertIn(f"https://kidsmap.az{prefix}/{segment}/", body)
                 setattr(self.site, field, False)
                 self.site.save(update_fields=[field])
 
@@ -108,7 +110,7 @@ class LlmsTxtTests(TestCase):
             body = self.guide().content.decode()
         self.assertFalse(SiteSettings.objects.exists())
         self.assertFalse(any(re.match(r"\s*(INSERT|UPDATE|DELETE)\b", q["sql"], re.I) for q in queries))
-        for section in ("organizations", "events", "specialists"):
+        for section in ("organizations", "events", "tedbirler", "afisha", "specialists"):
             self.assertNotIn(f"/{section}/", body)
 
     def test_head_is_available_but_post_is_not(self):

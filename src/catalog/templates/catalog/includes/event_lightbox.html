@@ -1,5 +1,5 @@
 {% comment %}Full-screen viewer for the hero poster and gallery photos (static/js/event_media.js).{% endcomment %}
-{% if event_poster or event_gallery_items %}
+{% load event_editorial %}{% if event_poster or event_gallery_items %}
 <dialog class="km-lb" data-km-lb aria-modal="true" aria-labelledby="km-lb-title">
   <div class="km-lb__bg" data-km-lb-bg aria-hidden="true"></div>
   <h2 class="visually-hidden" id="km-lb-title">{{ event.name_i18n }}</h2>
@@ -15,7 +15,7 @@
   <button type="button" class="km-lb__btn km-lb__next km-nav km-nav--dark km-nav--next" data-km-lb-next aria-label="{% if language == 'az' %}Növbəti şəkil{% elif language == 'en' %}Next photo{% else %}Следующее фото{% endif %}">{% include 'includes/km_nav_icon.html' with icon='arrow' %}</button>
   <ol class="km-lb__items" hidden>
     {% if event_poster %}<li data-src="{{ event_poster.src }}" data-srcset="{{ event_poster.srcset }}" data-thumb="{{ event_poster.thumb }}" data-original="{{ event_poster.original }}" data-w="{{ event_poster.width|default:'' }}" data-h="{{ event_poster.height|default:'' }}" data-alt="{{ event.name_i18n }}"><span>{{ event.name_i18n }}</span></li>{% endif %}
-    {% for item in event_gallery_items %}<li data-src="{{ item.src }}" data-srcset="{{ item.srcset }}" data-thumb="{{ item.thumb }}" data-original="{{ item.original }}" data-w="{{ item.width|default:'' }}" data-h="{{ item.height|default:'' }}" data-alt="{{ event.name_i18n }}">{% if item.caption.title %}<span>{{ item.caption.title }}</span>{% if item.caption.credits %} <small>{% include 'catalog/includes/event_credit_links.html' with parts=item.caption.credits %}</small>{% endif %}{% else %}<span>{{ event.name_i18n }}</span>{% endif %}</li>{% endfor %}
+    {% for item in event_gallery_items %}<li data-src="{{ item.src }}" data-srcset="{{ item.srcset }}" data-thumb="{{ item.thumb }}" data-original="{{ item.original }}" data-w="{{ item.width|default:'' }}" data-h="{{ item.height|default:'' }}" data-alt="{{ event.name_i18n }}">{% if item.caption.title %}<span>{{ item.caption.title|caption_for:language }}</span>{% if item.caption.credits %} <small>{% include 'catalog/includes/event_credit_links.html' with parts=item.caption.credits %}</small>{% endif %}{% else %}<span>{{ event.name_i18n }}</span>{% endif %}</li>{% endfor %}
   </ol>
 </dialog>
 {% endif %}

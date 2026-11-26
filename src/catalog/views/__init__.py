@@ -42,6 +42,8 @@ from .public import (  # noqa: F401
     contacts,
     event_detail,
     events_landing,
+    event_collection,
+    legacy_afisha_redirect,
     faq_page,
     home,
     legacy_for_business_redirect,

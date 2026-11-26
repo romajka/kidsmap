@@ -217,7 +217,9 @@ class PlaceListFilters:
 
     @cached_property
     def catalog_price_max(self):
-        return get_catalog_max_price(self.category, self.subcategory)
+        from catalog.services.public_cache import cached
+        return cached('catalog_price_max', (self.category, self.subcategory),
+                      lambda: get_catalog_max_price(self.category, self.subcategory))
 
     @classmethod
     def from_request(cls, request, force_new_only=False):

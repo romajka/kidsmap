@@ -130,26 +130,26 @@
     {% if page_image_preview and not guide_webpage_json %}<script type="application/ld+json">{{ page_image_preview.schema_json|safe }}</script>{% endif %}
     {% block structured_data %}{% endblock %}
     {% block extra_head %}{% endblock %}
-    {% if living_map_enabled %}
-      <link rel="stylesheet" href="{% static 'css/pages/living_map_background.css' %}" />
-    {% endif %}
+    <link rel="stylesheet" href="{% static 'css/pages/doodle_background.css' %}?v=20261126_doodles_r6" />
     {% comment %}
       motion.css is the last layer on purpose: page-level CSS injected through
       extra_head (e.g. catalog_places.css) would otherwise outrank it.
     {% endcomment %}
-    <link rel="stylesheet" href="{% static 'css/motion.css' %}?v=20261105_polish_r2" />
+    <link rel="stylesheet" href="{% static 'css/motion.css' %}?v=20261126_fastpaint" />
     <link rel="stylesheet" href="{% static 'css/components/motion_budget.css' %}?v=20261123" />
     {% block navigation_motion %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=20261026_contacts_polish1">
     <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261120_header_fit">
-    <link rel="stylesheet" href="{% static 'css/components/foundation.css' %}?v=20261117_page_gutters">
+    <link rel="stylesheet" href="{% static 'css/components/foundation.css' %}?v=20261125_page_width">
     <link rel="stylesheet" href="{% static 'css/components/km_controls.css' %}?v=20261119_marks">
     <script src="{% static 'js/km_controls.js' %}?v=20261119_home_sp4" defer></script>
     <link rel="stylesheet" href="{% static 'css/components/km_search.css' %}?v=20261118_search_r1">
     <link rel="stylesheet" href="{% static 'css/components/km_card.css' %}?v=20261118_card_r3">
+    <link rel="stylesheet" href="{% static 'css/components/km_card_refine.css' %}?v=20261126_fx">
     <link rel="stylesheet" href="{% static 'css/components/km_nav.css' %}?v=20261124_nav4">
     <script src="{% static 'js/header.js' %}?v=20261119_lang_pc" defer></script>
     <script src="{% static 'js/motion.js' %}?v=20261105_polish_r1"></script>
+    <script src="{% static 'js/km_card_fx.js' %}?v=20261126_fx" defer></script>
     <script src="{% static 'js/motion_budget.js' %}?v=20261123" defer></script>
   </head>
   <body id="top" class="{% if site_preview %}page-place_detail{% elif request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
@@ -202,16 +202,32 @@
           <!-- Dedicated Parent Guides Shelf -->
           <section class="footer-guides-shelf" aria-labelledby="footer-guides-title">
             <div class="footer-guides-header">
-              <div class="footer-guides-badge">
-                <span class="footer-guides-badge-dot" aria-hidden="true"></span>
-                <span id="footer-guides-title" class="footer-guides-heading">{% if CURRENT_LANGUAGE == "az" %}Valideynlər üçün bələdçilər{% elif CURRENT_LANGUAGE == "en" %}Curated Parent Guides{% else %}Гиды для родителей{% endif %}</span>
+              <div class="footer-guides-title-group">
+                <div class="footer-guides-badge">
+                  <span class="footer-guides-badge-dot" aria-hidden="true"></span>
+                  <span id="footer-guides-title" class="footer-guides-heading">{% if CURRENT_LANGUAGE == "az" %}Valideynlər üçün bələdçilər{% elif CURRENT_LANGUAGE == "en" %}Curated Parent Guides{% else %}Гиды для родителей{% endif %}</span>
+                </div>
+                <p class="footer-guides-subtitle">
+                  {% if CURRENT_LANGUAGE == "az" %}Bakıda uşaqlarla gəzintilər, maraqlı məkanlar və istiqamətlər üzrə redaksiya tövsiyələri{% elif CURRENT_LANGUAGE == "en" %}Curated family walks, parks, and leisure activities in Baku{% else %}Проверенные прогулки, парки и подборки мест для отдыха с детьми в Баку{% endif %}
+                </p>
               </div>
-              <p class="footer-guides-subtitle">
-                {% if CURRENT_LANGUAGE == "az" %}Bakıda uşaqlarla gəzintilər, maraqlı məkanlar və istiqamətlər üzrə redaksiya tövsiyələri{% elif CURRENT_LANGUAGE == "en" %}Curated family walks, parks, and leisure activities in Baku{% else %}Проверенные прогулки, парки и подборки мест для отдыха с детьми в Баку{% endif %}
-              </p>
+              <div class="footer-guides-controls">
+                <div class="footer-guides-nav" aria-hidden="true">
+                  <button type="button" class="footer-guides-nav-btn" data-guides-prev aria-label="{% if CURRENT_LANGUAGE == 'az' %}Əvvəlki{% elif CURRENT_LANGUAGE == 'en' %}Previous{% else %}Назад{% endif %}">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <button type="button" class="footer-guides-nav-btn" data-guides-next aria-label="{% if CURRENT_LANGUAGE == 'az' %}Növbəti{% elif CURRENT_LANGUAGE == 'en' %}Next{% else %}Вперёд{% endif %}">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+                <a class="footer-guides-all-link" href="{% url 'parent_guide_index' %}"{% if request.resolver_match.url_name == 'parent_guide_index' %} aria-current="page"{% endif %}>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Hamısına bax{% elif CURRENT_LANGUAGE == "en" %}All guides{% else %}Все гиды{% endif %}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </a>
+              </div>
             </div>
-            <div class="footer-guides-grid">
-              <a href="{% url 'parent_guide' slug='parks' %}" class="footer-guide-card">
+            <div class="footer-guides-grid" data-guides-rail>
+              <a href="{% url 'parent_guide' slug='parks' %}" class="footer-guide-card"{% if request.resolver_match.url_name == 'parent_guide' and request.resolver_match.kwargs.slug == 'parks' %} aria-current="page"{% endif %}>
                 <div class="footer-guide-visual">
                   <img src="{% static 'img/guides/parks-hero-small.webp' %}" alt="" width="52" height="52" class="footer-guide-img" loading="lazy" decoding="async">
                   <span class="footer-guide-visual-badge footer-guide-visual-badge--parks" aria-hidden="true">
@@ -226,7 +242,7 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </span>
               </a>
-              <a href="{% url 'parent_guide' slug='baku-with-kids' %}" class="footer-guide-card">
+              <a href="{% url 'parent_guide' slug='baku-with-kids' %}" class="footer-guide-card"{% if request.resolver_match.url_name == 'parent_guide' and request.resolver_match.kwargs.slug == 'baku-with-kids' %} aria-current="page"{% endif %}>
                 <div class="footer-guide-visual">
                   <img src="{% static 'img/guides/family-hero.webp' %}" alt="" width="52" height="52" class="footer-guide-img" loading="lazy" decoding="async">
                   <span class="footer-guide-visual-badge footer-guide-visual-badge--family" aria-hidden="true">
@@ -241,7 +257,7 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </span>
               </a>
-              <a href="{% url 'parent_guide' slug='museums' %}" class="footer-guide-card">
+              <a href="{% url 'parent_guide' slug='museums' %}" class="footer-guide-card"{% if request.resolver_match.url_name == 'parent_guide' and request.resolver_match.kwargs.slug == 'museums' %} aria-current="page"{% endif %}>
                 <div class="footer-guide-visual">
                   <img src="{% static 'img/guides/museums-hero-small.webp' %}" alt="" width="52" height="52" class="footer-guide-img" loading="lazy" decoding="async">
                   <span class="footer-guide-visual-badge footer-guide-visual-badge--museums" aria-hidden="true">
@@ -256,7 +272,7 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </span>
               </a>
-              <a href="{% url 'parent_guide' slug='play-centers' %}" class="footer-guide-card">
+              <a href="{% url 'parent_guide' slug='play-centers' %}" class="footer-guide-card"{% if request.resolver_match.url_name == 'parent_guide' and request.resolver_match.kwargs.slug == 'play-centers' %} aria-current="page"{% endif %}>
                 <div class="footer-guide-visual">
                   <img src="{% static 'img/guides/play-centers-hero-small.webp' %}" alt="" width="52" height="52" class="footer-guide-img" loading="lazy" decoding="async">
                   <span class="footer-guide-visual-badge footer-guide-visual-badge--play" aria-hidden="true">
@@ -271,7 +287,7 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                 </span>
               </a>
-              <a href="{% url 'parent_guide' slug='sport' %}" class="footer-guide-card">
+              <a href="{% url 'parent_guide' slug='sport' %}" class="footer-guide-card"{% if request.resolver_match.url_name == 'parent_guide' and request.resolver_match.kwargs.slug == 'sport' %} aria-current="page"{% endif %}>
                 <div class="footer-guide-visual">
                   <img src="{% static 'img/guides/sport-hero.webp' %}" alt="" width="52" height="52" class="footer-guide-img" loading="lazy" decoding="async">
                   <span class="footer-guide-visual-badge footer-guide-visual-badge--sport" aria-hidden="true">
@@ -288,6 +304,31 @@
               </a>
             </div>
           </section>
+          <script>
+            (function () {
+              var shelf = document.querySelector('.footer-guides-shelf');
+              if (!shelf) return;
+              var rail = shelf.querySelector('[data-guides-rail]');
+              var prev = shelf.querySelector('[data-guides-prev]');
+              var next = shelf.querySelector('[data-guides-next]');
+              if (!rail || !prev || !next) return;
+              function syncNav() {
+                var max = Math.max(0, rail.scrollWidth - rail.clientWidth - 2);
+                prev.disabled = rail.scrollLeft <= 2;
+                next.disabled = rail.scrollLeft >= max;
+                shelf.classList.toggle('is-scrollable', rail.scrollWidth > rail.clientWidth + 4);
+              }
+              prev.addEventListener('click', function () {
+                rail.scrollBy({ left: -Math.max(260, rail.clientWidth * 0.72), behavior: 'smooth' });
+              });
+              next.addEventListener('click', function () {
+                rail.scrollBy({ left: Math.max(260, rail.clientWidth * 0.72), behavior: 'smooth' });
+              });
+              rail.addEventListener('scroll', syncNav, { passive: true });
+              window.addEventListener('resize', syncNav);
+              syncNav();
+            })();
+          </script>
           {% endif %}
 
           <div class="footer-grid">
@@ -1093,11 +1134,10 @@
       </script>
     {% endif %}
     {% endcomment %}
-    {% if living_map_enabled %}
-      <canvas class="living-map-background" data-living-map aria-hidden="true"></canvas>
-      <script src="{% static 'js/living_map_scene.js' %}?v=20261022_release_all_r1" defer></script>
-      <script src="{% static 'js/living_map_background.js' %}?v=20261022_release_all_r1" defer></script>
-    {% endif %}
+    {% block background_doodles %}
+      <canvas class="doodle-background" data-doodles aria-hidden="true"></canvas>
+      <script src="{% static 'js/doodle_background.js' %}?v=20261126_doodles_r6" defer></script>
+    {% endblock %}
     {% block extra_body %}{% endblock %}
   </body>
 </html>

@@ -24,13 +24,6 @@ from .services.auth_redirects import build_header_login_next, build_header_login
 DEFAULT_FOOTER_PHONE = "+994 55 497 97 23"
 DEFAULT_FOOTER_WHATSAPP_URL = "https://wa.me/994554979723"
 DEFAULT_FOOTER_EMAIL = "info@kidsmap.az"
-# Visitor pages only; keep account and authentication workflows quiet.
-LIVING_MAP_URL_NAMES = frozenset({
-    "home", "place_list", "place_new", "seo_landing", "place_detail",
-    "events_landing", "event_detail", "specialist_list", "specialist_detail",
-    "about", "faq_page", "contacts", "site_reviews", "place_reviews", "add_place",
-    "privacy", "terms", "review_rules", "listing_rules",
-})
 DEFAULT_FOOTER_INSTAGRAM_URL = "https://www.instagram.com/kidsmap.az/"
 DEFAULT_FOOTER_TELEGRAM_URL = "https://t.me/KidsMap_az"
 DEFAULT_FOOTER_YOUTUBE_URL = "https://www.youtube.com/@KidsMap_az"
@@ -90,6 +83,7 @@ QUERY_NOINDEX_URL_NAMES = {
     "contacts",
     "specialist_list",
     "events_landing",
+    "event_collection",
     "organization_list",
     "place_list",
     "place_new",
@@ -152,6 +146,15 @@ def seo_urls(request):
         for code in lang_codes
     }
 
+    # Pages whose path differs per language (afisha: /tedbirler/, /ru/afisha/, /en/events/).
+    localized_paths = getattr(request, "_seo_localized_paths", None)
+    if localized_paths:
+        alternate_urls = {
+            code: build_public_absolute_uri(request, localized_paths[code])
+            for code in lang_codes if code in localized_paths
+        }
+        canonical_url = alternate_urls.get(current_lang, canonical_url)
+
     place = getattr(request, "_seo_place", None)
     if place is not None:
         from catalog.services.place_urls import place_paths_by_language
@@ -191,9 +194,9 @@ def seo_urls(request):
         robots_content = "noindex,follow"
 
     page_number = getattr(request, "_seo_catalog_page_number", None)
-    if url_name == "events_landing":
+    if url_name in {"events_landing", "event_collection"}:
         page_number = getattr(request, "_seo_events_page_number", None)
-    if url_name in {"place_list", "events_landing"} and set(request.GET) == {"page"} and page_number is not None:
+    if url_name in {"place_list", "events_landing", "event_collection"} and set(request.GET) == {"page"} and page_number is not None:
         suffix = f"?page={page_number}" if page_number > 1 else ""
         canonical_url = f"{canonical_url}{suffix}"
         alternate_urls = {code: f"{url}{suffix}" for code, url in alternate_urls.items()}
@@ -207,6 +210,10 @@ def seo_urls(request):
         if suffix:
             canonical_url = f"{canonical_url}?{suffix}"
             alternate_urls = {code: f"{url}?{suffix}" for code, url in alternate_urls.items()}
+
+    forced_robots = getattr(request, "_seo_robots", None)
+    if forced_robots:
+        robots_content = forced_robots
 
     og_locale_map = {"ru": "ru_RU", "az": "az_AZ", "en": "en_US"}
     og_locale = og_locale_map.get(content_lang, "az_AZ")
@@ -231,7 +238,6 @@ def seo_urls(request):
         "header_account_login_url": build_header_login_url(request),
         "header_account_login_next": build_header_login_next(request),
         "analytics_page_type": PUBLIC_ANALYTICS_PAGE_TYPES.get(url_name, ""),
-        "living_map_enabled": url_name in LIVING_MAP_URL_NAMES,
         "google_site_verification": (
             getattr(settings, "GOOGLE_SITE_VERIFICATION", "") or ""
         ).strip(),

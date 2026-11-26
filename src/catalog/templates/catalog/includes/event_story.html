@@ -2,18 +2,35 @@
 {% localized_content event 'description' as content %}
 {% if content.text %}
   {% with story=content.text|event_story %}
-    <section class="event-detail-description" aria-labelledby="event-about">
+    {% event_duration event language as duration %}
+    <section class="event-about" aria-labelledby="event-about"><div class="event-about__ticket">
       <h2 id="event-about">{% if language == 'az' %}Tədbir haqqında{% elif language == 'en' %}About the event{% else %}О мероприятии{% endif %}</h2>
-      {% if content.is_fallback %}<small data-source-language="{{ content.language }}">{{ content.source_label }}</small>{% endif %}
-      {% for paragraph in story.paragraphs %}<p class="event-story__paragraph" lang="{{ content.language }}">{{ paragraph }}</p>{% endfor %}
-      {% if story.sources %}
-        <details class="event-story__sources">
-          <summary>{% if language == 'az' %}Mənbələr və foto müəllifləri{% elif language == 'en' %}Sources and photo credits{% else %}Источники и авторы фото{% endif %}</summary>
-          {% for parts in story.sources %}
-            <p lang="{{ content.language }}">{% include 'catalog/includes/event_credit_links.html' %}</p>
-          {% endfor %}
-        </details>
+      <ul class="event-about__facts">
+        {% for item in event.language_list %}<li><span class="material-symbols-rounded" aria-hidden="true">record_voice_over</span>{{ item.name }}</li>{% endfor %}
+        {% if event.age_display %}<li><span class="material-symbols-rounded" aria-hidden="true">child_care</span>{% if language == 'az' %}{{ event.age_display }} yaş{% elif language == 'en' %}Ages {{ event.age_display }}{% else %}{{ event.age_display }} лет{% endif %}</li>{% endif %}
+        {% if duration %}<li><span class="material-symbols-rounded" aria-hidden="true">timer</span>{{ duration }}</li>{% endif %}
+      </ul>
+      {% if content.is_fallback %}<small class="event-about__fallback" data-source-language="{{ content.language }}">{{ content.source_label }}</small>{% endif %}
+      <div class="event-about__text">
+        {% for paragraph in story.paragraphs %}<p class="event-story__paragraph" lang="{{ content.language }}">{{ paragraph }}</p>{% endfor %}
+      </div>
+      {% if story.links or story.credits %}
+        <footer class="event-about__foot">
+          {% if story.links %}
+            <span class="event-about__source">
+              <span class="material-symbols-rounded" aria-hidden="true">info</span>
+              {% if language == 'az' %}Mənbə{% elif language == 'en' %}Source{% else %}Источник{% endif %}:
+              {% for link in story.links %}<a href="{{ link.url }}" rel="noopener noreferrer" target="_blank">{{ link.label }}<span class="material-symbols-rounded" aria-hidden="true">arrow_outward</span></a>{% if not forloop.last %}, {% endif %}{% endfor %}
+            </span>
+          {% endif %}
+          {% if story.credits %}
+            <details class="event-story__sources">
+              <summary>{% if language == 'az' %}Foto müəllifləri{% elif language == 'en' %}Photo credits{% else %}Авторы фото{% endif %}</summary>
+              {% for parts in story.credits %}<p lang="{{ content.language }}">{% include 'catalog/includes/event_credit_links.html' %}</p>{% endfor %}
+            </details>
+          {% endif %}
+        </footer>
       {% endif %}
-    </section>
+    </div></section>
   {% endwith %}
 {% endif %}
