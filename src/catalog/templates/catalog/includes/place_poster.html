@@ -1,0 +1,136 @@
+{% load i18n static catalog_i18n place_detail_extras %}{% comment %}
+The top of a place page, built like the afisha poster: green paper with the
+facts a parent decides on, a hand-held stack of photos on the right, and a
+cream ticket under it with price, age, today's hours and the call button.
+Photos: static/js/place_stack.js (drag/swipe, tilt under the pointer, keys,
+full-screen viewer). Without JS the stack is a plain scrolling row of links.
+{% endcomment %}
+<header class="place-poster{% if not gallery %} place-poster--no-photo{% endif %}">
+  <div class="place-poster__intro">
+    <div class="place-poster__meta">
+      {% if place.category %}<span class="place-poster__cat"><span class="material-symbols-rounded" aria-hidden="true">sell</span>{% with sub_label=place.subcategory.name_i18n %}{{ place.get_category_display }}{% if place.subcategory and sub_label != place.get_category_display %} · {{ sub_label }}{% endif %}{% endwith %}</span>{% endif %}
+      <span class="place-poster__kind">{% if place.is_temporary %}{% trans "Временное мероприятие" %}{% else %}{% trans "Постоянное место" %}{% endif %}</span>
+    </div>
+    <h1 class="detail-title place-poster__title" lang="{{ presentation.name_language }}">{{ presentation.name }}</h1>
+    {% if place.rating_count %}
+      <a class="place-poster__rating" href="#reviews" aria-label="{% trans 'Отзывы' %}: {{ place.rating_avg|floatformat:1 }} / 5">
+        <span class="place-poster__stars" style="--r:{{ place.rating_avg|stringformat:'.2f' }}" aria-hidden="true">★★★★★</span>
+        <strong>{{ place.rating_avg|floatformat:1 }}</strong>
+        <span>{{ place.rating_count|review_count }}</span>
+      </a>
+    {% endif %}
+    {% if place.address or place.district or place.metro %}
+      <div class="place-poster__venue">
+        <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+        <div>
+          {% if place.address %}<a href="#map" title="{% trans 'Показать на карте' %}">{{ place.address_i18n }}</a>{% endif %}
+          {% if place.district or place.metro %}<span>{% if place.district %}{{ place.district_i18n }}{% endif %}{% if place.district and place.metro %} · {% endif %}{% if place.metro %}<b class="place-poster__metro">M</b> {{ place.metro_i18n }}{% endif %}</span>{% endif %}
+        </div>
+      </div>
+    {% endif %}
+    {% if presentation.description and presentation.description|length <= 280 %}
+      <p class="place-poster__lead" lang="{{ presentation.description_language }}">{{ presentation.description }}</p>
+    {% endif %}
+  </div>
+
+  <div class="place-poster__media">
+    {% if gallery %}
+      <div class="km-pstack{% if gallery|length == 1 %} km-pstack--single{% endif %}" data-km-pstack role="region" tabindex="0"
+           aria-roledescription="{% trans "стопка фото" %}"
+           aria-label="{% trans 'Галерея фотографий' %}: {{ gallery|length }}"
+           data-l-open="{% trans "Открыть фото" %}"
+           data-l-close="{% trans "Закрыть" %}"
+           data-l-prev="{% trans 'Предыдущее фото' %}" data-l-next="{% trans 'Следующее фото' %}">
+        <div class="km-pstack__deck">
+          {% for file in gallery %}
+            <a class="km-pstack__card" href="{{ file.url }}" data-km-pstack-card data-index="{{ forloop.counter0 }}" style="--i:{{ forloop.counter0 }}" draggable="false">
+              <img src="{{ file.url }}" alt="{{ presentation.name }} — {{ forloop.counter }}" draggable="false" decoding="async"
+                   {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                   data-photo-fallback="1" data-fallback-src="{% static 'img/banners/listing-placeholder.webp' %}">
+            </a>
+          {% endfor %}
+        </div>
+        {% if gallery|length > 1 %}
+          <div class="km-pstack__bar">
+            <button type="button" class="km-pstack__btn" data-km-pstack-prev aria-label="{% trans 'Предыдущее фото' %}"><span class="material-symbols-rounded" aria-hidden="true">arrow_back</span></button>
+            <span class="km-pstack__count" aria-live="polite"><b data-km-pstack-current>1</b> / {{ gallery|length }}</span>
+            <button type="button" class="km-pstack__btn" data-km-pstack-next aria-label="{% trans 'Следующее фото' %}"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></button>
+          </div>
+          <span class="km-pstack__hint" aria-hidden="true"><span class="material-symbols-rounded">swipe</span>{% trans "Листайте" %}</span>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="place-poster__placeholder" data-category-placeholder role="img" aria-label="{% trans 'У этого места пока нет фотографий' %}">
+        {% include "catalog/includes/public_category_icon.html" with icon=presentation.placeholder_icon %}
+        <span>{% trans "У этого места пока нет фотографий" %}</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="place-ticket">
+    <dl class="place-ticket__facts">
+      <div class="place-ticket__fact place-ticket__fact--price">
+        <dt>{% trans "Цена" %}</dt>
+        <dd>
+          {% if pricing_summary.has_price or place.price_range_display %}
+            <span class="detail-decision__price-value">{% if pricing_summary.has_price %}{{ pricing_summary.formatted_price_amount|money }}{% else %}{{ place.price_range_display|money }}{% endif %}</span>
+            {% if pricing_summary.tariff_count %}<a class="place-ticket__more" href="#pricing">{{ pricing_summary.tariff_count|tariff_count }}</a>{% endif %}
+          {% else %}
+            <span class="detail-decision__price-value detail-decision__price-value--soft">{% trans "Цена уточняется" %}</span>
+          {% endif %}
+        </dd>
+      </div>
+      {% if place.age_display %}
+        <div class="place-ticket__fact">
+          <dt>{% trans "Возраст" %}</dt>
+          <dd><strong>{{ place.age_public_label }}</strong>{% if place.age_program_hint %}<small>{{ place.age_program_hint }}</small>{% endif %}</dd>
+        </div>
+      {% endif %}
+      {% if pricing_summary.open_status or place.schedule_mode == 'by_appointment' %}
+        <div class="place-ticket__fact place-ticket__fact--today">
+          <dt>{% trans "Сегодня" %}</dt>
+          <dd>
+            {% if pricing_summary.open_status %}
+              <span class="place-ticket__open{% if not pricing_summary.open_status.is_open %} is-closed{% endif %}"><span class="place-ticket__dot" aria-hidden="true"></span>{{ pricing_summary.open_status.label }}</span>
+              {% if pricing_summary.open_status.time %}
+                <strong>{{ pricing_summary.open_status.time }}</strong>
+              {% elif not pricing_summary.open_status.is_open and pricing_summary.schedule_week|next_open_day %}
+                <small class="place-ticket__next">{% trans "Откроется" %}</small>
+                <strong>{{ pricing_summary.schedule_week|next_open_day }}</strong>
+              {% endif %}
+            {% else %}
+              <strong>{% trans "По записи" %}</strong>
+            {% endif %}
+            {% with summary=pricing_summary.schedule_rows|first_open_row %}
+              <a class="place-ticket__more" href="#schedule">{% if summary and place.schedule_mode != 'always_open' and place.schedule_mode != 'by_appointment' %}{{ summary }}{% else %}{% trans "Вся неделя" %}{% endif %}</a>
+            {% endwith %}
+          </dd>
+        </div>
+      {% endif %}
+    </dl>
+    {% if presentation.contacts.has_phone or map_open_url %}
+      <div class="place-ticket__action">
+        {% if presentation.contacts.has_phone %}
+          {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--primary place-ticket__call" phone_index=0 %}
+          {% if presentation.contacts.phones|length > 1 %}
+            <details class="detail-contacts__more">
+              <summary>
+                {% blocktrans with count_label=presentation.contacts.phones|length|add:"-1" %}Ещё номера: {{ count_label }}{% endblocktrans %}
+                <span class="material-symbols-rounded detail-contacts__more-chevron" aria-hidden="true">expand_more</span>
+              </summary>
+              <div class="detail-contacts__secondary-items" aria-label="{% trans 'Дополнительные номера' %}">
+                {% for phone in presentation.contacts.phones|slice:"1:" %}
+                  {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__secondary-link" phone_index=forloop.counter %}
+                {% endfor %}
+              </div>
+            </details>
+          {% endif %}
+        {% else %}
+          <a class="detail-cta detail-cta--primary place-ticket__call" href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer" data-track-event="directions_click" data-track-place-id="{{ place.id }}" data-track-source="place-poster">
+            <span class="material-symbols-rounded" aria-hidden="true">directions</span>{% trans "Проложить маршрут" %}
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</header>

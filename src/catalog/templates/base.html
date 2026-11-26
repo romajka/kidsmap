@@ -129,6 +129,7 @@
     {% endif %}
     {% if page_image_preview and not guide_webpage_json and not moved_specialist_profile_json %}<script type="application/ld+json">{{ page_image_preview.schema_json|safe }}</script>{% endif %}
     {% block structured_data %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'css/components/km_card_refine.css' %}?v=20261126_card" />
     {% block extra_head %}{% endblock %}
     {% if living_map_enabled %}
       <link rel="stylesheet" href="{% static 'css/pages/living_map_background.css' %}" />
@@ -137,7 +138,7 @@
       motion.css is the last layer on purpose: page-level CSS injected through
       extra_head (e.g. catalog_places.css) would otherwise outrank it.
     {% endcomment %}
-    <link rel="stylesheet" href="{% static 'css/motion.css' %}?v=20261105_polish_r2" />
+    <link rel="stylesheet" href="{% static 'css/motion.css' %}?v=20261126_fastpaint" />
     <link rel="stylesheet" href="{% static 'css/components/motion_budget.css' %}?v=20261123" />
     {% block navigation_motion %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=20261026_contacts_polish1">

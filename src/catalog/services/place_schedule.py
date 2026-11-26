@@ -7,7 +7,7 @@ from datetime import time
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
-from django.utils.translation import get_language, gettext as _, override
+from django.utils.translation import get_language, gettext as _, gettext_noop, override
 
 
 WEEKDAY_ORDER = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
@@ -24,13 +24,13 @@ FULL_DAY_LABELS = {
 }
 
 SHORT_DAY_LABELS = {
-    "mon": "Пн",
-    "tue": "Вт",
-    "wed": "Ср",
-    "thu": "Чт",
-    "fri": "Пт",
-    "sat": "Сб",
-    "sun": "Вс",
+    "mon": gettext_noop("Пн"),
+    "tue": gettext_noop("Вт"),
+    "wed": gettext_noop("Ср"),
+    "thu": gettext_noop("Чт"),
+    "fri": gettext_noop("Пт"),
+    "sat": gettext_noop("Сб"),
+    "sun": gettext_noop("Вс"),
 }
 
 SCHEDULE_MODE_COPY = {
@@ -88,28 +88,6 @@ FULL_DAY_LABELS_I18N = {
         "fri": "Friday",
         "sat": "Saturday",
         "sun": "Sunday",
-    },
-}
-
-SHORT_DAY_LABELS_I18N = {
-    "ru": SHORT_DAY_LABELS,
-    "az": {
-        "mon": "B.e",
-        "tue": "Ç.a",
-        "wed": "Çər",
-        "thu": "C.a",
-        "fri": "Cümə",
-        "sat": "Şən",
-        "sun": "Bazar",
-    },
-    "en": {
-        "mon": "Mon",
-        "tue": "Tue",
-        "wed": "Wed",
-        "thu": "Thu",
-        "fri": "Fri",
-        "sat": "Sat",
-        "sun": "Sun",
     },
 }
 
@@ -249,7 +227,8 @@ def weekday_full_label(weekday: str, language=None) -> str:
 
 def weekday_short_label(weekday: str, language=None) -> str:
     lang = _schedule_lang(language)
-    return SHORT_DAY_LABELS_I18N.get(lang, SHORT_DAY_LABELS_I18N["ru"]).get(weekday, weekday)
+    with override(lang):
+        return _(SHORT_DAY_LABELS.get(weekday, weekday))
 
 
 def _coerce_bool(value) -> bool:
@@ -645,7 +624,8 @@ def build_public_schedule_week(place, language=None) -> list[dict[str, object]]:
         return []
 
     lang = _schedule_lang(language)
-    labels = SHORT_DAY_LABELS_I18N[lang]
+    with override(lang):
+        labels = {day: _(label) for day, label in SHORT_DAY_LABELS.items()}
     today = _today_weekday_key()
     cells = []
     for day in serialize_place_schedule(place):
@@ -654,6 +634,7 @@ def build_public_schedule_week(place, language=None) -> list[dict[str, object]]:
             {
                 "weekday": weekday,
                 "label": labels.get(weekday, weekday),
+                "full_label": weekday_full_label(weekday, lang),
                 "lines": _day_display_lines(day, lang),
                 "is_closed": bool(day["is_closed"]),
                 "is_24_hours": bool(day["is_24_hours"]),

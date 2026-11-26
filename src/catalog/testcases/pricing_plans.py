@@ -262,7 +262,7 @@ class PricingPlansTests(TestCase):
             response = self.client.get(place.get_absolute_url())
         self.assertContains(response, "Цена и занятия")
         self.assertContains(response, "Индивидуально")
-        self.assertContains(response, "40 AZN")
+        self.assertContains(response, '40 <span aria-hidden="true">₼</span>')
         self.assertNotContains(response, "Скрытый")
         self.assertNotContains(response, 'id="pricing-plans-toggle"', html=False)
 

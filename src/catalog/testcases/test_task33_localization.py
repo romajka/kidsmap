@@ -5,6 +5,7 @@ from types import SimpleNamespace
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
+from django.test.html import parse_html
 from django.utils import timezone
 from django.utils.translation import override
 
@@ -70,7 +71,19 @@ class LocalizationContractsTests(TestCase):
         self.assertEqual(data['name_language'], 'ru')
         self.assertEqual(data['description_language'], 'az')
         self.assertContains(response, 'lang="ru">Местный центр</h1>')
-        self.assertContains(response, 'class="detail-prose" lang="az"')
+        description = self.place.description_az
+
+        def matching_text(node):
+            if node.name in {'head', 'script', 'style', 'template'}:
+                return
+            for child in node.children:
+                if isinstance(child, str):
+                    if description in child:
+                        yield child, dict(node.attributes).get('lang')
+                else:
+                    yield from matching_text(child)
+
+        self.assertEqual(list(matching_text(parse_html(response.content.decode()))), [(description, 'az')])
 
     def test_complete_ru_translation_is_reciprocal_without_en(self):
         Place.objects.filter(pk=self.place.pk).update(name_ru='Местный центр', description_ru='Занятия музыкой для детей')
