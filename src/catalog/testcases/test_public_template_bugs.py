@@ -29,17 +29,18 @@ class PublicTemplateBugTests(TestCase):
                 self.assertContains(response, heading)
                 self.assertNotContains(response, 'Пока нет отзывов с текстом')
 
-    def test_detail_uses_place_type_in_both_summary_and_facts(self):
+    def test_detail_shows_place_type_once_in_the_summary(self):
         place = create_quality_place(name='Synthetic athletics', lesson_format='individual', lesson_duration_minutes=60)
         with override('en'):
             response = self.client.get(place.get_absolute_url())
         html = response.content.decode()
-        summary = html.split('detail-decision__grid', 1)[1].split('</div>\n\n', 1)[0]
+        summary = html.split('class="place-poster', 1)[1].split('</header>', 1)[0]
         facts = html.split('class="detail-facts"', 1)[1].split('</section>', 1)[0]
-        for section in (summary, facts):
-            self.assertIn('Place type', section)
-            self.assertIn('Permanent place', section)
-            self.assertNotIn('Individual', section)
+        self.assertIn('Permanent place', summary)
+        self.assertNotIn('Individual', summary)
+        # The facts card lists only what the summary above does not already say.
+        self.assertNotIn('Place type', facts)
+        self.assertIn('60 min', facts)
         self.assertContains(response, '60 min')
         self.assertNotContains(response, '60 мин')
 

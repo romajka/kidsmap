@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from django.core.files.storage import default_storage
 from django.db import connection, transaction
 
-from catalog.models import Place, SiteGalleryImage
+from catalog.models import Place, SiteGalleryImage, Specialist
 from catalog.services.responsive_images import generate_variants, responsive_image, static_photo
 
 
@@ -40,6 +40,7 @@ class Command(BaseCommand):
             photos = [photo for place in Place.objects.only('photo', 'cover_photo').iterator(chunk_size=100)
                       for photo in (place.photo, place.cover_photo) if photo]
             photos.extend(item.image for item in SiteGalleryImage.objects.only('image').iterator(chunk_size=100) if item.image)
+            photos.extend(item.photo for item in Specialist.objects.only('photo').iterator(chunk_size=100) if item.photo)
 
         # Close the read-only database transaction before encoding photos.
         for photo in photos:

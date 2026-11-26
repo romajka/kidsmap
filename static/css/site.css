@@ -2582,8 +2582,80 @@ main,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px 16px;
   flex-wrap: wrap;
+}
+
+.footer-guides-title-group {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  min-width: 0;
+}
+
+.footer-guides-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.footer-guides-nav {
+  display: none;
+  align-items: center;
+  gap: 5px;
+}
+
+.footer-guides-shelf.is-scrollable .footer-guides-nav {
+  display: inline-flex;
+}
+
+.footer-guides-nav-btn {
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(19, 111, 56, 0.2);
+  background: #ffffff;
+  color: #136f38;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 160ms ease, transform 160ms ease, opacity 160ms ease;
+}
+
+.footer-guides-nav-btn:hover:not(:disabled) {
+  background: #edf9f0;
+  transform: scale(1.06);
+}
+
+.footer-guides-nav-btn:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.footer-guides-all-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(19, 111, 56, 0.2);
+  background: #ffffff;
+  color: #136f38;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-decoration: none !important;
+  white-space: nowrap;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.footer-guides-all-link:hover {
+  background: #136f38;
+  border-color: #136f38;
+  color: #ffffff;
 }
 
 .footer-guides-badge {
@@ -2619,15 +2691,33 @@ main,
 
 .footer-guides-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  grid-auto-flow: column;
+  grid-auto-columns: clamp(248px, 27vw, 290px);
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 4px 2px 6px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.footer-guides-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.footer-guides-shelf.is-scrollable .footer-guides-grid {
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent);
+          mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent);
+  padding-right: 28px;
 }
 
 .footer-guide-card {
+  scroll-snap-align: start;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 11px 14px;
+  gap: 11px;
+  padding: 9px 12px;
   border-radius: var(--radius-lg, 16px);
   background: #ffffff;
   border: 1.5px solid rgba(19, 111, 56, 0.14);

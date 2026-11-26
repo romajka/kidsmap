@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static catalog_i18n l10n %}
+{% load i18n static catalog_i18n l10n place_detail_extras %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
@@ -11,12 +11,13 @@
   <script type="application/ld+json">{{ place_schema_json|safe }}</script>
 {% endblock %}
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.css' %}" />
   <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=20261106_plain_price" />
   <link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=20261120_audit" />
-  <link rel="stylesheet" href="{% static 'css/pages/detail_polish.css' %}?v=20261028_sticky_header_offset_r1" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail_polish.css' %}?v=20261125_page_width" />
   <link rel="stylesheet" href="{% static 'css/pages/detail_refresh.css' %}?v=20261118_detail_r5" />
   <link rel="stylesheet" href="{% static 'css/components/official_reviews.css' %}?v=20261120_threads">
+  <link rel="stylesheet" href="{% static 'css/pages/place_tickets.css' %}?v=20261126_poster">
+  <link rel="stylesheet" href="{% static 'css/pages/place_poster.css' %}?v=20261126_poster">
 {% endblock %}
 
 {% block content %}
@@ -34,87 +35,12 @@
         </a>
         {% include "catalog/includes/breadcrumbs.html" with items=place_breadcrumb_items %}
       </div>
-      <h1 class="detail-title" lang="{{ presentation.name_language }}">{{ presentation.name }}</h1>
       {% if place.operating_state == 'closed' and place.operating_state_approved_at %}<p class="public-notice" data-operating-state="closed">{% if language == 'ru' %}Это место закрыто. Карточка сохранена для истории; расписание и цены больше не актуальны.{% elif language == 'en' %}This place is closed. This page is kept for its history; schedules and prices are no longer current.{% else %}Bu məkan bağlanıb. Səhifə tarixçə üçün saxlanılır; cədvəl və qiymətlər artıq aktual deyil.{% endif %}</p>{% endif %}
       {% if presentation.translation_fallback %}<p class="public-notice" data-translation-fallback>{% if language == 'ru' %}Часть текста показана на азербайджанском. Перевод пока не добавлен.{% elif language == 'en' %}Some text is shown in Azerbaijani. A translation is not available yet.{% else %}Mətnin bir hissəsi azərbaycanca göstərilir. Tərcümə hələ yoxdur.{% endif %}</p>{% endif %}
 
-      <div class="detail-body">
+      {% include "catalog/includes/place_poster.html" %}
 
-        <div class="detail-hero__media">
-          {% if gallery %}
-            <section class="place-gallery" data-place-gallery aria-label="{% trans 'Галерея фотографий' %}">
-              <div class="place-gallery__frame">
-                <div class="place-gallery__main swiper" data-place-gallery-main>
-                  <div class="swiper-wrapper">
-                    {% for file in gallery %}
-                      <div class="swiper-slide">
-                        <figure class="place-gallery__slide">
-                          <img
-                            class="place-gallery__backdrop"
-                            src="{{ file.url }}"
-                            data-photo-fallback="1"
-                            data-fallback-src="{% static 'img/banners/listing-placeholder.webp' %}"
-                            alt=""
-                            aria-hidden="true"
-                            draggable="false"
-                            decoding="async"
-                          />
-                          <img
-                            class="place-gallery__image"
-                            src="{{ file.url }}"
-                            data-photo-fallback="1"
-                            data-fallback-src="{% static 'img/banners/listing-placeholder.webp' %}"
-                            alt="{{ presentation.name }}"
-                            draggable="false"
-                            decoding="async"
-                            {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
-                          />
-                        </figure>
-                      </div>
-                    {% endfor %}
-                  </div>
-
-                  {% if gallery|length > 1 %}
-                    <button type="button" class="place-gallery__nav place-gallery__nav--prev km-nav km-nav--prev" data-place-gallery-prev aria-label="{% trans 'Предыдущее фото' %}">
-                      {% include 'includes/km_nav_icon.html' with icon='arrow' %}
-                    </button>
-                    <button type="button" class="place-gallery__nav place-gallery__nav--next km-nav km-nav--next" data-place-gallery-next aria-label="{% trans 'Следующее фото' %}">
-                      {% include 'includes/km_nav_icon.html' with icon='arrow' %}
-                    </button>
-                    <div class="place-gallery__counter" aria-live="polite">
-                      <span data-place-gallery-current>1</span>
-                      <span aria-hidden="true">/</span>
-                      <span>{{ gallery|length }}</span>
-                    </div>
-                  {% endif %}
-                </div>
-
-                {% if gallery|length > 1 %}
-                  <div class="place-gallery__thumbs" aria-label="{% trans 'Миниатюры галереи' %}">
-                    <div class="place-gallery__thumbs-track">
-                      {% for file in gallery %}
-                        <button
-                          type="button"
-                          class="place-gallery__thumb{% if forloop.first %} is-active{% endif %}"
-                          data-place-gallery-thumb
-                          data-index="{{ forloop.counter0 }}"
-                          aria-label="{% blocktrans with number=forloop.counter %}Открыть фото {{ number }}{% endblocktrans %}"
-                        >
-                          <img src="{{ file.url }}" alt="{{ presentation.name }}" loading="lazy" decoding="async" draggable="false" data-photo-fallback="1" data-fallback-src="{% static 'img/banners/listing-placeholder.webp' %}" />
-                        </button>
-                      {% endfor %}
-                    </div>
-                  </div>
-                {% endif %}
-              </div>
-            </section>
-          {% else %}
-            <div class="detail-photo-placeholder public-placeholder" data-category-placeholder role="img" aria-label="{% trans 'У этого места пока нет фотографий' %}">
-              {% include "catalog/includes/public_category_icon.html" with icon=presentation.placeholder_icon %}
-              <span class="detail-photo-placeholder__caption">{% trans "У этого места пока нет фотографий" %}</span>
-            </div>
-          {% endif %}
-        </div>
+      <div class="detail-body detail-body--poster">
 
 
 
@@ -124,7 +50,7 @@
             {% for activity in activities %}<article><h3><a href="{{ activity.url }}">{{ activity.name }}</a></h3>{% if activity.description %}<p>{{ activity.description|truncatechars:180 }}</p>{% endif %}{% include "catalog/includes/public_offerings.html" with groups=activity.groups %}</article>{% endfor %}
           </section>{% endif %}
 
-          {% if presentation.description %}
+          {% if presentation.description and presentation.description|length > 280 %}
             <section id="about" class="detail-card">
               <h2 class="detail-card__title">{% trans "О месте" %}</h2>
               <div class="detail-prose" lang="{{ presentation.description_language }}">{{ presentation.description|linebreaks }}</div>
@@ -168,7 +94,7 @@
                     <div class="detail-plans__row{% if forloop.counter > 3 %} detail-plans__row--hidden{% endif %}"{% if forloop.counter > 3 %} hidden{% endif %}>
                       <span class="detail-plans__body">
                         <span class="detail-plans__title-row">
-                          <strong class="detail-plans__name">{{ plan.title }}</strong>
+                          <strong class="detail-plans__name">{{ plan.title|capfirst }}</strong>
                           {% if plan.lesson_format %}
                             <span class="detail-plans__badge">
                               {% if plan.lesson_format == 'individual' %}{% trans "Индивидуальные" %}
@@ -181,12 +107,12 @@
                         {% if plan.details %}<span class="detail-plans__details">{{ plan.details }}</span>{% endif %}
                         {% if plan.options or plan.required_fees %}
                           <span class="detail-plans__options">
-                            {% for option in plan.options %}<span>{{ option.title }} · {{ option.price_str }}{% if option.details %} · {{ option.details }}{% endif %}{% if option.age_from != None or option.age_to != None %} · {% age_range option.age_from option.age_to %}{% if language == 'ru' %} лет{% elif language == 'en' %} yrs{% else %} yaş{% endif %}{% endif %}</span>{% endfor %}
-                            {% for fee in plan.required_fees %}<span class="detail-plans__required-fee">{{ fee.title }} · {{ fee.price_str }}{% if fee.details %} · {{ fee.details }}{% endif %}</span>{% endfor %}
+                            {% for option in plan.options %}<span>{{ option.title }} · {{ option.price_str|money }}{% if option.details %} · {{ option.details }}{% endif %}{% if option.age_from != None or option.age_to != None %} · {% age_range option.age_from option.age_to %}{% if language == 'ru' %} лет{% elif language == 'en' %} yrs{% else %} yaş{% endif %}{% endif %}</span>{% endfor %}
+                            {% for fee in plan.required_fees %}<span class="detail-plans__required-fee">{{ fee.title }} · {{ fee.price_str|money }}{% if fee.details %} · {{ fee.details }}{% endif %}</span>{% endfor %}
                           </span>
                         {% endif %}
                       </span>
-                      <strong class="detail-plans__price">{{ plan.price_str }}</strong>
+                      <strong class="detail-plans__price">{{ plan.price_str|money }}</strong>
                     </div>
                   {% endfor %}
                 </div>
@@ -300,6 +226,12 @@
                     </p>
                   </div>
                 </div>
+              {% elif pricing_summary.schedule_week|uniform_week %}
+                <div class="detail-week-uniform">
+                  <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
+                  <span class="detail-week-uniform__days">{% if language == 'az' %}Hər gün{% elif language == 'en' %}Every day{% else %}Ежедневно{% endif %}</span>
+                  <strong class="detail-week-uniform__time">{{ pricing_summary.schedule_week|uniform_week }}</strong>
+                </div>
               {% elif pricing_summary.schedule_week %}
                 <ul class="detail-week">
                   {% for day in pricing_summary.schedule_week %}
@@ -338,6 +270,7 @@
             </section>
           {% endif %}
 
+          {% if place.age_program_note or place.offers_adult_classes or place.is_temporary or place.lesson_duration_display %}
           <section id="facts" class="detail-card detail-card--facts">
             <h2 class="detail-card__title">
               <span class="material-symbols-rounded detail-card__title-icon" aria-hidden="true">info</span>
@@ -347,14 +280,13 @@
               {% include "catalog/includes/temporary_event_badge.html" with place=place language=language variant="detail" %}
             {% endif %}
             <div class="detail-facts">
-              {% if place.age_display %}
-                <div class="detail-facts__item{% if place.age_program_note %} detail-facts__item--wide{% endif %}">
+              {% if place.age_program_note %}
+                <div class="detail-facts__item detail-facts__item--wide">
                   <span class="detail-label detail-facts__label">
                     <span class="material-symbols-rounded" aria-hidden="true">child_care</span>
                     <span>{% trans "Возраст" %}</span>
                   </span>
-                  <strong class="detail-facts__value">{{ place.age_public_label }}</strong>
-                  {% if place.age_program_note %}<p class="detail-age-program-note">{{ place.age_program_note }}</p>{% endif %}
+                  <p class="detail-age-program-note">{{ place.age_program_note }}</p>
                 </div>
               {% endif %}
               {% if place.offers_adult_classes %}
@@ -366,13 +298,6 @@
                   <strong class="detail-facts__value">{% trans "Да" %}</strong>
                 </div>
               {% endif %}
-              <div class="detail-facts__item">
-                <span class="detail-label detail-facts__label">
-                  <span class="material-symbols-rounded" aria-hidden="true">apartment</span>
-                  <span>{% trans "Тип места" %}</span>
-                </span>
-                <strong class="detail-facts__value">{% if place.is_temporary %}{% trans "Временное мероприятие" %}{% else %}{% trans "Постоянное место" %}{% endif %}</strong>
-              </div>
               {% if place.is_temporary and place.temporary_start or place.temporary_end %}
                 <div class="detail-facts__item detail-facts__item--wide">
                   <span class="detail-label detail-facts__label">
@@ -380,36 +305,6 @@
                     <span>{% trans "Период" %}</span>
                   </span>
                   <strong class="detail-facts__value">{% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}{% if place.temporary_start and place.temporary_end %} — {% endif %}{% if place.temporary_end %}{{ place.temporary_end|date:"d.m.Y H:i" }}{% endif %}</strong>
-                </div>
-              {% endif %}
-              {% if place.category %}
-                <div class="detail-facts__item">
-                  <span class="detail-label detail-facts__label">
-                    <span class="material-symbols-rounded" aria-hidden="true">category</span>
-                    <span>{% trans "Категория" %}</span>
-                  </span>
-                  <strong class="detail-facts__value">{{ place.get_category_display }}</strong>
-                </div>
-              {% endif %}
-              {% if place.subcategory and place.subcategory.name_i18n != place.get_category_display %}
-                <div class="detail-facts__item">
-                  <span class="detail-label detail-facts__label">
-                    <span class="material-symbols-rounded" aria-hidden="true">label</span>
-                    <span>{% trans "Подкатегория" %}</span>
-                  </span>
-                  <strong class="detail-facts__value">{{ place.subcategory.name_i18n }}</strong>
-                </div>
-              {% endif %}
-              {% if place.metro %}
-                <div class="detail-facts__item">
-                  <span class="detail-label detail-facts__label">
-                    <span class="material-symbols-rounded" aria-hidden="true">subway</span>
-                    <span>{% trans "Метро" %}</span>
-                  </span>
-                  <strong class="detail-facts__value detail-facts__value--metro">
-                    <span class="detail-facts__metro-badge">M</span>
-                    <span>{{ place.metro_i18n }}</span>
-                  </strong>
                 </div>
               {% endif %}
               {% if place.lesson_duration_display %}
@@ -421,17 +316,9 @@
                   <strong class="detail-facts__value">{{ place.lesson_duration_display }}</strong>
                 </div>
               {% endif %}
-              {% if place.address %}
-                <div class="detail-facts__item detail-facts__item--wide">
-                  <span class="detail-label detail-facts__label">
-                    <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
-                    <span>{% trans "Адрес" %}</span>
-                  </span>
-                  <strong class="detail-facts__value">{{ place.address_i18n }}</strong>
-                </div>
-              {% endif %}
             </div>
           </section>
+          {% endif %}
 
           {% if place_specialists %}
             <section id="specialists" class="detail-card">
@@ -544,9 +431,7 @@
             {% include "catalog/includes/review_cooldown.html" %}
             <div class="detail-card__head">
               <h2 class="detail-card__title">{% trans "Отзывы" %}</h2>
-              <span class="detail-card__aside">
-                {% if place.rating_count %}{{ place.rating_count|review_count }}{% else %}{% trans "Пока нет отзывов" %}{% endif %}
-              </span>
+              {% if place.rating_count %}<span class="detail-card__aside">{{ place.rating_count|review_count }}</span>{% endif %}
             </div>
 
             {% if messages %}
@@ -839,6 +724,28 @@
               </div>
             </section>
           {% endif %}
+          <footer class="detail-provenance">
+            <span class="material-symbols-rounded" aria-hidden="true">{% if place.last_verified_at %}verified{% else %}info{% endif %}</span>
+            <p>
+              {% if place.last_verified_at %}
+                <span class="detail-disclaimer__meta" data-verification="verified">{% blocktrans with verified=place.last_verified_at|date:"d.m.Y" %}Сведения проверены редакцией: {{ verified }}{% endblocktrans %}</span>
+              {% else %}
+                <span class="detail-disclaimer__meta" data-verification="unverified">{% trans "Сведения ещё не проверены редакцией" %}</span>
+              {% endif %}
+              <span>{% trans "Часть данных на этой странице может быть получена из открытых источников и от третьих лиц. Перед посещением уточняйте расписание, цену, адрес и условия напрямую у организации." %}</span>
+            </p>
+          </footer>
+          <aside class="detail-sponsor-slot detail-sponsor-slot--main" aria-label="{% trans 'Реклама' %}">
+            <span class="detail-sponsor-slot__label">{% trans "Реклама" %}</span>
+            <a class="detail-sponsor-slot__link" href="https://iseqebul.az/vakansiyalar/" target="_blank" rel="sponsored noopener noreferrer">
+              <span class="detail-sponsor-slot__icon" aria-hidden="true"><img src="{% static 'img/partners/iseqebul-mark.svg' %}" alt="" width="22" height="22" loading="lazy" decoding="async" /></span>
+              <span class="detail-sponsor-slot__copy">
+                <strong>{% trans "Актуальные вакансии" %}</strong>
+                <span>iseqebul.az</span>
+              </span>
+              <span class="detail-sponsor-slot__arrow" aria-hidden="true">→</span>
+            </a>
+          </aside>
         </div>
 
         <aside class="detail-side">
@@ -847,34 +754,7 @@
 
           <div class="detail-decision__head">
             <div class="detail-decision__idents">
-              {% if place.category %}
-                <span class="detail-chip">
-                  {% with sub_label=place.subcategory.name_i18n %}{{ place.get_category_display }}{% if place.subcategory and sub_label != place.get_category_display %} · {{ sub_label }}{% endif %}{% endwith %}
-                </span>
-              {% endif %}
-
-              {% if place.district or place.metro %}
-                <p class="detail-decision__line">
-                  <span class="detail-decision__ico" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.9"/></svg>
-                  </span>
-                  <span>{% if place.district %}{{ place.district_i18n }}{% endif %}{% if place.district and place.metro %} · {% endif %}{% if place.metro %}<strong>{{ place.metro_i18n }}</strong>{% endif %}</span>
-                </p>
-              {% endif %}
-
-              <p class="detail-decision__line">
-                <span class="detail-decision__ico detail-decision__ico--star" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 4 2.47 5.01 5.53.8-4 3.9.94 5.5L12 16.62l-4.94 2.6.94-5.5-4-3.9 5.53-.8L12 4Z"/></svg>
-                </span>
-                {% if place.rating_count %}
-                  <span>
-                    <strong>{{ place.rating_avg|floatformat:1 }}</strong> ·
-                    <a href="#reviews">{{ place.rating_count|review_count }}</a>
-                  </span>
-                {% else %}
-                  <span>{% trans "Пока нет отзывов" %} — <a href="#review-form">{% trans "напишите первым" %}</a></span>
-                {% endif %}
-              </p>
+              <h2 class="detail-decision__title">{% trans "Контакты" %}</h2>
               {% include "catalog/includes/favorite_social_proof.html" %}
             </div>
 
@@ -913,101 +793,7 @@
             {% endif %}
           </div>
 
-          <div class="detail-decision__facts">
-            {% if pricing_summary.has_price or place.price_range_display %}
-              <p class="detail-decision__price">
-                <span class="detail-decision__price-value">{% if pricing_summary.has_price %}{{ pricing_summary.formatted_price_amount }}{% else %}{{ place.price_range_display }}{% endif %}</span>
-                {% if pricing_summary.plans %}
-                  <span class="detail-decision__price-note">{{ pricing_summary.tariff_count|tariff_count }}</span>
-                {% endif %}
-              </p>
-            {% else %}
-              <p class="detail-decision__price">
-                <span class="detail-decision__price-value detail-decision__price-value--soft">{% trans "Цена уточняется" %}</span>
-              </p>
-            {% endif %}
-
-            <div class="detail-decision__grid">
-              {% if place.age_display %}
-                <div class="detail-decision__cell">
-                  <span class="detail-decision__ico" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7.25" r="3.25" stroke="currentColor" stroke-width="1.9"/><path d="M6.75 18.25c.92-2.65 2.82-3.98 5.25-3.98s4.33 1.33 5.25 3.98" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
-                  </span>
-                  <span class="detail-decision__cell-body">
-                    <span class="detail-label">{% trans "Возраст" %}</span>
-                    <strong>{{ place.age_public_label }}</strong>
-                    {% if place.age_program_hint %}<small class="detail-age-program-hint">{{ place.age_program_hint }}</small>{% endif %}
-                  </span>
-                </div>
-              {% endif %}
-              <div class="detail-decision__cell">
-                <span class="detail-decision__ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none"><rect x="4.75" y="4.75" width="14.5" height="14.5" rx="2.5" stroke="currentColor" stroke-width="1.9"/><path d="M9 9.5h2M13 9.5h2M9 13.5h2M13 13.5h2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
-                </span>
-                <span class="detail-decision__cell-body">
-                  <span class="detail-label">{% trans "Тип места" %}</span>
-                  <strong>{% if place.is_temporary %}{% trans "Временное мероприятие" %}{% else %}{% trans "Постоянное место" %}{% endif %}</strong>
-                </span>
-              </div>
-            </div>
-
-            {% if pricing_summary.open_status or pricing_summary.schedule_rows %}
-              <p class="detail-decision__line">
-                <span class="detail-decision__ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.75V12l2.75 1.75" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-                <span class="detail-decision__schedule">
-                  {% if pricing_summary.open_status %}
-                    <span class="detail-open{% if not pricing_summary.open_status.is_open %} detail-open--closed{% endif %}">
-                      <span class="detail-open__dot" aria-hidden="true"></span>{{ pricing_summary.open_status.label }}{% if pricing_summary.open_status.time %} · {{ pricing_summary.open_status.time }}{% endif %}
-                    </span>
-                  {% endif %}
-                  {% if pricing_summary.schedule_rows %}
-                    {% if place.schedule_mode == 'always_open' %}
-                      <span class="detail-decision__schedule-summary">
-                        {% if language == 'az' %}B.e — Baz · Hər gün{% elif language == 'en' %}Mon — Sun · Daily{% else %}Пн — Вс · Без выходных{% endif %}
-                      </span>
-                    {% elif place.schedule_mode == 'by_appointment' %}
-                      <span class="detail-decision__schedule-summary">
-                        {% if language == 'az' %}Fərdi razılaşma ilə{% elif language == 'en' %}By prior appointment{% else %}По предварительной записи{% endif %}
-                      </span>
-                    {% else %}
-                      <span class="detail-decision__schedule-summary">
-                        {% for row in pricing_summary.schedule_rows|slice:":2" %}{% if row.days %}{{ row.days }} {% endif %}{{ row.time }}{% if not forloop.last %} · {% endif %}{% endfor %}
-                      </span>
-                    {% endif %}
-                  {% endif %}
-                </span>
-              </p>
-            {% endif %}
-
-            {% if place.address %}
-              <p class="detail-decision__line">
-                <span class="detail-decision__ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.9"/></svg>
-                </span>
-                <a href="#map" class="detail-decision__address-link detail-contacts__row--address" title="{% trans 'Показать на карте' %}">{{ place.address_i18n }}</a>
-              </p>
-            {% endif %}
-          </div>
-
-          <div class="detail-decision__cta{% if not presentation.contacts.has_phone %} detail-decision__cta--no-phone{% endif %}">
-            {% if presentation.contacts.has_phone %}
-              {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--primary" phone_index=0 %}
-              {% if presentation.contacts.phones|length > 1 %}
-                <div class="detail-contacts__secondary" aria-label="{% trans 'Дополнительные номера' %}">
-                  <div class="detail-contacts__secondary-top">
-                    <span class="detail-contacts__secondary-label">{% trans "Дополнительные номера" %}</span>
-                    <span class="detail-contacts__secondary-count">+{{ presentation.contacts.phones|length|add:"-1" }}</span>
-                  </div>
-                  <div class="detail-contacts__secondary-items">
-                    {% for phone in presentation.contacts.phones|slice:"1:" %}
-                      {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__secondary-link" phone_index=forloop.counter %}
-                    {% endfor %}
-                  </div>
-                </div>
-              {% endif %}
-            {% endif %}
+          <div class="detail-decision__cta detail-decision__cta--no-phone">
 
             <div class="detail-decision__cta-row">
               {% if presentation.contacts.has_whatsapp %}
@@ -1165,32 +951,6 @@
             </div>
           </section>
 
-          <div class="detail-disclaimer">
-            <span class="detail-disclaimer__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5.25M12 8.25h.01" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
-            </span>
-            <div class="detail-disclaimer__body">
-              <span class="detail-disclaimer__title">{% trans "Важно" %}</span>
-              <p>{% trans "Часть данных на этой странице может быть получена из открытых источников и от третьих лиц. Перед посещением уточняйте расписание, цену, адрес и условия напрямую у организации." %}</p>
-              {% if place.last_verified_at %}
-                <span class="detail-disclaimer__meta" data-verification="verified">{% blocktrans with verified=place.last_verified_at|date:"d.m.Y" %}Сведения проверены редакцией: {{ verified }}{% endblocktrans %}</span>
-              {% else %}
-                <span class="detail-disclaimer__meta" data-verification="unverified">{% trans "Сведения ещё не проверены редакцией" %}</span>
-              {% endif %}
-            </div>
-          </div>
-
-          <aside class="detail-sponsor-slot" aria-label="{% trans 'Реклама' %}">
-            <span class="detail-sponsor-slot__label">{% trans "Реклама" %}</span>
-            <a class="detail-sponsor-slot__link" href="https://iseqebul.az/vakansiyalar/" target="_blank" rel="sponsored noopener noreferrer">
-              <span class="detail-sponsor-slot__icon" aria-hidden="true"><img src="{% static 'img/partners/iseqebul-mark.svg' %}" alt="" width="22" height="22" loading="lazy" decoding="async" /></span>
-              <span class="detail-sponsor-slot__copy">
-                <strong>{% trans "Актуальные вакансии" %}</strong>
-                <span>iseqebul.az</span>
-              </span>
-              <span class="detail-sponsor-slot__arrow" aria-hidden="true">→</span>
-            </a>
-          </aside>
         </aside>
       </div>
     </article>
@@ -1395,8 +1155,7 @@
   </script>
 {% endblock %}
 {% block extra_body %}
-  <script src="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.js' %}"></script>
-  <script src="{% static 'js/place_gallery.js' %}?v=20261118_gallery_r1"></script>
+  <script src="{% static 'js/place_stack.js' %}?v=20261126_stack" defer></script>
   <script src="{% static 'js/temporary_event_timer.js' %}"></script>
   {% if google_maps_api_key %}
     <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20261105_all_r1" />

@@ -79,7 +79,7 @@ class AfishaDataTests(TestCase):
         self.event(self.now + timedelta(minutes=30))
         self.event(self.now + timedelta(days=40))
         stats = build_event_quick_stats(now=self.now)
-        response = self.client.get('/ru/events/')
+        response = self.client.get('/ru/afisha/')
         self.assertEqual(stats['total'], response.context['results_total'])
         self.assertEqual(response.context['events_quick_stats']['total'], 2)
 
@@ -88,7 +88,7 @@ class AfishaDataTests(TestCase):
         short = self.event(month_start + timedelta(days=4, hours=12))
         long = self.event(month_start - timedelta(days=2), hours=24 * 20)
         calendar = build_event_calendar({'view': 'calendar', 'month': '2032-03', 'date': '2032-03-05'},
-                                        [short, long], now=self.now, path='/ru/events/')
+                                        [short, long], now=self.now, path='/ru/afisha/')
         self.assertEqual([e.pk for e in calendar['long_events']], [long.pk])
         day = next(item for item in calendar['days'] if item['iso'] == '2032-03-05')
         self.assertEqual([e.pk for e in day['short_events']], [short.pk])
@@ -102,7 +102,7 @@ class AfishaDataTests(TestCase):
         home = self.client.get('/ru/')
         self.assertContains(home, 'id="home-afisha"')
         self.assertContains(home, 'data-km-timer')
-        listing = self.client.get('/ru/events/')
+        listing = self.client.get('/ru/afisha/')
         self.assertContains(listing, 'data-km-timer')
         self.assertContains(listing, 'data-event-card')
 
@@ -110,7 +110,7 @@ class AfishaDataTests(TestCase):
         from urllib.parse import parse_qs
         for hour in range(13):
             self.event(self.now + timedelta(hours=hour + 1), age_from=5, age_to=10)
-        response = self.client.get('/ru/events/', {'q': 'Afisha QA', 'age': '8', 'page': '2'})
+        response = self.client.get('/ru/afisha/', {'q': 'Afisha QA', 'age': '8', 'page': '2'})
         self.assertNotRegex(response.content.decode(), r'<details[^>]*id="events-filters"[^>]*\bopen\b')
         self.assertEqual(parse_qs(response.context['query_without_page'])['age'], ['8'])
         self.assertContains(response, 'aria-current="page" aria-label="Страница 2"')
@@ -121,7 +121,7 @@ class AfishaDataTests(TestCase):
     def test_cancelled_card_status_is_outside_the_decorative_image_link(self):
         start = self.now + timedelta(days=2)
         event = self.event(start, occurrence_state='cancelled')
-        response = self.client.get('/ru/events/', {'date_from': start.astimezone(BAKU).date().isoformat()})
+        response = self.client.get('/ru/afisha/', {'date_from': start.astimezone(BAKU).date().isoformat()})
         html = response.content.decode()
         self.assertContains(response, f'id="event-card-{event.pk}"')
         card = html.split(f'id="event-card-{event.pk}"', 1)[1].split('</article>', 1)[0]
@@ -157,14 +157,14 @@ class AfishaHistoryTests(TestCase):
     def test_history_mode_on_afisha_page(self):
         past = self.event(self.now - timedelta(days=5))
         upcoming = self.event(self.now + timedelta(days=1))
-        response = self.client.get('/ru/events/', {'when': 'past'})
+        response = self.client.get('/ru/afisha/', {'when': 'past'})
         self.assertEqual(response.status_code, 200)
         ids = [event.pk for event in response.context['events']]
         self.assertEqual(ids, [past.pk])
         self.assertContains(response, 'name="when"')
         self.assertContains(response, 'noindex')
         self.assertNotIn(upcoming.pk, ids)
-        live = self.client.get('/ru/events/')
+        live = self.client.get('/ru/afisha/')
         self.assertNotIn(past.pk, [event.pk for event in live.context['events']])
         self.assertEqual(live.context['events_quick_stats']['past'], 1)
 
@@ -228,10 +228,10 @@ class EventSuggestTests(TestCase):
         data = {'title': 'Керамика для детей', 'name': 'Айгюн', 'contact': '+994501234567',
                 'email': 'org@example.com', 'when': '28 ноября', 'started': str(int(time.time()) - 30)}
         data.update(overrides)
-        return self.client.post('/ru/events/suggest/', data, HTTP_X_REQUESTED_WITH='fetch')
+        return self.client.post('/ru/afisha/suggest/', data, HTTP_X_REQUESTED_WITH='fetch')
 
     def test_page_is_reachable_and_not_indexed(self):
-        response = self.client.get('/ru/events/suggest/')
+        response = self.client.get('/ru/afisha/suggest/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'data-event-suggest-form')
         self.assertContains(response, 'noindex,follow')
@@ -271,7 +271,7 @@ class EventSuggestTests(TestCase):
     def test_without_js_the_page_posts_and_shows_success(self):
         import time
         from django.core import mail
-        response = self.client.post('/ru/events/suggest/', {'title': 'Квест', 'name': 'Rauf', 'email': 'r@example.com',
+        response = self.client.post('/ru/afisha/suggest/', {'title': 'Квест', 'name': 'Rauf', 'email': 'r@example.com',
                                                             'started': str(int(time.time()) - 10)})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Заявка отправлена')
@@ -282,7 +282,7 @@ class EventSuggestTests(TestCase):
         category = Category.objects.create(code='suggestqa', name_az='QA')
         event = Event.objects.create(name='QA', name_az='QA', category=category, status=Event.STATUS_PUBLISHED,
                                      start_datetime=now + timedelta(days=1), end_datetime=now + timedelta(days=1, hours=2))
-        for url in ('/ru/events/', '/ru/events/?view=calendar', event.get_absolute_url()):
+        for url in ('/ru/afisha/', '/ru/afisha/?view=calendar', event.get_absolute_url()):
             with self.subTest(url=url):
                 response = self.client.get(url)
                 self.assertContains(response, 'data-event-suggest')
@@ -313,14 +313,16 @@ class EventLanguageTests(TestCase):
         ru = self.event('az,ru')
         en = self.event('en')
         self.event('')
-        ids = lambda lang: [e.pk for e in self.client.get('/ru/events/', {'lang': lang}).context['events']]
+        # A language-only filter is a collection page now (/ru/afisha/na-russkom/).
+        ids = lambda lang: [e.pk for e in self.client.get('/ru/afisha/', {'lang': lang}, follow=True).context['events']]
         self.assertEqual(ids('ru'), [ru.pk])
         self.assertEqual(ids('en'), [en.pk])
         self.assertEqual(ids('xx'), [])
-        response = self.client.get('/ru/events/', {'lang': 'ru'})
+        response = self.client.get('/ru/afisha/', {'lang': 'ru'}, follow=True)
+        self.assertEqual(response.redirect_chain, [('/ru/afisha/na-russkom/', 301)])
         self.assertContains(response, 'name="lang"')
         self.assertContains(response, 'km-ev-card__langs')
-        calendar = self.client.get('/ru/events/', {'view': 'calendar', 'lang': 'ru'})
+        calendar = self.client.get('/ru/afisha/', {'view': 'calendar', 'lang': 'ru'})
         self.assertIn('lang=ru', calendar.context['event_calendar']['list_url'])
 
     def test_language_is_shown_on_the_event_page_and_in_map_points(self):

@@ -2548,13 +2548,11 @@ class TestCatalogEnhancements(TestCase):
         response = self.client.get(place.get_absolute_url(), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "data-place-gallery")
-        self.assertContains(response, "data-place-gallery-main")
-        self.assertContains(response, "swiper-wrapper")
-        self.assertContains(response, "place-gallery__backdrop")
-        self.assertContains(response, "place-gallery__image")
-        self.assertContains(response, "data-place-gallery-thumb")
-        self.assertContains(response, "static/js/place_gallery.js")
+        # Photos are a hand-held stack in the poster (static/js/place_stack.js), not a Swiper slider.
+        self.assertContains(response, "data-km-pstack")
+        self.assertContains(response, "data-km-pstack-card")
+        self.assertContains(response, "static/js/place_stack.js")
+        self.assertNotContains(response, "swiper-bundle")
 
     def test_catalog_card_does_not_render_redundant_more_details_block(self):
         create_quality_place(

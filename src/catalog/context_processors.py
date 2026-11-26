@@ -27,7 +27,7 @@ DEFAULT_FOOTER_EMAIL = "info@kidsmap.az"
 # Visitor pages only; keep account and authentication workflows quiet.
 LIVING_MAP_URL_NAMES = frozenset({
     "home", "place_list", "place_new", "seo_landing", "place_detail",
-    "events_landing", "event_detail", "specialist_list", "specialist_detail",
+    "events_landing", "event_collection", "event_detail", "specialist_list", "specialist_detail",
     "about", "faq_page", "contacts", "site_reviews", "place_reviews", "add_place",
     "privacy", "terms", "review_rules", "listing_rules",
 })
@@ -90,6 +90,7 @@ QUERY_NOINDEX_URL_NAMES = {
     "contacts",
     "specialist_list",
     "events_landing",
+    "event_collection",
     "organization_list",
     "place_list",
     "place_new",
@@ -152,6 +153,15 @@ def seo_urls(request):
         for code in lang_codes
     }
 
+    # Pages whose path differs per language (afisha: /tedbirler/, /ru/afisha/, /en/events/).
+    localized_paths = getattr(request, "_seo_localized_paths", None)
+    if localized_paths:
+        alternate_urls = {
+            code: build_public_absolute_uri(request, localized_paths[code])
+            for code in lang_codes if code in localized_paths
+        }
+        canonical_url = alternate_urls.get(current_lang, canonical_url)
+
     place = getattr(request, "_seo_place", None)
     if place is not None:
         from catalog.services.place_urls import place_paths_by_language
@@ -191,9 +201,9 @@ def seo_urls(request):
         robots_content = "noindex,follow"
 
     page_number = getattr(request, "_seo_catalog_page_number", None)
-    if url_name == "events_landing":
+    if url_name in {"events_landing", "event_collection"}:
         page_number = getattr(request, "_seo_events_page_number", None)
-    if url_name in {"place_list", "events_landing"} and set(request.GET) == {"page"} and page_number is not None:
+    if url_name in {"place_list", "events_landing", "event_collection"} and set(request.GET) == {"page"} and page_number is not None:
         suffix = f"?page={page_number}" if page_number > 1 else ""
         canonical_url = f"{canonical_url}{suffix}"
         alternate_urls = {code: f"{url}{suffix}" for code, url in alternate_urls.items()}
@@ -207,6 +217,10 @@ def seo_urls(request):
         if suffix:
             canonical_url = f"{canonical_url}?{suffix}"
             alternate_urls = {code: f"{url}?{suffix}" for code, url in alternate_urls.items()}
+
+    forced_robots = getattr(request, "_seo_robots", None)
+    if forced_robots:
+        robots_content = forced_robots
 
     og_locale_map = {"ru": "ru_RU", "az": "az_AZ", "en": "en_US"}
     og_locale = og_locale_map.get(content_lang, "az_AZ")
