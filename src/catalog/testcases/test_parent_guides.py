@@ -403,22 +403,18 @@ class ParentGuideTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'')
 
-    def test_parent_guides_root_redirects_to_flagship_guide(self):
-        for path, expected_target in (
-            ('/parents/', '/parents/baku-with-kids/'),
-            ('/ru/parents/', '/ru/parents/baku-with-kids/'),
-            ('/en/parents/', '/en/parents/baku-with-kids/'),
-        ):
+    def test_parent_guides_root_is_the_guides_hub(self):
+        # 2026-11: /parents/ is an indexable hub of every guide, no longer a redirect.
+        for path in ('/parents/', '/ru/parents/', '/en/parents/'):
             with self.subTest(path=path):
                 response = self.client.get(path)
-                self.assertRedirects(response, expected_target, status_code=302, target_status_code=200)
+                self.assertEqual(response.status_code, 200)
+                self.assertTemplateUsed(response, 'pages/parent_guide_index.html')
+                self.assertContains(response, f'href="{path}baku-with-kids/"')
 
-    def test_parent_guides_root_with_foreign_query_canonicalizes_and_redirects(self):
+    def test_parent_guides_root_with_foreign_query_canonicalizes(self):
         response = self.client.get('/ru/parents/?ref=search', follow=True)
-        self.assertEqual(
-            response.redirect_chain,
-            [('/ru/parents/', 301), ('/ru/parents/baku-with-kids/', 302)],
-        )
+        self.assertEqual(response.redirect_chain, [('/ru/parents/', 301)])
         self.assertEqual(response.status_code, 200)
 
     def test_parent_guides_root_post_is_not_allowed(self):

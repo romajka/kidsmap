@@ -1,0 +1,265 @@
+/* Parent guides hub (/parents/) and the "More guides on this topic" block (2026-11).
+   Uses the tokens and typography of .parent-guide from parent_guides.css. */
+
+/* ─── Hero ─── */
+.pgh-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 36px;
+  margin: 4px 0 22px;
+  padding: 36px 40px;
+  border: 1px solid var(--pg-card-border);
+  border-radius: 28px;
+  background:
+    radial-gradient(520px 280px at 100% 0%, rgba(168, 213, 155, 0.32) 0%, transparent 65%),
+    radial-gradient(420px 240px at 0% 100%, rgba(255, 214, 107, 0.18) 0%, transparent 60%),
+    linear-gradient(180deg, #fbfdfb 0%, #f1f8f3 100%);
+  overflow: hidden;
+}
+.pgh-hero__lead {
+  max-width: 54ch;
+  margin: 14px 0 18px !important;
+  color: var(--pg-muted);
+  font-size: 16.5px;
+  line-height: 1.55;
+}
+.pgh-hero__facts { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; list-style: none; }
+.pgh-hero__facts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 14px 0 10px;
+  border: 1px solid var(--pg-line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--pg-ink);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.pgh-hero__facts .material-symbols-rounded { font-size: 18px; color: var(--pg-accent); }
+
+/* Three guide covers, fanned out */
+.pgh-hero__art { position: relative; height: 250px; }
+.pgh-hero__tile {
+  position: absolute;
+  width: 58%;
+  aspect-ratio: 11 / 8;
+  border: 5px solid #fff;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--pg-soft);
+  box-shadow: 0 22px 40px -22px rgba(11, 59, 36, 0.55);
+}
+.pgh-hero__tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pgh-hero__tile--1 { left: 0; top: 34px; transform: rotate(-5deg); z-index: 1; }
+.pgh-hero__tile--2 { right: 0; top: 0; transform: rotate(4deg); z-index: 2; }
+.pgh-hero__tile--3 { left: 24%; bottom: 0; transform: rotate(-1deg); z-index: 3; }
+@media (prefers-reduced-motion: no-preference) {
+  .pgh-hero__tile { animation: pgh-tile-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .pgh-hero__tile--2 { animation-delay: 0.08s; }
+  .pgh-hero__tile--3 { animation-delay: 0.16s; }
+}
+/* Movement only: the covers stay visible even where animations never run. */
+@keyframes pgh-tile-in { from { translate: 0 18px; } }
+
+/* ─── Rubric chips ─── */
+.pgh-rubrics {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 8px;
+  padding: 2px 2px 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pgh-rubrics::-webkit-scrollbar { display: none; }
+.parent-guide .pgh-rubrics a {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 10px 0 12px;
+  border: 1.5px solid var(--pg-line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--pg-ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: border-color 0.2s, background-color 0.2s, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pgh-rubrics .material-symbols-rounded { font-size: 19px; color: var(--pg-accent); }
+.pgh-rubrics__count {
+  min-width: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--pg-soft);
+  color: var(--pg-accent);
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+@media (hover: hover) {
+  .parent-guide .pgh-rubrics a:hover { border-color: var(--pg-accent); background: #f6fbf8; color: var(--pg-ink); transform: translateY(-1px); }
+}
+
+/* ─── Rubric sections ─── */
+.pgh-rubric { margin-top: 30px; scroll-margin-top: 90px; }
+.pgh-rubric__head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+.pgh-rubric__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--pg-soft);
+  color: var(--pg-accent);
+  font-size: 24px;
+}
+.pgh-rubric__head p { margin-top: 4px !important; color: var(--pg-muted); font-size: 15px; }
+
+.pgh-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 18px;
+  padding: 0;
+  list-style: none;
+}
+
+/* ─── Guide card ─── */
+.parent-guide .pgh-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid var(--pg-card-border);
+  border-radius: 22px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  overflow: hidden;
+  box-shadow: var(--pg-shadow-sm);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.2s;
+}
+.pgh-card__media { display: block; aspect-ratio: 16 / 10; overflow: hidden; background: var(--pg-soft); }
+.pgh-card__media img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.pgh-card__body { display: flex; flex: 1; flex-direction: column; gap: 8px; padding: 16px 18px 18px; }
+.pgh-card__eyebrow { color: var(--pg-accent); font-size: 12px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.parent-guide .pgh-card__title { font-size: 19px; line-height: 1.3; }
+.pgh-card__lead {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--pg-muted);
+  font-size: 14.5px;
+  line-height: 1.5;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+.pgh-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid #eef3ef;
+  color: #7a8a80;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.pgh-card__go { display: inline-flex; align-items: center; gap: 4px; color: var(--pg-accent); font-size: 14px; font-weight: 800; }
+.pgh-card__go .material-symbols-rounded { font-size: 18px; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@media (hover: hover) {
+  .parent-guide .pgh-card:hover { transform: translateY(-3px); border-color: rgba(19, 111, 56, 0.24); box-shadow: var(--pg-shadow-hover); color: inherit; }
+  .pgh-card:hover .pgh-card__media img { transform: scale(1.04); }
+  .pgh-card:hover .pgh-card__go .material-symbols-rounded { transform: translateX(3px); }
+}
+
+/* ─── Afisha and catalog links ─── */
+.pgh-more { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px; margin-top: 34px; }
+.parent-guide .pgh-more__card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 18px 18px 16px;
+  border: 1px solid var(--pg-card-border);
+  border-radius: 20px;
+  background: #fff;
+  color: var(--pg-ink);
+  text-decoration: none;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s, border-color 0.2s;
+}
+.parent-guide .pgh-more__card--afisha { border-color: rgba(19, 111, 56, 0.2); background: linear-gradient(135deg, #eef7f1 0%, #e2f4e8 100%); }
+.pgh-more__icon { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 15px; background: #fff; color: var(--pg-accent); font-size: 24px; box-shadow: var(--pg-shadow-sm); }
+.pgh-more__copy { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
+.pgh-more__copy strong { font-family: var(--font-display); font-size: 16.5px; line-height: 1.3; }
+.pgh-more__copy > span:last-child { color: var(--pg-muted); font-size: 13.5px; line-height: 1.45; }
+.pgh-more__eyebrow { color: var(--pg-accent); font-size: 11.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+.pgh-more__arrow { flex: none; color: var(--pg-accent); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@media (hover: hover) {
+  .parent-guide .pgh-more__card:hover { transform: translateY(-2px); border-color: rgba(19, 111, 56, 0.3); box-shadow: var(--pg-shadow-md); color: var(--pg-ink); }
+  .pgh-more__card:hover .pgh-more__arrow { transform: translateX(3px); }
+}
+
+/* ─── On a guide page: "More guides on this topic" ─── */
+.pgh-related { margin-top: 34px; }
+.pgh-related__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin-bottom: 14px; }
+.parent-guide .pgh-related__all { display: inline-flex; align-items: center; gap: 4px; font-size: 14.5px; font-weight: 800; text-decoration: none; }
+.pgh-related__all .material-symbols-rounded { font-size: 18px; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.pgh-related__all:hover .material-symbols-rounded { transform: translateX(3px); }
+.pgh-related__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); gap: 12px; padding: 0; list-style: none; }
+.parent-guide .pgh-mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  padding: 10px 14px 10px 10px;
+  border: 1px solid var(--pg-card-border);
+  border-radius: 18px;
+  background: #fff;
+  color: var(--pg-ink);
+  text-decoration: none;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s, border-color 0.2s;
+}
+.pgh-mini__media { flex: none; width: 76px; height: 60px; border-radius: 12px; overflow: hidden; background: var(--pg-soft); }
+.pgh-mini__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pgh-mini__media--icon { display: grid; place-items: center; color: var(--pg-accent); font-size: 28px; }
+.pgh-mini__copy { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
+.pgh-mini__eyebrow { color: var(--pg-accent); font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pgh-mini__copy strong { font-size: 14.5px; font-weight: 750; line-height: 1.35; }
+.parent-guide .pgh-mini--afisha { border-color: rgba(19, 111, 56, 0.2); background: linear-gradient(135deg, #eef7f1 0%, #e2f4e8 100%); }
+@media (hover: hover) {
+  .parent-guide .pgh-mini:hover { transform: translateY(-2px); border-color: rgba(19, 111, 56, 0.28); box-shadow: var(--pg-shadow-md); color: var(--pg-ink); }
+}
+
+/* ─── Tablets and phones ─── */
+@media (max-width: 899px) {
+  .pgh-hero { grid-template-columns: 1fr; gap: 20px; padding: 26px 22px 24px; border-radius: 24px; }
+  .pgh-hero__art { order: -1; height: 150px; margin: 0 6px; }
+  .pgh-hero__tile { width: 46%; border-width: 4px; border-radius: 16px; }
+  .pgh-hero__tile--3 { left: 27%; }
+}
+@media (max-width: 599px) {
+  .pgh-hero { margin-top: 0; padding: 20px 16px; }
+  .pgh-hero__lead { font-size: 15.5px; }
+  .pgh-rubric { margin-top: 24px; }
+  .pgh-rubric__icon { width: 38px; height: 38px; border-radius: 12px; font-size: 21px; }
+  .pgh-grid { gap: 14px; }
+  .pgh-card__body { padding: 14px 16px 16px; }
+  .parent-guide .pgh-card__title { font-size: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .parent-guide :is(.pgh-card, .pgh-mini, .pgh-more__card, .pgh-rubrics a), .pgh-card__media img { transition: none; }
+}
+
+/* Footer shelf: the guide you are reading is marked, not offered again as a link to follow */
+.footer-guide-card[aria-current="page"] {
+  border-color: rgba(19, 111, 56, 0.45);
+  background: #eef7f1;
+  box-shadow: inset 0 0 0 1px rgba(19, 111, 56, 0.18);
+}
+.footer-guide-card[aria-current="page"] .footer-guide-name { color: #0b3b24; }

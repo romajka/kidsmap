@@ -53,8 +53,8 @@
       {% if is_events_section_enabled %}
         <a
           href="{% url 'events_landing' %}"
-          class="km-nav-item {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
-          {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}aria-current="page"{% endif %}
+          class="km-nav-item {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_collection' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
+          {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_collection' or request.resolver_match.url_name == 'event_detail' %}aria-current="page"{% endif %}
         >
           <span>{% trans "Афиша" %}</span>
         </a>
@@ -432,11 +432,11 @@
             <li>
               <a
                 href="{% url 'events_landing' %}"
-                class="km-drawer-link {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
+                class="km-drawer-link {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_collection' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
               >
                 <span class="km-drawer-item-icon material-symbols-rounded">confirmation_number</span>
                 <span class="km-drawer-item-title">{% trans "Афиша" %}</span>
-                {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}<span class="km-drawer-active-dot"></span>{% endif %}
+                {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_collection' or request.resolver_match.url_name == 'event_detail' %}<span class="km-drawer-active-dot"></span>{% endif %}
               </a>
             </li>
           {% endif %}

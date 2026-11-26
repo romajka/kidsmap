@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block title_plain_twitter %}{{ seo_title }}{% endblock %}
+{% block meta_description %}{{ hub.meta_description }}{% endblock %}
+{% block og_description %}{{ hub.meta_description }}{% endblock %}
+{% block twitter_description %}{{ hub.meta_description }}{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/parent_guides.css' %}?v=20261118_topic_links">
+  <link rel="stylesheet" href="{% static 'css/pages/parent_guide_hub.css' %}?v=20261125_hub2">
+{% endblock %}
+
+{% block structured_data %}
+  <script type="application/ld+json">{{ hub_collection_json|safe }}</script>
+  <script type="application/ld+json">{{ hub_breadcrumbs_json|safe }}</script>
+{% endblock %}
+
+{% block content %}
+<article class="parent-guide parent-guide--hub" aria-labelledby="hub-title">
+  <nav class="pg-breadcrumb" aria-label="{{ hub.crumb }}">
+    <ol>
+      <li><a href="{% url 'home' %}">KidsMap</a></li>
+      <li aria-current="page">{{ hub.crumb }}</li>
+    </ol>
+  </nav>
+
+  <header class="pgh-hero">
+    <div class="pgh-hero__copy">
+      <p class="pg-eyebrow"><span aria-hidden="true"></span>{{ hub.eyebrow }}</p>
+      <h1 id="hub-title">{{ hub.title }}</h1>
+      <p class="pgh-hero__lead">{{ hub.lead }}</p>
+      <ul class="pgh-hero__facts">
+        <li><span class="material-symbols-rounded" aria-hidden="true">menu_book</span>{{ hub_count_label }}</li>
+        {% if hub_updated %}<li><span class="material-symbols-rounded" aria-hidden="true">update</span>{{ hub.updated }} <time datetime="{{ hub_updated|date:'Y-m-d' }}">{{ hub_updated|date:"d.m.Y" }}</time></li>{% endif %}
+      </ul>
+    </div>
+    <div class="pgh-hero__art" aria-hidden="true">
+      {% for card in hub_guides|slice:":3" %}
+      <span class="pgh-hero__tile pgh-hero__tile--{{ forloop.counter }}"><img src="{{ card.image }}" alt="" width="220" height="160" decoding="async"{% if forloop.first %} fetchpriority="high"{% else %} loading="lazy"{% endif %}></span>
+      {% endfor %}
+    </div>
+  </header>
+
+  {% if hub_rubric_count > 1 %}
+  <nav class="pgh-rubrics" aria-label="{{ hub.rubrics_label }}">
+    {% for rubric in hub_rubrics %}
+    <a href="#rubric-{{ rubric.key }}"><span class="material-symbols-rounded" aria-hidden="true">{{ rubric.icon }}</span>{{ rubric.title }}<span class="pgh-rubrics__count">{{ rubric.guides|length }}</span></a>
+    {% endfor %}
+  </nav>
+  {% endif %}
+
+  {% for rubric in hub_rubrics %}
+  <section class="pgh-rubric" id="rubric-{{ rubric.key }}" aria-labelledby="rubric-{{ rubric.key }}-title">
+    <div class="pgh-rubric__head">
+      <span class="pgh-rubric__icon material-symbols-rounded" aria-hidden="true">{{ rubric.icon }}</span>
+      <div>
+        <h2 id="rubric-{{ rubric.key }}-title">{{ rubric.title }}</h2>
+        <p>{{ rubric.text }}</p>
+      </div>
+    </div>
+    <ul class="pgh-grid">
+      {% for card in rubric.guides %}
+      <li>
+        <a class="pgh-card" href="{{ card.url }}">
+          <span class="pgh-card__media"><img src="{{ card.image }}" alt="" width="640" height="400" loading="lazy" decoding="async"></span>
+          <span class="pgh-card__body">
+            {% if card.eyebrow %}<span class="pgh-card__eyebrow">{{ card.eyebrow }}</span>{% endif %}
+            <h3 class="pgh-card__title">{{ card.title }}</h3>
+            <span class="pgh-card__lead">{{ card.lead }}</span>
+            <span class="pgh-card__foot">
+              <span>{{ hub.updated }} <time datetime="{{ card.updated|date:'Y-m-d' }}">{{ card.updated|date:"d.m.Y" }}</time></span>
+              <span class="pgh-card__go">{{ hub.read }}<span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
+            </span>
+          </span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
+
+  <div class="pgh-more">
+    {% if hub_afisha %}
+    <a class="pgh-more__card pgh-more__card--afisha" href="{{ hub_afisha.url }}">
+      <span class="pgh-more__icon material-symbols-rounded" aria-hidden="true">celebration</span>
+      <span class="pgh-more__copy"><span class="pgh-more__eyebrow">{{ hub_afisha.eyebrow }}</span><strong>{{ hub_afisha.title }}</strong><span>{{ hub_afisha.text }}</span></span>
+      <span class="pgh-more__arrow material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+    </a>
+    {% endif %}
+    <a class="pgh-more__card" href="{% url 'place_list' %}">
+      <span class="pgh-more__icon material-symbols-rounded" aria-hidden="true">map</span>
+      <span class="pgh-more__copy"><span class="pgh-more__eyebrow">KidsMap</span><strong>{{ hub.catalog_title }}</strong><span>{{ hub.catalog_text }}</span></span>
+      <span class="pgh-more__arrow material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+    </a>
+  </div>
+</article>
+{% endblock %}
