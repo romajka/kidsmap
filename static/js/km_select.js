@@ -298,7 +298,11 @@
     searchInput.addEventListener('input', filter);
 
     select.addEventListener('change', sync);
-    new MutationObserver(function () { sync(); if (isOpen) render(); })
+    new MutationObserver(function () {
+      if (!select.isConnected) return;
+      sync();
+      if (isOpen) render();
+    })
       .observe(select, {attributes: true, attributeFilter: ['disabled'], childList: true, subtree: true});
 
     var instance = {root: root, sync: sync, close: close, isOpen: function () { return isOpen; }};
