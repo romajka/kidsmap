@@ -1528,7 +1528,7 @@ class TestPublicPagesSmoke(TestCase):
             self.assertIn("css/site.css", paths)
             self.assertIn("img/logo.svg", paths)
             self.assertIn("fonts/chiron/ChironGoRoundTC-PublicSubset.woff2", paths)
-            self.assertIn("js/bg_scene.js", paths)
+            self.assertIn("js/doodle_background.js", paths)
             self.assertIn("admin/css/pages/kidsmap_changelist.css", paths)
             self.assertIn("admin/css/kidsmap_taxonomy.css", paths)
             self.assertIn("admin/js/kidsmap_place_changelist.js", paths)

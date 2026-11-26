@@ -132,9 +132,7 @@
     {% block structured_data %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/components/km_card_refine.css' %}?v=20261126_card" />
     {% block extra_head %}{% endblock %}
-    {% if living_map_enabled %}
-      <link rel="stylesheet" href="{% static 'css/pages/living_map_background.css' %}" />
-    {% endif %}
+    <link rel="stylesheet" href="{% static 'css/pages/doodle_background.css' %}?v=20261126_doodles_r6" />
     {% comment %}
       motion.css is the last layer on purpose: page-level CSS injected through
       extra_head (e.g. catalog_places.css) would otherwise outrank it.
@@ -544,11 +542,10 @@
       </script>
     {% endif %}
     {% endcomment %}
-    {% if living_map_enabled %}
-      <canvas class="living-map-background" data-living-map aria-hidden="true"></canvas>
-      <template data-scripts-near="[data-living-map]"><script src="{% static 'js/living_map_scene.js' %}?v=20261022_release_all_r1" defer></script>
-      <script src="{% static 'js/living_map_background.js' %}?v=20261022_release_all_r1" defer></script></template>
-    {% endif %}
+    {% block background_doodles %}
+      <canvas class="doodle-background" data-doodles aria-hidden="true"></canvas>
+      <script src="{% static 'js/doodle_background.js' %}?v=20261126_doodles_r6" defer></script>
+    {% endblock %}
     {% block extra_body %}{% endblock %}
   </body>
 </html>

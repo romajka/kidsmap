@@ -24,13 +24,6 @@ from .services.auth_redirects import build_header_login_next, build_header_login
 DEFAULT_FOOTER_PHONE = "+994 55 497 97 23"
 DEFAULT_FOOTER_WHATSAPP_URL = "https://wa.me/994554979723"
 DEFAULT_FOOTER_EMAIL = "info@kidsmap.az"
-# Visitor pages only; keep account and authentication workflows quiet.
-LIVING_MAP_URL_NAMES = frozenset({
-    "home", "place_list", "place_new", "seo_landing", "place_detail",
-    "events_landing", "event_collection", "event_detail", "specialist_list", "specialist_detail",
-    "about", "faq_page", "contacts", "site_reviews", "place_reviews", "add_place",
-    "privacy", "terms", "review_rules", "listing_rules",
-})
 DEFAULT_FOOTER_INSTAGRAM_URL = "https://www.instagram.com/kidsmap.az/"
 DEFAULT_FOOTER_TELEGRAM_URL = "https://t.me/KidsMap_az"
 DEFAULT_FOOTER_YOUTUBE_URL = "https://www.youtube.com/@KidsMap_az"
@@ -246,7 +239,6 @@ def seo_urls(request):
         "header_account_login_url": build_header_login_url(request),
         "header_account_login_next": build_header_login_next(request),
         "analytics_page_type": PUBLIC_ANALYTICS_PAGE_TYPES.get(url_name, ""),
-        "living_map_enabled": url_name in LIVING_MAP_URL_NAMES,
         "google_site_verification": (
             getattr(settings, "GOOGLE_SITE_VERIFICATION", "") or ""
         ).strip(),
