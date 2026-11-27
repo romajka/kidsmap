@@ -1041,11 +1041,6 @@ class PlainMultipleImageInput(forms.ClearableFileInput):
 
 
 class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
-    nature = forms.ChoiceField(
-        required=False,
-        choices=(("business", _("Бизнес")), ("public_space", _("Общественное место"))),
-        widget=forms.Select(attrs={"class": "field"}),
-    )
     delete_gallery_ids = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple())
     gallery_order = forms.JSONField(required=False, widget=forms.HiddenInput())
     pricing_plans = forms.CharField(required=False, widget=forms.HiddenInput())
@@ -1257,7 +1252,11 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.draft_save_only = bool(kwargs.pop("draft_save_only", False))
         self.submit_for_moderation = bool(kwargs.pop("submit_for_moderation", False))
         self.coordinate_refresh_only = bool(kwargs.pop("coordinate_refresh_only", False))
-        if kwargs.get("instance") is not None:
+        source = kwargs.get("instance")
+        self.contact_original_taxonomy = (str(getattr(source, "category_id", "") or ""),
+                                          str(getattr(source, "subcategory_id", "") or ""))
+        self.contact_approved_nature = getattr(source, "nature", "") or ""
+        if source is not None:
             from catalog.services.publication_forms import candidate_for_edit
             kwargs["instance"]=candidate_for_edit(kwargs["instance"])
         instance = kwargs.get("instance")
@@ -1314,7 +1313,6 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         init_version_field(self)
 
         if not self.is_bound:
-            self.initial["nature"] = getattr(instance, "nature", None) or "business"
             current_adult_value = bool(getattr(instance, "offers_adult_classes", False))
             self.initial["offers_adult_classes"] = "1" if current_adult_value else "0"
 
@@ -1323,8 +1321,6 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             from catalog.services.pricing_plans import serialize_nested_pricing
             revision = VolunteerPlaceRevision.objects.filter(place_id=instance.pk, status__in=['draft', 'pending', 'rejected']).first()
             self.initial['nested_pricing'] = (revision.payload.get('nested_pricing') if revision and 'nested_pricing' in revision.payload else serialize_nested_pricing(instance))
-            if revision and 'nature' in revision.payload:
-                self.initial['nature'] = revision.payload['nature']
         if "pricing_plans" in self.fields:
             current_plans = getattr(instance, "pricing_plans", None) if instance is not None else None
             if not self.is_bound and current_plans:
@@ -1339,6 +1335,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 qs = Category.objects.filter(Q(is_active=True) | Q(code=instance.category_id))
             self.fields["category"].queryset = qs.order_by("order", "name_ru", "name")
             self.fields["category"].label_from_instance = lambda obj: obj.name_i18n(get_language())
+            from catalog.services.permanent_place_rules import copy as t
+            self.fields["category"].empty_label = t("Выберите категорию", "Kateqoriya seçin", "Select category")
 
         if "subcategory" in self.fields:
             qs = Subcategory.active.all()
@@ -1346,6 +1344,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 qs = Subcategory.objects.filter(Q(is_active=True) | Q(id=instance.subcategory_id))
             self.fields["subcategory"].queryset = qs.select_related("category").order_by("category__order", "order", "name_ru", "name")
             self.fields["subcategory"].label_from_instance = lambda obj: obj.name_i18n(get_language())
+            from catalog.services.permanent_place_rules import copy as t
+            self.fields["subcategory"].empty_label = t("Выберите подкатегорию", "Alt kateqoriya seçin", "Select subcategory")
             self._coerce_bound_subcategory_value()
 
         self.fields["temporary_start"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
@@ -1573,8 +1573,6 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
-        if "nature" in cleaned:
-            self.instance.nature = cleaned["nature"] or getattr(self.instance, "nature", None) or "business"
         cleaned = self._clean_schedule_editor(cleaned)
 
         try:
@@ -1836,7 +1834,6 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
 
     def save(self, commit=True):
         place = super().save(commit=False)
-        place.nature = self.cleaned_data.get("nature") or place.nature or "business"
         place.name = (
             (self.cleaned_data.get("name_az") or "").strip()
             or (self.cleaned_data.get("name_ru") or "").strip()

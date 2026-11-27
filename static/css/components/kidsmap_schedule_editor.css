@@ -1041,6 +1041,11 @@
   padding: 4px 0;
 }
 
+.km-schedule-editor__dropdown-list.is-upwards {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+
 .km-schedule-editor__dropdown-list::-webkit-scrollbar {
   width: 6px;
 }

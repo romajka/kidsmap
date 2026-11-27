@@ -1,8 +1,8 @@
 {% load i18n static %}{% get_current_language as CURRENT_LANGUAGE %}
-{% with ui=form.wizard_copy readiness=form.submission_readiness %}
+{% with ui=form.wizard_copy readiness=form.submission_readiness rules=form.publication_rules %}
 <div class="pw pc" data-permanent-place-root data-place-mode="continuous">
   <header class="pw-header pc-header"><a href="{% url 'owner_places_dashboard' %}">← {{ ui.places }}</a><p class="pw-eyebrow">KidsMap · {{ ui.title }}</p><h1>{% if place %}{{ place.name_i18n }}{% else %}{{ ui.title }}{% endif %}</h1><p>{{ ui.intro }}</p></header>
-  {{ form.publication_rules|json_script:'pw-rules' }}{{ readiness|json_script:'pc-readiness' }}{{ form.server_draft_fields|json_script:'pc-draft-fields' }}{{ ui|json_script:'pw-copy' }}{{ form.offering_choices|json_script:'pc-offering-choices' }}{{ form.saved_gallery_preview|json_script:'pc-gallery-preview' }}
+  {{ rules|json_script:'pw-rules' }}{{ readiness|json_script:'pc-readiness' }}{{ form.server_draft_fields|json_script:'pc-draft-fields' }}{{ ui|json_script:'pw-copy' }}{{ form.offering_choices|json_script:'pc-offering-choices' }}{{ form.saved_gallery_preview|json_script:'pc-gallery-preview' }}
   {% if place and place.is_public %}<div class="pc-live" data-place-live><strong>{{ ui.live_version }}</strong><p>{{ place.name_i18n }}{% if place.description_i18n %} · {{ place.description_i18n|truncatechars:120 }}{% endif %}</p><p>{{ ui.candidate_help }}</p></div>{% endif %}
   <div class="pc-candidate" data-place-candidate><strong>{% if place %}{{ ui.candidate_version }}{% else %}{{ ui.state_new }}{% endif %}</strong><span data-pc-lifecycle>{% if place_revision.status == 'pending' %}{{ ui.state_pending }}{% elif place_revision.status == 'rejected' or place.status == 'needs_changes' %}{{ ui.state_changes }}{% elif place_revision.status == 'declined' or place.status == 'rejected' %}{{ ui.state_rejected }}{% elif place_revision.status == 'draft' or place.status == 'draft' %}{{ ui.state_draft }}{% elif place.is_public %}{{ ui.state_published }}{% elif place.status == 'pending' %}{{ ui.state_pending }}{% endif %}</span></div>
   {% if place_revision.review_note and place_revision.status == 'rejected' or place_revision.review_note and place_revision.status == 'declined' or place_revision.review_note and place_revision.status == 'draft' %}
@@ -14,23 +14,112 @@
   <form method="post" enctype="multipart/form-data" class="pw-form pc-form" data-permanent-place-form data-pw-volunteer="0" data-pw-bound="{{ form.is_bound|yesno:'1,0' }}" data-draft-key="{% if place %}place-edit-{{ request.user.pk }}-{{ place.pk }}{% else %}{{ draft_client_key }}{% endif %}" data-account-id="{{ request.user.pk }}" data-fresh="{% if request.GET.fresh == '1' %}1{% else %}0{% endif %}" data-draft-url="{% url 'server_draft_collection' %}" data-schema-version="{{ form.publication_schema_version }}" data-source-version="{% if place %}{{ place.content_version }}{% else %}0{% endif %}" data-target-id="{% if place %}{{ place.pk }}{% endif %}" novalidate>
     {% csrf_token %}{{ form.publication_token }}<input type="hidden" name="draft_client_key" value="{{ draft_client_key }}"><input type="hidden" name="server_draft_id" value="{{ request.POST.server_draft_id|default:'' }}"><input type="hidden" name="is_temporary" value=""><input type="hidden" name="age_open_ended" value="{{ form.age_open_ended.value|yesno:'1,' }}">
     <div class="pc-workspace">
-    <nav class="pc-nav" aria-label="{{ ui.section_nav }}"><label class="pc-section-picker">{{ ui.section_nav }}<select data-pc-section-select>{% for section in form.continuous_sections %}<option value="pc-section-{{ section.number }}">{{ section.title }}</option>{% endfor %}</select></label>{% for section in form.continuous_sections %}<a href="#pc-section-{{ section.number }}"><span aria-hidden="true">{{ section.number|stringformat:'02d' }}</span> {{ section.title }}</a>{% endfor %}</nav>
+    <nav class="pc-nav" aria-label="{{ ui.section_nav }}"><label class="pc-section-picker">{{ ui.section_nav }}<select data-pc-section-select>{% for section in form.continuous_sections %}<option value="pc-section-{{ section.number }}">{{ section.number|stringformat:'02d' }} {{ section.title }}</option>{% endfor %}</select></label>{% for section in form.continuous_sections %}<a href="#pc-section-{{ section.number }}" data-pc-nav-link="{{ section.number }}"><span class="pc-nav-num" aria-hidden="true">{{ section.number|stringformat:'02d' }}</span><span class="pc-nav-label">{{ section.title }}</span><span class="pc-nav-badge" data-pc-step-badge="{{ section.number }}" aria-hidden="true"></span></a>{% endfor %}</nav>
     <div class="pc-content">
-    <div class="pc-savebar"><p class="pc-save-status" data-pc-save-status role="status" aria-live="polite">{{ ui.not_saved }}</p><p data-pc-conflict-actions hidden><a target="_blank" rel="noopener" href="?draft_current=1">{{ ui.open_current_draft }}</a></p></div>
+    <div class="pc-progress-banner" aria-hidden="true">
+      <div class="pc-progress-info">
+        <span class="pc-progress-title" data-pc-progress-text>{{ ui.step }} 1 {{ ui.of }} 4 · {{ form.continuous_sections.0.title }}</span>
+        <span class="pc-progress-percent" data-pc-progress-pct>0%</span>
+      </div>
+      <div class="pc-progress-bar"><div class="pc-progress-fill" data-pc-progress-fill style="width:25%;"></div></div>
+    </div>
+    <div class="pc-savebar"><div class="pc-savebar-indicator"><span class="pc-save-dot" data-pc-save-dot aria-hidden="true"></span><p class="pc-save-status" data-pc-save-status role="status" aria-live="polite">{{ ui.not_saved }}</p></div><p data-pc-conflict-actions hidden><a target="_blank" rel="noopener" href="?draft_current=1">{{ ui.open_current_draft }}</a></p></div>
     <p class="pc-note">{{ ui.requirements_hint }}</p>
     {% if form.non_field_errors %}<div class="pw-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
     <div class="pw-error-summary" data-pc-errors role="alert" tabindex="-1" hidden></div>
     {% for section in form.continuous_sections %}<section class="pc-section" id="pc-section-{{ section.number }}" data-place-section="{{ section.number }}" aria-labelledby="pc-heading-{{ section.number }}">
-      <header class="pc-section-head"><span aria-hidden="true">{{ section.number|stringformat:'02d' }}</span><h2 id="pc-heading-{{ section.number }}" tabindex="-1">{{ section.title }}</h2></header>
+      <header class="pc-section-head"><span class="pc-section-badge" aria-hidden="true">{{ section.number|stringformat:'02d' }}</span><h2 id="pc-heading-{{ section.number }}" tabindex="-1">{{ section.title }}</h2><span class="pc-section-status-tag" data-pc-section-tag="{{ section.number }}"></span></header>
       {% if section.number == 1 %}<p class="pc-note">{{ ui.standalone }}</p>{% endif %}{% if section.number == 2 and inherited_contact_source %}<p class="pc-note" data-contact-source="organization">{{ ui.inherited_contact }}</p>{% endif %}
       {% for part in section.parts %}
         {% if part.number == 2 %}<div class="pc-subhead"><h3>{{ part.title }}</h3><p>{{ part.hint }}</p></div>{% endif %}
         {% if part.number == 6 %}<div data-pc-photo-current="{% if form.instance.photo %}{{ form.instance.photo.url }}{% endif %}">{% if place %}{% include 'pages/includes/permanent_place_photos.html' with place=form.instance %}{% else %}{% include 'pages/includes/permanent_place_photos.html' %}{% endif %}</div>
+        {% elif part.number == 2 %}
+          <div class="km-audience-section">
+            <div class="pw-field km-age-range-field" data-pw-field="age_from" data-range data-min="0" data-max="18">
+              <div class="km-age-range-head">
+                <label class="km-age-range-label" for="id_age_from_range">
+                  <span class="km-age-range-title">{% if CURRENT_LANGUAGE == 'az' %}Uşaqların yaşı{% elif CURRENT_LANGUAGE == 'en' %}Children age{% else %}Возраст детей{% endif %}</span>
+                  <span data-pw-required="age_from" class="pw-field-badge" hidden></span>
+                </label>
+                <div class="km-age-range-caption-box">
+                  <strong class="km-age-range-caption" data-range-caption>{{ form.age_from.value|default:'0' }}–{{ form.age_to.value|default:'18' }} {% if CURRENT_LANGUAGE == 'az' %}yaş{% elif CURRENT_LANGUAGE == 'en' %}years{% else %}лет{% endif %}</strong>
+                </div>
+              </div>
+
+              <div class="km-age-slider-track">
+                <input class="range-slider range-slider-from" id="id_age_from_range" type="range" min="0" max="18" step="1" value="{{ form.age_from.value|default:'0' }}" data-range-from-range aria-label="{% if CURRENT_LANGUAGE == 'az' %}Minimum yaş{% elif CURRENT_LANGUAGE == 'en' %}Minimum age{% else %}Возраст от{% endif %}" />
+                <input class="range-slider range-slider-to" id="id_age_to_range" type="range" min="0" max="18" step="1" value="{{ form.age_to.value|default:'18' }}" data-range-to-range aria-label="{% if CURRENT_LANGUAGE == 'az' %}Maksimum yaş{% elif CURRENT_LANGUAGE == 'en' %}Maximum age{% else %}Возраст до{% endif %}" />
+              </div>
+
+              <div class="km-age-slider-ticks" aria-hidden="true">
+                <span>0</span>
+                <span>3</span>
+                <span>6</span>
+                <span>9</span>
+                <span>12</span>
+                <span>15</span>
+                <span>18+</span>
+              </div>
+
+              <input type="hidden" name="age_from" id="id_age_from" value="{{ form.age_from.value|default:'0' }}" data-range-from-input />
+              <input type="hidden" name="age_to" id="id_age_to" value="{{ form.age_to.value|default:'18' }}" data-range-to-input />
+
+              <div class="km-age-open-ended-wrap">
+                <label class="km-open-age-toggle">
+                  <input type="checkbox" data-pc-open-age{% if form.age_open_ended.value %} checked{% endif %}>
+                  <span class="km-open-age-box" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-6"/></svg>
+                  </span>
+                  <span class="km-open-age-text">{{ ui.open_age }} <small class="km-open-age-hint">({% if CURRENT_LANGUAGE == 'az' %}yuxarı hədd olmadan, məsələn 3+ yaş{% elif CURRENT_LANGUAGE == 'en' %}no upper limit, e.g. 3+ years{% else %}без верхней границы, например 3+ года{% endif %})</small></span>
+                </label>
+              </div>
+
+              <div id="id_age_from_errors">{% for error in form.age_from.errors %}<p class="pw-error" role="alert">{{ error }}</p>{% endfor %}</div>
+              <div id="id_age_to_errors">{% for error in form.age_to.errors %}<p class="pw-error" role="alert">{{ error }}</p>{% endfor %}</div>
+              <span class="pw-client-error" id="id_age_from_client_error" aria-live="polite"></span>
+            </div>
+
+            <div class="pw-field km-audience-field" data-pw-field="offers_adult_classes">
+              <label class="km-audience-label">
+                <span>{% if CURRENT_LANGUAGE == 'az' %}Kimlər məşğul ola bilər?{% elif CURRENT_LANGUAGE == 'en' %}Who can attend?{% else %}Кто может заниматься?{% endif %}</span>
+              </label>
+              <div class="km-audience-options" role="radiogroup" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Kimlər məşğul ola bilər?{% elif CURRENT_LANGUAGE == 'en' %}Who can attend?{% else %}Кто может заниматься?{% endif %}">
+                <label class="km-audience-option{% if not form.offers_adult_classes.value or form.offers_adult_classes.value == '0' %} is-checked{% endif %}">
+                  <input type="radio" name="offers_adult_classes" value="0" {% if not form.offers_adult_classes.value or form.offers_adult_classes.value == '0' %}checked{% endif %} class="km-visually-hidden" />
+                  <span class="km-audience-check" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-6"/></svg>
+                  </span>
+                  <span class="km-audience-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+                  </span>
+                  <span class="km-audience-info">
+                    <strong class="km-audience-title">{% if CURRENT_LANGUAGE == 'az' %}Yalnız uşaqlar{% elif CURRENT_LANGUAGE == 'en' %}Children only{% else %}Только дети{% endif %}</strong>
+                    <span class="km-audience-desc">{% if CURRENT_LANGUAGE == 'az' %}18 yaşadək qruplar{% elif CURRENT_LANGUAGE == 'en' %}Groups up to 18 yo{% else %}Группы для детей до 18 лет{% endif %}</span>
+                  </span>
+                </label>
+
+                <label class="km-audience-option{% if form.offers_adult_classes.value == '1' %} is-checked{% endif %}">
+                  <input type="radio" name="offers_adult_classes" value="1" {% if form.offers_adult_classes.value == '1' %}checked{% endif %} class="km-visually-hidden" />
+                  <span class="km-audience-check" aria-hidden="true">
+                    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-6"/></svg>
+                  </span>
+                  <span class="km-audience-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  </span>
+                  <span class="km-audience-info">
+                    <strong class="km-audience-title">{% if CURRENT_LANGUAGE == 'az' %}Uşaqlar və böyüklər{% elif CURRENT_LANGUAGE == 'en' %}Children & adults{% else %}Дети и взрослые{% endif %}</strong>
+                    <span class="km-audience-desc">{% if CURRENT_LANGUAGE == 'az' %}Böyüklər üçün ayrıca qruplar var{% elif CURRENT_LANGUAGE == 'en' %}Separate adult groups available{% else %}Есть отдельные группы для взрослых{% endif %}</span>
+                  </span>
+                </label>
+              </div>
+              <small class="pw-help">{% if CURRENT_LANGUAGE == 'az' %}Yuxarıdakı yaş uşaq qruplarına aiddir.{% elif CURRENT_LANGUAGE == 'en' %}The age above applies to children’s groups.{% else %}Возраст выше относится к детским группам.{% endif %}</small>
+              <div id="id_offers_adult_classes_errors">{% for error in form.offers_adult_classes.errors %}<p class="pw-error" role="alert">{{ error }}</p>{% endfor %}</div>
+            </div>
+          </div>
         {% else %}<div class="pw-fields">{% for field in part.fields %}{% include 'pages/includes/permanent_place_field.html' %}{% endfor %}</div>{% endif %}
         {% if part.optional %}<details class="pw-details"{% for field in part.optional %}{% if field.errors %} open{% endif %}{% endfor %}><summary>{% if part.number == 1 %}{{ ui.translations }}{% else %}{{ ui.optional }}{% endif %}</summary>{% if part.number == 1 %}<p class="pw-help">{{ ui.translations_hint }}</p>{% endif %}<div class="pw-fields">{% for field in part.optional %}{% include 'pages/includes/permanent_place_field.html' %}{% endfor %}</div></details>{% endif %}
-        {% if part.number == 2 %}<label class="pc-open-age"><input type="checkbox" data-pc-open-age{% if form.age_open_ended.value %} checked{% endif %}> {{ ui.open_age }}</label>{% endif %}
         {% if part.number == 4 %}<p class="pc-note">{{ ui.optional_map }}</p>{% include 'pages/includes/permanent_place_map.html' %}{% endif %}
-        {% if part.number == 5 %}<div data-pw-field="structured_schedule">{% include 'includes/place_schedule_editor.html' with editor_id='pw-schedule' variant='owner' %}<span class="pw-client-error"></span></div>{% endif %}
+        {% if part.number == 5 %}<p class="pc-note" data-pc-contact-hint aria-live="polite">{% if rules.contact_policy.inherited %}{{ ui.contact_inherited }}{% elif rules.contact_required %}{{ ui.contact_required }}{% else %}{{ ui.contact_optional }}{% endif %}</p><div data-pw-field="structured_schedule">{% include 'includes/place_schedule_editor.html' with editor_id='pw-schedule' variant='owner' %}<span class="pw-client-error"></span></div>{% endif %}
         {% if part.number == 3 %}<p class="pc-note">{{ ui.activity_explain }}</p>
         <div class="pc-offerings" data-pc-offerings>
           <div data-pc-activity-list></div>
@@ -41,6 +130,10 @@
         {% if part.number == 7 %}<div class="pc-preview"><h3>{{ ui.preview }}</h3><label>{{ ui.preview_language }}<select data-pc-preview-language><option value="az">AZ</option><option value="ru"{% if CURRENT_LANGUAGE == 'ru' %} selected{% endif %}>RU</option><option value="en"{% if CURRENT_LANGUAGE == 'en' %} selected{% endif %}>EN</option></select></label><p data-pc-preview-name></p><p data-pc-preview-description></p><p data-pc-preview-address></p><p data-pc-preview-offerings></p><p data-pc-preview-price></p><p>{{ ui.preview_hint }}</p></div>
         <div class="pc-requirements" data-pc-readiness><h3>{{ ui.requirements }}</h3><p><span data-pc-ready-count>{{ readiness.completed_count }}</span> {{ ui.of }} {{ readiness.required_count }} · {{ ui.review_summary }}</p><p data-pc-readiness-status role="status"></p><ul>{% for item in readiness.items %}<li><button type="button" data-pc-go-field="{{ item.field }}">{{ item.label }}</button> — {% if item.complete %}{{ ui.fields_ready }}{% else %}{{ item.message }}{% endif %}</li>{% endfor %}</ul>{% for advice in readiness.advice %}<p class="pw-help">{{ advice.message }}</p>{% endfor %}</div>{% endif %}
       {% endfor %}
+      <div class="pc-step-nav">
+        {% if section.number > 1 %}<button type="button" class="pc-btn-step pc-btn-step--prev" data-pc-goto-step="{{ section.number|add:'-1' }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> {{ ui.prev_step }}</button>{% else %}<span class="pc-step-nav-hint"><span class="pc-step-nav-dot" aria-hidden="true"></span>{{ ui.step }} 1 {{ ui.of }} 4</span>{% endif %}
+        {% if section.number < 4 %}<button type="button" class="pc-btn-step pc-btn-step--next" data-pc-goto-step="{{ section.number|add:'1' }}">{{ ui.next_step }} <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>{% endif %}
+      </div>
     </section>{% endfor %}
     <footer class="pc-actions">{% if place %}<button type="submit" name="form_action" value="save_draft" formnovalidate>{{ ui.apply_changes }}</button>{% else %}<button type="submit" name="form_action" value="save_draft" data-pc-save-draft formnovalidate>{{ ui.draft }}</button>{% endif %}<button type="submit" name="form_action" value="save_and_publish" class="pw-primary" data-pc-submit>{{ ui.submit }}</button></footer>
     </div></div>

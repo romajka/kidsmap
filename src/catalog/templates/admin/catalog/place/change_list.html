@@ -69,8 +69,20 @@
               </a>
             {% endif %}
           {% endif %}
-        </div>
       </section>
+
+      {% if not km_is_trash_changelist and place_dashboard_stats %}
+        <section class="place-admin-dashboard__stats" aria-label="{% translate 'Статистика мест' %}">
+          {% for item in place_dashboard_stats %}
+            <a href="{{ item.url|default:'?' }}" class="place-admin-dashboard__stat-card place-admin-dashboard__stat-card--{{ item.tone }}">
+              <div class="place-admin-dashboard__stat-content">
+                <span class="place-admin-dashboard__stat-label">{{ item.label }}</span>
+                <strong class="place-admin-dashboard__stat-value">{{ item.count }}</strong>
+              </div>
+            </a>
+          {% endfor %}
+        </section>
+      {% endif %}
 
       {% if home_recommendation_editor %}
         <details class="km-home-recs-accordion">

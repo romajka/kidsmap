@@ -45,6 +45,114 @@
     return defaultOpen;
   }
 
+  var STORAGE_KEY_SCROLL = "km-admin-sidebar-scroll";
+
+  function isElementVisibleInScroller(scroller, el) {
+    if (!scroller || !el) return false;
+    var scrollerRect = scroller.getBoundingClientRect();
+    var elRect = el.getBoundingClientRect();
+    var buffer = 15;
+    return (
+      elRect.top >= scrollerRect.top + buffer &&
+      elRect.bottom <= scrollerRect.bottom - buffer
+    );
+  }
+
+  function scrollActiveIntoView(scroller, activeElement, smooth) {
+    if (!scroller || !activeElement) return;
+    try {
+      activeElement.scrollIntoView({
+        behavior: smooth ? "smooth" : "auto",
+        block: "center",
+        inline: "nearest"
+      });
+    } catch (e) {
+      var scrollerRect = scroller.getBoundingClientRect();
+      var elRect = activeElement.getBoundingClientRect();
+      var targetScrollTop =
+        scroller.scrollTop +
+        (elRect.top - scrollerRect.top) -
+        scrollerRect.height / 2 +
+        elRect.height / 2;
+      scroller.scrollTop = Math.max(0, targetScrollTop);
+    }
+  }
+
+  function restoreSidebarScroll(options) {
+    var scroller = document.querySelector(".km-admin-sidebar__scroller");
+    if (!scroller) return;
+
+    var smooth = !!(options && options.smooth);
+    var activeLink =
+      scroller.querySelector(".km-admin-sidebar__link.is-active") ||
+      scroller.querySelector(".km-admin-sidebar__link[aria-current='page']");
+
+    if (activeLink) {
+      var parentGroup = activeLink.closest("[data-km-sidebar-group]");
+      if (parentGroup && parentGroup.getAttribute("data-open") !== "true") {
+        applyGroupState(parentGroup, true, false);
+      }
+    }
+
+    var restored = false;
+    try {
+      var saved = window.sessionStorage.getItem(STORAGE_KEY_SCROLL);
+      if (saved !== null && saved !== "") {
+        var parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed >= 0) {
+          scroller.scrollTop = parsed;
+          restored = true;
+        }
+      }
+    } catch (e) {}
+
+    window.requestAnimationFrame(function () {
+      if (activeLink) {
+        if (!restored || !isElementVisibleInScroller(scroller, activeLink)) {
+          scrollActiveIntoView(scroller, activeLink, smooth);
+        }
+      }
+    });
+  }
+
+  function initSidebarScroll() {
+    var scroller = document.querySelector(".km-admin-sidebar__scroller");
+    if (!scroller) return;
+
+    restoreSidebarScroll({ smooth: false });
+
+    var scrollTimeout = null;
+    scroller.addEventListener(
+      "scroll",
+      function () {
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
+        }
+        scrollTimeout = setTimeout(function () {
+          try {
+            window.sessionStorage.setItem(STORAGE_KEY_SCROLL, String(scroller.scrollTop));
+          } catch (e) {}
+        }, 80);
+      },
+      { passive: true }
+    );
+
+    scroller.addEventListener("click", function (event) {
+      var link = event.target.closest("a.km-admin-sidebar__link");
+      if (link) {
+        try {
+          window.sessionStorage.setItem(STORAGE_KEY_SCROLL, String(scroller.scrollTop));
+        } catch (e) {}
+      }
+    });
+
+    window.addEventListener("beforeunload", function () {
+      try {
+        window.sessionStorage.setItem(STORAGE_KEY_SCROLL, String(scroller.scrollTop));
+      } catch (e) {}
+    });
+  }
+
   function initSidebarGroups() {
     var groups = document.querySelectorAll("[data-km-sidebar-group]");
     if (!groups.length) {
@@ -61,7 +169,16 @@
 
       button.addEventListener("click", function () {
         var isOpen = button.getAttribute("aria-expanded") === "true";
-        applyGroupState(group, !isOpen, true);
+        var willBeOpen = !isOpen;
+        applyGroupState(group, willBeOpen, true);
+        if (willBeOpen) {
+          window.requestAnimationFrame(function () {
+            var scroller = document.querySelector(".km-admin-sidebar__scroller");
+            if (scroller && !isElementVisibleInScroller(scroller, button)) {
+              button.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+          });
+        }
       });
 
       button.addEventListener("keydown", function (event) {
@@ -79,6 +196,7 @@
     var opener = document.querySelector('.km-admin-header__toggle[data-widget="pushmenu"]');
     if (!sidebar || !opener) return;
     var close = sidebar.querySelector('[data-km-sidebar-close]');
+    var wasExpanded = expanded();
 
     function expanded() {
       return window.innerWidth < 768
@@ -87,7 +205,14 @@
     }
 
     function sync() {
-      opener.setAttribute('aria-expanded', expanded() ? 'true' : 'false');
+      var nowExpanded = expanded();
+      opener.setAttribute('aria-expanded', nowExpanded ? 'true' : 'false');
+      if (!wasExpanded && nowExpanded) {
+        setTimeout(function () {
+          restoreSidebarScroll({ smooth: false });
+        }, 80);
+      }
+      wasExpanded = nowExpanded;
     }
 
     function restoreFocus() {
@@ -175,6 +300,12 @@
     document.addEventListener("DOMContentLoaded", initSidebarGroups);
   } else {
     initSidebarGroups();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSidebarScroll);
+  } else {
+    initSidebarScroll();
   }
 
   if (document.readyState === "loading") {
