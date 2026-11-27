@@ -4,9 +4,9 @@
    ticket with a perforated stub for the call buttons. Loaded last on the page;
    the :not(#kd-…) chain only matches the specificity the older layers use. */
 body.page-place_detail {
-  --tk-paper: #faf6e9;
-  --tk-line: #e6e1cb;
-  --tk-perf: #d6d1b8;
+  --tk-paper: #f3f8f4;
+  --tk-line: #d9e5dc;
+  --tk-perf: #cddbd1;
   --tk-ink: var(--brand-spruce, #0d4a2a);
   --tk-bite: 12px;
   --tk-cut: 70px;
@@ -45,7 +45,7 @@ body.page-place_detail .detail-main > .detail-card > h2.detail-card__title {
   min-width: 0 !important; margin: 0 !important; overflow: hidden !important; white-space: nowrap !important; text-overflow: ellipsis !important;
   color: var(--tk-ink) !important; font-size: clamp(1.12rem, 1.6vw, 1.3rem) !important;
 }
-body.page-place_detail .detail-main > .detail-card > h2.detail-card__title:not(#kd-a):not(#kd-b) { justify-content: flex-start !important; gap: 10px !important; }
+body.page-place_detail .detail-main > .detail-card:not(#reviews) > h2.detail-card__title:not(#kd-a):not(#kd-b) { justify-content: flex-start !important; gap: 10px !important; }
 body.page-place_detail .detail-main .detail-card__aside {
   flex: none !important; padding: 4px 10px !important; border-radius: 999px !important; background: #fff !important; box-shadow: inset 0 0 0 1px var(--tk-line) !important;
   color: var(--tk-ink) !important; font-size: .78rem !important; font-weight: 750 !important;
@@ -118,15 +118,15 @@ body.page-place_detail .detail-main > #reviews.detail-card:not(#kd-a):not(#kd-b)
 }
 body.page-place_detail #reviews > .detail-card__head .detail-card__title { font-size: clamp(1.35rem, 2.2vw, 1.75rem) !important; color: var(--tk-ink) !important; }
 body.page-place_detail #reviews .detail-rating-summary:not(#kd-a) {
-  border: 0 !important; border-radius: 22px !important; background: var(--tk-ink) !important; color: #fffbee !important;
+  border: 0 !important; border-radius: 22px !important; background: var(--tk-ink) !important; color: #f6fbf7 !important;
 }
-body.page-place_detail #reviews .detail-rating-summary :is(.detail-rating-summary__value, .detail-histogram__star, .detail-histogram__count, .detail-rating-summary__meta) { color: #fffbee !important; }
+body.page-place_detail #reviews .detail-rating-summary :is(.detail-rating-summary__value, .detail-histogram__star, .detail-histogram__count, .detail-rating-summary__meta) { color: #f6fbf7 !important; }
 body.page-place_detail #reviews .detail-histogram__track { background: rgb(255 255 255 / 16%) !important; }
 body.page-place_detail #reviews .detail-histogram__fill { background: #ffcc4d !important; }
 
 body.page-place_detail .detail-reviews-list:not(#kd-a) {
   display: grid !important; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)) !important; gap: 16px !important;
-  filter: drop-shadow(0 1px 0 #e3dec8) drop-shadow(0 12px 18px rgb(13 73 36 / 11%));
+  filter: drop-shadow(0 1px 0 #d9e5dc) drop-shadow(0 12px 18px rgb(13 73 36 / 11%));
 }
 body.page-place_detail .detail-reviews-list .review-item:not(#kd-a):not(#kd-b) {
   --rv-cut: 74px;

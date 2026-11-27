@@ -4,8 +4,8 @@
    static/js/place_stack.js; without JS the photos are a scrolling row. */
 body.page-place_detail {
   --pp-ink: var(--brand-spruce, #0d4a2a);
-  --pp-cream: #fffbee;
-  --pp-paper: #faf6e9;
+  --pp-cream: #f6fbf7;
+  --pp-paper: #f3f8f4;
   --pp-celadon: var(--brand-celadon, #9fd3a8);
   --pp-mint: var(--tint-turf-200, #cfe8d3);
   --pp-ease: cubic-bezier(.2, .8, .2, 1);
@@ -72,7 +72,7 @@ body.page-place_detail .place-poster .place-poster__title {
 .place-poster__metro { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: #e53935; color: #fff; font: 800 .62rem/1 system-ui; vertical-align: 1px; }
 .place-poster__lead {
   max-width: 54ch; margin: 18px 0 0; padding-left: 14px; border-left: 3px solid rgb(205 231 197 / 45%);
-  color: rgb(255 251 238 / 88%); font-size: 1.02rem; line-height: 1.6;
+  color: rgb(246 251 247 / 88%); font-size: 1.02rem; line-height: 1.6;
 }
 
 /* ── photo stack ─────────────────────────────────────────────────────────── */
@@ -142,10 +142,10 @@ body.page-place_detail .place-poster .place-poster__title {
 .place-ticket {
   grid-area: ticket; display: flex; align-items: stretch;
   border-radius: 0 0 28px 28px; background: var(--pp-paper); color: var(--pp-ink);
-  box-shadow: inset 0 0 0 1px #e3dfca;
+  box-shadow: inset 0 0 0 1px #d9e5dc;
 }
 .place-ticket__facts { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0; margin: 0; padding: 0; }
-.place-ticket__fact { display: grid; align-content: center; gap: 5px; min-width: 0; padding: 20px clamp(18px, 2.4vw, 30px); border-right: 2px dashed #dcd7c0; }
+.place-ticket__fact { display: grid; align-content: center; gap: 5px; min-width: 0; padding: 20px clamp(18px, 2.4vw, 30px); border-right: 2px dashed #d9e5dc; }
 .place-ticket__fact:last-child { border-right: 0; }
 .place-ticket__fact dt { color: #67756c; font-size: .76rem; font-weight: 750; letter-spacing: .05em; text-transform: uppercase; }
 .place-ticket__fact dd { display: grid; gap: 3px; margin: 0; }
@@ -166,7 +166,7 @@ body.page-place_detail .place-ticket .detail-decision__price-value--soft { font-
 
 .place-ticket__action {
   position: relative; display: grid; align-content: center; gap: 4px; width: min(36%, 330px); padding: 18px clamp(18px, 2.4vw, 28px);
-  border-left: 2px dashed #cfc9ae;
+  border-left: 2px dashed #cddbd1;
 }
 .place-ticket__action::before { /* a bite into the poster above the tear line */
   content: ""; position: absolute; left: -12px; top: -11px; width: 22px; height: 22px; border-radius: 50%; background: var(--pp-ink);
@@ -221,11 +221,11 @@ html.km-pview-open { overflow: hidden; }
   .place-ticket { flex-direction: column; border-radius: 0 0 24px 24px; }
   .place-ticket__facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .place-ticket__fact { padding: 16px 18px; border-right: 0; border-bottom: 0; }
-  .place-ticket__fact--price { border-bottom: 2px dashed #dcd7c0 !important; }
-  .place-ticket__fact:not(.place-ticket__fact--price):not(:last-child) { border-right: 2px dashed #dcd7c0; }
+  .place-ticket__fact--price { border-bottom: 2px dashed #d9e5dc !important; }
+  .place-ticket__fact:not(.place-ticket__fact--price):not(:last-child) { border-right: 2px dashed #d9e5dc; }
   .place-ticket__fact--price { grid-column: 1 / -1; border-right: 0 !important; }
   .place-ticket__fact:last-child { border-bottom: 0; }
-  .place-ticket__action { width: auto; padding: 16px 18px 20px; border-left: 0; border-top: 2px dashed #cfc9ae; }
+  .place-ticket__action { width: auto; padding: 16px 18px 20px; border-left: 0; border-top: 2px dashed #cddbd1; }
   .place-ticket__action::before { display: none; }
   body.page-place_detail .place-poster .place-poster__title { margin: 14px 0 12px; font-size: clamp(1.9rem, 8vw, 2.6rem); }
   body.page-place_detail .detail-page .detail-body.detail-body--poster:not(#kd-a):not(#kd-b) { margin-top: 16px !important; }
