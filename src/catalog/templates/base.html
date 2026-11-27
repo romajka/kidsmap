@@ -133,7 +133,7 @@
     <link rel="stylesheet" href="{% static 'css/components/km_card_refine.css' %}?v=20261126_card" />
     <link rel="stylesheet" href="{% static 'css/components/km_card_fx.css' %}" />
     {% block extra_head %}{% endblock %}
-    <link rel="stylesheet" href="{% static 'css/pages/doodle_background.css' %}?v=20261126_doodles_r6" />
+    <link rel="stylesheet" href="{% static 'css/pages/doodle_background.css' %}?v=20261126_doodles_r7_nodots" />
     {% comment %}
       motion.css is the last layer on purpose: page-level CSS injected through
       extra_head (e.g. catalog_places.css) would otherwise outrank it.
@@ -545,7 +545,7 @@
     {% endcomment %}
     {% block background_doodles %}
       <canvas class="doodle-background" data-doodles aria-hidden="true"></canvas>
-      <script src="{% static 'js/doodle_background.js' %}?v=20261126_doodles_r6" defer></script>
+      <script src="{% static 'js/doodle_background.js' %}?v=20261126_doodles_r7_nodots" defer></script>
     {% endblock %}
     {% block extra_body %}{% endblock %}
   </body>

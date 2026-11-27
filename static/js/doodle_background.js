@@ -1,5 +1,5 @@
 /* KidsMap doodles: a hand-drawn background on every page — doodles on
- * "paper" made of soft dots and watercolour spots.
+ * soft watercolour spots.
  *
  * Doodles live in page coordinates, so they scroll with the content and are
  * placed only in free space: headings, text, links, controls, images and
@@ -282,59 +282,8 @@
     }
   }
 
-  // ---- Paper: hand-scattered ink dots and watercolour spots ------------------
-  // Dots come from one 480px tile of jittered points drawn once into a
-  // pattern, so the whole field costs a single fill per frame. Only dots near
-  // the cursor or inside a click ripple are drawn one by one, displaced.
-  const TILE = 480;
-  const paper = { dots: [], pattern: null, spots: [], splashes: [], ripples: [], curK: 0, cx: 0, cy: 0 };
-  // Dot styles (canvas data-dots): soft — sparse pastel polka dots (default),
-  // confetti — tiny colourful dots and dashes, grid — a tidy dotted notebook,
-  // none — watercolour spots only. Steps divide TILE so the tile is seamless.
-  function genDots(style) {
-    let seed = 90210;
-    const r = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
-    const cfg = {
-      soft: { step: 40, skip: .15, jit: 22, r: [1.2, 2.2], a: [.18, .32], dash: 0, col: () => '#7fb87a' },
-      confetti: { step: 48, skip: .25, jit: 30, r: [1.1, 2], a: [.35, .6], dash: .32, col: () => [TINTS[0], TINTS[1], TINTS[2], TINTS[3], TINTS[4], COLORS[4]][Math.floor(r() * 6)] },
-      grid: { step: 24, skip: 0, jit: 2, r: [1.05, 1.2], a: [.13, .17], dash: 0, col: () => COLORS[0] },
-    }[style];
-    paper.dots = [];
-    if (!cfg) return;
-    for (let y = 0; y < TILE; y += cfg.step) for (let x = 0; x < TILE; x += cfg.step) {
-      if (r() < cfg.skip) continue;
-      paper.dots.push({
-        x: (x + cfg.step / 2 + (r() - .5) * cfg.jit + TILE) % TILE, y: (y + cfg.step / 2 + (r() - .5) * cfg.jit + TILE) % TILE,
-        r: cfg.r[0] + r() * (cfg.r[1] - cfg.r[0]), a: cfg.a[0] + r() * (cfg.a[1] - cfg.a[0]),
-        comma: r() < cfg.dash, ang: r() * 6.283, c: cfg.col(),
-      });
-    }
-  }
-  function inkDot(c, d, x, y, scale) {
-    if (d.comma) {
-      const l = d.r * 1.6 * scale, dx = Math.cos(d.ang) * l, dy = Math.sin(d.ang) * l;
-      c.lineWidth = d.r * 1.1 * scale; c.lineCap = 'round';
-      c.beginPath(); c.moveTo(x - dx, y - dy); c.lineTo(x + dx, y + dy); c.stroke();
-    } else {
-      c.beginPath(); c.arc(x, y, d.r * scale, 0, 6.283); c.fill();
-    }
-  }
-  function buildPattern() {
-    const canScale = typeof CanvasPattern !== 'undefined' && 'setTransform' in CanvasPattern.prototype;
-    const k = canScale ? S.dpr : 1;
-    const tc = document.createElement('canvas');
-    tc.width = tc.height = Math.round(TILE * k);
-    const t = tc.getContext('2d');
-    t.scale(k, k);
-    for (const d of paper.dots) {
-      t.globalAlpha = d.a; t.fillStyle = t.strokeStyle = d.c;
-      // Wrap dots that touch an edge so the tile repeats seamlessly.
-      for (const ox of [0, d.x < 4 ? TILE : d.x > TILE - 4 ? -TILE : 0])
-        for (const oy of [0, d.y < 4 ? TILE : d.y > TILE - 4 ? -TILE : 0]) inkDot(t, d, d.x + ox, d.y + oy, 1);
-    }
-    paper.pattern = ctx.createPattern(tc, 'repeat');
-    if (canScale && k !== 1) paper.pattern.setTransform(new DOMMatrix([1 / k, 0, 0, 1 / k, 0, 0]));
-  }
+  // ---- Paper: soft watercolour spots ------------------------------------------
+  const paper = { spots: [], splashes: [] };
   const blobCache = new Map();
   // A soft, irregular watercolour blob, rendered small once and scaled up.
   function blob(seedN, color) {
@@ -368,12 +317,6 @@
       }
     }
   }
-  function zones() {
-    const z = [];
-    if (paper.curK > .01) z.push({ x: paper.cx, y: paper.cy, r: 120 });
-    for (const q of paper.ripples) z.push({ x: q.x, y: q.y, r: q.rad + 34 });
-    return z;
-  }
   function drawPaper() {
     const top = S.scroll, bottom = top + S.h;
     // watercolour spots (slow drift while the page is alive)
@@ -390,54 +333,9 @@
       ctx.globalAlpha = .5 * fade;
       ctx.drawImage(blob(q.n, q.c), q.x - rad, q.y - rad, rad * 2, rad * 2);
     }
-    // ink dots: one pattern fill, minus the zones drawn dot by dot
-    const zs = zones();
-    ctx.save();
-    if (zs.length) {
-      ctx.beginPath(); ctx.rect(0, top, S.w, S.h);
-      for (const z of zs) { ctx.moveTo(z.x + z.r, z.y); ctx.arc(z.x, z.y, z.r, 0, 6.283); }
-      ctx.clip('evenodd');
-    }
-    if (paper.dots.length) { ctx.globalAlpha = 1; ctx.fillStyle = paper.pattern; ctx.fillRect(0, top, S.w, S.h); }
-    ctx.restore();
-    if (zs.length && paper.dots.length) drawZoneDots(zs);
-  }
-  function drawZoneDots(zs) {
-    const seen = new Set();
-    for (const z of zs) {
-      const tx0 = Math.floor((z.x - z.r) / TILE), tx1 = Math.floor((z.x + z.r) / TILE);
-      const ty0 = Math.floor((z.y - z.r) / TILE), ty1 = Math.floor((z.y + z.r) / TILE);
-      for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) {
-        for (let i = 0; i < paper.dots.length; i++) {
-          const d = paper.dots[i], gx = tx * TILE + d.x, gy = ty * TILE + d.y;
-          if (Math.abs(gx - z.x) > z.r || Math.abs(gy - z.y) > z.r || Math.hypot(gx - z.x, gy - z.y) > z.r) continue;
-          const key = ((tx + 5000) * 8192 + (ty + 5000)) * 1024 + i;
-          if (seen.has(key)) continue;
-          seen.add(key);
-          let ox = 0, oy = 0, glow = 0;
-          if (paper.curK > .01) {
-            const dx = gx - paper.cx, dy = gy - paper.cy, dist = Math.hypot(dx, dy) || .01;
-            if (dist < 120) { const f = (1 - dist / 120) ** 2 * paper.curK; ox += dx / dist * f * 16; oy += dy / dist * f * 16; glow = Math.max(glow, f); }
-          }
-          for (const q of paper.ripples) {
-            const dx = gx - q.x, dy = gy - q.y, dist = Math.hypot(dx, dy) || .01;
-            const band = 1 - Math.abs(dist - q.rad) / 34;
-            if (band > 0) { const f = band * q.life; ox += dx / dist * f * 11; oy += dy / dist * f * 11; glow = Math.max(glow, f); }
-          }
-          ctx.globalAlpha = Math.min(1, d.a + glow * .5);
-          ctx.fillStyle = ctx.strokeStyle = glow > .25 ? COLORS[4] : d.c;
-          inkDot(ctx, d, gx + ox, gy + oy, 1 + glow * .8);
-        }
-      }
-    }
+    ctx.globalAlpha = 1;
   }
   function stepPaper() {
-    const p = S.p, moving = p.on && S.t - p.moved < 250;
-    if (moving) { paper.cx = p.x; paper.cy = p.y + S.scroll; }
-    paper.curK += ((moving ? 1 : 0) - paper.curK) * (moving ? .2 : .06);
-    if (paper.curK < .01 && !moving) paper.curK = 0;
-    for (const q of paper.ripples) { const k = (S.t - q.t) / 1500; q.rad = 420 * (1 - Math.pow(1 - Math.min(k, 1), 2.4)); q.life = 1 - k; }
-    paper.ripples = paper.ripples.filter(q => q.life > 0);
     paper.splashes = paper.splashes.filter(q => S.t - q.t < 3000);
   }
 
@@ -464,8 +362,6 @@
     const cw = Math.round(S.w * S.dpr), ch = Math.round(S.h * S.dpr);
     if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
     ctx.setTransform(S.dpr, 0, 0, S.dpr, 0, 0);
-    const style = canvas.dataset.dots || 'soft';
-    if (!paper.pattern || paper.k !== S.dpr || paper.style !== style) { genDots(style); buildPattern(); paper.k = S.dpr; paper.style = style; }
     makeSpots();
 
     const pad = S.w < 700 ? 8 : 16;
@@ -608,7 +504,7 @@
   }
 
   function busy() {
-    if (S.trail.length || S.extra.length || paper.ripples.length || paper.splashes.length || paper.curK > 0) return true;
+    if (S.trail.length || S.extra.length || paper.splashes.length) return true;
     const top = S.scroll - 60, bottom = S.scroll + S.h + 60;
     for (const d of S.items) if (d.y > top && d.y < bottom && (d.wig > 0 || d.pop < 1 || d.ox || d.oy || d.tilt)) return true;
     return false;
@@ -712,9 +608,7 @@
       const x = e.clientX, y = e.clientY + S.scroll;
       if (blocked(x, y, 18)) return;
       S.p.x = e.clientX; S.p.y = e.clientY; S.p.on = true; S.p.moved = performance.now();
-      paper.ripples.push({ x, y, t: performance.now(), rad: 0, life: 1 });
       paper.splashes.push({ x, y, t: performance.now(), r: 70 + Math.random() * 50, n: 500 + Math.floor(Math.random() * 40), c: TINTS[Math.floor(Math.random() * TINTS.length)] });
-      if (paper.ripples.length > 4) paper.ripples.shift();
       if (paper.splashes.length > 6) paper.splashes.shift();
       // The new doodle flies out of the click point to the nearest free spot.
       const spot = freeSpot(x, y, 22);
@@ -725,7 +619,7 @@
       if (S.extra.length > (S.w < 700 ? 5 : 12)) S.extra.shift();
       wake(5200);
     }, opts);
-    reduced.addEventListener && reduced.addEventListener('change', () => { S.trail = []; S.extra = []; paper.ripples = []; paper.splashes = []; paper.curK = 0; for (const d of S.items) { d.wig = 0; d.pop = 1; } wake(60); });
+    reduced.addEventListener && reduced.addEventListener('change', () => { S.trail = []; S.extra = []; paper.splashes = []; for (const d of S.items) { d.wig = 0; d.pop = 1; } wake(60); });
   }
 
   // The background never competes with the page's own first paint.
