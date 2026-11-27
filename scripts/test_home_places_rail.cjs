@@ -5,7 +5,12 @@ const {JSDOM}=require(process.env.KIDSMAP_JSDOM||'jsdom');
 function setup(){
  const dom=new JSDOM(`<section data-places-rail><div data-rail-viewport><div data-rail-track>${[1,2,3,4].map(i=>`<article data-rail-original><a href="/place/${i}/">Place</a><form class="like-form" data-like-form action="/place/${i}/like/"><button class="like-btn" aria-pressed="false"><span class="like-count">0</span></button></form><button class="card-contact-toggle">Phone</button></article>`).join('')}</div></div><button data-rail-toggle><span data-rail-toggle-label></span><span data-rail-toggle-icon></span></button></section>`,{url:'http://localhost/',runScripts:'outside-only'}),w=dom.window;
  w.matchMedia=()=>({matches:false,addEventListener(){}});w.requestAnimationFrame=()=>1;w.cancelAnimationFrame=()=>{};
- const v=w.document.querySelector('[data-rail-viewport]');Object.defineProperty(v,'clientWidth',{value:390});
+ const v=w.document.querySelector('[data-rail-viewport]');
+ // jsdom does not calculate the scrollable width of the four cards and their gaps.
+ Object.defineProperties(v, {
+   clientWidth: {value: 390},
+   scrollWidth: {value: 4 * 300 + 3 * 18},
+ });
  for(const el of w.document.querySelectorAll('[data-rail-original]'))el.getBoundingClientRect=()=>({width:300});
  w.eval(fs.readFileSync('static/js/home_places_rail.js','utf8'));
  const pointer=(target,type,x)=>target.dispatchEvent(Object.assign(new w.MouseEvent(type,{bubbles:true,cancelable:true,clientX:x,button:0}),{pointerType:'mouse',pointerId:1}));
