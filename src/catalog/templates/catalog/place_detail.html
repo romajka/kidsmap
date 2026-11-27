@@ -16,9 +16,9 @@
   <link rel="stylesheet" href="{% static 'css/pages/detail_polish.css' %}?v=20261126_detail_width" />
   <link rel="stylesheet" href="{% static 'css/pages/detail_refresh.css' %}?v=20261123_week_layout" />
   <link rel="stylesheet" href="{% static 'css/components/official_reviews.css' %}?v=20261120_threads">
-  <link rel="stylesheet" href="{% static 'css/pages/place_tickets.css' %}?v=20261127_calm">
-  <link rel="stylesheet" href="{% static 'css/pages/place_poster.css' %}?v=20261127_calm">
-  <link rel="stylesheet" href="{% static 'css/pages/place_nearby_symmetry.css' %}?v=20261127_sym">
+  <link rel="stylesheet" href="{% static 'css/pages/place_tickets.css' %}?v=20261127_nearby">
+  <link rel="stylesheet" href="{% static 'css/pages/place_poster.css' %}?v=20261127_bar">
+  <link rel="stylesheet" href="{% static 'css/pages/place_nearby_symmetry.css' %}?v=20261127_controls">
 {% endblock %}
 
 {% block content %}
@@ -706,19 +706,25 @@
                     </p>
                   {% endif %}
                 </div>
-                <div class="detail-nearby__controls">
-                  <button type="button" class="detail-nearby__arrow" data-nearby-prev aria-label="{% if language == 'az' %}Əvvəlki{% elif language == 'en' %}Previous{% else %}Назад{% endif %}" disabled><span class="material-symbols-rounded" aria-hidden="true">chevron_left</span></button>
-                  <button type="button" class="detail-nearby__arrow" data-nearby-next aria-label="{% if language == 'az' %}Növbəti{% elif language == 'en' %}Next{% else %}Вперёд{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">chevron_right</span></button>
+                <div class="detail-nearby__actions">
                   {% if place.category_code %}
                     <a class="detail-nearby__all" href="{% url 'place_list' %}?category={{ place.category_code|urlencode }}">
-                      {% if language == 'az' %}Hamısı{% elif language == 'en' %}See all{% else %}Все{% endif %}
-                      <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+                      {% if language == 'az' %}Kateqoriyaya bax{% elif language == 'en' %}View category{% else %}Вся категория{% endif %}
                     </a>
                   {% endif %}
+                  <div class="detail-nearby__controls" data-nearby-controls hidden>
+                    <button type="button" class="detail-nearby__arrow" data-nearby-prev aria-controls="detail-nearby-rail" aria-disabled="true" aria-label="{% if language == 'az' %}Əvvəlki{% elif language == 'en' %}Previous{% else %}Назад{% endif %}">
+                      <span class="material-symbols-rounded" aria-hidden="true">chevron_left</span>
+                    </button>
+                    <button type="button" class="detail-nearby__arrow detail-nearby__arrow--next" data-nearby-next aria-controls="detail-nearby-rail" aria-disabled="true">
+                      {% if language == 'az' %}Növbəti{% elif language == 'en' %}Next{% else %}Дальше{% endif %}
+                      <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+                    </button>
+                  </div>
                 </div>
               </div>
               <div class="detail-nearby__viewport">
-                <div class="detail-nearby__rail" role="list" data-nearby-rail>
+                <div class="detail-nearby__rail" id="detail-nearby-rail" role="list" data-nearby-rail>
                   {% for place in nearby_places %}
                     <div class="detail-nearby__item" role="listitem" style="--n:{{ forloop.counter0 }}">
                       {% if place.nearby_km is not None %}
@@ -738,7 +744,7 @@
               <div class="detail-nearby__dots" data-nearby-dots aria-hidden="true"></div>
             </section>
             {% endwith %}
-            <script src="{% static 'js/place_nearby.js' %}?v=20261121" defer></script>
+            <script src="{% static 'js/place_nearby.js' %}?v=20261127_controls" defer></script>
           {% endif %}
           <footer class="detail-provenance">
             <span class="material-symbols-rounded" aria-hidden="true">{% if place.last_verified_at %}verified{% else %}info{% endif %}</span>

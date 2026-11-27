@@ -25,6 +25,7 @@ from .phone_views import reveal_place_phones
 from .controllers.event_suggest import event_suggest
 from .services.afisha_urls import afisha_route
 from .photo_views import prepare_owner_photo, save_owner_photos, owner_photo_thumbnail
+from .views.specialist_landing import specialist_landing
 from .views import (
     home,
     events_landing,
@@ -174,6 +175,7 @@ urlpatterns = [
     path("reviews/", site_reviews, name="site_reviews"),
     path("place-reviews/", place_reviews, name="place_reviews"),
     path("add-place/", add_place, name="add_place"),
+    path("for-specialists/", specialist_landing, name="specialist_landing"),
     path("for-business/", legacy_for_business_redirect, name="legacy_for_business"),
     path("privacy/", legal_page, {"page_slug": "privacy"}, name="privacy"),
     path("terms/", legal_page, {"page_slug": "terms"}, name="terms"),

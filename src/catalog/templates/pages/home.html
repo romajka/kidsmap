@@ -11,7 +11,7 @@
 {% endif %}
 {% endblock %}
 {% block image_preload %}
-{% with photo=hero_gallery_slides.0.main %}
+{% with photo=hero_gallery_photos.0 %}
 {% if photo %}
 <link rel="preload" as="image" media="(min-width: 768px)" fetchpriority="high"
   {% if photo.image_srcset %}href="{{ photo.image_responsive_url }}" imagesrcset="{{ photo.image_srcset }}" imagesizes="{{ hero_main_sizes }}"
@@ -42,6 +42,10 @@
 <link rel="stylesheet" href="{% static 'css/pages/home_refresh.css' %}?v=20261119_stage1" />
 <link rel="stylesheet" href="{% static 'css/pages/home_hero_stage.css' %}?v=20261127_first_paint" />
 <template data-scripts-near="[data-mappy-helper]"><script defer src="{% static 'js/mappy.js' %}?v=20261119_specialists"></script></template>
+<link rel="stylesheet" href="{% static 'css/pages/place_poster.css' %}?v=20261127_bar" />
+<link rel="stylesheet" href="{% static 'css/pages/home_hero_stack.css' %}?v=20261127_stack" />
+<script defer src="{% static 'js/place_stack.js' %}?v=20261126_poster"></script>
+<script defer src="{% static 'js/home_hero_stack.js' %}?v=20261127_stack"></script>
 {% if upcoming_events or home_map_events or map_places %}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2" />{% endif %}
 {% include "pages/includes/editorial_styles.html" %}
 <link rel="stylesheet" href="{% static 'css/pages/home_how_it_works.css' %}?v=20261125_hiw" />
@@ -96,69 +100,8 @@
     </div>
 
     <div class="home-hero-visual">
-    {% if hero_gallery_slides %}
-      {% if hero_gallery_slides|length > 1 %}
-      <div class="home-hero-slider is-stage" data-home-hero-slider>
-        <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
-          <div class="home-hero-slider-track" data-home-hero-slider-track>
-            {% for slide in hero_gallery_slides %}
-            <article class="home-hero-slide{% if forloop.first %} is-active{% endif %}" data-home-hero-slide aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}">
-              <div class="home-hero-slide-grid">
-                <figure class="home-hero-photo-card home-hero-photo-main">
-                  {% include "catalog/includes/hero_photo.html" with item=slide.main sizes=hero_main_sizes high_priority=forloop.first %}
-                </figure>
-
-                <figure class="home-hero-photo-card home-hero-photo-side-top">
-                  {% include "catalog/includes/hero_photo.html" with item=slide.side_top sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
-                </figure>
-
-                <figure class="home-hero-photo-card home-hero-photo-side-bottom">
-                  {% include "catalog/includes/hero_photo.html" with item=slide.side_bottom sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
-                </figure>
-              </div>
-            </article>
-            {% endfor %}
-          </div>
-        </div>
-
-        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-prev km-nav km-nav--prev" data-home-hero-slider-prev
-          aria-label="{% trans 'Предыдущие фото' %}">
-          {% include 'includes/km_nav_icon.html' with icon='arrow' %}
-        </button>
-        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-next km-nav km-nav--next" data-home-hero-slider-next
-          aria-label="{% trans 'Следующие фото' %}">
-          {% include 'includes/km_nav_icon.html' with icon='arrow' %}
-        </button>
-
-        <div class="home-hero-slider-dots" role="group" aria-label="{% trans 'Переключение фото' %}">
-          {% for slide in hero_gallery_slides %}
-          <button type="button" class="home-hero-slider-dot{% if forloop.first %} is-active{% endif %}"
-            data-home-hero-slider-dot data-slide-index="{{ forloop.counter0 }}"
-            aria-label="{% if request.LANGUAGE_CODE == 'az' %}{{ forloop.counter }}-ci şəkli göstər{% elif request.LANGUAGE_CODE == 'en' %}Show photo {{ forloop.counter }}{% else %}Показать фото {{ forloop.counter }}{% endif %}"></button>
-          {% endfor %}
-        </div>
-      </div>
-      {% else %}
-      {% with slide=hero_gallery_slides.0 %}
-      <div class="home-hero-slider home-hero-slider-single" data-home-hero-slider-single>
-        <article class="home-hero-slide home-hero-slide-single">
-          <div class="home-hero-slide-grid">
-            <figure class="home-hero-photo-card home-hero-photo-main">
-              {% include "catalog/includes/hero_photo.html" with item=slide.main sizes=hero_main_sizes high_priority=True %}
-            </figure>
-
-            <figure class="home-hero-photo-card home-hero-photo-side-top">
-              {% include "catalog/includes/hero_photo.html" with item=slide.side_top sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
-            </figure>
-
-            <figure class="home-hero-photo-card home-hero-photo-side-bottom">
-              {% include "catalog/includes/hero_photo.html" with item=slide.side_bottom sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
-            </figure>
-          </div>
-        </article>
-      </div>
-      {% endwith %}
-      {% endif %}
+    {% if hero_gallery_photos %}
+      {% include "pages/includes/home_hero_stack.html" %}
     {% endif %}
       <div class="home-hero-stats" aria-label="{% trans 'Преимущества KidsMap' %}">
         <a class="home-hero-stat km-stat-card km-stat-places km-stat-link"
@@ -708,9 +651,6 @@
 {% if home_rail_places %}<template data-scripts-near="[data-places-rail]"><script src="{% static 'js/home_places_rail.js' %}?v=20261119_manual" defer></script></template>{% endif %}
 {% if upcoming_events or home_map_events %}<template data-scripts-near="[data-km-timer], [data-km-home-afisha]"><script src="{% static 'js/event_timer.js' %}?v=20261123_budget" defer></script></template>{% endif %}
 {% if upcoming_events %}<template data-scripts-near="[data-km-home-afisha], [data-event-suggest-form]"><script src="{% static 'js/home_afisha.js' %}?v=20261120_r3" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script></template>{% endif %}
-{% if hero_gallery_slides|length > 1 %}
-<template data-scripts-near="[data-home-hero-slider]"><script src="{% static 'js/home_hero_slider.js' %}?v=20261127_first_paint"></script></template>
-{% endif %}
 
 
 

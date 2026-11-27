@@ -179,7 +179,8 @@ class HomeController:
             "hero_cta_text": site_settings.home_cta_text_i18n(language_code) or _("Начать поиск"),
             "hero_show_decor": bool(site_settings.home_hero_show_decor),
             "hero_gallery_slides": hero_gallery_slides,
-            "hero_main_sizes": "(max-width: 760px) 55vw, (max-width: 1100px) 27vw, 320px",
+            "hero_gallery_photos": self._flatten_hero_photos(hero_gallery_slides),
+            "hero_main_sizes": "(max-width: 760px) 86vw, 460px",
             "home_specialists": home_specialists,
             "hero_topics": self._hero_topics(language_code, home_specialists),
         }
@@ -514,6 +515,18 @@ class HomeController:
                 }
             )
         return slides
+
+    @staticmethod
+    def _flatten_hero_photos(slides) -> list[dict]:
+        """The same photos as the slides, one list, no repeats (for the photo stack)."""
+        seen, photos = set(), []
+        for slide in slides:
+            for key in ("main", "side_top", "side_bottom"):
+                item = slide[key]
+                if item["image_url"] not in seen:
+                    seen.add(item["image_url"])
+                    photos.append(item)
+        return photos
 
     @staticmethod
     def _responsive_gallery_fields(image):

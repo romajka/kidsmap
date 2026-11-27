@@ -100,19 +100,21 @@ body.page-place_detail .place-poster .place-poster__title {
 .km-pstack--single .km-pstack__card { cursor: zoom-in; }
 
 .km-pstack__bar {
-  position: absolute; left: 50%; bottom: -18px; z-index: 50; transform: translateX(-50%);
-  display: inline-flex; align-items: center; gap: 4px; padding: 4px;
-  border-radius: 999px; background: var(--pp-paper); color: var(--pp-ink);
-  box-shadow: 0 8px 20px -10px rgb(0 0 0 / 45%);
+  position: absolute; left: 50%; bottom: -13px; z-index: 50; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 0; padding: 2px;
+  border-radius: 999px; background: rgb(255 255 255 / 86%); color: var(--pp-ink);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  box-shadow: 0 4px 12px -6px rgb(0 0 0 / 40%), 0 0 0 1px rgb(13 73 36 / 8%);
 }
 .km-pstack__btn {
-  display: grid; place-items: center; width: 38px; height: 38px; border: 0; border-radius: 50%;
+  position: relative; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 50%;
   background: transparent; color: inherit; cursor: pointer; transition: background .2s, transform .2s;
 }
+.km-pstack__btn::before { content: ""; position: absolute; inset: -8px -4px; } /* a finger-sized target without a big button */
 .km-pstack__btn:hover { background: #fff; }
-.km-pstack__btn:active { transform: scale(.92); }
-.km-pstack__btn .material-symbols-rounded { font-size: 20px; }
-.km-pstack__count { min-width: 52px; text-align: center; font: 700 .88rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.km-pstack__btn:active { transform: scale(.9); }
+.km-pstack__btn .material-symbols-rounded { font-size: 17px; }
+.km-pstack__count { min-width: 40px; text-align: center; font: 700 .76rem/1 var(--font-display); font-variant-numeric: tabular-nums; opacity: .8; }
 .km-pstack__count b { font-weight: 850; }
 .km-pstack__hint {
   position: absolute; top: 14px; right: 14px; z-index: 60;
@@ -252,3 +254,12 @@ body.page-place_detail .detail-side .detail-decision__head:not(#kd-a):not(#kd-b)
 body.page-place_detail .detail-side .detail-decision__cta:not(#kd-a):not(#kd-b):not(#kd-t) { padding-top: 0 !important; }
 body.page-place_detail .detail-side .detail-decision__cta-row:not(#kd-a):not(#kd-b) { margin-top: 0 !important; }
 .place-poster__placeholder { align-content: center; }
+
+/* phone ticket: price | age on one row, "today" across the full width below */
+@media (max-width: 900px) {
+  .place-ticket__fact--price { grid-column: auto; border-bottom: 0 !important; border-right: 2px dashed #d9e5dc !important; }
+  .place-ticket__fact:not(.place-ticket__fact--price):not(.place-ticket__fact--today) { border-right: 0 !important; }
+  .place-ticket__fact--price:last-child, .place-ticket__fact--price:nth-last-child(2):has(+ .place-ticket__fact--today) { grid-column: 1 / -1; border-right: 0 !important; }
+  .place-ticket__fact--today { grid-column: 1 / -1; border-top: 2px dashed #d9e5dc; }
+  body.page-place_detail .place-ticket .detail-decision__price-value { font-size: 1.25rem; }
+}

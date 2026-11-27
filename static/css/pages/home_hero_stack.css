@@ -1,0 +1,45 @@
+/* Hero photo stack (2026-11-27): the place-page stack, on the home hero.
+   Stack mechanics and the full-screen viewer come from place_poster.css + place_stack.js;
+   here: its variables, a lighter shadow on the light hero, and the phone layout. */
+body.page-home .home-hero-visual {
+  --pp-ink: var(--brand-spruce, #0d4a2a);
+  --pp-cream: #f6fbf7;
+  --pp-paper: #fff;
+  --pp-celadon: var(--brand-celadon, #9fd3a8);
+  --pp-mint: var(--tint-turf-200, #cfe8d3);
+  --pp-ease: cubic-bezier(.2, .8, .2, 1);
+}
+body.page-home .home-hero-stack { display: grid; justify-items: center; padding: 6px 14px 18px; }
+body.page-home .home-hero-stack .km-pstack { width: min(100%, 470px); }
+body.page-home .home-hero-stack .km-pstack__card {
+  box-shadow: 0 20px 30px -18px rgb(13 73 36 / 45%), 0 2px 6px rgb(13 73 36 / 12%);
+}
+body.page-home .home-hero-stack .km-pstack__card.is-dragging { box-shadow: 0 30px 44px -20px rgb(13 73 36 / 50%); }
+body.page-home .home-hero-stack .km-pstack__bar { color: var(--pp-ink); }
+body.page-home .home-hero-stack .km-pstack__btn { color: var(--pp-ink); }
+/* phones: the visual column was hidden, the stack lives there now (stats stay hidden) */
+@media (max-width: 760px) {
+  body.page-home .home-hero-grid > .home-hero-visual:not(#hh-a):not(#hh-b) { display: block !important; order: 9; margin: 4px 0 0 !important; padding: 0 !important; }
+  body.page-home .home-hero-grid > .home-hero-visual > .home-hero-stats:not(#hh-a) { display: none !important; }
+  body.page-home .home-hero-stack { padding: 6px 26px 22px; }
+  body.page-home .home-hero-stack .km-pstack { width: 100%; max-width: 330px; }
+}
+
+/* ── motion: the stack arrives, then breathes; autoplay is in home_hero_stack.js ── */
+@media (prefers-reduced-motion: no-preference) {
+  /* the entrance is a finite animation on the wrapper; the endless float lives on another element,
+     because motion_budget.js parks endless animations inside anything transparent */
+  body.page-home .home-hero-stack .km-pstack.is-ready { animation: hh-stack-in .9s var(--pp-ease) both; }
+  body.page-home .home-hero-stack .km-pstack.is-ready .km-pstack__bar { animation: hh-bar-in .6s var(--pp-ease) .55s both; }
+  body.page-home .home-hero-stack .km-pstack.is-ready:not(.is-touched) .km-pstack__deck { animation: hh-float 7s ease-in-out 1.2s infinite; }
+}
+@keyframes hh-stack-in { from { opacity: 0; transform: translateY(28px) rotate(-3deg) scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes hh-bar-in { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes hh-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+/* a little progress ring around the counter while autoplay runs */
+body.page-home .home-hero-stack .km-pstack__bar::after {
+  content: ""; position: absolute; left: 18px; right: 18px; bottom: 0; height: 2px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--brand-green, #136f38), var(--pp-celadon)); transform-origin: left; transform: scaleX(0); opacity: 0;
+}
+body.page-home .home-hero-stack .km-pstack.is-auto .km-pstack__bar::after { opacity: 1; animation: hh-progress var(--hh-gap, 4.6s) linear infinite; }
+@keyframes hh-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }

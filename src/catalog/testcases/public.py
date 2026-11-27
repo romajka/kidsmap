@@ -1023,11 +1023,11 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/", follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "home-hero-slider-single")
-        self.assertContains(response, "home-hero-photo-side-top")
-        self.assertContains(response, "home-hero-photo-side-bottom")
+        self.assertContains(response, "home-hero-stack")
+        self.assertContains(response, "data-km-pstack-card")
+        self.assertContains(response, "km-pstack--single")
         self.assertNotContains(response, "data-home-hero-slider-track")
-        self.assertNotContains(response, "data-home-hero-slider-prev")
+        self.assertNotContains(response, "data-km-pstack-next")
 
     def test_home_page_includes_website_schema_with_search_action(self):
         response = self.client.get("/")

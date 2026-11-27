@@ -22,10 +22,13 @@ body.page-place_detail .detail-main > .detail-card:not(#reviews):not(#kd-a):not(
   padding: 18px clamp(18px, 2.4vw, 28px) 24px !important;
   border: 0 !important;
   border-radius: 22px !important;
+  background: var(--tk-paper) !important;
+  box-shadow: inset 0 0 0 1px var(--tk-line) !important;
+}
+body.page-place_detail .detail-main > .detail-card:not(#reviews, #nearby):not(#kd-a):not(#kd-b):not(#kd-t) {
   background:
     linear-gradient(90deg, var(--tk-perf) 55%, transparent 0) 0 calc(var(--tk-cut) - 1px) / 12px 2px repeat-x,
     var(--tk-paper) !important;
-  box-shadow: inset 0 0 0 1px var(--tk-line) !important;
   -webkit-mask:
     radial-gradient(circle var(--tk-bite) at 0 var(--tk-cut), #0000 97%, #000) left / 51% 100% no-repeat,
     radial-gradient(circle var(--tk-bite) at 100% var(--tk-cut), #0000 97%, #000) right / 51% 100% no-repeat !important;
@@ -35,7 +38,7 @@ body.page-place_detail .detail-main > .detail-card:not(#reviews):not(#kd-a):not(
 }
 body.page-place_detail .detail-main > .detail-card:not(#reviews):not(#kd-a):not(#kd-b):not(#kd-t):hover { box-shadow: inset 0 0 0 1px var(--tk-line) !important; }
 /* the heading row always sits above the tear line */
-body.page-place_detail .detail-main > .detail-card:not(#reviews) > :is(.detail-card__head, h2.detail-card__title):not(#kd-a):not(#kd-b) {
+body.page-place_detail .detail-main > .detail-card:not(#reviews, #nearby) > :is(.detail-card__head, h2.detail-card__title):not(#kd-a):not(#kd-b) {
   order: -1 !important;
   display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important;
   height: calc(var(--tk-cut) - 18px - 8px) !important; min-height: 0 !important; margin: 0 0 8px !important;
@@ -106,7 +109,7 @@ body.page-place_detail .detail-side > .detail-card:not(#kd-a):not(#kd-b) {
 @media (max-width: 767px) {
   body.page-place_detail { --tk-cut: 64px; }
   body.page-place_detail .detail-main > .detail-card:not(#reviews):not(#kd-a):not(#kd-b):not(#kd-t) { padding: 16px 16px 20px !important; border-radius: 20px !important; }
-  body.page-place_detail .detail-main > .detail-card:not(#reviews) > :is(.detail-card__head, h2.detail-card__title):not(#kd-a):not(#kd-b) { height: calc(var(--tk-cut) - 16px - 8px) !important; }
+  body.page-place_detail .detail-main > .detail-card:not(#reviews, #nearby) > :is(.detail-card__head, h2.detail-card__title):not(#kd-a):not(#kd-b) { height: calc(var(--tk-cut) - 16px - 8px) !important; }
   body.page-place_detail .detail-side .detail-decision__cta:not(#kd-a):not(#kd-b) { margin-inline: -16px !important; padding-inline: 16px !important; }
 }
 
