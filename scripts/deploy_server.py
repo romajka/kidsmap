@@ -17,6 +17,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 import urllib.request
@@ -137,6 +138,16 @@ class Release:
             if kind == 'blob' and (path.startswith(('src/', 'static/', 'scripts/', 'locale/', 'templates/')) or path in {'manage.py', 'requirements.txt'}) and not path.endswith(('.mo', '.pyc')):
                 expected[path] = blob
                 modes[path] = mode
+
+        # git archive expands export-subst in this marker when building the web image.
+        marker = 'src/catalog/services/deploy_revision.txt'
+        if modes.get(marker) in ('100644', '100755'):
+            archive_path = self.directory / 'baseline-revision.tar'
+            self.command(['git', 'archive', '--format=tar', '--output', str(archive_path), revision, '--', marker])
+            with tarfile.open(archive_path, 'r:') as archive:
+                marker_bytes = archive.extractfile(marker).read()
+            expected[marker] = self.command(['git', 'hash-object', '--stdin'], input=marker_bytes)
+
         probe = """import hashlib,json,os,pathlib,sys
 modes=json.load(sys.stdin)
 result={}
