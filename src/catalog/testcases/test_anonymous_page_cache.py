@@ -58,6 +58,58 @@ class AnonymousPageCacheTests(TransactionTestCase):
             self.assertEqual(response.headers["X-KidsMap-Cache"], "HIT")
             self.assertContains(response, f'<html lang="{lang}"')
 
+    def test_analytics_cookies_share_the_anonymous_html(self):
+        path = "/ru/catalog/"
+        visitor = Client()
+        visitor.cookies["_ga"] = "analytics-first-visitor"
+        cold = visitor.get(path)
+        self.assertEqual(cold.headers["X-KidsMap-Cache"], "MISS")
+        self.assertNotContains(cold, "analytics-first-visitor")
+        for name in ("_ga", "_ga_STREAM", "_gid", "_gat", "_gat_tracker", "_gcl_aw", "_fbp", "_fbc"):
+            with self.subTest(cookie=name):
+                other = Client()
+                other.cookies[name] = "analytics-second-visitor"
+                hit = other.get(path)
+                self.assertEqual(hit.headers["X-KidsMap-Cache"], "HIT")
+                self.assertEqual(hit.content, cold.content)
+        self.assertEqual(Client().get(path).headers["X-KidsMap-Cache"], "HIT")
+
+    def test_analytics_does_not_hide_a_private_or_unrecognized_cookie(self):
+        path = "/ru/catalog/"
+        self.client.get(path)
+        for name in ("sessionid", "django_language", "messages", "_unknown", "_gaExtra", "_fbp_extra"):
+            with self.subTest(cookie=name):
+                other = Client()
+                other.cookies["_ga"] = "analytics-visitor"
+                other.cookies[name] = "ru"
+                self.assertEqual(other.get(path).headers["X-KidsMap-Cache"], "MISS")
+
+    def test_signed_in_analytics_visitors_always_see_their_own_navigation(self):
+        path = "/ru/catalog/"
+        guest = Client()
+        guest.cookies["_ga"] = "shared-analytics-id"
+        guest.get(path)
+        clients = []
+        names = ("CacheAlice", "CacheBoris")
+        for name in names:
+            user = get_user_model().objects.create_user(username=name, first_name=name)
+            client = Client()
+            client.cookies["_ga"] = "shared-analytics-id"
+            client.force_login(user)
+            clients.append(client)
+
+        for client, own, other in ((clients[0], names[0], names[1]), (clients[1], names[1], names[0])):
+            page = client.get(path)
+            self.assertEqual(page.headers["X-KidsMap-Cache"], "MISS")
+            self.assertContains(page, 'id="account-menu-trigger"')
+            self.assertContains(page, own)
+            self.assertNotContains(page, other)
+        page = guest.get(path)
+        self.assertEqual(page.headers["X-KidsMap-Cache"], "HIT")
+        self.assertContains(page, "user-entry-logged-out")
+        for name in names:
+            self.assertNotContains(page, name)
+
     def test_withdrawal_and_publication_change_the_cached_catalog(self):
         place = create_ready_place()
         path = "/ru/catalog/"

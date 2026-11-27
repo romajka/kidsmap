@@ -18,6 +18,9 @@ from django.utils.deprecation import MiddlewareMixin
 from catalog.services.public_cache import TIMEOUT, data_version, invalidate_on_commit
 
 logger = logging.getLogger(__name__)
+# Only names owned by client-side analytics may share anonymous HTML.
+ANALYTICS_COOKIE_NAMES = {"_ga", "_gid", "_fbp", "_fbc"}
+ANALYTICS_COOKIE_PREFIXES = ("_ga_", "_gat", "_gcl_")
 PUBLIC_PAGES = {"home", "place_list", "seo_landing", "place_detail", "parent_guide"}
 # git archive expands this file when the release image is assembled.
 ARCHIVE_REVISION = Path(__file__).with_name("deploy_revision.txt").read_text().strip()
@@ -44,7 +47,12 @@ def page_key(request):
         return None
     if request.META.get("QUERY_STRING") and not re.fullmatch(r"page=[1-9][0-9]{0,8}", request.META["QUERY_STRING"]):
         return None
-    if set(request.COOKIES) - {settings.CSRF_COOKIE_NAME} or request.user.is_authenticated:
+    if any(
+        name != settings.CSRF_COOKIE_NAME
+        and name not in ANALYTICS_COOKIE_NAMES
+        and not name.startswith(ANALYTICS_COOKIE_PREFIXES)
+        for name in request.COOKIES
+    ) or request.user.is_authenticated:
         return None
     if request.session.modified or not request.session.is_empty():
         return None
