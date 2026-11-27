@@ -195,7 +195,7 @@ def _error_with_path(error, field_path):
     return ValidationError(error.message, code=error.code, params=params)
 
 
-def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_path=()):
+def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_path=(), validate_constraints=True):
     """Return storage-ready plans without mutating the supplied value.
 
     Legacy {name, price, frequency} entries are accepted and converted only in
@@ -266,7 +266,7 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_p
                 elif int_field in values:
                     values[int_field] = None
             candidate = PricingPlan(place_id=1, **values)
-            candidate.full_clean(exclude=("place", "offering_group"))
+            candidate.full_clean(exclude=("place", "offering_group"), validate_constraints=validate_constraints)
             clean = {}
             for field in PRICING_STORAGE_FIELDS:
                 # Owners may edit tariff contents, but an omitted verification
@@ -687,7 +687,9 @@ def public_pricing_plans(value, language=None):
     try:
         if hasattr(value, "all"):
             return serialize_pricing_plans(value.filter(is_active=True).order_by("sort_order", "id"), language)
-        plans = normalize_pricing_plans(value, strict=False)
+        # Display candidates are unsaved. Field validators and Model.clean
+        # still reject invalid values; repeated database checks belong to saves.
+        plans = normalize_pricing_plans(value, strict=False, validate_constraints=False)
     except ValidationError:
         return []
     lang = (language or get_language() or "az").split("-")[0]

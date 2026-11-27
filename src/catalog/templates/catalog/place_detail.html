@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.css' %}" />
   <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=17" />
   <link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=3" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail_polish.css' %}?v=20261020" />
 {% endblock %}
 
 {% block content %}
@@ -120,37 +121,6 @@
         </div>
 
         <div class="detail-decision">
-
-          {% if presentation.organization %}
-            <div class="detail-org-banner">
-              {% if organizations_section_enabled %}
-              <a class="public-place-org detail-org-badge" href="{{ presentation.organization.url }}" lang="{{ presentation.organization.name_language }}" title="{{ presentation.organization.name }}">
-                <div class="detail-org-badge__left">
-                  <span class="detail-org-badge__icon">
-                    <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
-                  </span>
-                  <div class="detail-org-badge__text">
-                    <span class="detail-org-badge__label">{% if language == 'az' %}Şəbəkə filialı{% elif language == 'en' %}Network branch{% else %}Филиал сети{% endif %}</span>
-                    <strong class="detail-org-badge__name">{{ presentation.organization.name }}</strong>
-                  </div>
-                </div>
-                <span class="material-symbols-rounded detail-org-badge__arrow" aria-hidden="true">arrow_forward</span>
-              </a>
-              {% else %}
-              <div class="detail-org-badge detail-org-badge--static" lang="{{ presentation.organization.name_language }}">
-                <div class="detail-org-badge__left">
-                  <span class="detail-org-badge__icon">
-                    <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
-                  </span>
-                  <div class="detail-org-badge__text">
-                    <span class="detail-org-badge__label">{% if language == 'az' %}Şəbəkə filialı{% elif language == 'en' %}Network branch{% else %}Филиал сети{% endif %}</span>
-                    <strong class="detail-org-badge__name">{{ presentation.organization.name }}</strong>
-                  </div>
-                </div>
-              </div>
-              {% endif %}
-            </div>
-          {% endif %}
 
           <div class="detail-decision__head">
             <div class="detail-decision__idents">
@@ -335,6 +305,37 @@
             </div>
           </div>
 
+          {% if presentation.organization %}
+            <div class="detail-org-banner">
+              {% if organizations_section_enabled %}
+              <a class="public-place-org detail-org-badge" href="{{ presentation.organization.url }}" lang="{{ presentation.organization.name_language }}" title="{{ presentation.organization.name }}">
+                <div class="detail-org-badge__left">
+                  <span class="detail-org-badge__icon">
+                    <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
+                  </span>
+                  <div class="detail-org-badge__text">
+                    <span class="detail-org-badge__label">{% if language == 'az' %}Şəbəkə filialı{% elif language == 'en' %}Network branch{% else %}Филиал сети{% endif %}</span>
+                    <strong class="detail-org-badge__name">{{ presentation.organization.name }}</strong>
+                  </div>
+                </div>
+                <span class="material-symbols-rounded detail-org-badge__arrow" aria-hidden="true">arrow_forward</span>
+              </a>
+              {% else %}
+              <div class="detail-org-badge detail-org-badge--static" lang="{{ presentation.organization.name_language }}">
+                <div class="detail-org-badge__left">
+                  <span class="detail-org-badge__icon">
+                    <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
+                  </span>
+                  <div class="detail-org-badge__text">
+                    <span class="detail-org-badge__label">{% if language == 'az' %}Şəbəkə filialı{% elif language == 'en' %}Network branch{% else %}Филиал сети{% endif %}</span>
+                    <strong class="detail-org-badge__name">{{ presentation.organization.name }}</strong>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
           {% if presentation.description %}
             <p class="detail-decision__lead" lang="{{ presentation.description_language }}">{{ presentation.description }}</p>
             <a class="detail-decision__more" href="#about">
@@ -345,10 +346,18 @@
         </div>
       </div>
 
+      <nav class="detail-section-nav" aria-label="{% if language == 'ru' %}Разделы страницы{% elif language == 'en' %}On this page{% else %}Səhifənin bölmələri{% endif %}">
+        {% if activities %}<a href="#activities">{% if language == 'ru' %}Занятия{% elif language == 'en' %}Activities{% else %}Məşğələlər{% endif %}</a>{% endif %}
+        {% if presentation.description %}<a href="#about">{% trans "О месте" %}</a>{% endif %}
+        {% if pricing_summary.has_price or pricing_summary.plans or pricing_summary.schedule_rows or place.extra_conditions_i18n or place.additional_info_i18n %}<a href="#pricing">{% if language == 'ru' %}Цены{% elif language == 'en' %}Prices{% else %}Qiymətlər{% endif %}</a>{% endif %}
+        <a href="#map">{% if language == 'ru' %}Адрес{% elif language == 'en' %}Location{% else %}Ünvan{% endif %}</a>
+        <a href="#reviews">{% trans "Отзывы" %}</a>
+      </nav>
+
       <div class="detail-body">
 
         <div class="detail-main">
-          {% if activities %}<section class="detail-card public-place-offers" aria-labelledby="activities-heading">
+          {% if activities %}<section id="activities" class="detail-card public-place-offers" aria-labelledby="activities-heading">
             <h2 id="activities-heading" class="detail-card__title">{% if language == 'ru' %}Занятия в этом месте{% elif language == 'en' %}Activities at this place{% else %}Bu məkanda məşğələlər{% endif %}</h2>
             {% for activity in activities %}<article><h3><a href="{{ activity.url }}">{{ activity.name }}</a></h3>{% if activity.description %}<p>{{ activity.description|truncatechars:180 }}</p>{% endif %}{% include "catalog/includes/public_offerings.html" with groups=activity.groups %}</article>{% endfor %}
           </section>{% endif %}
@@ -1121,7 +1130,7 @@
 {% endblock %}
 {% block extra_body %}
   <script src="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.js' %}"></script>
-  <script src="{% static 'js/place_gallery.js' %}"></script>
+  <script src="{% static 'js/place_gallery.js' %}?v=20261020"></script>
   <script src="{% static 'js/temporary_event_timer.js' %}"></script>
   {% if google_maps_api_key %}
     <script src="{% static 'js/google_maps_markers.js' %}"></script>

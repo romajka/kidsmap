@@ -1693,10 +1693,12 @@
 
 .account-tabs-nav {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
   overflow-x: auto;
   scrollbar-width: none;
-  padding-bottom: 2px;
+  padding: 4px 2px 8px 2px;
+  margin-bottom: 2px;
 }
 
 .account-tabs-nav::-webkit-scrollbar {
@@ -1704,41 +1706,132 @@
 }
 
 .account-tab-pill {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: 999px;
-  border: 1px solid #E3F0E8;
+  border: 1.5px solid #E3F0E8;
   background: #fff;
   color: #3C5D4E;
   font-size: 14.5px;
   font-weight: 700;
   text-decoration: none;
-  transition: all .2s ease;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(23, 51, 42, 0.03);
 }
 
 .account-tab-pill:hover {
-  border-color: #C6E6D5;
+  border-color: #B5DEC9;
   color: #0D8A52;
-  background: #F6FBF8;
+  background: #F4FAF6;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(13, 138, 82, 0.08);
+}
+
+.account-tab-pill:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.account-tab-pill:focus-visible {
+  outline: 3px solid rgba(13, 138, 82, 0.35);
+  outline-offset: 2px;
 }
 
 .account-tab-pill.is-active {
   background: #0D8A52;
   border-color: #0D8A52;
   color: #fff !important;
+  box-shadow: 0 4px 14px rgba(13, 138, 82, 0.26);
+  transform: translateY(-1px);
+}
+
+.account-tab-pill .material-symbols-rounded {
+  font-size: 20px;
+  transition: color 0.2s ease;
+}
+
+/* Distinct semantic icon coloring when inactive */
+.account-tab-pill:not(.is-active)[href="#owner-places-list"] .material-symbols-rounded,
+.account-tab-pill:not(.is-active)[data-tab-target="owner-panel-places"] .material-symbols-rounded {
+  color: #0D8A52;
+}
+
+.account-tab-pill:not(.is-active)[href="#owner-events-list"] .material-symbols-rounded,
+.account-tab-pill:not(.is-active)[data-tab-target="owner-panel-events"] .material-symbols-rounded {
+  color: #2563EB;
+}
+
+.account-tab-pill:not(.is-active)[href="#owner-specialists-list"] .material-symbols-rounded,
+.account-tab-pill:not(.is-active)[data-tab-target="owner-panel-specialists"] .material-symbols-rounded {
+  color: #7C3AED;
+}
+
+.account-tab-pill.is-active .material-symbols-rounded {
+  color: #fff !important;
 }
 
 .account-tab-pill .account-nav-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
   background: #E9F7EF;
   color: #0a6c40;
+  font-size: 12.5px;
+  font-weight: 800;
+  line-height: 1;
+  transition: all 0.2s ease;
 }
 
 .account-tab-pill.is-active .account-nav-count {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.26);
   color: #fff;
+}
+
+/* Owner Tab Panels */
+.owner-tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Progressive enhancement: when JS initializes tabs, only the active panel is shown */
+.js-owner-tabs .owner-tab-panel {
+  display: none;
+}
+
+.js-owner-tabs .owner-tab-panel.is-active {
+  display: flex;
+  animation: kmOwnerTabFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes kmOwnerTabFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.995);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js-owner-tabs .owner-tab-panel.is-active {
+    animation: none;
+  }
+  .account-tab-pill {
+    transition: none !important;
+    transform: none !important;
+  }
 }
 
 /* Owner Places Grid & Cards */

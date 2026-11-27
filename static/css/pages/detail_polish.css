@@ -1,0 +1,56 @@
+/* Detail completion: keep backend facts and existing controls, clarify hierarchy. */
+.detail-page .detail-hero { gap: 24px; }
+.detail-page .detail-decision { box-shadow: none; gap: 14px; }
+.detail-page .detail-decision__facts { gap: 10px; padding-block: 12px; }
+.detail-page .detail-decision__lead { -webkit-line-clamp: 2; }
+.detail-page .detail-body { margin-top: 24px; }
+.detail-page .detail-main > .detail-card { border-color: transparent; border-bottom-color: var(--tint-line-200); border-radius: 0; padding: 24px 4px; box-shadow: none; background: transparent; }
+.detail-page .detail-main { gap: 0; }
+.detail-page .detail-card:hover { box-shadow: none; }
+.detail-page .detail-card__title { letter-spacing: -.02em; }
+.detail-page .detail-prose { max-width: 70ch; }
+.detail-page .public-place-offers > article { padding-block: 20px; border-bottom: 1px solid var(--tint-line-200); }
+.detail-page .public-place-offers > article:first-of-type { padding-top: 0; }
+.detail-page .public-place-offers > article:last-child { border: 0; padding-bottom: 0; }
+.detail-page .public-place-offers > article > h3 { margin: 0 0 8px; font-size: 19px; line-height: 1.35; }
+.detail-page .public-place-offers > article > h3 a { color: var(--brand-turf); text-underline-offset: 4px; }
+.detail-page .public-place-offers > article > p { color: var(--detail-ink-soft); line-height: 1.65; }
+.detail-page .public-facts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px 20px; }
+.detail-page .public-facts > div { min-width: 0; }
+.detail-page .public-price-list { margin-top: 12px; }
+.detail-page .detail-section-nav { display: flex; flex-wrap: wrap; gap: 4px 8px; padding: 12px 0; margin-top: 24px; border-block: 1px solid var(--tint-line-200); }
+.detail-page .detail-section-nav a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 14px; border-radius: 10px; color: var(--brand-turf); font-size: 15px; font-weight: 650; text-decoration: none; }
+.detail-page .detail-section-nav a:hover { background: var(--tint-turf-050); }
+.detail-page :is(.detail-section-nav a,.place-gallery__thumb,.place-gallery__nav):focus-visible { outline: 3px solid var(--brand-turf); outline-offset: 3px; }
+.detail-page :is(#activities,#about,#pricing,#map,#reviews) { scroll-margin-top: 100px; }
+.detail-page .place-gallery__thumbs { overflow-x: auto; scrollbar-width: thin; padding: 4px; }
+.detail-page .place-gallery__thumbs-track { position: relative; }
+.detail-page .place-gallery__thumb { flex-shrink: 0; }
+@media (max-width: 980px) {
+ .detail-page .detail-hero { gap: 14px; }
+ .detail-page .place-gallery__image { aspect-ratio: 3 / 2; max-height: 400px; object-fit: contain; }
+ .detail-page .detail-photo-placeholder { min-height: 0; height: 220px; }
+}
+@media (max-width: 640px) {
+ .detail-page .detail-title { font-size: 26px; line-height: 1.2; }
+ .detail-page .detail-decision { padding: 14px; gap: 12px; }
+ .detail-page .detail-org-badge { padding: 8px 10px; }
+ .detail-page .detail-org-badge__icon { width: 30px; height: 30px; }
+ .detail-page .detail-decision__grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+ .detail-page .detail-decision__cell { min-width: 0; gap: 6px; }
+ .detail-page .detail-decision__cell-body strong { overflow-wrap: anywhere; font-size: 14px; }
+ .detail-page .detail-decision__price-value { font-size: 28px; }
+ .detail-page .detail-decision__price-value--soft { font-size: 21px; }
+ .detail-page .detail-decision__facts { gap: 8px; padding-block: 10px; }
+ .detail-page .detail-decision__cta-row { flex-wrap: wrap; }
+ .detail-page .detail-decision__cta-row .detail-cta { min-width: 100px; }
+ .detail-page .detail-body { margin-top: 4px; }
+ .detail-page .detail-main > .detail-card { padding: 24px 2px; }
+ .detail-page .detail-section-nav { gap: 2px; margin-top: 20px; }
+ .detail-page .detail-section-nav a { padding-inline: 12px; }
+ .detail-page .detail-decision__lead { display: none; }
+ .detail-page .detail-decision__more { align-self: flex-start; min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .detail-page *, .detail-page *::before, .detail-page *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

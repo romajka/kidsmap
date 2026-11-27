@@ -163,6 +163,8 @@
         district: "",
         metro: "",
         age: "",
+        age_from: "",
+        age_to: "",
       };
     }
 
@@ -172,6 +174,8 @@
       district: normalizeValue(form.querySelector('[name="district"]')?.value),
       metro: normalizeValue(form.querySelector('[name="metro"]')?.value),
       age: normalizeValue(form.querySelector('[name="age"]')?.value),
+      age_from: normalizeValue(form.querySelector('[name="age_from"]')?.value),
+      age_to: normalizeValue(form.querySelector('[name="age_to"]')?.value),
     };
   }
 
@@ -247,20 +251,22 @@
   }
 
   function renderMemberPopup(place, detailsLabel, ageLabels) {
+    const placeUrl = safeHomeMapUrl(place.url, false) || "#";
+    const imageUrl = safeHomeMapUrl(place.image_url, true);
     const ageBadgeText = place.age || "";
     const priceBadgeText = place.price || "";
     const categoryName = place.category || "";
     const categoryColor = place.category_color_text || "var(--brand-turf)";
 
-    const imageHtml = place.image_url
+    const imageHtml = imageUrl
       ? '<a class="home-map-popup-thumb-link" href="' +
-      escapeHtml(place.url || "") +
+      escapeHtml(placeUrl) +
       '">' +
       '<img class="home-map-popup-thumb-blur" src="' +
-      escapeHtml(place.image_url) +
+      escapeHtml(imageUrl) +
       '" alt="" aria-hidden="true" />' +
       '<img class="home-map-popup-thumb" src="' +
-      escapeHtml(place.image_url) +
+      escapeHtml(imageUrl) +
       '" alt="' +
       escapeHtml(place.name || "") +
       '" loading="lazy" decoding="async" />' +
@@ -315,7 +321,7 @@
       imageHtml +
       '<div class="home-map-popup-body">' +
       '<a href="' +
-      escapeHtml(place.url || "") +
+      escapeHtml(placeUrl) +
       '" class="home-map-popup-title-link">' +
       '<strong class="home-map-popup-title" lang="' + escapeHtml(place.content_language || '') + '">' +
       escapeHtml(place.name) +
@@ -324,13 +330,13 @@
       (place.translation_fallback ? '<p class="meta" data-translation-fallback>' + escapeHtml(place.translation_label || 'AZ') + '</p>' : '') +
       '<div class="home-map-popup-details">' +
       addressHtml +
-      (place.matched_offers || []).map(offer => '<a class="home-map-popup-info-row" href="' + escapeHtml(offer.url) + '">' + escapeHtml(offer.name) + '</a>' + (offer.groups || []).map(group => '<div class="home-map-popup-info-row">' + escapeHtml(group.name) + '</div>').join("")).join("") +
+      (place.matched_offers || []).map(offer => '<a class="home-map-popup-info-row" href="' + escapeHtml(safeHomeMapUrl(offer.url, false) || "#") + '">' + escapeHtml(offer.name) + '</a>' + (offer.groups || []).map(group => '<div class="home-map-popup-info-row">' + escapeHtml(group.name) + '</div>').join("")).join("") +
       scheduleHtml +
       (Number.isFinite(place.lat) && Number.isFinite(place.lng) ? '<a class="home-map-popup-info-row" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&amp;destination=' + encodeURIComponent(place.lat + ',' + place.lng) + '">' + escapeHtml(SCRIPT_CONFIG.routeLabel || "Route") + '</a>' : "") +
       phoneHtml +
       "</div>" +
       '<a class="home-map-popup-link-btn" href="' +
-      escapeHtml(place.url || "") +
+      escapeHtml(placeUrl) +
       '">' +
       escapeHtml(detailsLabel) +
       ' <span class="arrow">→</span>' +
@@ -566,6 +572,8 @@
   }
 
   let homePaging = null;
+  let homeExplorer = null;
+  let homeSelectionGeneration = 0;
   function updateLiveCount(count) {
     if (homePaging) count = homePaging.count;
     const counterEls = document.querySelectorAll("[data-home-map-live-count]");
@@ -597,9 +605,11 @@
   }
 
   function requestFocusPlace(placeId) {
+    const generation = ++homeSelectionGeneration;
+    homeExplorer?.showMap();
     scrollToMap();
     if (typeof activeMapFocusHandler === "function") {
-      activeMapFocusHandler(placeId);
+      activeMapFocusHandler(placeId, generation);
     } else {
       pendingFocusPlaceId = placeId;
       if (typeof window.kidsMapTriggerHomeMapLoad === "function") {
@@ -825,6 +835,15 @@
     const form = document.querySelector("[data-home-map-filter-form]");
     if (!form || typeof updateMap !== "function") return;
 
+    // Bind once before provider load; provider mounts replace only the callback.
+    form.kidsMapFilterUpdate = updateMap;
+    if (form.dataset.homeFiltersBound === "1") return;
+    form.dataset.homeFiltersBound = "1";
+    function refreshMap() {
+      if (form.checkValidity && !form.checkValidity()) return;
+      return form.kidsMapFilterUpdate();
+    }
+
     let searchTimer = null;
     const queryInput = form.querySelector('[name="q"]');
     const clearBtn = form.querySelector("[data-home-search-clear]");
@@ -834,13 +853,14 @@
     const categorySelect = form.querySelector('select[name="category"]');
     const ageInput = getAgeInput(form);
     const ageButtons = getAgeButtons(form);
+    const ageRangeInputs = [form.querySelector('[name="age_from"]'), form.querySelector('[name="age_to"]')].filter(Boolean);
     const resetBtn = form.querySelector("[data-home-search-reset]");
 
     function scheduleUpdate() {
       if (searchTimer) {
         window.clearTimeout(searchTimer);
       }
-      searchTimer = window.setTimeout(updateMap, 120);
+      searchTimer = window.setTimeout(refreshMap, 120);
     }
 
     if (queryInput) {
@@ -887,15 +907,21 @@
     }
 
     if (categorySelect) {
-      categorySelect.addEventListener("change", updateMap);
+      categorySelect.addEventListener("change", refreshMap);
     }
 
     if (ageInput) {
-      ageInput.addEventListener("change", updateMap);
+      ageInput.addEventListener("change", refreshMap);
       if (ageButtons.length) {
         syncAgeButtons(form);
       }
     }
+
+    ageRangeInputs.forEach(function (input) {
+      input.addEventListener("change", function () {
+        if (ageRangeInputs.every(field => !field.checkValidity || field.checkValidity())) refreshMap();
+      });
+    });
 
     if (resetBtn) {
       resetBtn.addEventListener("click", function () {
@@ -914,6 +940,7 @@
 
         if (categorySelect) categorySelect.value = "";
         if (ageInput) ageInput.value = "";
+        ageRangeInputs.forEach(input => { input.value = ""; });
         syncAgeButtons(form);
 
         // Keep the existing category presentation handler in sync with reset.
@@ -928,7 +955,8 @@
     /* Prevent page reload on submit, update map and smoothly focus/scroll to it */
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      updateMap();
+      if (form.reportValidity && !form.reportValidity()) return;
+      refreshMap();
       scrollToMap();
     });
 
@@ -936,14 +964,15 @@
     if (showMapBtn) {
       showMapBtn.addEventListener("click", function (e) {
         e.preventDefault();
-        updateMap();
+        if (form.reportValidity && !form.reportValidity()) return;
+        refreshMap();
         scrollToMap();
       });
     }
 
     const metroInput = form.querySelector('[name="metro"]');
-    if (metroInput) metroInput.addEventListener("change", updateMap);
-    initHomeSearchAutocomplete(updateMap);
+    if (metroInput) metroInput.addEventListener("change", refreshMap);
+    initHomeSearchAutocomplete(refreshMap);
   }
 
   function mountGoogleMap(sharedState) {
@@ -969,6 +998,7 @@
     if (SCRIPT_CONFIG.googleMapsMapId) mapOptions.mapId = SCRIPT_CONFIG.googleMapsMapId;
     const map = new google.maps.Map(mapEl, mapOptions);
     const infoWindow = new google.maps.InfoWindow();
+    mapEl.addEventListener("kidsmap:home-map-visible", () => { if (google.maps.event?.trigger) google.maps.event.trigger(map, "resize"); });
 
     const motion = window.KidsMapGoogleMotion.create(map);
     const choice = window.KidsMapGoogleMotion.chooser(mapEl, openPlace);
@@ -980,6 +1010,7 @@
       selectedMarker = null;
     }
     function openPlace(place, marker) {
+      homeExplorer?.selectPoint(place);
       motion.cancel();
       choice.close(false);
       selectedMarker = marker;
@@ -1116,6 +1147,7 @@
       updateFromServer();
     }
     const updateFromServer = homePaging ? () => homePaging.replace() : serverFilterUpdater(points => {
+      homeExplorer?.setPoints(points);
       rebuildMarkers(points);
       _doSync();
       if (pendingFocusPlaceId && points.length) {
@@ -1132,7 +1164,8 @@
     bindFilterListeners(syncVisibleMarkersFromFilter);
     syncVisibleMarkers();
 
-    function focusGooglePlace(placeId) {
+    function focusGooglePlace(placeId, generation) {
+      const request = generation === undefined ? ++homeSelectionGeneration : generation;
       const item = markerItems.find(function (m) {
         return (placeId && pointMembers(m.place).some(member => String(member.id) === String(placeId))) ||
                (m.place.url && m.place.url === placeId) ||
@@ -1144,18 +1177,30 @@
       if (!visibleMarkers.has(item.marker)) {
         item.marker.setMap(map);
       }
-      map.setCenter({ lat: item.place.lat, lng: item.place.lng });
-      map.setZoom(16);
-      openPlace(item.place, item.marker);
+      const reveal = function () {
+        if (request !== homeSelectionGeneration || !markerItems.includes(item)) return;
+        openPlace(item.place, item.marker);
+      };
+      const center = map.getCenter?.();
+      const alreadyVisible = center && center.lat() === item.place.lat && center.lng() === item.place.lng && map.getZoom() >= 18 && item.marker.getElement?.()?.isConnected;
+      if (alreadyVisible) reveal();
+      else {
+        // Clusterer renders on idle; listen before moving the camera.
+        if (google.maps.event?.addListenerOnce) google.maps.event.addListenerOnce(map, "idle", reveal);
+        map.setCenter({lat:item.place.lat,lng:item.place.lng});
+        map.setZoom(18);
+        if (!google.maps.event?.addListenerOnce) reveal();
+      }
     }
 
     activeMapFocusHandler = focusGooglePlace;
     if (pendingFocusPlaceId) {
       const targetId = pendingFocusPlaceId;
+      const generation = homeSelectionGeneration;
       pendingFocusPlaceId = null;
       window.setTimeout(function () {
-        focusGooglePlace(targetId);
-      }, 350);
+        if (generation === homeSelectionGeneration) focusGooglePlace(targetId, generation);
+      }, 0);
     }
 
     return true;
@@ -1173,7 +1218,7 @@
   }
 
   function hasActiveFilters(filters) {
-    return !!(filters.query || filters.category || filters.district || filters.metro || filters.age);
+    return !!(filters.query || filters.category || filters.district || filters.metro || filters.age || filters.age_from || filters.age_to);
   }
 
   // Baku bounding box — used to choose fitBounds maxZoom
@@ -1260,7 +1305,9 @@
     mapEl.dataset.mapInitialized = "1";
     mapEl.innerHTML = "";
 
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const map = L.map(mapEl, {
+      zoomAnimation: !reducedMotion, fadeAnimation: !reducedMotion, markerZoomAnimation: !reducedMotion,
       center: [DEFAULT_CENTER.lat, DEFAULT_CENTER.lng],
       zoom: DEFAULT_ZOOM,
       maxZoom: 19,
@@ -1288,9 +1335,11 @@
     });
     map.on("unload", function () { if (tileStatus) tileStatus.remove(); });
     basemap.addTo(map);
+    mapEl.addEventListener("kidsmap:home-map-visible", () => map.invalidateSize({pan:false}));
 
     // ── Cluster group ───────────────────────────────────────────────────────
     const markerClusterGroup = L.markerClusterGroup({
+      animate: !reducedMotion,
       showCoverageOnHover: false,
       // Let MarkerCluster handle click: zoom → then spiderfy if needed
       zoomToBoundsOnClick: false,
@@ -1331,12 +1380,12 @@
       }
 
       if (allSameCoords && childMarkers.length > 0) {
-        map.setView(childMarkers[0].getLatLng(), 18, { animate: true });
+        map.setView(childMarkers[0].getLatLng(), 18, { animate: !reducedMotion });
         event.layer.spiderfy();
       } else {
         map.fitBounds(event.layer.getBounds(), {
           padding: [40, 40],
-          animate: true,
+          animate: !reducedMotion,
           duration: 0.45
         });
       }
@@ -1350,14 +1399,18 @@
     // syncPending: collapses rapid successive sync calls into one
     var syncPending = false;
 
+    let popupAutoPanning = false;
+    map.on("autopanstart", function () { popupAutoPanning = true; });
     map.on("zoomstart movestart", function (e) {
-      if (e.originalEvent) { userInteracted = true; }
+      if (e.originalEvent) { userInteracted = true; popupAutoPanning = false; }
     });
 
     // ── Build markers ───────────────────────────────────────────────────────
     const markerItems = [];
+    let openPopupMemberId = null;
 
     function rebuildMarkers(points) {
+      markerItems.forEach(item => setHomeLeafletMarkerSelected(item.marker, false));
       markerClusterGroup.clearLayers();
       markerItems.length = 0;
     points.forEach(function (place) {
@@ -1377,6 +1430,7 @@
         alt: markerLabel,
       });
 
+      let popupSelected = false;
       marker.on("add", function () {
         window.requestAnimationFrame(function () {
           var el = marker.getElement();
@@ -1384,21 +1438,57 @@
           el.setAttribute("role", "button");
           el.setAttribute("aria-label", markerLabel);
           el.setAttribute("title", markerLabel);
+          setHomeLeafletMarkerSelected(marker, popupSelected);
         });
       });
 
+      marker.on("click", function () { homeExplorer?.selectPoint(place); });
+      marker.on("popupopen", function () {
+        popupSelected = true;
+        setHomeLeafletMarkerSelected(marker, true);
+        homeExplorer?.selectPoint(place);
+        openPopupMemberId = homeExplorer?.getSelectedMemberId?.() ?? pointMembers(place)[0]?.id ?? null;
+      });
+      marker.on("popupclose", function () {
+        popupSelected = false;
+        setHomeLeafletMarkerSelected(marker, false);
+        if (pointMembers(place).some(member => String(member.id) === String(openPopupMemberId))) openPopupMemberId = null;
+      });
       marker.bindPopup(renderPopupContent(place, mapEl.dataset.detailsLabel || "Details", {
         range: mapEl.dataset.ageRangeLabel || "{from}–{to}",
         from: mapEl.dataset.ageFromLabel || "{from}+",
         to: mapEl.dataset.ageToLabel || "0–{to}",
-      }));
+      }), homeLeafletPopupOptions(mapEl));
       markerItems.push({ marker: marker, place: place, position: position });
     });
 
     }
     rebuildMarkers(places);
-    sharedState.applyPage = (points, meta) => { map.closePopup(); userInteracted=!!meta.bounds; rebuildMarkers(points); _doSync(); };
+    sharedState.applyPage = (points, meta = {}) => {
+      // A popup can auto-pan the map and trigger a delayed viewport response.
+      // Preserve its member identity across that rebuild, but never across a
+      // fresh filter query or after the user explicitly closed the popup.
+      const retainedId = meta.bounds || meta.append ? openPopupMemberId : null;
+      map.closePopup();
+      if (!meta.bounds && !meta.append) homeExplorer?.clearSelection?.();
+      userInteracted = !!meta.bounds || !!meta.append;
+      rebuildMarkers(points);
+      _doSync();
+      if (retainedId === null) return;
+      const item = markerItems.find(item => pointMembers(item.place).some(member => String(member.id) === String(retainedId)));
+      if (!item) { homeExplorer?.clearSelection?.(); return; }
+      const generation = homeSelectionGeneration;
+      revealHomeLeafletMarker(markerClusterGroup, map, item,
+        () => generation === homeSelectionGeneration && markerItems.includes(item),
+        () => {
+          homeExplorer?.selectMember?.(retainedId, false);
+          // Restoring an edge marker must still fit the window inside the map.
+          // Its bounded native auto-pan is excluded from viewport filtering below.
+          item.marker.openPopup();
+        });
+    };
     if (homePaging) map.on('moveend zoomend', () => {
+      if (popupAutoPanning) { popupAutoPanning = false; return; }
       if (!userInteracted) return;
       const b=map.getBounds(),sw=b.getSouthWest(),ne=b.getNorthEast();
       homePaging.viewport({south:sw.lat,west:sw.lng,north:ne.lat,east:ne.lng});
@@ -1461,7 +1551,7 @@
 
       // Single filtered result
       if (visibleItems.length === 1) {
-        map.setView(visibleItems[0].position, 15, { animate: true });
+        map.setView(visibleItems[0].position, 15, { animate: !reducedMotion });
         return;
       }
 
@@ -1479,7 +1569,7 @@
           paddingBottomRight: [48, 48],
           maxZoom: maxZoom,
           minZoom: 9,
-          animate: true,
+          animate: !reducedMotion,
         });
       }, 80);
     }
@@ -1490,6 +1580,7 @@
       updateFromServer();
     }
     const updateFromServer = homePaging ? () => homePaging.replace() : serverFilterUpdater(points => {
+      homeExplorer?.setPoints(points);
       rebuildMarkers(points);
       _doSync();
       if (pendingFocusPlaceId && points.length) {
@@ -1518,7 +1609,8 @@
       }).observe(mapEl);
     }
 
-    function focusLeafletPlace(placeId) {
+    function focusLeafletPlace(placeId, generation) {
+      const request = generation === undefined ? ++homeSelectionGeneration : generation;
       const item = markerItems.find(function (m) {
         return (placeId && pointMembers(m.place).some(member => String(member.id) === String(placeId))) ||
                (m.place.url && m.place.url === placeId) ||
@@ -1533,28 +1625,329 @@
         markerClusterGroup.addLayer(item.marker);
       }
 
-      if (typeof markerClusterGroup.zoomToShowLayer === "function") {
-        markerClusterGroup.zoomToShowLayer(item.marker, function () {
-          item.marker.openPopup();
-        });
-      } else {
-        map.setView([item.place.lat, item.place.lng], 16, { animate: true });
-        item.marker.openPopup();
-      }
+      revealHomeLeafletMarker(markerClusterGroup, map, item,
+        () => request === homeSelectionGeneration && markerItems.includes(item),
+        () => { homeExplorer?.selectPoint(item.place); item.marker.openPopup(); });
     }
 
     activeMapFocusHandler = focusLeafletPlace;
     if (pendingFocusPlaceId) {
       const targetId = pendingFocusPlaceId;
+      const generation = homeSelectionGeneration;
       pendingFocusPlaceId = null;
       window.setTimeout(function () {
-        focusLeafletPlace(targetId);
-      }, 350);
+        if (generation === homeSelectionGeneration) focusLeafletPlace(targetId, generation);
+      }, 0);
     }
 
     return true;
   }
 
+
+  function homeLeafletPopupOptions(mapEl) {
+    const width = mapEl.clientWidth || 320, height = mapEl.clientHeight || 430;
+    const maxWidth = Math.max(1, Math.min(260, width - 32));
+    mapEl.style.setProperty("--home-map-popup-width", maxWidth + "px");
+    return {
+      maxWidth, minWidth: Math.min(180, maxWidth),
+      // Reserve room for the pin anchor, popup tip, close button and map edges.
+      // A taller popup can auto-pan its own marker outside the server viewport.
+      maxHeight: Math.max(1, Math.min(420, height - 120)),
+      autoPanPadding: [16, 16],
+    };
+  }
+
+  function revealHomeLeafletMarker(group, map, item, isCurrent, open) {
+    const reveal = function () { if (isCurrent()) open(); };
+    if (typeof group.zoomToShowLayer === "function") group.zoomToShowLayer(item.marker, reveal);
+    else {
+      map.setView([item.place.lat, item.place.lng], 16, {animate: !window.matchMedia("(prefers-reduced-motion: reduce)").matches});
+      reveal();
+    }
+  }
+
+  function setHomeLeafletMarkerSelected(marker, selected) {
+    const element = marker.getElement?.();
+    if (!element) return;
+    element.classList.toggle("is-home-map-selected", !!selected);
+    element.setAttribute("aria-expanded", selected ? "true" : "false");
+  }
+
+  function safeHomeMapUrl(value, image) {
+    if (!value) return "";
+    try {
+      const url = new URL(String(value), window.location.href);
+      if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) return "";
+      if (!image && url.origin !== window.location.origin) return "";
+      return url.href;
+    } catch (_error) { return ""; }
+  }
+
+  const CATEGORY_THEMES = {
+    sport: { ink: "#136f38", swatch: "#dfeddb", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="m12 8 4 3-2 5h-4l-2-5ZM12 4v4M4 9l4 2m-2 7 4-2m8 2-4-2m6-7-4 2"/></svg>' },
+    art: { ink: "#9a4c17", swatch: "#fae8d2", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="8" cy="10" r=".7"/><circle cx="12" cy="7" r=".7"/><circle cx="16" cy="10" r=".7"/><path d="M18 16c-5-5-6 2-8 3"/></svg>' },
+    chess: { ink: "#65528b", swatch: "#eee9f7", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v5l3 3v4h6v-4l3-3V4h-4v3h-4V4Z"/><path d="M7 20h10M8 16h8v4H8Z"/></svg>' },
+    music: { ink: "#8c3d64", swatch: "#fae6f0", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' },
+    edu: { ink: "#2a5a78", swatch: "#e1eef7", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>' },
+    tech: { ink: "#2b5a5b", swatch: "#daf0f0", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>' },
+    camp: { ink: "#935c1f", swatch: "#f8ebd9", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21 10 4 1 21"/><path d="M1 21h22"/><path d="m14 21-4-8-4 8"/></svg>' },
+    default: { ink: "#136f38", swatch: "#edf5e9", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/></svg>' }
+  };
+
+  function getCategoryTheme(name) {
+    if (!name) return CATEGORY_THEMES.default;
+    const n = String(name).toLowerCase();
+    if (n.includes("sport") || n.includes("idman") || n.includes("спорт") || n.includes("fit")) return CATEGORY_THEMES.sport;
+    if (n.includes("art") || n.includes("yarad") || n.includes("творч") || n.includes("rəsm") || n.includes("рисун")) return CATEGORY_THEMES.art;
+    if (n.includes("şahmat") || n.includes("chess") || n.includes("шахмат")) return CATEGORY_THEMES.chess;
+    if (n.includes("mus") || n.includes("musiqi") || n.includes("музык")) return CATEGORY_THEMES.music;
+    if (n.includes("təhsil") || n.includes("edu") || n.includes("образов") || n.includes("məktəb") || n.includes("kurs") || n.includes("dərslər")) return CATEGORY_THEMES.edu;
+    if (n.includes("tech") || n.includes("it") || n.includes("kod") || n.includes("robot") || n.includes("proqr")) return CATEGORY_THEMES.tech;
+    if (n.includes("düşərgə") || n.includes("camp") || n.includes("лагер")) return CATEGORY_THEMES.camp;
+    return CATEGORY_THEMES.default;
+  }
+
+  function initHomeMapGuideMotion(wrap) {
+    if (!wrap || wrap.dataset.guideMotionReady) return;
+    wrap.dataset.guideMotionReady = "1";
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const classes = ["is-guide-entering", "is-guide-greeting", "is-reacting"];
+    function stop() { wrap.classList.remove(...classes); }
+    function play(name) {
+      if (reduced.matches || document.hidden) return;
+      stop();
+      void wrap.offsetWidth;
+      wrap.classList.add(name);
+    }
+    wrap.addEventListener("animationend", stop);
+    wrap.addEventListener("pointerenter", event => {
+      if (event.pointerType !== "touch") play("is-guide-greeting");
+    });
+    document.addEventListener("visibilitychange", () => { if (document.hidden) stop(); });
+    reduced.addEventListener("change", stop);
+    if (!reduced.matches && typeof IntersectionObserver === "function") {
+      let seen = false;
+      const observer = new IntersectionObserver(entries => {
+        if (!seen && entries.some(entry => entry.isIntersecting)) {
+          seen = true;
+          observer.disconnect();
+          play("is-guide-entering");
+        }
+      }, {threshold: 0.4});
+      observer.observe(wrap);
+    }
+  }
+
+  function createHomeMapExplorer(sharedState, focusPlace) {
+    const root = document.querySelector("[data-home-map-explorer]");
+    const list = root?.querySelector("[data-home-map-list]");
+    if (!root || !list) return null;
+    const status = root.querySelector("[data-home-explorer-status]");
+    const empty = root.querySelector("[data-home-explorer-empty]");
+    const guide = root.querySelector("[data-home-map-guide-text]");
+    initHomeMapGuideMotion(root.querySelector("[data-home-map-guide]"));
+    const listPanel = root.querySelector("[data-home-explorer-list]");
+    const mapPanel = root.querySelector("[data-home-explorer-map]");
+    const drawer = root.querySelector("#home-map-popup-drawer");
+    const resultStatus = root.querySelector("#home-map-result-status");
+    const tabs = Array.from(root.querySelectorAll("[data-home-explorer-tab]"));
+    const mobile = window.matchMedia("(max-width: 767px)");
+    let view = "map", selected = null, records = [], currentStatus = "ready";
+    function copy(name, fallback) { return root.dataset[name] || fallback; }
+    function selectionText(name) { return copy("selectedLabel", "{name}").replace("{name}", name); }
+    function updateGuide() {
+      if (!guide) return;
+      const nextText = selected ? selectionText(selected.member.name || "") : copy("guideLabel", "");
+      if (guide.textContent !== nextText) {
+        guide.textContent = nextText;
+        const wrap = guide.closest("[data-home-map-guide]");
+        if (wrap && wrap.classList && typeof wrap.classList.add === "function") {
+          wrap.classList.remove("is-reacting");
+          if (typeof wrap.offsetWidth === "number") void wrap.offsetWidth;
+          wrap.classList.add("is-reacting");
+        }
+      }
+    }
+    function updateDrawer() {
+      if (!drawer) return;
+      if (selected) {
+        const nameEl = drawer.querySelector("[data-home-map-drawer-name]");
+        const metaEl = drawer.querySelector("[data-home-map-drawer-meta]");
+        const linkEl = drawer.querySelector("[data-home-map-drawer-link]");
+        if (nameEl) nameEl.textContent = selected.member.name || "";
+        if (metaEl) {
+          const parts = [
+            selected.member.category,
+            selected.member.age,
+            selected.member.location || selected.member.district_label || selected.member.address
+          ].filter(Boolean);
+          metaEl.textContent = parts.join(" · ");
+        }
+        if (linkEl) {
+          const url = safeHomeMapUrl(selected.member.url, false);
+          if (url) {
+            linkEl.href = url;
+            linkEl.hidden = false;
+          } else {
+            linkEl.hidden = true;
+          }
+        }
+        drawer.hidden = false;
+        drawer.classList.remove("is-animating");
+        if (typeof drawer.offsetWidth === "number") void drawer.offsetWidth;
+        drawer.classList.add("is-animating");
+      } else {
+        drawer.hidden = true;
+      }
+    }
+    function setStatus(next) {
+      if (next === "loading" && currentStatus !== "loading") homeSelectionGeneration++;
+      currentStatus = next;
+      records.forEach(record => { record.button.disabled = next === "loading"; });
+      root.dataset.explorerStatus = next;
+      if (listPanel) listPanel.setAttribute("aria-busy", String(next === "loading"));
+      if (status) {
+        status.textContent = next === "loading" ? copy("loadingLabel", "…") : next === "error" ? copy("errorLabel", "") : records.length ? "" : copy("emptyLabel", "");
+        status.hidden = !status.textContent;
+      }
+      if (empty) empty.hidden = next === "loading" || next === "error" || records.length > 0;
+    }
+    function setView(next, focus) {
+      view = next;
+      root.dataset.explorerView = view;
+      tabs.forEach(tab => {
+        const active = tab.dataset.homeExplorerTab === view;
+        tab.setAttribute("aria-selected", String(active));
+        tab.tabIndex = active ? 0 : -1;
+      });
+      if (listPanel) listPanel.hidden = mobile.matches && view !== "list";
+      if (mapPanel) mapPanel.hidden = mobile.matches && view !== "map";
+      if (focus) tabs.find(tab => tab.dataset.homeExplorerTab === view)?.focus({preventScroll:true});
+      if (view === "map") {
+        sharedState.mapEl.dispatchEvent(new Event("kidsmap:home-map-visible"));
+      }
+    }
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => {
+        setView(tab.dataset.homeExplorerTab, false);
+        if (view === "map") window.kidsMapTriggerHomeMapLoad?.();
+      });
+      tab.addEventListener("keydown", event => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+        setView(tabs[next].dataset.homeExplorerTab, true);
+        if (view === "map") window.kidsMapTriggerHomeMapLoad?.();
+      });
+    });
+    mobile.addEventListener("change", () => setView(view, false));
+    function updateSelection() {
+      records.forEach(record => {
+        const active = selected === record;
+        record.button.setAttribute("aria-pressed", String(active));
+        record.row.classList.toggle("is-selected", active);
+      });
+      updateGuide();
+      updateDrawer();
+    }
+    function selectMember(id, reveal) {
+      const record = records.find(item => String(item.member.id) === String(id));
+      if (!record) return false;
+      selected = record; updateSelection();
+      if (reveal) {
+        if (mobile.matches) setView("map", true);
+        focusPlace(record.member.id);
+      } else if (listPanel && !listPanel.hidden) {
+        const itemBox = record.row.getBoundingClientRect(), listBox = list.getBoundingClientRect();
+        if (itemBox.top < listBox.top) list.scrollTop -= listBox.top - itemBox.top;
+        else if (itemBox.bottom > listBox.bottom) list.scrollTop += itemBox.bottom - listBox.bottom;
+      }
+      return true;
+    }
+    function text(className, value, parent, tag) {
+      if (!value) return;
+      const element = document.createElement(tag || "span");
+      element.className = className; element.textContent = value; parent.append(element);
+    }
+    function setPoints(points) {
+      const selectedId = selected?.member.id;
+      const activeId = document.activeElement?.dataset.homeMapMemberId;
+      selected = null; records = []; list.replaceChildren();
+      const seen = new Set();
+      points.filter(hasValidCoordinates).forEach(point => pointMembers(point).forEach(member => {
+        if (member.id === null || member.id === undefined || seen.has(String(member.id))) return;
+        seen.add(String(member.id));
+        const row = document.createElement("li"); row.className = "home-explorer-card";
+        const button = document.createElement("button"); button.type = "button"; button.className = "home-explorer-select";
+        button.dataset.homeMapMemberId = String(member.id);
+        button.setAttribute("aria-pressed", "false");
+        button.setAttribute("aria-label", copy("selectLabel", "{name}").replace("{name}", member.name || ""));
+        const imageUrl = safeHomeMapUrl(member.image_url, true);
+        if (imageUrl) {
+          const image = document.createElement("img"); image.className = "home-explorer-thumb";
+          image.src = imageUrl; image.alt = ""; image.loading = "lazy"; image.decoding = "async"; image.width = 56; image.height = 56;
+          image.addEventListener("error", () => {
+            const fallbackSym = document.createElement("span"); fallbackSym.className = "home-explorer-symbol"; fallbackSym.setAttribute("aria-hidden", "true");
+            const theme = getCategoryTheme(member.category); fallbackSym.style.setProperty("--swatch", theme.swatch); fallbackSym.style.setProperty("--ink", theme.ink); fallbackSym.innerHTML = theme.svg;
+            image.replaceWith(fallbackSym);
+          }, {once:true});
+          button.append(image);
+        } else {
+          const symbol = document.createElement("span"); symbol.className = "home-explorer-symbol"; symbol.setAttribute("aria-hidden", "true");
+          const theme = getCategoryTheme(member.category); symbol.style.setProperty("--swatch", theme.swatch); symbol.style.setProperty("--ink", theme.ink); symbol.innerHTML = theme.svg;
+          button.append(symbol);
+        }
+        const body = document.createElement("span"); body.className = "home-explorer-card-copy";
+        const title = document.createElement("strong"); title.className = "home-explorer-name"; title.textContent = member.name || "";
+        if (member.content_language) title.lang = member.content_language;
+        body.append(title);
+        const metaParts = [member.category, member.age].filter(Boolean);
+        if (metaParts.length) text("home-explorer-meta", metaParts.join(" · "), body);
+        text("home-explorer-location", member.location || member.district_label || member.address, body);
+        if (!member.age && Array.isArray(member.matched_offers)) {
+          member.matched_offers.forEach(offer => {
+            if (!Array.isArray(offer.groups)) return;
+            offer.groups.forEach(group => {
+              if (group.age) text("home-explorer-matched-group", [offer.name, group.name, group.age].filter(Boolean).join(" · "), body);
+            });
+          });
+        }
+        text("home-explorer-price", member.price, body);
+        if (member.translation_fallback) text("home-explorer-fallback", member.translation_label || "AZ", body);
+        button.append(body); row.append(button);
+        const url = safeHomeMapUrl(member.url, false);
+        if (url) { const link = document.createElement("a"); link.className = "home-explorer-details"; link.href = url; link.textContent = copy("detailsLabel", "Details"); row.append(link); }
+        const record = {member, point, row, button}; records.push(record); list.append(row);
+        button.addEventListener("click", () => selectMember(member.id, true));
+        if (String(member.id) === String(selectedId)) selected = record;
+      }));
+      updateSelection(); setStatus("ready");
+      if (resultStatus) {
+        const count = businessCount(points);
+        const tmpl = resultStatus.dataset.statusTemplate || "Показано {count} мест на карте. Выберите метку или карточку.";
+        resultStatus.textContent = tmpl.replace("{count}", String(count));
+      }
+      if (activeId !== undefined) records.find(record => String(record.member.id) === activeId)?.button.focus({preventScroll:true});
+    }
+    function selectPoint(point) {
+      const members = pointMembers(point);
+      const id = members.some(member => String(member.id) === String(selected?.member.id)) ? selected.member.id : members[0]?.id;
+      selectMember(id, false);
+    }
+    const pagination = root.querySelector('[data-map-pagination="home"]');
+    if (pagination && typeof MutationObserver === "function") {
+      new MutationObserver(() => {
+        const busy = pagination.getAttribute("aria-busy") === "true";
+        const failed = pagination.querySelector("[data-map-status]")?.textContent === pagination.dataset.errorLabel;
+        setStatus(busy ? "loading" : failed ? "error" : "ready");
+      }).observe(pagination, {attributes:true,attributeFilter:["aria-busy"],childList:true,subtree:true,characterData:true});
+    }
+    setView(view, false); setPoints(sharedState.places);
+    return {setPoints, selectPoint, selectMember, setStatus,
+      getSelectedMemberId:() => selected?.member.id ?? null,
+      clearSelection:() => { selected = null; updateSelection(); },
+      showMap:() => setView("map", false)};
+  }
 
   function startMapBootstrap() {
 
@@ -1567,15 +1960,25 @@
 
     const sharedState = buildSharedState(mapEl, mapNoteEl);
     if (!sharedState) return;
+    homeExplorer = createHomeMapExplorer(sharedState, requestFocusPlace);
     const pagingControl = document.querySelector('[data-map-pagination="home"]');
     if (pagingControl && window.KidsMapPaging) {
       const metadata = JSON.parse(document.getElementById('home-map-page')?.textContent || '{}');
       homePaging = window.KidsMapPaging.create({
         control:pagingControl, initial:{...metadata,points:sharedState.places},
         getParams:()=>new URLSearchParams(new FormData(document.querySelector('[data-home-map-filter-form]'))),
-        onChange:(points,meta)=>{ sharedState.places=points; sharedState.applyPage?.(points,meta); updateLiveCount(meta.count); if (pendingFocusPlaceId && points.length) { const target=pendingFocusPlaceId; pendingFocusPlaceId=null; activeMapFocusHandler?.(target); } },
+        onChange:(points,meta)=>{ sharedState.places=points; homeExplorer?.setPoints(points); sharedState.applyPage?.(points,meta); updateLiveCount(meta.count); if (pendingFocusPlaceId && points.length && activeMapFocusHandler) { const target=pendingFocusPlaceId; pendingFocusPlaceId=null; activeMapFocusHandler(target); } },
       });
     }
+
+    // Hero search controls must work even while the map stays below the fold.
+    const earlyFilterUpdate = homePaging ? () => homePaging.replace() : serverFilterUpdater(points => {
+      sharedState.places = points;
+      homeExplorer?.setPoints(points);
+      updateLiveCount(businessCount(points));
+      sharedState.applyPage?.(points, { count: businessCount(points) });
+    }, () => {}, () => {});
+    bindFilterListeners(earlyFilterUpdate);
 
     function tryMount() {
       if (mountGoogleMap(sharedState)) return true;

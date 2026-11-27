@@ -242,10 +242,28 @@ def _google_analytics_context(request) -> dict[str, object]:
     }
 
 
+def _specialist_account_context(request):
+    """Account navigation reflects existing applications, never grants access."""
+    actor = getattr(request, 'user', None)
+    if '/account/' not in request.path or not actor or not actor.is_authenticated or not actor.is_active:
+        return {}
+    if not is_specialists_section_enabled():
+        return {}
+    from .models import Specialist, SpecialistProposalDraft, SpecialistClaim
+    verified = Specialist.objects.filter(verified_person_user=actor, person_verified_at__isnull=False).exists()
+    has_applications = verified or (
+        SpecialistProposalDraft.objects.filter(actor=actor, submitted_at__isnull=True).exists()
+        or Specialist.objects.filter(created_by=actor, verified_person_user__isnull=True).exists()
+        or SpecialistClaim.objects.filter(applicant=actor).exists()
+    )
+    return {'has_verified_specialist_profile': verified, 'has_specialist_applications': has_applications}
+
+
 def site_settings(request):
     is_preview = getattr(request, 'site_preview', False)
     queued_analytics_events = [] if is_preview else pop_queued_google_analytics_events(request)
     google_analytics_context = _google_analytics_context(request)
+    specialist_account_context = _specialist_account_context(request)
     try:
         cfg = SiteSettings.objects.first() if is_preview else SiteSettings.get_solo()
     except (OperationalError, ProgrammingError):
@@ -273,6 +291,7 @@ def site_settings(request):
             "footer_whatsapp_url": DEFAULT_FOOTER_WHATSAPP_URL,
             "footer_social_links": footer_social_links,
             **google_analytics_context,
+            **specialist_account_context,
             "queued_analytics_events": queued_analytics_events,
             "is_specialists_section_enabled": is_specialists_section_enabled(),
             "is_events_section_enabled": is_events_section_enabled(),
@@ -328,6 +347,7 @@ def site_settings(request):
         "footer_whatsapp_url": footer_whatsapp_url,
         "footer_social_links": footer_social_links,
         **google_analytics_context,
+        **specialist_account_context,
         "queued_analytics_events": queued_analytics_events,
         "is_specialists_section_enabled": is_specialists_section_enabled(),
         "is_events_section_enabled": is_events_section_enabled(),

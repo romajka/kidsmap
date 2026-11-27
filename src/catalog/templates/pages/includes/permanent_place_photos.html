@@ -1,10 +1,12 @@
 {% load i18n %}
+{% get_current_language as photo_language %}
 {{ form.photo_upload_config|json_script:'pw-photo-config' }}
 <div data-photo-editor data-prepare-url="{% url 'owner_photo_prepare' %}" data-save-url="{% if place %}{% url 'owner_photo_edit_save' place.pk %}{% else %}{% url 'owner_photo_create_save' %}{% endif %}">
   <div class="pw-field" data-pw-field="photo">
     <label for="id_photo"><span data-pw-label>{{ form.photo.label }}</span><span data-pw-required="photo" class="pw-field-badge" hidden></span></label>
-    <div data-photo-zone="main"><input type="file" name="photo" id="id_photo" accept="image/jpeg,image/png,image/webp,.heic,.heif,.hif" aria-describedby="photo-help photo-errors"></div>
+    <div data-photo-zone="main"><input type="file" name="photo" id="id_photo" accept="image/jpeg,image/png,image/webp,.heic,.heif,.hif" aria-describedby="photo-help photo-cover-help photo-errors"></div>
     <p id="photo-help" class="pw-help">{{ form.photo.help_text }}</p>
+    <p id="photo-cover-help" class="pw-photo-cover-help">{% if photo_language == 'ru' %}Это фото станет обложкой карточки. Лучше выбрать светлый снимок места или занятия без мелкого текста. Фото из галереи можно сделать главным.{% elif photo_language == 'en' %}This photo will be your place card cover. Choose a clear photo of the place or an activity, without small text. You can also make any gallery photo the main image.{% else %}Bu şəkil məkan kartının üz qabığı olacaq. Məkanın və ya məşğələnin aydın, xırda mətnsiz fotosunu seçin. Qalereyadakı şəkli də əsas şəkil edə bilərsiniz.{% endif %}</p>
     <div id="photo-errors" data-photo-errors="main" aria-live="polite"></div>
     {% for error in form.photo.errors %}<p class="pw-error" role="alert">{{ error }}</p>{% endfor %}
     <span class="pw-client-error" aria-live="polite"></span>

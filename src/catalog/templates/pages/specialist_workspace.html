@@ -1,21 +1,20 @@
-{% extends 'base.html' %}
+{% extends "pages/account_shell.html" %}
 {% load i18n static %}
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
-{% block title %}{% trans 'Кабинет специалиста' %}{% endblock %}
-{% block extra_head %}<script src="{% static 'js/specialist_recovery.js' %}" defer></script>{{ block.super }}<meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}">{% endblock %}
-{% block content %}
+{% block title %}{% if workspace_mode == 'index' and not my_specialist %}{% trans 'Анкеты специалистов' %}{% elif workspace_mode == 'claims' %}{% trans 'Подтверждение личности' %}{% elif workspace_mode == 'review' %}{% trans 'Проверка KidsMap' %}{% elif workspace_mode == 'organization' %}{% trans 'Специалисты организации' %}{% else %}{% trans 'Кабинет специалиста' %}{% endif %}{% endblock %}
+{% block extra_head %}<script src="{% static 'js/specialist_recovery.js' %}?v=20261020self1" defer></script>{{ block.super }}<meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}?v=20261020account3">{% endblock %}
+{% block account_content %}
 {{ clear_specialist_recovery|json_script:'specialist-clear-recovery' }}
 <div id="specialist-recovery-identity" data-actor="{{ recovery_actor }}" hidden></div>
 {% get_current_language as language %}
-<section class="sw-workspace">
-  <header class="sw-heading">
-    <p class="sw-eyebrow">{% trans 'Педагоги и специалисты' %}</p>
-    <h1>{% if workspace_mode == 'organization' %}{% trans 'Специалисты организации' %}{% elif workspace_mode == 'claims' %}{% trans 'Это мой профиль' %}{% elif workspace_mode == 'certificates' %}{% trans 'Дипломы и сертификаты' %}{% elif workspace_mode == 'review' %}{% trans 'Проверка KidsMap' %}{% elif workspace_mode == 'invitations' %}{% trans 'Сотрудничество' %}{% else %}{% trans 'Кабинет специалиста' %}{% endif %}</h1>
+<section class="sw-workspace account-specialist-workspace">
+  <header class="sw-heading account-section-title-wrap">
+    <h1>{% if workspace_mode == 'organization' %}{% trans 'Специалисты организации' %}{% elif workspace_mode == 'claims' %}{% trans 'Подтверждение личности' %}{% elif workspace_mode == 'certificates' %}{% trans 'Дипломы и сертификаты' %}{% elif workspace_mode == 'review' %}{% trans 'Проверка KidsMap' %}{% elif workspace_mode == 'invitations' %}{% trans 'Сотрудничество' %}{% elif workspace_mode == 'index' and not my_specialist %}{% trans 'Анкеты специалистов' %}{% else %}{% trans 'Кабинет специалиста' %}{% endif %}</h1>
     {% if specialist %}<p class="sw-lede">{{ specialist.name }}</p>{% elif organization %}<p class="sw-lede">{% if language == 'ru' %}{{ organization.name_ru|default:organization.name_az }}{% elif language == 'en' %}{{ organization.name_en|default:organization.name_az }}{% else %}{{ organization.name_az }}{% endif %}</p>{% endif %}
   </header>
-  <div class="sw-layout">
-    <nav class="sw-nav" aria-label="{% trans 'Кабинет специалиста' %}">
-      <a href="{% url 'specialist_workspace_index' %}" {% if workspace_mode == 'index' %}aria-current="page"{% endif %}>{% trans 'Мои профили' %}</a>
+    {% if workspace_mode != 'index' %}
+    <nav class="sw-nav sw-subnav" aria-label="{% if can_manage_specialist or my_specialist %}{% trans 'Кабинет специалиста' %}{% else %}{% trans 'Анкеты специалистов' %}{% endif %}">
+      <a href="{% url 'specialist_workspace_index' %}" {% if workspace_mode == 'index' %}aria-current="page"{% endif %}>{% trans 'Мои анкеты и заявки' %}</a>
       {% if specialist and can_manage_specialist %}
       <a href="{% url 'specialist_workspace_profile' specialist.pk %}">{% trans 'Личные сведения' %}</a>
       <a href="{% url 'specialist_workspace_invitations' specialist.pk %}" {% if workspace_mode == 'invitations' %}aria-current="page"{% endif %}>{% trans 'Сотрудничество' %}</a>
@@ -23,20 +22,46 @@
       {% endif %}
       {% if specialist %}<a href="{% url 'specialist_workspace_claims' specialist.pk %}" {% if workspace_mode == 'claims' %}aria-current="page"{% endif %}>{% trans 'Это мой профиль' %}</a>{% endif %}
       {% if specialist and can_review_claims or specialist and can_review_documents %}<a href="{% url 'specialist_workspace_review' specialist.pk %}" {% if workspace_mode == 'review' %}aria-current="page"{% endif %}>{% trans 'Проверка KidsMap' %}</a>{% endif %}
-      <a href="{% url 'owner_places_dashboard' %}">{% trans 'Мой кабинет' %}</a>
+      <a href="{% url 'account_dashboard' %}">{% trans 'Мой кабинет' %}</a>
     </nav>
+    {% endif %}
     <div class="sw-content">
       {% if error %}<div class="sw-notice sw-error" role="alert">{{ error }}</div>{% endif %}
       {% if workspace_mode == 'index' %}
-        <section class="sw-card"><h2>{% trans 'Личный профиль' %}</h2>
-          {% if my_specialist %}<h3>{{ my_specialist.name }}</h3><p>{% trans 'Личными сведениями и документами управляет подтверждённый человек.' %}</p><a class="sw-button sw-primary" href="{% url 'specialist_workspace_profile' my_specialist.pk %}">{% trans 'Редактировать профиль' %}</a>
-          {% else %}<p>{% trans 'У вас пока нет подтверждённого профиля специалиста.' %}</p><a class="sw-button" href="{% url 'owner_specialist_create' %}">{% trans 'Предложить профиль' %}</a>{% endif %}
-        </section>
-        <section class="sw-card"><h2>{% trans 'Рабочие копии предложений' %}</h2><a href="{% url 'specialist_workspace_proposal' %}">{% trans 'Предложить профиль' %}</a><ul class="sw-rows">{% for draft in working_proposals %}<li><h3>{{ draft.payload.name.0|default:_('Без имени') }}</h3><p>{% trans 'Черновик' %} · {{ draft.updated_at }}</p><a href="{% url 'specialist_workspace_proposal_resume' draft.pk %}">{% trans 'Продолжить предложение' %}</a></li>{% empty %}<li>{% trans 'Черновиков пока нет.' %}</li>{% endfor %}</ul></section>
-        <section class="sw-card"><h2>{% trans 'Предложенные профили' %}</h2><p>{% trans 'Авторство предложения не даёт права менять личные сведения человека.' %}</p><ul class="sw-rows">{% for proposal in proposals %}<li><h3>{{ proposal.name }}</h3><p>{{ proposal.get_status_display }}</p><a href="{% url 'specialist_workspace_claims' proposal.pk %}">{% trans 'Это мой профиль' %}</a></li>{% empty %}<li>{% trans 'Предложений пока нет.' %}</li>{% endfor %}</ul></section>
+        {% if my_specialist %}
+          <section class="sw-card"><h2>{% trans 'Личный профиль' %}</h2>
+            <h3>{{ my_specialist.name }}</h3><p>{{ my_specialist.get_status_display }}</p>
+            <a class="sw-button sw-primary" href="{% url 'specialist_workspace_profile' my_specialist.pk %}">{% trans 'Редактировать профиль' %}</a>
+          </section>
+        {% endif %}
+        {% if working_proposals %}
+          <section class="sw-card"><h2>{% trans 'Черновики анкет' %}</h2>
+            <ul class="sw-rows">{% for draft in working_proposals %}<li>
+              <h3>{{ draft.payload.name.0|default:_('Без имени') }}</h3>
+              <p>{% if draft.payload.profile_subject.0 == 'self' %}{% trans 'Моя анкета' %}{% else %}{% trans 'Анкета другого специалиста' %}{% endif %} · {% trans 'Черновик' %} · {{ draft.updated_at|date:'d.m.Y H:i' }}</p>
+              <a class="sw-button" href="{% url 'specialist_workspace_proposal_resume' draft.pk %}">{% trans 'Продолжить заполнение' %}</a>
+            </li>{% endfor %}</ul>
+          </section>
+        {% endif %}
+        {% if claims %}
+          <section class="sw-card"><h2>{% trans 'Мои заявки' %}</h2>
+            <ul class="sw-rows">{% for claim in claims %}<li>
+              <h3>{{ claim.specialist.name }}</h3>
+              <p>{% trans 'Анкета' %}: {{ claim.specialist.get_status_display }}</p>
+              <p>{% trans 'Подтверждение личности' %}: {{ claim.status_label }}</p>
+              {% if claim.reason %}<p>{{ claim.reason }}</p>{% endif %}
+              <a class="sw-button" href="{% url 'specialist_workspace_claims' claim.specialist_id %}">{% trans 'Открыть заявку' %}</a>
+            </li>{% endfor %}</ul>
+          </section>
+        {% endif %}
+        {% if proposals %}
+          <section class="sw-card"><h2>{% trans 'Предложения анкет' %}</h2>
+            <p>{% trans 'Предложение чужой анкеты не даёт права управлять ею. Если это ваша анкета, запросите подтверждение личности.' %}</p>
+            <ul class="sw-rows">{% for proposal in proposals %}<li><h3>{{ proposal.name }}</h3><p>{{ proposal.get_status_display }}</p><a class="sw-button" href="{% url 'specialist_workspace_claims' proposal.pk %}">{% trans 'Это мой профиль' %}</a></li>{% endfor %}</ul>
+          </section>
+        {% endif %}
         {% if owned_organizations %}<section class="sw-card"><h2>{% trans 'Специалисты организации' %}</h2><ul class="sw-rows">{% for org in owned_organizations %}<li><a href="{% url 'organization_specialists' org.pk %}">{% if language == 'ru' %}{{ org.name_ru|default:org.name_az }}{% elif language == 'en' %}{{ org.name_en|default:org.name_az }}{% else %}{{ org.name_az }}{% endif %}</a></li>{% endfor %}</ul></section>{% endif %}
         {% if review_profiles %}<section class="sw-card"><h2>{% trans 'Проверка KidsMap' %}</h2><ul class="sw-rows">{% for profile in review_profiles %}<li><a href="{% url 'specialist_workspace_review' profile.pk %}">{{ profile.name }}</a></li>{% endfor %}</ul></section>{% endif %}
-        {% if claims %}<section class="sw-card"><h2>{% trans 'Мои запросы' %}</h2><ul class="sw-rows">{% for claim in claims %}<li><a href="{% url 'specialist_workspace_claims' claim.specialist_id %}">{{ claim.specialist.name }}</a><p>{{ claim.created_at|date:'d.m.Y' }}</p></li>{% endfor %}</ul></section>{% endif %}
       {% endif %}
       {% if workspace_mode == 'claims' %}
         <section class="sw-card"><h2>{% trans 'Подтверждение личности' %}</h2><p>{% trans 'KidsMap проверяет запрос. Совпадение имени, авторство или доступ к организации не подтверждают личность.' %}</p>
@@ -84,6 +109,5 @@
       {% endif %}
       {% if workspace_mode == 'review' and can_review_claims %}<section class="sw-card"><h2>{% trans 'Запросы подтверждения личности' %}</h2><ul class="sw-rows">{% for claim in claims %}<li><h3>{% trans 'Запрос' %} #{{ claim.pk }}</h3><p>{{ claim.status_label }} · {{ claim.created_at|date:'d.m.Y' }}</p>{% if claim.can_review %}<form method="post" class="sw-form">{% csrf_token %}<input type="hidden" name="claim_id" value="{{ claim.pk }}"><input type="hidden" name="expected_version" value="{{ claim.version }}"><label for="claim-reason-{{ claim.pk }}">{% trans 'Причина отклонения' %}</label><textarea id="claim-reason-{{ claim.pk }}" name="reason" rows="3" maxlength="2000" required></textarea><div class="sw-actions"><button type="submit" name="action" value="claim_approve" formnovalidate class="sw-button sw-primary">{% trans 'Подтвердить личность' %}</button><button type="submit" name="action" value="claim_reject" class="sw-button sw-danger">{% trans 'Отклонить запрос' %}</button></div></form>{% endif %}{% if claim.reason %}<p>{{ claim.reason }}</p>{% endif %}</li>{% empty %}<li>{% trans 'Запросов пока нет.' %}</li>{% endfor %}</ul></section>{% endif %}
     </div>
-  </div>
 </section>
 {% endblock %}

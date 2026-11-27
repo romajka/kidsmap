@@ -94,6 +94,25 @@
         </div>
       </div>
 
+      {% if is_specialists_section_enabled and not has_verified_specialist_profile %}
+        <section class="account-continue-card" aria-labelledby="specialist-application-heading">
+          <div class="account-continue-info account-section-title-wrap">
+            {% if has_specialist_applications %}
+              <h2 id="specialist-application-heading">{% trans 'Анкеты специалистов' %}</h2>
+              <p class="account-section-subtitle">{% trans 'Продолжите заполнение анкеты или проверьте статус рассмотрения.' %}</p>
+            {% else %}
+              <h2 id="specialist-application-heading">{% trans 'Вы педагог или специалист?' %}</h2>
+              <p class="account-section-subtitle">{% trans 'Добавьте свою анкету, чтобы родители могли найти вас на KidsMap.' %}</p>
+            {% endif %}
+          </div>
+          {% if has_specialist_applications %}
+            <a class="account-btn-action" href="{% url 'specialist_workspace_index' %}">{% trans 'Мои анкеты и заявки' %}</a>
+          {% else %}
+            <a class="account-btn-action" href="{% url 'owner_specialist_create' %}">{% trans 'Я специалист — добавить свой профиль' %}</a>
+          {% endif %}
+        </section>
+      {% endif %}
+
       <!-- Continue Draft Action Card -->
       {% if latest_actionable_draft_place %}
         <div class="account-continue-card">

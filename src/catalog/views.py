@@ -1492,7 +1492,7 @@ def owner_place_submit_review(request, pk):
 
     result = owner_places_controller.submit_for_moderation(request=request, place_id=pk)
     if result.ok:
-        messages.success(request, result.message)
+        messages.success(request, result.message, extra_tags="mappy-submitted")
     else:
         messages.error(request, result.message)
     return redirect("owner_places_dashboard")

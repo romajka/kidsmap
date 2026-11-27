@@ -23586,3 +23586,168 @@ msgstr "Əvvəlki dövrlə müqayisə əlçatan deyil."
 #: src/catalog/templates/admin/catalog/category/change_list.html:74
 msgid "Свернуть все"
 msgstr "Hamısını bağla"
+
+#: src/catalog/templates/admin/catalog/place/form/json_prompt_dialog.html
+msgid "Промты для ChatGPT"
+msgstr "ChatGPT üçün sorğular"
+
+#: src/catalog/templates/admin/catalog/place/form/json_prompt_dialog.html
+msgid "Выберите задачу"
+msgstr "Tapşırıq seçin"
+
+#: src/catalog/templates/admin/catalog/place/form/json_prompt_dialog.html
+msgid "Найти места"
+msgstr "Məkanlar tap"
+
+#: src/catalog/templates/admin/catalog/place/form/json_prompt_dialog.html
+msgid "Собрать JSON"
+msgstr "JSON hazırla"
+
+#: src/catalog/templates/admin/catalog/place/form/json_prompt_dialog.html
+msgid "Категория (необязательно)"
+msgstr "Kateqoriya (istəyə bağlı)"
+
+#: src/catalog/templates/admin/catalog/place/form/json_prompt_dialog.html
+msgid "Подкатегория (необязательно)"
+msgstr "Alt kateqoriya (istəyə bağlı)"
+
+#: src/catalog/templates/admin/catalog/place/form/json_prompt_dialog.html
+msgid "Любая подкатегория"
+msgstr "İstənilən alt kateqoriya"
+
+#: src/catalog/templates/admin/catalog/place/form/json_prompt_dialog.html
+msgid "Скопируйте промт в ChatGPT, чтобы найти несколько мест. Категорию можно не выбирать."
+msgstr "Bir neçə məkan tapmaq üçün sorğunu ChatGPT-yə köçürün. Kateqoriya seçmək məcburi deyil."
+
+#: src/catalog/templates/admin/catalog/place/form/json_prompt_dialog.html
+msgid "Вставьте промт в чат с выбранными местами. ChatGPT уточнит недостающее и подготовит отдельный JSON для каждого места."
+msgstr "Sorğunu seçdiyiniz məkanların olduğu söhbətə daxil edin. ChatGPT çatışmayan məlumatları dəqiqləşdirəcək və hər məkan üçün ayrıca JSON hazırlayacaq."
+
+#: src/catalog/templates/admin/catalog/place/form/json_prompt_dialog.html
+msgid "Шаблон текущего промта восстановлен."
+msgstr "Cari sorğunun şablonu bərpa edildi."
+
+#: src/catalog/templates/admin/catalog/place/form/json_prompt_dialog.html
+msgid "Промт скопирован. Вставьте его в ChatGPT."
+msgstr "Sorğu köçürüldü. Onu ChatGPT-yə daxil edin."
+
+#: src/catalog/templates/admin/catalog/place/form/json_prompt_dialog.html
+msgid "Не удалось скопировать. Выделите текст и скопируйте его вручную."
+msgstr "Köçürmək alınmadı. Mətni seçin və əl ilə köçürün."
+
+#. Specialist self application flow.
+msgid "Выберите, чей профиль вы добавляете."
+msgstr "Kimin profilini əlavə etdiyinizi seçin."
+
+#. Specialist self application flow.
+msgid "Анкеты специалистов"
+msgstr "Mütəxəssis anketləri"
+
+#. Specialist self application flow.
+msgid "Я специалист"
+msgstr "Mən mütəxəssisəm"
+
+#. Specialist self application flow.
+msgid "Добавить свой профиль"
+msgstr "Öz profilimi əlavə et"
+
+#. Specialist self application flow.
+msgid "Продолжите заполнение анкеты или проверьте статус рассмотрения."
+msgstr "Anketi doldurmağa davam edin və ya baxılma statusunu yoxlayın."
+
+#. Specialist self application flow.
+msgid "Мои анкеты и заявки"
+msgstr "Anketlərim və müraciətlərim"
+
+#. Specialist self application flow.
+msgid "Вы педагог или специалист?"
+msgstr "Pedaqoq və ya mütəxəssissiniz?"
+
+#. Specialist self application flow.
+msgid "Добавьте свою анкету, чтобы родители могли найти вас на KidsMap."
+msgstr ""
+"Valideynlərin sizi KidsMap-da tapa bilməsi üçün anketinizi əlavə edin."
+
+#. Specialist self application flow.
+msgid "Я специалист — добавить свой профиль"
+msgstr "Mən mütəxəssisəm — öz profilimi əlavə et"
+
+#. Specialist self application flow.
+msgid "Анкета специалиста"
+msgstr "Mütəxəssis anketi"
+
+#. Specialist self application flow.
+msgid ""
+"Укажите, чей профиль вы добавляете, заполните анкету и отправьте её на "
+"проверку."
+msgstr ""
+"Kimin profilini əlavə etdiyinizi seçin, anketi doldurun və yoxlanışa "
+"göndərin."
+
+#. Specialist self application flow.
+msgid "Анкета ещё не сохранена"
+msgstr "Anket hələ yadda saxlanmayıb"
+
+#. Specialist self application flow.
+msgid "Чей профиль вы добавляете?"
+msgstr "Kimin profilini əlavə edirsiniz?"
+
+#. Specialist self application flow.
+msgid "Свой — я специалист"
+msgstr "Öz profilimi — mən mütəxəssisəm"
+
+#. Specialist self application flow.
+msgid "Другого специалиста"
+msgstr "Başqa mütəxəssisin"
+
+#. Specialist self application flow.
+msgid ""
+"Для своей анкеты при отправке создаётся запрос на подтверждение личности. "
+"Предложение чужой анкеты не даёт права управлять ею."
+msgstr ""
+"Öz anketinizi göndərdikdə şəxsiyyətin təsdiqi üçün müraciət yaradılır. "
+"Başqasının anketini təklif etmək onu idarə etmək hüququ vermir."
+
+#. Specialist self application flow.
+msgid "Черновик и статус проверки доступны в вашем личном кабинете."
+msgstr "Qaralama və yoxlanış statusu şəxsi kabinetinizdə mövcuddur."
+
+#. Specialist self application flow.
+msgid ""
+"Для своей анкеты мы проверим личность. После подтверждения вы сможете "
+"управлять профилем, сотрудничеством и документами."
+msgstr ""
+"Öz anketiniz üçün şəxsiyyətinizi yoxlayacağıq. Təsdiqdən sonra profili, "
+"əməkdaşlığı və sənədləri idarə edə biləcəksiniz."
+
+#. Specialist self application flow.
+msgid "Черновики анкет"
+msgstr "Anket qaralamaları"
+
+#. Specialist self application flow.
+msgid "Моя анкета"
+msgstr "Mənim anketim"
+
+#. Specialist self application flow.
+msgid "Анкета другого специалиста"
+msgstr "Başqa mütəxəssisin anketi"
+
+#. Specialist self application flow.
+msgid "Мои заявки"
+msgstr "Müraciətlərim"
+
+#. Specialist self application flow.
+msgid "Анкета"
+msgstr "Anket"
+
+#. Specialist self application flow.
+msgid "Предложения анкет"
+msgstr "Təklif edilmiş anketlər"
+
+#. Specialist self application flow.
+msgid ""
+"Предложение чужой анкеты не даёт права управлять ею. Если это ваша анкета, "
+"запросите подтверждение личности."
+msgstr ""
+"Başqasının anketini təklif etmək onu idarə etmək hüququ vermir. Bu sizin "
+"anketinizdirsə, şəxsiyyətinizin təsdiqini istəyin."

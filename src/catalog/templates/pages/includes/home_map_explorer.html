@@ -1,0 +1,117 @@
+{% load i18n static %}
+<section class="panel home-map-panel home-map-explorer" id="home-map-section" data-home-map-explorer
+  data-select-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstər: {name}{% elif request.LANGUAGE_CODE == 'en' %}Show on map: {name}{% else %}Показать на карте: {name}{% endif %}"
+  data-details-label="{% trans 'Подробнее' %}"
+  data-loading-label="{% if request.LANGUAGE_CODE == 'az' %}Məkanlar yenilənir…{% elif request.LANGUAGE_CODE == 'en' %}Updating places…{% else %}Обновляем места…{% endif %}"
+  data-error-label="{% if request.LANGUAGE_CODE == 'az' %}Məkanlar yenilənmədi. Aşağıda yenidən cəhd edin.{% elif request.LANGUAGE_CODE == 'en' %}Places could not be updated. Please retry below.{% else %}Не удалось обновить места. Повторите загрузку ниже.{% endif %}"
+  data-empty-label="{% trans 'По выбранным фильтрам на карте пока нет мест' %}"
+  data-guide-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə işarə və ya siyahıdan məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Select a pin or a place in the list.{% else %}Нажмите на метку — покажу, что это за занятие.{% endif %}"
+  data-selected-label="{% if request.LANGUAGE_CODE == 'az' %}Seçildi: {name}{% elif request.LANGUAGE_CODE == 'en' %}Selected: {name}{% else %}Выбрано: {name}{% endif %}">
+  
+  <div class="home-map-head">
+    <div class="home-map-copy">
+      <div class="home-map-eyebrow-row">
+        <div class="home-redesign-eyebrow home-map-eyebrow">
+          <span aria-hidden="true"></span>
+          {% if request.LANGUAGE_CODE == 'az' %}İnteraktiv xəritə{% elif request.LANGUAGE_CODE == 'en' %}Interactive map{% else %}Интерактивная карта{% endif %}
+        </div>
+        <div class="home-map-live-pill" role="status" aria-live="polite" aria-atomic="true">
+          <span class="home-map-pulse-dot" aria-hidden="true"></span>
+          <span data-home-map-live-count>{{ map_business_count }}</span>
+          <span class="home-map-live-text">{% if request.LANGUAGE_CODE == 'az' %}məkan xəritədə{% elif request.LANGUAGE_CODE == 'en' %}places on map{% else %}мест на карте{% endif %}</span>
+        </div>
+      </div>
+      <h2>
+        {% if request.LANGUAGE_CODE == 'az' %}Xəritədə məşğələ tapın{% elif request.LANGUAGE_CODE == 'en' %}Find activities on the map{% else %}Найдите занятие на карте{% endif %}
+      </h2>
+      <p class="home-map-subtitle">
+        {% if request.LANGUAGE_CODE == 'az' %}Məkanları müqayisə edin və uşağınıza uyğun olanı seçin.{% elif request.LANGUAGE_CODE == 'en' %}Compare places and choose the right one for your child.{% else %}Сравните места и выберите подходящее ребёнку.{% endif %}
+      </p>
+    </div>
+    <div class="home-map-head-action">
+      <a class="home-map-catalog-link" href="{% url 'place_list' %}">
+        <span class="home-map-desktop-label">{% trans "Открыть весь каталог" %}</span>
+        <span class="home-map-mobile-label">{% if request.LANGUAGE_CODE == 'az' %}Kataloq{% elif request.LANGUAGE_CODE == 'en' %}Catalog{% else %}Каталог{% endif %}</span>
+        <span class="home-btn-icon" aria-hidden="true">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </span>
+      </a>
+    </div>
+  </div>
+
+  {% include "pages/includes/home_map_search.html" %}
+
+  <p class="home-map-result-status" id="home-map-result-status" role="status" aria-live="polite"
+     data-status-template="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə {count} məkan göstərilir. Xəritədə işarə və ya siyahıdan məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Showing {count} places on map. Select a pin or a place in the list.{% else %}Показано {count} мест на карте. Выберите метку или карточку.{% endif %}">
+  </p>
+
+  <div class="home-explorer-tabs" role="tablist" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Məkanlara baxış{% elif request.LANGUAGE_CODE == 'en' %}Places view{% else %}Вид мест{% endif %}">
+    <button type="button" role="tab" id="home-explorer-map-tab" aria-selected="true" aria-controls="home-explorer-map-panel" data-home-explorer-tab="map">
+      <svg class="home-tab-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+      <span>{% if request.LANGUAGE_CODE == 'az' %}Xəritə{% elif request.LANGUAGE_CODE == 'en' %}Map{% else %}Карта{% endif %}</span>
+    </button>
+    <button type="button" role="tab" id="home-explorer-list-tab" aria-selected="false" aria-controls="home-explorer-list-panel" tabindex="-1" data-home-explorer-tab="list">
+      <svg class="home-tab-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+      <span>{% if request.LANGUAGE_CODE == 'az' %}Siyahı{% elif request.LANGUAGE_CODE == 'en' %}List{% else %}Список{% endif %}</span>
+    </button>
+  </div>
+  <p class="home-explorer-status" data-home-explorer-status role="status" aria-live="polite" hidden></p>
+  
+  <div class="home-explorer-workspace">
+    <div class="home-explorer-list-panel" id="home-explorer-list-panel" data-home-explorer-list role="tabpanel" aria-labelledby="home-explorer-list-tab">
+      <ol class="home-explorer-list" data-home-map-list aria-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədəki məkanlar{% elif request.LANGUAGE_CODE == 'en' %}Places on the map{% else %}Места на карте{% endif %}"></ol>
+      <div class="home-explorer-empty" data-home-explorer-empty hidden>
+        <img src="{% static 'img/mappy/mappy-empty.webp' %}" width="104" height="104" alt="" loading="lazy" decoding="async">
+        <p>{% trans 'По выбранным фильтрам на карте пока нет мест' %}</p>
+        <a href="{% url 'place_list' %}">{% trans 'Открыть весь каталог' %}</a>
+      </div>
+      <aside class="home-explorer-guide" data-home-map-guide>
+        <img src="{% static 'img/mappy/mappy-map.webp' %}" width="124" height="156" alt="" loading="lazy" decoding="async">
+        <div class="home-explorer-guide-copy">
+          <strong class="home-explorer-guide-title">{% if request.LANGUAGE_CODE == 'az' %}Bir məkandan başlayın{% elif request.LANGUAGE_CODE == 'en' %}Start with one place{% else %}Начните с одного места{% endif %}</strong>
+          <p data-home-map-guide-text aria-live="polite">{% if request.LANGUAGE_CODE == 'az' %}Xəritədə işarə və ya siyahıdan məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Select a pin or a place in the list.{% else %}Нажмите на метку — покажу, что это за занятие.{% endif %}</p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="home-explorer-map-panel" id="home-explorer-map-panel" data-home-explorer-map role="tabpanel" aria-labelledby="home-explorer-map-tab">
+      <div class="home-map-container">
+        <div id="home-map" data-map-endpoint="{% url 'public_map' %}" class="home-map" data-details-label="{% trans 'Подробнее' %}"
+          data-age-range-label="{% if request.LANGUAGE_CODE == 'az' %}{from}–{to} yaş{% elif request.LANGUAGE_CODE == 'en' %}Ages {from}–{to}{% else %}{from}–{to} лет{% endif %}"
+          data-age-from-label="{% if request.LANGUAGE_CODE == 'az' %}{from}+ yaş{% elif request.LANGUAGE_CODE == 'en' %}Ages {from}+{% else %}от {from} лет{% endif %}"
+          data-age-to-label="{% if request.LANGUAGE_CODE == 'az' %}0–{to} yaş{% elif request.LANGUAGE_CODE == 'en' %}Up to age {to}{% else %}до {to} лет{% endif %}"
+          data-fallback-title="{% trans 'Карта детских мест по Азербайджану' %}"
+          data-empty-label="{% trans 'По выбранным фильтрам на карте пока нет мест' %}"
+          data-marker-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə məkanı aç: {name}{% elif request.LANGUAGE_CODE == 'en' %}Open place on map: {name}{% else %}Открыть место на карте: {name}{% endif %}"
+          data-catalog-url="{% url 'place_list' %}"
+          data-catalog-label="{% trans 'Открыть весь каталог' %}">
+        </div>
+        <p class="home-map-note" id="home-map-note" hidden aria-live="polite"></p>
+        <div class="home-map-popup-drawer" id="home-map-popup-drawer" aria-live="polite" hidden>
+          <div class="home-map-popup-drawer-info">
+            <strong class="home-map-popup-drawer-name" data-home-map-drawer-name></strong>
+            <p class="home-map-popup-drawer-meta" data-home-map-drawer-meta></p>
+          </div>
+          <div class="home-map-popup-drawer-action">
+            <a class="home-map-popup-drawer-link" data-home-map-drawer-link href="#">
+              <span>{% trans "Подробнее" %}</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <noscript>
+    <iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed&hl={{ request.LANGUAGE_CODE|urlencode }}"
+      loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+      title="{% trans 'Карта детских мест по Азербайджану' %}"></iframe>
+  </noscript>
+  {{ map_places|json_script:"home-map-data" }}
+  {{ home_map_page|json_script:"home-map-page" }}
+  {% include "catalog/includes/map_pagination.html" with map_kind="home" map_page=home_map_page %}
+</section>

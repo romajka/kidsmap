@@ -756,9 +756,16 @@ class PlaceController:
             is_specialists_section_enabled,
             is_events_section_enabled,
         )
-        presentation = present(place, request.LANGUAGE_CODE)
-        activity_objects = place._site_preview_activities if preview else place.activities.filter(status="published", archived_at__isnull=True).select_related("place__organization", "place__category", "program__organization")
-        activities = [present(a, request.LANGUAGE_CODE) for a in activity_objects]
+        if preview:
+            presentation = present(place, request.LANGUAGE_CODE)
+            activities = [present(a, request.LANGUAGE_CODE) for a in place._site_preview_activities]
+        else:
+            # Reuse the public batch loader: every offering shares one fresh
+            # visibility, affiliation, taxonomy and tariff snapshot for this page.
+            from catalog.services.public_presentation import prepare_cards
+            prepared = prepare_cards([place], request.LANGUAGE_CODE)
+            presentation = prepared[0]._card_presentation if prepared else present(place, request.LANGUAGE_CODE)
+            activities = prepared[0]._card_activities if prepared else []
 
         place_specialists = []
         if is_specialists_section_enabled():

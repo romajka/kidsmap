@@ -7,9 +7,9 @@ const path = require('node:path');
 const {JSDOM} = require(process.env.KIDSMAP_JSDOM || '../.tmp/phone-dom/node_modules/jsdom');
 const source = fs.readFileSync(path.join(__dirname,'../static/js/permanent_place_photos.js'),'utf8');
 const tick = () => new Promise(resolve => setImmediate(resolve));
-function setup({saved=false, failSave=false, rendered='', holdSaves=false}={}) {
+function setup({saved=false, failSave=false, rendered='', holdSaves=false, language='ru'}={}) {
   const savedNode = id => `<div data-photo-saved="${id}" data-photo-name="${id}.webp" data-photo-url="/media/${id}.webp" data-photo-preview="/thumb/${id}"></div>`;
-  const dom = new JSDOM(rendered || `<html lang="ru"><script id="pw-photo-config" type="application/json">${JSON.stringify({sourceBytes:15*1024*1024,outputBytes:2*1024*1024,batchBytes:22*1024*1024,maxPixels:50000000,maxDimension:12000,maxGallery:10,heif:true})}</script>
+  const dom = new JSDOM(rendered || `<html lang="${language}"><script id="pw-photo-config" type="application/json">${JSON.stringify({sourceBytes:15*1024*1024,outputBytes:2*1024*1024,batchBytes:22*1024*1024,maxPixels:50000000,maxDimension:12000,maxGallery:10,heif:true})}</script>
     <form><input name="csrfmiddlewaretoken" value="csrf">
     <section data-photo-editor data-prepare-url="/prepare/" data-save-url="/save/">
     <div data-photo-zone="main"><input type="file" name="photo"></div><div data-photo-errors="main"></div>
@@ -119,6 +119,16 @@ test('oversized resolution is rejected before network and a failed replacement c
   t.w.document.querySelector('[data-photo-items=main] [data-photo-action=remove]').click();
   assert.equal(t.editor.hasMain(),true);assert.equal(t.form.elements['photo-clear'].checked,false);t.dom.window.close();
 });
+for (const [language, label] of [['ru','Обложка карточки'],['az','Məkan kartının üz qabığı'],['en','Place card cover']]) {
+  test(`main cover is explicitly labelled in ${language} after gallery promotion`,async()=>{
+    const t=setup({saved:true,language});
+    assert.equal(t.w.document.querySelector('[data-photo-items=main] [data-photo-main-label]')?.textContent,label);
+    assert.equal(t.w.document.querySelector('[data-photo-items=gallery] [data-photo-main-label]'),null);
+    t.w.document.querySelector('[data-photo-items=gallery] [data-photo-action=main]').click();await tick();
+    assert.equal(t.w.document.querySelector('[data-photo-items=main] [data-photo-main-label]')?.textContent,label);
+    assert.equal(t.form.elements.photo.files[0].name,'11.webp');t.dom.window.close();
+  });
+}
 // Standalone unit mode is optional; CI/final QA explicitly require fresh HTML.
 const renderedFile=process.env.KIDSMAP_PHOTO_FORM_HTML;
 const renderedRequired=process.env.KIDSMAP_REQUIRE_RENDERED_PHOTO_FORM==='1';

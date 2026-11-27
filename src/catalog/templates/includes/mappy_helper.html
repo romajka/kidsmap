@@ -1,0 +1,11 @@
+{% load static %}
+<div class="mappy-helper" data-mappy-helper>
+  <div class="mappy-content" data-mappy-content>
+    <span class="mappy-portrait" aria-hidden="true"><img src="{% static 'img/mappy/mappy-welcome.webp' %}" width="384" height="420" alt="" decoding="async"></span>
+    <div class="mappy-bubble" role="status" aria-live="polite" title="{% if request.LANGUAGE_CODE == 'az' %}Növbəti ipucunu görmək üçün toxunun{% elif request.LANGUAGE_CODE == 'en' %}Click for next tip{% else %}Нажмите, чтобы увидеть следующий совет{% endif %}">
+      <p data-mappy-text>{% if request.LANGUAGE_CODE == 'az' %}Rayon və yaşı seçin — xəritədə uyğun məşğələlərə baxın.{% elif request.LANGUAGE_CODE == 'en' %}Choose an area and age — I’ll show you activities on the map.{% else %}Выберите район и возраст — покажу занятия на карте.{% endif %}</p>
+      <button type="button" class="mappy-dismiss" data-mappy-dismiss hidden aria-hidden="true" tabindex="-1"><span aria-hidden="true">×</span></button>
+    </div>
+  </div>
+  <button type="button" class="mappy-restore" data-mappy-restore hidden>{% if request.LANGUAGE_CODE == 'az' %}Mappinin ipucu{% elif request.LANGUAGE_CODE == 'en' %}Mappy’s tip{% else %}Подсказка Маппи{% endif %}</button>
+</div>

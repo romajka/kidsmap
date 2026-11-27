@@ -201,9 +201,11 @@
 
       function updateCaption(a, b) {
         if (!caption) return;
-        var lang = (document.documentElement.lang || "ru").toLowerCase();
-        var suffix = lang === "az" ? "yaş" : (lang === "en" ? "years" : "лет");
-        caption.textContent = a + "–" + b + " " + suffix;
+        caption.textContent = a + "–" + b;
+        var fromPct = ((a - min) / (max - min)) * 100;
+        var toPct = ((b - min) / (max - min)) * 100;
+        root.style.setProperty("--from-pct", fromPct + "%");
+        root.style.setProperty("--to-pct", toPct + "%");
       }
 
       function syncFromRange() {
@@ -303,7 +305,7 @@
       }
 
       if (scroll) {
-        var header = form.querySelector(".owner-event-stepper, .km-owner-mobile-progress");
+        var header = form.querySelector(".km-owner-stepper, .owner-event-stepper, .km-owner-mobile-progress");
         if (header) {
           header.scrollIntoView({ behavior: "smooth", block: "start" });
           var heading=currentStep.querySelector("h2");if(heading)heading.focus({preventScroll:true});

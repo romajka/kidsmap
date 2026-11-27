@@ -1,0 +1,517 @@
+/* Home layout refinement. Loaded after home_redesign.css and home_search.css.
+   Existing map, search, photo and native details controls retain their contracts. */
+body.page-home .home-hero.panel {
+  padding-top: 32px;
+}
+
+body.page-home .home-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 24px 48px;
+}
+
+body.page-home .home-hero-grid > .home-hero-copy {
+  align-self: center;
+}
+
+body.page-home .home-hero-grid .home-hero-copy h1 {
+  font-size: clamp(36px, 3.5vw, 48px);
+  line-height: 1.12;
+  margin: 0;
+  max-width: 18em;
+}
+
+body.page-home .home-hero-grid .home-hero-copy > p {
+  margin: 16px 0 0;
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 37em;
+}
+
+body.page-home .home-hero-grid .home-hero-copy > .home-hero-map-hint {
+  margin-top: 12px;
+  color: var(--home-green);
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+body.page-home .home-hero-grid .home-hero-visual {
+  align-self: center;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+}
+
+body.page-home .home-hero-grid .home-hero-slide-grid {
+  grid-template-rows: repeat(2, clamp(112px, 10.5vw, 148px));
+  gap: 10px;
+}
+
+body.page-home .home-hero-visual .home-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: none;
+  margin: 12px 0 0;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid var(--home-line);
+}
+
+body.page-home .home-hero-visual .home-hero-stat.km-stat-card {
+  min-width: 0;
+  min-height: 64px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.page-home .home-hero-visual .home-hero-stat.km-stat-card:first-child {
+  border-right: 1px solid var(--home-line);
+}
+
+body.page-home .home-hero-visual .km-stat-details {
+  min-width: 0;
+}
+
+body.page-home .home-hero-visual .home-hero-stat span {
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+/* Search uses the complete hero width, independent of the copy column. */
+body.page-home .home-hero-grid > .home-hero-search-area {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+}
+
+body.page-home .home-hero-search-area .home-hero-search-deck {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+body.page-home .home-hero-search-area .home-search {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+body.page-home .home-hero-search-area .home-search-primary-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+}
+
+body.page-home .home-hero-search-area .home-search-refine {
+  margin-top: 10px;
+}
+
+body.page-home .home-hero-search-area .home-search-refine > summary {
+  min-height: 44px;
+  padding: 10px 14px;
+}
+
+body.page-home .home-hero-search-area .home-search-refine .home-search-filters-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(210px, .9fr) auto;
+  align-items: end;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+
+body.page-home .home-hero-search-area .home-search-refine :is(.km-location-tree, .km-category-select) {
+  grid-column: auto;
+  grid-row: auto;
+  min-width: 0;
+  width: 100%;
+}
+
+body.page-home .home-hero-search-area .home-search-refine :is(.km-tree-trigger, .km-category-trigger) {
+  min-height: 44px;
+  font-size: 14px;
+}
+
+body.page-home .home-hero-search-area .home-age-range {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+body.page-home .home-hero-search-area .home-age-range > legend {
+  padding: 0;
+  margin-bottom: 6px;
+  color: var(--home-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+body.page-home .home-hero-search-area .home-age-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+  min-width: 0;
+  color: var(--home-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+body.page-home .home-hero-search-area .home-age-field input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 9px 10px;
+  box-sizing: border-box;
+  border: 1px solid var(--home-line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--home-ink);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+body.page-home .home-hero-search-area .home-age-field input:focus-visible {
+  outline: 2px solid var(--home-green);
+  outline-offset: 2px;
+  border-color: var(--home-green);
+}
+
+body.page-home .home-hero-search-area .home-search-refine .home-search-reset-btn {
+  grid-column: auto;
+  grid-row: auto;
+  align-self: end;
+  justify-self: stretch;
+  min-width: 0;
+  min-height: 44px;
+  width: auto;
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 1.3;
+  white-space: normal;
+}
+
+/* Keep the map action legible in every state, overriding historic hover layers. */
+body.page-home .home-hero .home-redesign-actions {
+  margin-top: 20px;
+  gap: 10px;
+}
+
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary,
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary:link,
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary:visited,
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary:hover,
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary:focus-visible,
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary:active {
+  min-height: 48px;
+  padding: 12px 18px;
+  background: var(--brand-turf, #136f38);
+  border: 1px solid var(--brand-turf, #136f38);
+  color: #fff;
+  box-shadow: none;
+  text-decoration: none;
+  transform: none;
+  filter: none;
+}
+
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary:hover,
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary:active {
+  background: var(--brand-spruce, #0d4924);
+  border-color: var(--brand-spruce, #0d4924);
+  color: #fff;
+}
+
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary > span,
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary .home-btn-icon,
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary:hover .home-btn-icon {
+  background: transparent;
+  color: inherit;
+  transform: none;
+}
+
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary .home-btn-icon svg {
+  stroke: currentColor;
+  transform: none;
+}
+
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary::before,
+body.page-home .home-hero .home-redesign-actions .home-redesign-primary::after {
+  content: none;
+  display: none;
+  animation: none;
+}
+
+body.page-home .home-hero .home-redesign-actions .home-redesign-secondary {
+  min-height: 48px;
+  color: var(--home-green);
+}
+
+/* Inline #add-place used auto margins that shrink a flex child to its content. */
+body.page-home #add-place.home-owner-banner {
+  align-self: stretch;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1023px) {
+  body.page-home .home-hero-search-area .home-search-refine .home-search-filters-row {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  body.page-home .home-hero-search-area .home-search-refine :is(.km-location-tree, .km-category-select) {
+    grid-column: span 3;
+    grid-row: 1;
+  }
+
+  body.page-home .home-hero-search-area .home-search-refine .home-age-range {
+    grid-column: span 4;
+    grid-row: 2;
+  }
+
+  body.page-home .home-hero-search-area .home-search-refine .home-search-reset-btn {
+    grid-column: span 2;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 960px) {
+  body.page-home .home-hero.panel {
+    padding-top: 20px;
+  }
+
+  body.page-home .home-hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  body.page-home .home-hero-grid > .home-hero-copy {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  body.page-home .home-hero-grid > .home-hero-search-area {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  body.page-home .home-hero-grid > .home-hero-visual {
+    grid-column: 1;
+    grid-row: 3;
+    max-width: 600px;
+    justify-self: center;
+  }
+
+  body.page-home .home-hero-grid .home-hero-copy h1 {
+    font-size: clamp(28px, 5vw, 40px);
+    max-width: 20em;
+  }
+
+  body.page-home .home-hero-grid .home-hero-slide-grid {
+    grid-template-rows: repeat(2, clamp(88px, 18vw, 136px));
+  }
+}
+
+@media (max-width: 620px) {
+  body.page-home .home-hero.panel {
+    padding-top: 12px;
+  }
+
+  body.page-home .home-hero-grid {
+    gap: 16px;
+  }
+
+  body.page-home .home-hero-grid .home-hero-copy h1 {
+    font-size: clamp(26px, 7vw, 34px);
+    line-height: 1.16;
+  }
+
+  body.page-home .home-hero-grid .home-hero-copy > p {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  body.page-home .home-hero-grid .home-hero-copy > .home-hero-map-hint {
+    font-size: 13px;
+  }
+
+  body.page-home .home-hero .home-redesign-actions {
+    margin-top: 14px;
+    gap: 8px;
+  }
+
+  body.page-home .home-hero .home-redesign-actions > a {
+    flex: 1 1 auto;
+    font-size: 13px;
+  }
+
+  body.page-home .home-hero .home-redesign-actions .home-redesign-primary {
+    padding-inline: 12px;
+  }
+
+  body.page-home .home-hero-search-area .home-search-primary-row {
+    gap: 8px;
+  }
+
+  body.page-home .home-hero-search-area .home-search-show-map-btn {
+    max-width: 125px;
+    padding-inline: 12px;
+  }
+
+  body.page-home .home-hero-search-area .home-search-refine > summary {
+    gap: 6px;
+    padding: 10px 12px;
+  }
+
+  body.page-home .home-hero-search-area .home-refine-hint {
+    display: none;
+  }
+
+  body.page-home .home-hero-search-area .home-refine-chevron {
+    margin-left: auto;
+  }
+
+  body.page-home .home-hero-search-area .home-search-refine .home-search-filters-row {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  body.page-home .home-hero-search-area .home-age-field input {
+    padding-inline: 8px;
+  }
+
+  body.page-home .home-hero-search-area .home-search-refine .home-search-reset-btn {
+    padding-inline: 4px;
+    font-size: 12px;
+  }
+
+  body.page-home .home-hero-search-area .home-search-reset-btn svg {
+    display: none;
+  }
+
+  body.page-home .home-hero-grid .home-hero-slide-grid {
+    grid-template-rows: repeat(2, clamp(76px, 22vw, 120px));
+    gap: 8px;
+  }
+
+  body.page-home .home-hero-visual .home-hero-stats {
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+
+  body.page-home .home-hero-visual .home-hero-stat.km-stat-card {
+    min-height: 56px;
+    padding: 0 4px;
+    gap: 8px;
+  }
+
+  body.page-home .home-hero-visual .home-hero-stat .km-stat-icon-wrapper {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  body.page-home .home-hero-visual .home-hero-stat span {
+    font-size: 11px;
+  }
+}
+
+/* Long AZ category labels need the complete row on narrow phones. */
+@media (max-width: 360px) {
+  body.page-home .home-hero-search-area .home-search-refine .km-location-tree {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  body.page-home .home-hero-search-area .home-search-refine .km-category-select {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  body.page-home .home-hero-search-area .home-search-refine .home-age-range,
+  body.page-home .home-hero-search-area .home-search-refine .home-search-reset-btn {
+    grid-row: 3;
+  }
+}
+
+/* Keep both destinations in one compact row before the mobile search. */
+@media (max-width: 620px) {
+  body.page-home .home-hero .home-redesign-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+
+  body.page-home .home-hero .home-hero-copy .home-redesign-actions > :is(.home-redesign-primary, .home-redesign-secondary) {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    padding: 10px 8px;
+    box-sizing: border-box;
+    white-space: normal;
+  }
+
+  body.page-home .home-hero .home-redesign-actions > a:only-child {
+    grid-column: 1 / -1;
+  }
+
+  body.page-home .home-hero .home-redesign-actions > a > span:not(.home-btn-icon) {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+}
+
+/* Desktop counterpart of the playful mobile photo frames. Keep the collage
+   stationary so rounded corners move without scaling or clipping the photo. */
+@media (min-width: 961px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  body.page-home .home-hero .home-hero-photo-card {
+    transition: border-radius 520ms cubic-bezier(.2,.7,.3,1),
+      border-color 350ms ease, box-shadow 350ms ease;
+  }
+  body.page-home .home-hero .home-hero-photo-card:hover {
+    transform: none;
+    border-color: var(--brand-celadon, #a8d59b);
+    box-shadow: 0 10px 24px -6px rgba(16,60,30,.2);
+  }
+  body.page-home .home-hero .home-hero-photo-main:hover {
+    border-radius: 28px 88px 28px 56px;
+  }
+  body.page-home .home-hero .home-hero-photo-side-top:hover {
+    border-radius: 58px 20px 24px 20px;
+  }
+  body.page-home .home-hero .home-hero-photo-side-bottom:hover {
+    border-radius: 24px 60px 24px 20px;
+  }
+  body.page-home .home-hero .home-hero-photo-card:hover img { transform: none; }
+  body.page-home .home-hero .home-hero-photo-card::after { display: none; }
+}

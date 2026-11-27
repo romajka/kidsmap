@@ -231,6 +231,7 @@ def _context(request, *, mode, specialist=None, organization=None, **extra):
     actor = request.specialist_actor
     context = {'recovery_actor':actor.pk,'clear_specialist_recovery':request.session.pop('specialist_saved_recovery',[]),
                'workspace_mode': mode, 'specialist': specialist, 'organization': organization,
+               'specialist_account_section': mode != 'organization',
                'can_review_claims': _claim_reviewer(actor),
                'can_review_documents': specialist_documents.can_review_documents(actor)}
     person_access = specialist and specialist_documents.is_person(actor, specialist)
@@ -288,11 +289,22 @@ def specialist_workspace_index(request):
     if document_review:
         review_ids.update(SpecialistDocument.objects.filter(status=SpecialistDocument.STATUS_PENDING)
                           .values_list('specialist_id', flat=True))
+    my_specialist = Specialist.objects.filter(verified_person_user=actor, person_verified_at__isnull=False).first()
+    working_proposals = SpecialistProposalDraft.objects.filter(actor=actor, submitted_at__isnull=True).order_by('-updated_at')
+    latest_claims = {}
+    for claim in SpecialistClaim.objects.filter(applicant=actor).select_related('specialist').order_by('-pk'):
+        if my_specialist and claim.specialist_id == my_specialist.pk:
+            continue
+        claim.status_label = _claim_status(claim.status)
+        latest_claims.setdefault(claim.specialist_id, claim)
+    claims = list(latest_claims.values())
+    proposals = Specialist.objects.filter(created_by=actor, verified_person_user__isnull=True).exclude(
+        pk__in=[claim.specialist_id for claim in claims]).order_by('-pk')
+    if not (my_specialist or working_proposals.exists() or claims or proposals.exists() or review_ids):
+        return redirect('account_dashboard')
     return render(request, 'pages/specialist_workspace.html', _context(request, mode='index',
-        working_proposals=SpecialistProposalDraft.objects.filter(actor=actor,submitted_at__isnull=True).order_by('-updated_at'),
-        my_specialist=Specialist.objects.filter(verified_person_user=actor, person_verified_at__isnull=False).first(),
-        proposals=Specialist.objects.filter(created_by=actor, verified_person_user__isnull=True).order_by('-pk'),
-        claims=SpecialistClaim.objects.filter(applicant=actor).select_related('specialist').order_by('-pk'),
+        working_proposals=working_proposals, my_specialist=my_specialist,
+        proposals=proposals, claims=claims,
         review_profiles=Specialist.objects.filter(pk__in=review_ids).only('pk', 'name').order_by('pk'),
         owned_organizations=Organization.objects.filter(owner=actor, archived_at__isnull=True).order_by('pk')))
 
@@ -544,7 +556,7 @@ def specialist_workspace_proposal(request, draft_id=None):
     if draft_id is not None:
         draft=get_proposal(actor=request.specialist_actor,draft_id=draft_id)
         if draft.submitted_at:
-            if draft.submitted_specialist_id:return redirect('specialist_workspace_claims',pk=draft.submitted_specialist_id)
+            if draft.submitted_specialist_id:return redirect('specialist_workspace_index')
             raise Http404
     key=draft.pk if draft else uuid4()
     status=200
@@ -558,7 +570,7 @@ def specialist_workspace_proposal(request, draft_id=None):
                 expected_version=request.POST.get('draft_version',''),data=request.POST,files=request.FILES,
                 submit=request.POST.get('form_action')!='save_draft')
             request.session['specialist_saved_recovery']=[f'proposal-{key}','proposal-new']
-            if draft.submitted_at:return redirect('specialist_workspace_claims',pk=draft.submitted_specialist_id)
+            if draft.submitted_at:return redirect('specialist_workspace_index')
             return redirect('specialist_workspace_proposal_resume',draft_id=draft.pk)
         except ValidationError as exc:
             form=getattr(exc,'form',None)
@@ -569,9 +581,16 @@ def specialist_workspace_proposal(request, draft_id=None):
             status=_error_status(exc)
     else:
         form,locations=proposal_forms(actor=request.specialist_actor,payload=draft.payload if draft else None)
+    if request.method == 'POST':
+        profile_subject = request.POST.get('profile_subject', 'other')
+    elif draft:
+        profile_subject = (draft.payload.get('profile_subject') or ['other'])[-1]
+    else:
+        profile_subject = 'self'
     lang=(get_language() or 'az').split('-')[0]
     return render(request,'pages/owner_specialist_create.html',_context(request,mode='profile',
         form=form,locations=locations,is_proposal=True,proposal_draft=draft,draft_key=key,
+        profile_subject=profile_subject,
         draft_version=request.POST.get('draft_version','0') if status==409 else draft.version if draft else '0',
         recovery_actor=request.specialist_actor.pk,recovery_entity=f'proposal-{key}' if draft else 'proposal-new',
         recovery_version=request.POST.get('draft_version','0') if status==409 else str(draft.version) if draft else '0',

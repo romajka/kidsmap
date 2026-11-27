@@ -1,5 +1,6 @@
 """Public map points: verified physical identity, never inferred business identity."""
 import math
+from django.utils.translation import gettext as _
 from catalog.services.public_presentation import prepare_cards
 
 
@@ -52,9 +53,12 @@ def _serialize_map_places(qs, language_code, filters=None):
         key, (lat, lng) = identity
         data = place._card_presentation
         category = place.category
+        # Match shared cards: exact filters display matched group ages instead.
+        age = place.age_display if not data['exact_filtered'] else ''
         member = {
             'id': place.pk, 'name': data['name'], 'url': data['url'],
             'lat': lat, 'lng': lng, 'price': data['prices']['label'],
+            'age': f"{age} {_('лет')}" if age else '',
             'image_url': data['image_url'], 'has_phone': data['contacts']['has_phone'],
             'category': data['category_label'], 'category_code': place.category_code,
             'category_color_bg': category.resolved_color_bg if category else '#F3F4F6',
