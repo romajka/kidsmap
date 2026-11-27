@@ -40,8 +40,11 @@ body.page-place_detail .detail-nearby__head {
   align-items: center;
   gap: 8px;
 }
-.detail-nearby__arrow {
-  display: inline-flex;
+.detail-nearby__controls[hidden] { display: none; }
+.detail-nearby__controls:not([hidden]) .detail-nearby__arrow {
+  display: inline-flex !important;
+  width: auto;
+  height: auto;
   align-items: center;
   justify-content: center;
   gap: 6px;
