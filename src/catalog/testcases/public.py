@@ -954,13 +954,14 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "css/components/header.css?v=2", html=False)
-        self.assertContains(response, "js/place_phone_reveal.js?v=20261022_release_all_r1", html=False)
+        self.assertContains(response, "js/place_phone_reveal.js?v=20261111_contact_analytics_r1", html=False)
 
     @override_settings(
         DEBUG=False,
         ALLOWED_HOSTS=["kidsmap.az"],
         GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123",
     )
+    @override_settings(TESTING=False)
     def test_home_page_includes_google_analytics_tag_when_configured(self):
         response = self.client.get("/", HTTP_HOST="kidsmap.az", follow=True)
 

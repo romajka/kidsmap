@@ -8,7 +8,7 @@
       {% if place.completion.is_ready %}
         <span class="account-card-readiness-pill account-card-readiness-pill--ready">
           <span class="material-symbols-rounded">check_circle</span>
-          <span>{% if CURRENT_LANGUAGE == "az" %}Dərc üçün hazırdır{% elif CURRENT_LANGUAGE == "en" %}Ready to publish{% else %}Готово к публикации{% endif %}</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Məcburi məlumatlar doldurulub{% elif CURRENT_LANGUAGE == "en" %}Required details complete{% else %}Обязательные данные заполнены{% endif %}</span>
         </span>
       {% else %}
         <span class="account-card-readiness-pill account-card-readiness-pill--pending">

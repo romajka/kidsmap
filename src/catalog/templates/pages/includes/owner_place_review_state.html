@@ -5,11 +5,11 @@
   </div>
 {% endif %}
 {% if place.owner_workflow.review_note %}
-  <div class="account-rejection-callout" data-owner-review-note>
-    <span class="material-symbols-rounded" aria-hidden="true">error</span>
+  <div class="account-rejection-callout{% if place.owner_workflow.status == 'needs_changes' %} account-rejection-callout--changes{% endif %}" data-owner-review-note>
+    <span class="material-symbols-rounded" aria-hidden="true">{% if place.owner_workflow.status == 'needs_changes' %}edit_note{% else %}error{% endif %}</span>
     <div class="account-rejection-callout__content">
       <strong>{% if CURRENT_LANGUAGE == 'az' %}Moderatorun qeydi{% elif CURRENT_LANGUAGE == 'en' %}Moderator note{% else %}Замечание модератора{% endif %}:</strong>
-      <span>{{ place.owner_workflow.review_note }}</span>
+      <span>{{ place.owner_workflow.review_note|linebreaksbr }}</span>
     </div>
   </div>
 {% elif place.owner_workflow.pending %}

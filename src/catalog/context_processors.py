@@ -18,7 +18,6 @@ from .services.auth_redirects import build_header_login_url
 DEFAULT_FOOTER_PHONE = "+994 55 497 97 23"
 DEFAULT_FOOTER_WHATSAPP_URL = "https://wa.me/994554979723"
 DEFAULT_FOOTER_EMAIL = "info@kidsmap.az"
-LOCAL_ANALYTICS_HOSTS = {"localhost", "127.0.0.1", "testserver"}
 # Visitor pages only; keep account and authentication workflows quiet.
 LIVING_MAP_URL_NAMES = frozenset({
     "home", "place_list", "place_new", "seo_landing", "place_detail",
@@ -234,8 +233,21 @@ def seo_urls(request):
 
 def _google_analytics_context(request) -> dict[str, object]:
     measurement_id = (getattr(settings, "GOOGLE_ANALYTICS_MEASUREMENT_ID", "") or "").strip()
-    hostname = request.get_host().partition(":")[0].lower()
-    enabled = bool(measurement_id) and not settings.DEBUG and hostname not in LOCAL_ANALYTICS_HOSTS
+    hostname = urlsplit("//" + request.get_host()).hostname
+    public_host = urlsplit(getattr(settings, "PUBLIC_BASE_URL", "") or "https://kidsmap.az").hostname
+    user = getattr(request, "user", None)
+    path_parts = request.path.strip("/").split("/")
+    if path_parts[0] in {"az", "ru", "en"}:
+        path_parts = path_parts[1:]
+    service_path = bool(path_parts and path_parts[0] in {"admin", "i18n"})
+    enabled = bool(
+        measurement_id and not settings.DEBUG and not getattr(settings, "TESTING", False)
+        and hostname == public_host == "kidsmap.az"
+        and not getattr(request, "site_preview", False)
+        and not getattr(user, "is_staff", False)
+        and not getattr(user, "is_superuser", False)
+        and not service_path
+    )
     return {
         "google_analytics_measurement_id": measurement_id if enabled else "",
         "google_analytics_enabled": enabled,

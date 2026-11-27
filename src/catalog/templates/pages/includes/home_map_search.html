@@ -1,5 +1,5 @@
 {% load i18n static catalog_i18n %}
-    <div class="home-hero-search-area">
+    <div class="home-hero-search-area{% if not map_places %} is-catalog-search{% endif %}">
   <div class="home-map-search-deck home-hero-search-deck">
     <form class="home-search home-search-compact" method="get" action="{% url 'place_list' %}"
       data-home-map-filter-form>
@@ -110,12 +110,10 @@
 
         <button class="btn home-search-show-map-btn" type="submit" data-home-show-map-btn
           aria-label="{{ hero_cta_text }}">
-{% if map_places %}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="10.5" cy="10.5" r="6.5"></circle>
             <path d="m16 16 5 5"></path>
           </svg>
-{% endif %}
           <span>{{ hero_cta_text }}</span>
         </button>
       </div>

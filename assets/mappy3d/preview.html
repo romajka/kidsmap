@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mappy 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: friendly, toy-shop shelf for one plush bear
+   IDEA: a little stage in the brand's green field where the bear lives, with a remote control beside it
+   PICTURE: the live 3D Mappy, large, standing on a soft spotlight
+   COLOUR and TYPE: KidsMap paper #f7f9f5, turf #136f38, celadon #a8d59b, one sun accent #ffc531; Chiron GoRound TC
+   LAYOUT: stage left (or top on phones), control panel right; one column under 760px */
+:root{color-scheme:light dark;
+  --bg:light-dark(#f7f9f5,#0f1d15);--ink:light-dark(#142c21,#eaf5ec);--muted:light-dark(#4f6357,#a9c2b1);
+  --stage:light-dark(#e8f3e5,#16301f);--card:light-dark(#fff,#1a3324);--line:light-dark(#d7e7d3,#29473a);
+  --turf:#136f38;--turf-ink:light-dark(#136f38,#8fd59f);--sun:#ffc531}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Chiron GoRound TC",system-ui,sans-serif;overflow-x:clip}
+.wrap{max-width:1240px;margin:0 auto;padding:clamp(18px,3vw,40px) max(4vw,16px);display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(18px,3vw,40px);align-items:start}
+.stage{position:relative;border-radius:32px;background:radial-gradient(120% 80% at 50% 105%,light-dark(#cde7c5,#1f4a2f) 0 30%,var(--stage) 60%);min-height:min(78vh,640px);overflow:hidden}
+#mappy{position:absolute;left:50%;bottom:9%;transform:translateX(-50%);width:min(88%,460px);height:82%}
+#mappy img{position:absolute;inset:0;margin:auto;max-width:70%;max-height:85%;object-fit:contain}
+.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:14px;white-space:nowrap;font-size:14px;font-weight:600;color:var(--muted);background:var(--card);padding:7px 12px;border-radius:999px}
+.load{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-weight:600}.load[hidden]{display:none}
+h1{font-size:clamp(32px,4.4vw,48px);line-height:1.05;margin:4px 0 8px;font-weight:800;text-wrap:balance}
+.lead{color:var(--muted);margin:0 0 22px;max-width:46ch}
+.panel{display:grid;gap:18px}
+.grp{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px 16px 18px}
+.grp h2{font-size:17px;margin:0 0 10px;font-weight:800}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;font-size:15px;font-weight:600;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;transition:transform .12s ease,background .15s}
+button:hover{background:light-dark(#e8f3e5,#21402d)}
+button:active{transform:scale(.96)}
+button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+button[aria-pressed=true]{background:var(--turf);color:#fff;border-color:var(--turf)}
+.lang{display:inline-flex;gap:6px;margin-bottom:14px}
+.note{font-size:14px;color:var(--muted);margin:2px 0 0}
+@media(max-width:760px){.wrap{grid-template-columns:minmax(0,1fr)}.stage{min-height:62vh}}
+@media(prefers-reduced-motion:reduce){button{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="stage" aria-label="3D Mappy">
+    <div class="hint">Нажимай на голову, нос, живот, лапы</div>
+    <div class="load" id="load">Загружаю Mappy…</div>
+    <div id="mappy"></div>
+  </section>
+  <section>
+    <h1>Mappy в 3D</h1>
+    <p class="lead">Живой мишка для kidsmap.az. Следит за курсором, проминается под нажатием и отвечает по-разному — смотря куда нажать. Повторное нажатие в то же место даёт другую реакцию. Минуту без движения — засыпает.</p>
+    <div class="lang" role="group" aria-label="Язык фраз">
+      <button data-lang="az" aria-pressed="true">AZ</button><button data-lang="ru" aria-pressed="false">RU</button>
+    </div>
+    <div class="panel">
+      <div class="grp"><h2>Нажать на…</h2><div class="row" id="react"></div></div>
+      <div class="grp"><h2>Эмоции</h2><div class="row" id="expr"></div><p class="note">Моргает сам, независимо от эмоции.</p></div>
+      <div class="grp"><h2>Движения</h2><div class="row" id="move"></div></div>
+    </div>
+  </section>
+</div>
+<script type="module">
+{
+  const R = [['голова', 'head'], ['нос', 'nose'], ['живот', 'belly'], ['лапа', 'hand'], ['нога', 'foot'], ['ухо', 'ear'], ['бабочка', 'bow'], ['рюкзак', 'pack']];
+  const X = [['спокойный', 'neutral'], ['радость', 'happy'], ['смех', 'laugh'], ['удивление', 'surprised'], ['грусть', 'sad'], ['сонный', 'sleepy'], ['сердится', 'grumpy'], ['смущение', 'shy'], ['подмигивает', 'wink'], ['любопытство', 'curious']];
+  const MV = [['стоит', 'idle'], ['идёт', 'walk'], ['танцует', 'dance'], ['осматривается', 'look'], ['спит', 'sleep'], ['машет', 'wave'], ['прыгает', 'jump'], ['кружится', 'spin'], ['показывает', 'point']];
+  const $ = (id) => document.getElementById(id);
+  const btn = (label, data) => `<button ${data}>${label}</button>`;
+  $('react').innerHTML = R.map(([l, z]) => btn(l, `data-r="${z}"`)).join('');
+  $('expr').innerHTML = X.map(([l, k]) => btn(l, `data-x="${k}" aria-pressed="${k === 'neutral'}"`)).join('');
+  $('move').innerHTML = MV.map(([l, k]) => btn(l, `data-m="${k}"`)).join('');
+  let m = null, lang = 'az', glb = null;
+  const mount = async () => {
+    const { mountMappy } = await import('./mappy3d.js');
+    if (m) m.destroy();
+    $('mappy').innerHTML = '';
+    if (!glb) { const b64 = (await import('./mappy_glb.js')).default; const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); glb = u.buffer; }
+    m = mountMappy($('mappy'), { buffer: glb.slice(0), lang, sleepAfter: 60 });
+    m.on('ready', () => { $('load').hidden = true; });
+    m.on('error', () => { $('load').textContent = 'Не удалось загрузить 3D-модель'; });
+  };
+  mount().catch(() => { $('load').textContent = 'Браузер не поддерживает 3D'; });
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b || !m || !m.ready) {
+      if (b && b.dataset.lang) { lang = b.dataset.lang; document.querySelectorAll('[data-lang]').forEach((x) => x.setAttribute('aria-pressed', x === b)); $('load').hidden = false; mount(); }
+      return;
+    }
+    if (b.dataset.lang) { lang = b.dataset.lang; document.querySelectorAll('[data-lang]').forEach((x) => x.setAttribute('aria-pressed', x === b)); $('load').hidden = false; $('load').textContent = 'Загружаю Mappy…'; mount(); return; }
+    if (b.dataset.r !== undefined) { m.pressAt(b.dataset.r, true); setTimeout(() => m.pressAt(b.dataset.r, false), 160); }
+    if (b.dataset.x) { m.express(b.dataset.x); document.querySelectorAll('[data-x]').forEach((x) => x.setAttribute('aria-pressed', x === b)); }
+    if (b.dataset.m) { m.play(b.dataset.m, 0.35); if (b.dataset.m === 'sleep') m.express('asleep'); }
+  });
+}
+</script>
+</body>
+</html>

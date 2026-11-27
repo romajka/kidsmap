@@ -50,6 +50,7 @@ def field_label(target, key):
         'pricing_plans': t('Тарифы', 'Tariflər', 'Pricing plans'),
         'nested_pricing': t('Тарифы по занятиям', 'Məşğələ tarifləri', 'Activity pricing'),
         'structured_schedule': t('Расписание', 'Cədvəl', 'Schedule'),
+        'schedule': t('Расписание (старый текст)', 'Cədvəl (əvvəlki mətn)', 'Schedule (legacy text'),
         'gallery': t('Галерея', 'Qalereya', 'Gallery'),
         'location_override': t('Уточнение местоположения', 'Məkanın dəqiqləşdirilməsi', 'Location correction'),
     }
@@ -109,7 +110,7 @@ def _revision_row(revision, now):
     review_fields = list(revision.changed_fields)
     if new_entry:
         from catalog.services.moderation_changes import _empty
-        review_fields += [key for key, value in candidate.items() if key not in review_fields and not _empty(value)]
+        review_fields += [key for key in sorted(candidate) if key not in review_fields and not _empty(candidate[key])]
     submitted = revision.submitted_at or revision.created_at
     return {'source': 'content', 'id': revision.pk, 'kind': kind, 'status': status,
         'author_id': revision.author_id, 'author': revision.author,
@@ -129,7 +130,7 @@ def _revision_row(revision, now):
 
 def _affiliation_row(item, now):
     submitted = item.created_at
-    return {'source': 'affiliation', 'id': item.pk, 'kind': 'affiliation', 'status': item.status,
+    return {'source': 'affiliation', 'id': item.pk, 'kind': 'affiliation', 'status': 'declined' if item.status == 'rejected' else item.status,
         'author_id': item.requested_by_id, 'author': item.requested_by,
         'organization_id': item.organization_id, 'place_ids': [item.place_id],
         'target_id': item.place_id, 'name': f"{item.place} → {item.organization.name_az or item.organization.name_ru or item.organization.name_en or ('#' + str(item.organization_id))}",

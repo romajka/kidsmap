@@ -94,6 +94,11 @@ class IUserProfileRepository(ABC):
 
 class IEmailVerificationRepository(ABC):
     @abstractmethod
+    def locked_user(self, *, user_id):
+        """Atomic context yielding the fresh user, serializing their OTP lifecycle."""
+        raise NotImplementedError
+
+    @abstractmethod
     def get_by_user(self, *, user) -> UserEmailVerification | None:
         raise NotImplementedError
 

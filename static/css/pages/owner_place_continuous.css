@@ -1327,3 +1327,9 @@ body:has([data-place-mode=continuous]),body:has([data-place-mode=continuous]) .s
 
 .pc .pc-age-program { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .pc .pc-age-program .pw-error { flex-basis: 100%; }
+
+.pc-review-note {border-inline-start:4px solid var(--brand-turf,#136f38);background:var(--tint-turf-050,#f1f7ef);color:var(--ink,#24352b);padding:20px}
+.pc-review-note p {white-space:normal;line-height:1.65;font-size:15px}
+.pc-review-note h2 {font-size:18px}
+@keyframes pc-review-note-in {from {opacity:0;transform:translateY(6px)} to {opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:no-preference) {.pc-review-note {animation:pc-review-note-in var(--dur-base,260ms) var(--ease-out-quint,cubic-bezier(.22,1,.36,1)) both}}

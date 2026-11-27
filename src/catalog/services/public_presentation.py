@@ -477,13 +477,11 @@ def prepare_cards(places, language=None, *, filters=None):
 
 def organization_matches(query, language=None):
     """Name discovery links, including useful published Organizations without branches."""
-    from django.db.models import Q
     from catalog.services.features import is_organizations_section_enabled
     if not query or not is_organizations_section_enabled():
         return []
-    names=Q()
-    for code in ('az','ru','en'):
-        names |= Q(**{'name_'+code+'__icontains':query})
+    from catalog.services.search_terms import text_query
+    names = text_query(query, ['name_' + code for code in ('az', 'ru', 'en')])
     rows=Organization.objects.filter(names,status='published',approved_at__isnull=False,archived_at__isnull=True).order_by('pk')[:12]
     lang=language_code(language)
     return [{'name':translated(row,'name',lang)[0],'url':public_url(row,lang)} for row in rows]

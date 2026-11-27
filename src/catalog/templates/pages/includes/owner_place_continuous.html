@@ -12,7 +12,7 @@
   {% if place_revision.review_note and place_revision.status == 'rejected' or place_revision.review_note and place_revision.status == 'declined' or place_revision.review_note and place_revision.status == 'draft' %}
   <section class="pc-review-note" data-place-review-note aria-labelledby="pc-review-note-title">
     <h2 id="pc-review-note-title">{{ ui.review_note_title }}</h2>
-    <p>{{ place_revision.review_note }}</p>
+    <p>{{ place_revision.review_note|linebreaksbr }}</p>
   </section>
   {% endif %}
   <form method="post" enctype="multipart/form-data" class="pw-form pc-form" data-permanent-place-form data-km-editor rel="noopener" data-pw-volunteer="0" data-pw-bound="{{ form.is_bound|yesno:'1,0' }}" data-draft-key="{% if place %}place-edit-{{ request.user.pk }}-{{ place.pk }}{% else %}{{ draft_client_key }}{% endif %}" data-account-id="{{ request.user.pk }}" data-fresh="{% if request.GET.fresh == '1' %}1{% else %}0{% endif %}" data-draft-url="{% url 'server_draft_collection' %}" data-schema-version="{{ form.publication_schema_version }}" data-base-signature="{{ form.editor_base_signature }}" data-source-version="{% if place %}{{ place.content_version }}{% else %}0{% endif %}" data-target-id="{% if place %}{{ place.pk }}{% endif %}" novalidate>
