@@ -256,6 +256,7 @@
 .event-contacts-panel { margin-top: 18px; padding-top: 20px; border-top: 1px solid var(--tone-border); }
 .event-contacts-panel .event-visit-links { margin-top: -5px; }
 .event-history, .event-reviews { padding-block: 24px; border-top: 1px solid var(--tint-line-200); }
+#event-reviews { scroll-margin-block-start: 6rem; }
 .event-reviews article { max-width: 76ch; margin-bottom: 16px; }
 .event-reviews h3 { margin-bottom: 4px; }
 .event-reviews .km-typed-review-link {
@@ -607,6 +608,7 @@
 }
 .km-lb.is-open .km-lb__bar { opacity: 1; }
 .km-lb__cap { min-width: 0; }
+.km-lb__status { margin: 0; }
 .km-lb__cap small { display: block; opacity: .85; }
 .km-lb__cap a { color: #fff; }
 .km-lb__count { flex: none; font-weight: 750; font-variant-numeric: tabular-nums; }

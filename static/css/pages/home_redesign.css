@@ -2174,6 +2174,13 @@ body.page-home .home-rail-viewport.is-dragging {
   cursor: grabbing !important;
 }
 body.page-home .is-automatic .home-rail-viewport { scroll-snap-type: none; }
+body.page-home .is-static .home-rail-viewport {
+  -webkit-mask-image: none;
+  mask-image: none;
+  cursor: auto;
+}
+body.page-home .is-static .home-rail-item > .place-card { cursor: pointer; }
+body.page-home :is(.home-rail-nav-group, .home-rail-progress)[hidden] { display: none; }
 
 body.page-home .home-rail-track {
   display: flex;

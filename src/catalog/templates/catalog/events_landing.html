@@ -6,7 +6,7 @@
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block structured_data %}{% if events_breadcrumbs_json %}<script type="application/ld+json">{{ events_breadcrumbs_json|safe }}</script>{% endif %}{% for schema in afisha_schemas %}<script type="application/ld+json">{{ schema|safe }}</script>{% endfor %}{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261124_compact_hub3"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2"><link rel="stylesheet" href="{% static 'css/pages/afisha-collections.css' %}?v=20261125_collections">{% include "pages/includes/editorial_styles.html" %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261124_compact_hub3"><link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261127_actions"><link rel="stylesheet" href="{% static 'css/pages/afisha-collections.css' %}?v=20261125_collections">{% include "pages/includes/editorial_styles.html" %}
 {% endblock %}
 {% block content %}
 <div class="events-page-wrap">
