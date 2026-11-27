@@ -15,19 +15,21 @@
     const bg = root.querySelector('[data-km-lb-bg]');
     const cap = root.querySelector('[data-km-lb-cap]');
     const count = root.querySelector('[data-km-lb-count]');
+    const status = root.querySelector('[data-km-lb-status]');
     const stage = root.querySelector('[data-km-lb-stage]');
     const closeBtn = root.querySelector('[data-km-lb-close]');
     const items = Array.from(root.querySelectorAll('.km-lb__items > li')).map(li => ({
       src: li.dataset.src, srcset: li.dataset.srcset, thumb: li.dataset.thumb, original: li.dataset.original,
       w: +li.dataset.w || 0, h: +li.dataset.h || 0, alt: li.dataset.alt || '', caption: li.innerHTML,
     }));
-    let index = 0, opener = null, busy = false, sourceFor = () => null;
+    let index = 0, requestedIndex = 0, requestId = 0;
+    let opener = null, photo = null, closing = false, sourceFor = () => null;
     root.classList.toggle('is-single', items.length < 2);
 
     // Where the photo will sit: contained in 92% × 80% of the screen, never blown up past 1.5×.
     function finalBox(item) {
       const vw = window.innerWidth, vh = window.innerHeight;
-      const ratio = item.w && item.h ? item.w / item.h : (img.naturalWidth && img.naturalHeight ? img.naturalWidth / img.naturalHeight : 0.75);
+      const ratio = item.w && item.h ? item.w / item.h : photo.naturalWidth / photo.naturalHeight;
       let w = vw * 0.92, h = w / ratio;
       if (h > vh * 0.8) { h = vh * 0.8; w = h * ratio; }
       if (item.w && w > item.w * 1.5) { w = item.w * 1.5; h = w / ratio; }
@@ -52,64 +54,113 @@
     function delta(from, to) {
       return `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})`;
     }
-    function show(i) {
-      index = (i + items.length) % items.length;
-      const item = items[index];
+    async function loadPhoto(item) {
+      const image = new Image();
+      const source = item.src || item.original || item.thumb;
+      if (item.srcset) {
+        image.sizes = '92vw';
+        image.srcset = item.srcset;
+      }
+      if (source) image.src = source;
+      try {
+        await image.decode();
+        return image;
+      } catch (_) {
+        image.removeAttribute('srcset');
+      }
+      // An optimized derivative can be missing even when its original is available.
+      const fallbacks = new Set([item.original, item.src, item.thumb]);
+      if (!item.srcset) fallbacks.delete(source);
+      for (const url of fallbacks) {
+        if (!url) continue;
+        image.src = url;
+        try {
+          await image.decode();
+          return image;
+        } catch (_) {}
+      }
+      return null;
+    }
+
+    async function show(i, direction = 0) {
+      requestedIndex = (i + items.length) % items.length;
+      const id = ++requestId;
+      const item = items[requestedIndex];
+      status.textContent = photo ? '' : root.dataset.loading;
+      const loaded = await loadPhoto(item);
+      if (id !== requestId || !root.open) return;
+      if (!loaded) {
+        status.textContent = root.dataset.loadError;
+        return;
+      }
+
+      index = requestedIndex;
+      photo = loaded;
+      img.getAnimations().forEach(animation => animation.cancel());
       img.alt = item.alt;
-      img.removeAttribute('srcset');
-      if (item.srcset) { img.srcset = item.srcset; img.sizes = '92vw'; }
-      img.src = item.src || item.original;
-      bg.style.backgroundImage = `url("${item.thumb || item.src}")`;
+      img.src = photo.currentSrc || photo.src;
+      bg.style.backgroundImage = `url("${item.thumb || img.src}")`;
       cap.innerHTML = item.caption;
       count.textContent = `${index + 1} / ${items.length}`;
-      place(finalBox(item));
-      return item;
-    }
-    function open(i, from, getSource) {
-      if (busy || !items.length) return;
-      opener = from || document.activeElement;
-      sourceFor = getSource || (() => from);
-      const item = show(i);
-      root.showModal();
-      closeBtn.focus({ preventScroll: true });
-      requestAnimationFrame(() => root.classList.add('is-open'));
-      const src = sourceRect(sourceFor(index), item);
-      if (src && !reduce.matches) {
-        busy = true;
-        img.animate([{ transform: delta(src, finalBox(item)), borderRadius: '14px' }, { transform: 'none' }],
-          { duration: 420, easing: EASE }).finished.finally(() => { busy = false; });
+      status.textContent = '';
+
+      const box = finalBox(item);
+      place(box);
+      if (reduce.matches) return;
+      if (direction) {
+        img.animate([{ opacity: 0.7, transform: `translateX(${24 * direction}px)` },
+          { opacity: 1, transform: 'none' }], { duration: 220, easing: EASE });
+      } else {
+        const src = sourceRect(sourceFor(index), item);
+        if (src) {
+          img.animate([{ transform: delta(src, box), borderRadius: '14px' }, { transform: 'none' }],
+            { duration: 420, easing: EASE });
+        }
       }
     }
+
+    function open(i, from, getSource) {
+      if (root.open || !items.length) return;
+      opener = from || document.activeElement;
+      sourceFor = getSource || (() => from);
+      root.showModal();
+      closeBtn.focus({ preventScroll: true });
+      root.classList.add('is-open');
+      show(i);
+    }
+
     function close() {
-      if (!root.open || busy) return;
+      if (!root.open || closing) return;
+      closing = true;
+      requestId += 1;
+      root.classList.remove('is-open');
+      img.getAnimations().forEach(animation => animation.cancel());
+      if (!photo || reduce.matches) {
+        root.close();
+        return;
+      }
       const item = items[index];
       const src = sourceRect(sourceFor(index), item);
-      root.classList.remove('is-open');
-      const done = () => { root.close(); img.style.transform = ''; busy = false; };
-      if (src && !reduce.matches) {
-        busy = true;
-        img.animate([{ transform: 'none' }, { transform: delta(src, finalBox(item)) }],
-          { duration: 320, easing: EASE, fill: 'forwards' }).finished.then(done, done);
-      } else if (!reduce.matches) {
-        busy = true;
-        img.animate([{ opacity: 1 }, { opacity: 0, transform: 'scale(.96)' }], { duration: 200, fill: 'forwards' }).finished.then(done, done);
-      } else done();
+      const end = src ? { transform: delta(src, finalBox(item)) } : { opacity: 0, transform: 'scale(.96)' };
+      img.animate([{ transform: 'none' }, end], {
+        duration: src ? 320 : 200, easing: EASE, fill: 'forwards',
+      }).finished.then(() => root.close(), () => root.close());
     }
+
     function step(dir) {
-      if (busy || items.length < 2) return;
-      if (reduce.matches) { show(index + dir); return; }
-      busy = true;
-      img.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-40 * dir}px)` }],
-        { duration: 150, easing: 'ease-in', fill: 'forwards' }).finished.then(() => {
-          show(index + dir);
-          const anim = img.animate([{ opacity: 0, transform: `translateX(${40 * dir}px)` }, { opacity: 1, transform: 'none' }],
-            { duration: 240, easing: EASE });
-          anim.finished.finally(() => { busy = false; });
-        });
+      if (!closing && items.length > 1) show(requestedIndex + dir, dir);
     }
+
     root.addEventListener('close', () => {
-      img.getAnimations().forEach(a => a.cancel());
-      img.removeAttribute('src'); img.removeAttribute('srcset');
+      requestId += 1;
+      closing = false;
+      photo = null;
+      img.getAnimations().forEach(animation => animation.cancel());
+      img.removeAttribute('src');
+      bg.style.backgroundImage = '';
+      cap.replaceChildren();
+      count.textContent = '';
+      status.textContent = '';
       root.classList.remove('is-open');
       if (opener && opener.isConnected) opener.focus({ preventScroll: true });
     });
@@ -131,7 +182,7 @@
       if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && e.target !== img) close();
     });
     stage.addEventListener('pointercancel', () => { tracking = false; });
-    window.addEventListener('resize', () => { if (root.open && !busy) place(finalBox(items[index])); });
+    window.addEventListener('resize', () => { if (root.open && photo && !closing) place(finalBox(items[index])); });
     return { open, count: items.length };
   }
 

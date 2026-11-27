@@ -71,7 +71,7 @@
       {% else %}
         <a class="km-ev-btn km-ev-btn--primary" href="{{ event.get_absolute_url }}"><span>{% if language == 'az' %}Ətraflı{% elif language == 'en' %}Details{% else %}Подробнее{% endif %}</span><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>
       {% endif %}
-      <a class="km-ev-btn km-ev-btn--icon" data-event-reviews="{{ event.pk }}" href="{{ event.get_absolute_url }}#event-reviews" aria-label="{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}"><span class="material-symbols-rounded" aria-hidden="true">star</span></a>
+      <a class="km-ev-btn km-ev-btn--ghost km-ev-btn--reviews" data-event-reviews="{{ event.pk }}" href="{{ event.get_absolute_url }}#event-reviews">{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}</a>
     </div>
   </div>
 </article>

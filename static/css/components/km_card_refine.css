@@ -54,22 +54,27 @@ body#top .place-card :is(.like-form, .card-bottom-row > a, .card-bottom-row > bu
 body#top .place-card .like-form:not(#kc-a):not(#kc-b) { position: absolute !important; }
 body#top .place-card .card-category-overlay:not(#kc-a):not(#kc-b) { position: absolute !important; pointer-events: none; }
 
+body#top .place-card .card-body:not(#kc-a):not(#kc-b) {
+  padding-bottom: 0 !important;
+}
 body#top .place-card .card-action-stack:not(#kc-a):not(#kc-b) {
-  container-type: inline-size; container-name: stub;
+  container-type: inline-size;
+  container-name: stub;
+  margin: auto calc(-1 * var(--pc-pad)) 0 !important;
   padding: 12px var(--pc-pad) 14px !important;
+  align-self: stretch !important;
+  width: auto !important;
 }
-@media (min-width: 821px) {
-  body#top.page-place_list .grid .place-card .card-body .card-action-stack:not(#kc-a):not(#kc-b) {
-    margin-inline: calc(-1 * var(--pc-pad)) !important;
-    align-self: stretch !important;
-    width: auto !important;
-  }
+body#top .place-card .card-bottom-row:not(#kc-a):not(#kc-b) {
+  align-items: center !important;
+  gap: 10px !important;
+  min-height: 44px;
 }
-body#top .place-card .card-bottom-row:not(#kc-a):not(#kc-b) { gap: 10px !important; min-height: 44px; }
 body#top .place-card .card-bottom-row > .card-stub-price:not(#kc-a):not(#kc-b):not(#kc-r) {
   font-size: 1.05rem !important; font-weight: 800 !important; line-height: 1.2 !important;
 }
 body#top .place-card .card-go-btn:not(#kc-a):not(#kc-b):not(#kc-r) {
+  flex: 0 0 auto !important;
   width: auto !important; height: 44px !important; padding: 0 16px 0 18px !important; gap: 8px !important;
   display: inline-flex !important; align-items: center !important; justify-content: center !important;
   border-radius: 999px !important; font: 700 .92rem/1 var(--font-display, inherit) !important; white-space: nowrap !important;
@@ -81,8 +86,13 @@ body#top .place-card .card-bottom-row > :not(.card-go-btn):not(.card-stub-price)
 body#top .place-card .card-bottom-row .card-contact-toggle:not(#kc-a):not(#kc-b):not(#kc-r) {
   width: 44px !important; height: 44px !important;
 }
-/* a narrow stub: the open button becomes a round arrow again */
-@container stub (max-width: 255px) {
+body#top .place-card .card-bottom-row .card-contact-toggle:not(#kc-a):not(#kc-b):not(#kc-r) {
+  min-height: 44px !important;
+  max-height: 44px !important;
+}
+
+/* Keep room for the localized price and both controls in narrower cards. */
+@container stub (max-width: 300px) {
   body#top .place-card .card-go-btn:not(#kc-a):not(#kc-b):not(#kc-r) { width: 44px !important; padding: 0 !important; }
   body#top .place-card .card-go-btn .card-go-label:not(#kc-a):not(#kc-b) {
     position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip: rect(0 0 0 0) !important;
