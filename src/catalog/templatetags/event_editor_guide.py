@@ -1,5 +1,6 @@
 """Shared editorial instructions for staff and the portable event prompt."""
 from django import template
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 register = template.Library()
@@ -108,7 +109,21 @@ SECTIONS = (
     ),
     (
         _("Поиск по названию, афише или теме"),
-        _("Для обзора недели начните с темы и города: «uşaq tamaşaları Bakı», «детские мастер-классы в Баку», «family events in Baku». Затем добавьте месяц, площадку или имя постановщика. Если есть только постер, перепишите название с изображения и найдите анонс по названию в кавычках, датам и филиалу. Для фото попробуйте название вместе с «fotoqalereya», «фото спектакля» или «press photos». По найденному снимку откройте страницу автора или организатора, сверьте постановку и сохраните URL оригинала."),
+        format_lazy(
+            _(
+                "Для обзора недели начните с темы и города: «{search_az}», «{search_ru}», «{search_en}». "
+                "Затем добавьте месяц, площадку или имя постановщика. "
+                "Если есть только постер, перепишите название с изображения и найдите анонс по названию в кавычках, датам и филиалу. "
+                "Для фото попробуйте название вместе с «{photo_az}», «{photo_ru}» или «{photo_en}». "
+                "По найденному снимку откройте страницу автора или организатора, сверьте постановку и сохраните URL оригинала."
+            ),
+            search_az="uşaq tamaşaları Bakı",
+            search_ru="детские мастер-классы в Баку",
+            search_en="family events in Baku",
+            photo_az="fotoqalereya",
+            photo_ru="фото спектакля",
+            photo_en="press photos",
+        ),
     ),
     (
         _("Как проверить Instagram и расхождения в анонсах"),
