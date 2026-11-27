@@ -22,8 +22,13 @@
 <link rel="stylesheet" href="{% static 'css/pages/home_refresh.css' %}?v=20261119_stage1" />
 <link rel="stylesheet" href="{% static 'css/pages/home_hero_stage.css' %}?v=20261119_stage6" />
 <script defer src="{% static 'js/mappy.js' %}?v=20261119_specialists"></script>
+<link rel="stylesheet" href="{% static 'css/pages/place_poster.css' %}?v=20261127_bar" />
+<link rel="stylesheet" href="{% static 'css/pages/home_hero_stack.css' %}?v=20261127_stack" />
+<script defer src="{% static 'js/place_stack.js' %}?v=20261126_poster"></script>
+<script defer src="{% static 'js/home_hero_stack.js' %}?v=20261127_stack"></script>
 {% if upcoming_events or home_map_events or map_places %}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2" />{% endif %}
 {% include "pages/includes/editorial_styles.html" %}
+<link rel="stylesheet" href="{% static 'css/pages/home_how_it_works.css' %}?v=20261125_hiw" />
 {% endblock %}
 
 {% block content %}
@@ -64,69 +69,8 @@
     </div>
 
     <div class="home-hero-visual">
-    {% if hero_gallery_slides %}
-      {% if hero_gallery_slides|length > 1 %}
-      <div class="home-hero-slider" data-home-hero-slider>
-        <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
-          <div class="home-hero-slider-track" data-home-hero-slider-track>
-            {% for slide in hero_gallery_slides %}
-            <article class="home-hero-slide" data-home-hero-slide>
-              <div class="home-hero-slide-grid">
-                <figure class="home-hero-photo-card home-hero-photo-main">
-                  {% include "catalog/includes/hero_photo.html" with item=slide.main sizes="(max-width: 760px) 55vw, (max-width: 1100px) 27vw, 320px" high_priority=forloop.first %}
-                </figure>
-
-                <figure class="home-hero-photo-card home-hero-photo-side-top">
-                  {% include "catalog/includes/hero_photo.html" with item=slide.side_top sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
-                </figure>
-
-                <figure class="home-hero-photo-card home-hero-photo-side-bottom">
-                  {% include "catalog/includes/hero_photo.html" with item=slide.side_bottom sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
-                </figure>
-              </div>
-            </article>
-            {% endfor %}
-          </div>
-        </div>
-
-        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-prev km-nav km-nav--prev" data-home-hero-slider-prev
-          aria-label="{% trans 'Предыдущие фото' %}">
-          {% include 'includes/km_nav_icon.html' with icon='arrow' %}
-        </button>
-        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-next km-nav km-nav--next" data-home-hero-slider-next
-          aria-label="{% trans 'Следующие фото' %}">
-          {% include 'includes/km_nav_icon.html' with icon='arrow' %}
-        </button>
-
-        <div class="home-hero-slider-dots" role="group" aria-label="{% trans 'Переключение фото' %}">
-          {% for slide in hero_gallery_slides %}
-          <button type="button" class="home-hero-slider-dot{% if forloop.first %} is-active{% endif %}"
-            data-home-hero-slider-dot data-slide-index="{{ forloop.counter0 }}"
-            aria-label="{% if request.LANGUAGE_CODE == 'az' %}{{ forloop.counter }}-ci şəkli göstər{% elif request.LANGUAGE_CODE == 'en' %}Show photo {{ forloop.counter }}{% else %}Показать фото {{ forloop.counter }}{% endif %}"></button>
-          {% endfor %}
-        </div>
-      </div>
-      {% else %}
-      {% with slide=hero_gallery_slides.0 %}
-      <div class="home-hero-slider home-hero-slider-single" data-home-hero-slider-single>
-        <article class="home-hero-slide home-hero-slide-single">
-          <div class="home-hero-slide-grid">
-            <figure class="home-hero-photo-card home-hero-photo-main">
-              {% include "catalog/includes/hero_photo.html" with item=slide.main sizes="(max-width: 760px) 55vw, (max-width: 1100px) 27vw, 320px" high_priority=True %}
-            </figure>
-
-            <figure class="home-hero-photo-card home-hero-photo-side-top">
-              {% include "catalog/includes/hero_photo.html" with item=slide.side_top sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
-            </figure>
-
-            <figure class="home-hero-photo-card home-hero-photo-side-bottom">
-              {% include "catalog/includes/hero_photo.html" with item=slide.side_bottom sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
-            </figure>
-          </div>
-        </article>
-      </div>
-      {% endwith %}
-      {% endif %}
+    {% if hero_gallery_photos %}
+      {% include "pages/includes/home_hero_stack.html" %}
     {% endif %}
       <div class="home-hero-stats" aria-label="{% trans 'Преимущества KidsMap' %}">
         <a class="home-hero-stat km-stat-card km-stat-places km-stat-link"
@@ -186,47 +130,144 @@
 
 
 
-<section class="home-steps panel home-steps-lite" id="how-it-works"
+<section class="home-steps panel home-steps-lite" id="how-it-works" data-active-step="0"
   aria-label="{% trans 'Как это работает' %}">
-  <div class="home-steps-lite-head">
-    <div>
+  <div class="home-hiw-head">
+    <div class="home-hiw-title-wrap">
       <h2>{% trans "Как это работает" %}</h2>
-      <p>{% trans "Три простых шага, чтобы быстро найти детские занятия и места рядом." %}</p>
+      <p class="home-hiw-sub">{% trans "Три простых шага, чтобы быстро найти детские занятия и места рядом." %}</p>
     </div>
-    <a class="home-steps-catalog-link" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
+    <a class="home-steps-catalog-link" href="{% url 'place_list' %}">
+      <span>{% trans "Перейти в каталог" %}</span>
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
   </div>
 
-  <div class="home-steps-lite-grid" data-km-reveal-once>
-    <article class="home-step-lite-card">
-      <div class="home-step-lite-visual" aria-hidden="true">
-        {% include "pages/includes/editorial_art.html" with art="img/editorial/discover.webp" art_class="" only %}
-        <span class="home-step-lite-number">1</span>
+  <div class="home-hiw-split">
+    <div class="home-hiw-list" role="tablist" aria-label="{% trans 'Как это работает' %}">
+      <button type="button" class="home-hiw-item is-active" data-hiw-step="0" role="tab" aria-selected="true">
+        <span class="home-hiw-pin" aria-hidden="true">1</span>
+        <span class="home-hiw-item-text">
+          <h3>{% trans "Выберите фильтры" %}</h3>
+          <p>{% trans "Категория, регион, метро и возраст ребёнка." %}</p>
+        </span>
+        <svg class="home-hiw-item-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        <span class="home-hiw-item-progress" aria-hidden="true"></span>
+      </button>
+
+      <button type="button" class="home-hiw-item" data-hiw-step="1" role="tab" aria-selected="false">
+        <span class="home-hiw-pin" aria-hidden="true">2</span>
+        <span class="home-hiw-item-text">
+          <h3>{% trans "Сравните варианты" %}</h3>
+          <p>{% trans "Смотрите фото, цену, рейтинг, отзывы и расположение на карте." %}</p>
+        </span>
+        <svg class="home-hiw-item-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        <span class="home-hiw-item-progress" aria-hidden="true"></span>
+      </button>
+
+      <button type="button" class="home-hiw-item" data-hiw-step="2" role="tab" aria-selected="false">
+        <span class="home-hiw-pin" aria-hidden="true">3</span>
+        <span class="home-hiw-item-text">
+          <h3>{% trans "Свяжитесь с местом" %}</h3>
+          <p>{% if home_specialists %}{% if request.LANGUAGE_CODE == 'az' %}Məkanın və ya mütəxəssisin kartını açın və dərhal zəng edin, WhatsApp-a və ya Instagram-a yazın.{% elif request.LANGUAGE_CODE == 'en' %}Open the card of a place or specialist and call, message on WhatsApp or open Instagram right away.{% else %}Откройте карточку места или специалиста и сразу позвоните, напишите в WhatsApp или Instagram.{% endif %}{% else %}{% trans "Откройте карточку и сразу перейдите к звонку, сайту или Instagram." %}{% endif %}</p>
+        </span>
+        <svg class="home-hiw-item-arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        <span class="home-hiw-item-progress" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <div class="home-hiw-viewport">
+      <svg class="home-hiw-mapgrid" viewBox="0 0 360 220" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 55 H360 M0 115 H360 M0 175 H360 M75 0 V220 M180 0 V220 M285 0 V220" stroke="rgba(19,111,56,0.12)" stroke-width="1" />
+        <path d="M-10 155 Q 110 85, 195 125 T 370 65" fill="none" stroke="rgba(19,111,56,0.18)" stroke-width="2.5" stroke-dasharray="6 6" />
+      </svg>
+
+      <div class="home-hiw-scene is-active" data-hiw-scene="0">
+        <div class="home-hiw-chips">
+          <button type="button" class="home-hiw-chip is-selected" data-hiw-chip aria-pressed="true">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>{% if request.LANGUAGE_CODE == 'az' %}3–6 yaş{% elif request.LANGUAGE_CODE == 'en' %}Ages 3–6{% else %}3–6 лет{% endif %}</span>
+          </button>
+          <button type="button" class="home-hiw-chip" data-hiw-chip aria-pressed="false">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>{% if request.LANGUAGE_CODE == 'az' %}Gənclik m.{% elif request.LANGUAGE_CODE == 'en' %}Ganjlik st.{% else %}м. Гянджлик{% endif %}</span>
+          </button>
+          <button type="button" class="home-hiw-chip" data-hiw-chip aria-pressed="false">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>{% if request.LANGUAGE_CODE == 'az' %}Üzgüçülük{% elif request.LANGUAGE_CODE == 'en' %}Swimming{% else %}Плавание{% endif %}</span>
+          </button>
+        </div>
+        <div class="home-hiw-mini-map" aria-hidden="true">
+          <svg viewBox="0 0 310 104" width="100%" height="100%">
+            <path d="M0 32 H310 M0 74 H310 M92 0 V104 M218 0 V104" stroke="rgba(19,111,56,0.1)" stroke-width="1.2" />
+            <path d="M20 82 C 95 20, 200 90, 290 26" fill="none" stroke="rgba(19,111,56,0.28)" stroke-width="2.5" stroke-dasharray="5 5" />
+          </svg>
+          <span class="home-hiw-mini-pin home-hiw-mini-pin--a"></span>
+          <span class="home-hiw-mini-pin home-hiw-mini-pin--b"></span>
+          <span class="home-hiw-mini-pin home-hiw-mini-pin--c"></span>
+        </div>
+        <a class="home-hiw-scene-link" href="{% url 'place_list' %}">
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Seçilmişlərlə kataloqa bax{% elif request.LANGUAGE_CODE == 'en' %}View filtered in catalog{% else %}Смотреть в каталоге{% endif %}</span>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
       </div>
-      <div class="home-step-lite-content">
-        <h3>{% trans "Выберите фильтры" %}</h3>
-        <p>{% trans "Категория, регион, метро и возраст ребёнка." %}</p>
+
+      <div class="home-hiw-scene" data-hiw-scene="1" aria-hidden="true">
+        <div class="home-hiw-compare">
+          <div class="home-hiw-place-mini home-hiw-place-mini--best">
+            <div class="home-hiw-place-top">
+              <span class="home-hiw-place-badge">{% if request.LANGUAGE_CODE == 'az' %}Top seçim{% elif request.LANGUAGE_CODE == 'en' %}Top pick{% else %}Лучший выбор{% endif %}</span>
+            </div>
+            <span class="home-hiw-place-name">{% if request.LANGUAGE_CODE == 'az' %}Üzgüçülük klubu{% elif request.LANGUAGE_CODE == 'en' %}Swim Club{% else %}Клуб плавания{% endif %}</span>
+            <span class="home-hiw-place-loc">{% if request.LANGUAGE_CODE == 'az' %}Gənclik m.{% elif request.LANGUAGE_CODE == 'en' %}Ganjlik st.{% else %}м. Гянджлик{% endif %}</span>
+            <div class="home-hiw-meta-row">
+              <span class="home-hiw-rating">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.3l-5.8 3.1 1.1-6.5L2.6 9.3l6.5-.9L12 2.5z"/></svg>
+                4.9
+              </span>
+              <span class="home-hiw-price-pill">{% if request.LANGUAGE_CODE == 'az' %}45 ₼/ay{% elif request.LANGUAGE_CODE == 'en' %}45 AZN/mo{% else %}45 ₼/мес{% endif %}</span>
+            </div>
+          </div>
+          <div class="home-hiw-place-mini">
+            <span class="home-hiw-place-name">{% if request.LANGUAGE_CODE == 'az' %}Rəsm studiyası{% elif request.LANGUAGE_CODE == 'en' %}Art Studio{% else %}Студия рисования{% endif %}</span>
+            <span class="home-hiw-place-loc">28 May</span>
+            <div class="home-hiw-meta-row">
+              <span class="home-hiw-rating">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.3l-5.8 3.1 1.1-6.5L2.6 9.3l6.5-.9L12 2.5z"/></svg>
+                4.7
+              </span>
+              <span class="home-hiw-price-pill">{% if request.LANGUAGE_CODE == 'az' %}800 m{% elif request.LANGUAGE_CODE == 'en' %}800 m{% else %}800 м{% endif %}</span>
+            </div>
+          </div>
+        </div>
       </div>
-    </article>
-    <article class="home-step-lite-card">
-      <div class="home-step-lite-visual" aria-hidden="true">
-        {% include "pages/includes/editorial_art.html" with art="img/editorial/compare.webp" art_class="" only %}
-        <span class="home-step-lite-number">2</span>
+
+      <div class="home-hiw-scene" data-hiw-scene="2" aria-hidden="true">
+        <div class="home-hiw-contact-dock">
+          <div class="home-hiw-contact-row">
+            <span class="home-hiw-contact-badge">
+              <span class="home-hiw-contact-dot"></span>
+              {% if request.LANGUAGE_CODE == 'az' %}Birbaşa əlaqə · ~5 dəq{% elif request.LANGUAGE_CODE == 'en' %}Direct contact · ~5 min{% else %}Прямая связь · ~5 мин{% endif %}
+            </span>
+            <span class="home-hiw-price-pill">{% if request.LANGUAGE_CODE == 'az' %}Açıqdır{% elif request.LANGUAGE_CODE == 'en' %}Open now{% else %}Открыто{% endif %}</span>
+          </div>
+          <div class="home-hiw-actions">
+            <span class="home-hiw-action-btn home-hiw-action-btn--primary">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.7 2.7a2 2 0 0 1-.4 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.3a2 2 0 0 1 2.1-.4c.9.4 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+              {% if request.LANGUAGE_CODE == 'az' %}Zəng{% elif request.LANGUAGE_CODE == 'en' %}Call{% else %}Звонок{% endif %}
+            </span>
+            <span class="home-hiw-action-btn">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/></svg>
+              WhatsApp
+            </span>
+            <span class="home-hiw-action-btn">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg>
+              Instagram
+            </span>
+          </div>
+        </div>
       </div>
-      <div class="home-step-lite-content">
-        <h3>{% trans "Сравните варианты" %}</h3>
-        <p>{% trans "Смотрите фото, цену, рейтинг, отзывы и расположение на карте." %}</p>
-      </div>
-    </article>
-    <article class="home-step-lite-card">
-      <div class="home-step-lite-visual" aria-hidden="true">
-        {% include "pages/includes/editorial_art.html" with art="img/editorial/contact.webp" art_class="" only %}
-        <span class="home-step-lite-number">3</span>
-      </div>
-      <div class="home-step-lite-content">
-        <h3>{% trans "Свяжитесь с местом" %}</h3>
-        <p>{% if home_specialists %}{% if request.LANGUAGE_CODE == 'az' %}Məkanın və ya mütəxəssisin kartını açın və dərhal zəng edin, WhatsApp-a və ya Instagram-a yazın.{% elif request.LANGUAGE_CODE == 'en' %}Open the card of a place or specialist and call, message on WhatsApp or open Instagram right away.{% else %}Откройте карточку места или специалиста и сразу позвоните, напишите в WhatsApp или Instagram.{% endif %}{% else %}{% trans "Откройте карточку и сразу перейдите к звонку, сайту или Instagram." %}{% endif %}</p>
-      </div>
-    </article>
+    </div>
   </div>
 </section>
 
@@ -238,8 +279,12 @@
   </header>
   <div class="home-join__cards" data-km-reveal-once>
     <article class="home-join-card home-join-card--place" style="--i:0">
-      <div class="home-join-card__art">{% include "pages/includes/editorial_art.html" with art="img/editorial/network.webp" art_class="" only %}</div>
-      <h3>{% if request.LANGUAGE_CODE == 'az' %}Dərnək, bölmə və ya mərkəziniz var{% elif request.LANGUAGE_CODE == 'en' %}You run a club, section or center{% else %}У вас кружок, секция или центр{% endif %}</h3>
+      <div class="home-join-card__head">
+        <span class="home-join-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>
+        </span>
+        <h3>{% if request.LANGUAGE_CODE == 'az' %}Dərnək, bölmə və ya mərkəziniz var{% elif request.LANGUAGE_CODE == 'en' %}You run a club, section or center{% else %}У вас кружок, секция или центр{% endif %}</h3>
+      </div>
       <ul class="home-join-card__list">
         <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Kataloqda və interaktiv xəritədə görünmək{% elif request.LANGUAGE_CODE == 'en' %}Be seen in the catalog and on the interactive map{% else %}Место в каталоге и на интерактивной карте{% endif %}</li>
         <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Foto, cədvəl, qiymət və birbaşa əlaqə{% elif request.LANGUAGE_CODE == 'en' %}Photos, schedule, prices and direct contacts{% else %}Фото, расписание, цены и прямые контакты{% endif %}</li>
@@ -256,8 +301,12 @@
     </article>
     {% if home_specialists %}
     <article class="home-join-card home-join-card--specialist" style="--i:1">
-      <div class="home-join-card__art">{% include "pages/includes/editorial_art.html" with art="img/editorial/answers.webp" art_class="" only %}</div>
-      <h3>{% if request.LANGUAGE_CODE == 'az' %}Loqoped, repetitor və ya psixoloqsunuz{% elif request.LANGUAGE_CODE == 'en' %}You are a speech therapist, tutor or psychologist{% else %}Вы логопед, репетитор или психолог{% endif %}</h3>
+      <div class="home-join-card__head">
+        <span class="home-join-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </span>
+        <h3>{% if request.LANGUAGE_CODE == 'az' %}Loqoped, repetitor və ya psixoloqsunuz{% elif request.LANGUAGE_CODE == 'en' %}You are a speech therapist, tutor or psychologist{% else %}Вы логопед, репетитор или психолог{% endif %}</h3>
+      </div>
       <ul class="home-join-card__list">
         <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Mütəxəssis anketi pulsuzdur{% elif request.LANGUAGE_CODE == 'en' %}A specialist profile is free{% else %}Анкета специалиста бесплатна{% endif %}</li>
         <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Valideynlər qiyməti, formatı və rəyləri görür{% elif request.LANGUAGE_CODE == 'en' %}Parents see your price, format and reviews{% else %}Родители видят цену, формат и отзывы{% endif %}</li>
@@ -269,7 +318,7 @@
   </div>
 </section>
 
-<link rel="stylesheet" href="{% static 'css/pages/home_sections.css' %}?v=20261106_split3">
+<link rel="stylesheet" href="{% static 'css/pages/home_sections.css' %}?v=20261125_compact">
 
 <section class="panel home-faq-panel" id="faq">
   <header class="home-faq-head">
@@ -281,9 +330,9 @@
   </header>
 
   <!-- 4 Main Accordion Questions -->
-  <div class="home-faq-list">
+  <div class="home-faq-list" data-faq-compact="true">
     <!-- Question 1 -->
-    <details class="home-faq-item" open>
+    <details class="home-faq-item">
       <summary class="home-faq-question">
         <span class="home-faq-badge-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -458,11 +507,17 @@
     {% endif %}
   </div>
 
-  <p class="home-faq-foot">
-    <span>{% if request.LANGUAGE_CODE == 'az' %}Cavab tapmadınız?{% elif request.LANGUAGE_CODE == 'en' %}Didn’t find the answer?{% else %}Не нашли ответ?{% endif %}</span>
-    <a href="{% url 'faq_page' %}">{% if request.LANGUAGE_CODE == 'az' %}Bütün suallar{% elif request.LANGUAGE_CODE == 'en' %}All questions{% else %}Все вопросы{% endif %}</a>
-    <a href="{% url 'faq_page' %}#faq-form">{% if request.LANGUAGE_CODE == 'az' %}Sual verin{% elif request.LANGUAGE_CODE == 'en' %}Ask a question{% else %}Задать вопрос{% endif %}</a>
-  </p>
+  <div class="home-faq-foot-row">
+    <button type="button" class="home-faq-more-btn" data-faq-more-btn aria-expanded="false">
+      <span>{% if request.LANGUAGE_CODE == 'az' %}Daha çox sual göstər{% elif request.LANGUAGE_CODE == 'en' %}Show more questions{% else %}Показать ещё вопросы{% endif %}</span>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </button>
+    <p class="home-faq-foot">
+      <span>{% if request.LANGUAGE_CODE == 'az' %}Cavab tapmadınız?{% elif request.LANGUAGE_CODE == 'en' %}Didn’t find the answer?{% else %}Не нашли ответ?{% endif %}</span>
+      <a href="{% url 'faq_page' %}">{% if request.LANGUAGE_CODE == 'az' %}Bütün suallar{% elif request.LANGUAGE_CODE == 'en' %}All questions{% else %}Все вопросы{% endif %}</a>
+      <a href="{% url 'faq_page' %}#faq-form">{% if request.LANGUAGE_CODE == 'az' %}Sual verin{% elif request.LANGUAGE_CODE == 'en' %}Ask a question{% else %}Задать вопрос{% endif %}</a>
+    </p>
+  </div>
 </section>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"{% filter escapejs %}{% trans "Как быстро найти кружок для ребёнка?" %}{% endfilter %}","acceptedAnswer":{"@type":"Answer","text":"{% filter escapejs %}{% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}{% endfilter %}"}},{"@type":"Question","name":"{% filter escapejs %}{% trans "Есть ли фильтры по возрасту, району и цене?" %}{% endfilter %}","acceptedAnswer":{"@type":"Answer","text":"{% filter escapejs %}{% if request.LANGUAGE_CODE == 'az' %}Bəli. Uşağın yaşı, region, metro, kateqoriya və qiymət filtrləri birlikdə işləyir. Seçilmiş yaş məkanın yaş aralığında olmalıdır. Yaş məlumatı olmayan məkanlar yaş filtri seçildikdə göstərilmir. Axtarış linkini paylaşa bilərsiniz.{% elif request.LANGUAGE_CODE == 'en' %}Yes. Child age, region, metro, category and price filters work together. The selected age must fall within the place’s age range. Places without age information are hidden when an age filter is selected. You can share the search link.{% else %}Да. Фильтры по возрасту ребёнка, региону, метро, категории и цене работают одновременно. Выбранный возраст должен входить в возрастной диапазон места. При выборе возраста места без возрастных данных не показываются. Ссылкой на поиск можно делиться.{% endif %}{% endfilter %}"}},{"@type":"Question","name":"{% filter escapejs %}{% trans "Нужно ли регистрироваться, чтобы смотреть каталог?" %}{% endfilter %}","acceptedAnswer":{"@type":"Answer","text":"{% filter escapejs %}{% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками." %}{% endfilter %}"}},{"@type":"Question","name":"{% filter escapejs %}{% trans "Как оставить отзыв или поставить лайк?" %}{% endfilter %}","acceptedAnswer":{"@type":"Answer","text":"{% filter escapejs %}{% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать." %}{% endfilter %}"}}{% if home_specialists %},{"@type":"Question","name":"{% filter escapejs %}{% if request.LANGUAGE_CODE == 'az' %}Mütəxəssis anketi necə yerləşdirilir?{% elif request.LANGUAGE_CODE == 'en' %}How do specialists add a profile?{% else %}Как специалисту разместить анкету?{% endif %}{% endfilter %}","acceptedAnswer":{"@type":"Answer","text":"{% filter escapejs %}{% if request.LANGUAGE_CODE == 'az' %}«Mütəxəssis anketi yaradın» düyməsini basın, anketi doldurun və yoxlamaya göndərin. Anket pulsuzdur və KidsMap yoxladıqdan sonra kataloqda görünür.{% elif request.LANGUAGE_CODE == 'en' %}Press “Create a specialist profile”, fill in the form and send it for review. The profile is free and appears in the catalog after KidsMap reviews it.{% else %}Нажмите «Создать анкету специалиста», заполните анкету и отправьте её на проверку. Анкета бесплатна и появится в каталоге после проверки KidsMap.{% endif %}{% endfilter %}"}}{% endif %}]}</script>
 
@@ -554,7 +609,7 @@
   })();
 </script>
 
-<script src="{% static 'js/home_sections.js' %}?v=20261106_split"></script>
+<script src="{% static 'js/home_sections.js' %}?v=20261125_hiw"></script>
 {% endblock %}
 
 {% block extra_body %}

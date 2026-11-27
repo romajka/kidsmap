@@ -25,13 +25,13 @@ repeated here: it is already in the hero.
             </a>
             {% if item.caption.title %}
               <figcaption class="event-gallery__caption">
-                <span>{{ item.caption.title }}</span>
-                {% if item.caption.credits %}
-                  <details class="event-gallery__credits">
-                    <summary>{% if language == 'az' %}Müəllif və lisenziya{% elif language == 'en' %}Photo credit and license{% else %}Автор и лицензия{% endif %}</summary>
-                    <p>{% include 'catalog/includes/event_credit_links.html' with parts=item.caption.credits %}</p>
-                  </details>
-                {% endif %}
+                <span>{{ item.caption.title|caption_for:language }}</span>
+                {% with c=item.caption.credit %}{% if c %}
+                  <small class="event-gallery__credit">
+                    <span class="material-symbols-rounded" aria-hidden="true">photo_camera</span>
+                    {% if c.file_url %}<a href="{{ c.file_url }}" rel="noopener noreferrer" target="_blank">{{ c.author|default:"Wikimedia Commons" }}</a>{% else %}{{ c.author }}{% endif %}{% if c.license %} · {% if c.license_url %}<a href="{{ c.license_url }}" rel="noopener noreferrer license" target="_blank">{{ c.license }}</a>{% else %}{{ c.license }}{% endif %}{% endif %}
+                  </small>
+                {% endif %}{% endwith %}
               </figcaption>
             {% endif %}
           </figure>

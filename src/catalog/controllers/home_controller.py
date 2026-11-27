@@ -75,7 +75,11 @@ class HomeController:
         from catalog.services.public_map_page import build_map_page, page_metadata
         filters = PlaceListFilters.from_request(request)
         map_queryset = filters.apply(self.place_repository.active_queryset())
-        map_page = build_map_page(map_queryset, language_code, filters, newest_first=True)
+        from catalog.services.public_cache import cached
+        map_page = cached(
+            'home_map', (language_code, filters.selected()),
+            lambda: build_map_page(map_queryset, language_code, filters, newest_first=True),
+        )
         map_places = map_page["points"]
         map_business_count = map_page["count"]
 
@@ -94,10 +98,14 @@ class HomeController:
         )
         from catalog.services.locations import normalize_to_key
         selected_district = normalize_to_key(request.GET.get("district", ""))
-        public_filter_options = build_public_place_filter_options(
+        home_filter_args = dict(
             language_code=language_code,
             selected_category=request.GET.get("category", ""),
             selected_district=selected_district,
+        )
+        public_filter_options = cached(
+            'filter_options', home_filter_args,
+            lambda: build_public_place_filter_options(**home_filter_args),
         )
         home_districts = public_filter_options.districts
 
@@ -138,6 +146,7 @@ class HomeController:
             "hero_cta_text": site_settings.home_cta_text_i18n(language_code) or _("Начать поиск"),
             "hero_show_decor": bool(site_settings.home_hero_show_decor),
             "hero_gallery_slides": hero_gallery_slides,
+            "hero_gallery_photos": self._flatten_hero_photos(hero_gallery_slides),
             "home_specialists": home_specialists,
             "hero_topics": self._hero_topics(language_code, home_specialists),
         }
@@ -467,6 +476,18 @@ class HomeController:
                 }
             )
         return slides
+
+    @staticmethod
+    def _flatten_hero_photos(slides) -> list[dict]:
+        """The same photos as the slides, one list, no repeats (for the photo stack)."""
+        seen, photos = set(), []
+        for slide in slides:
+            for key in ("main", "side_top", "side_bottom"):
+                item = slide[key]
+                if item["image_url"] not in seen:
+                    seen.add(item["image_url"])
+                    photos.append(item)
+        return photos
 
     @staticmethod
     def _responsive_gallery_fields(image):

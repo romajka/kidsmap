@@ -42,6 +42,15 @@ def prepare_responsive_photos(sender, instance, raw=False, **kwargs):
             generate_variants(image)
 
 
+@receiver(post_save, sender='catalog.Specialist')
+def prepare_specialist_portrait(sender, instance, raw=False, **kwargs):
+    """Profile photos are shown large; serve WebP sizes instead of the upload."""
+    if raw or not instance.photo:
+        return
+    from catalog.services.responsive_images import generate_variants
+    generate_variants(instance.photo)
+
+
 @receiver(post_delete, sender='catalog.SpecialistProposalDocument')
 def discard_proposal_document_file(sender, instance, using, **kwargs):
     from django.db import transaction
@@ -65,3 +74,15 @@ def prepare_event_image_meta(sender, instance, raw=False, **kwargs):
         return
     from catalog.services.event_images import refresh_meta
     refresh_meta(instance)
+
+
+# Any saved or deleted catalog record may change what the public catalogue shows:
+# start a new cache generation for the shared public aggregates (map, counters).
+@receiver(post_save)
+@receiver(post_delete)
+def bump_public_data_version(sender, **kwargs):
+    from catalog.services.public_cache import affects_public_data, bump_data_version
+    if kwargs.get('raw'):
+        return
+    if affects_public_data(sender):
+        bump_data_version()

@@ -755,4 +755,142 @@
     } else {
       initScrollReveal();
     }
+
+    // Interactive "How it works" split-showcase controller
+    function initHowItWorksRoute() {
+      const section = document.getElementById('how-it-works');
+      if (!section) return;
+
+      const steps = Array.from(section.querySelectorAll('[data-hiw-step]'));
+      const scenes = Array.from(section.querySelectorAll('[data-hiw-scene]'));
+      const chips = Array.from(section.querySelectorAll('[data-hiw-chip]'));
+      if (!steps.length || !scenes.length) return;
+
+      const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let activeIndex = 0;
+      let timerId = null;
+      let pausedByUser = false;
+
+      function setActive(index) {
+        activeIndex = ((index % steps.length) + steps.length) % steps.length;
+        section.setAttribute('data-active-step', String(activeIndex));
+        steps.forEach((step, idx) => {
+          const selected = idx === activeIndex;
+          step.classList.toggle('is-active', selected);
+          step.setAttribute('aria-selected', selected ? 'true' : 'false');
+        });
+        scenes.forEach((scene, idx) => {
+          const selected = idx === activeIndex;
+          scene.classList.toggle('is-active', selected);
+          scene.setAttribute('aria-hidden', selected ? 'false' : 'true');
+        });
+      }
+
+      function stopTour() {
+        section.classList.remove('is-touring');
+        if (timerId) {
+          window.clearInterval(timerId);
+          timerId = null;
+        }
+      }
+
+      function startTour() {
+        if (reduceMotion || pausedByUser || timerId) return;
+        section.classList.add('is-touring');
+        timerId = window.setInterval(() => {
+          setActive(activeIndex + 1);
+        }, 3600);
+      }
+
+      steps.forEach((step, idx) => {
+        step.addEventListener('mouseenter', () => {
+          pausedByUser = true;
+          stopTour();
+          setActive(idx);
+        });
+        step.addEventListener('click', () => {
+          pausedByUser = true;
+          stopTour();
+          setActive(idx);
+        });
+        step.addEventListener('focusin', () => {
+          pausedByUser = true;
+          stopTour();
+          setActive(idx);
+        });
+        step.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            pausedByUser = true;
+            stopTour();
+            const next = (idx + 1) % steps.length;
+            setActive(next);
+            steps[next].focus();
+          } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            pausedByUser = true;
+            stopTour();
+            const prev = (idx - 1 + steps.length) % steps.length;
+            setActive(prev);
+            steps[prev].focus();
+          }
+        });
+      });
+
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          pausedByUser = true;
+          stopTour();
+          const nextSelected = !chip.classList.contains('is-selected');
+          chip.classList.toggle('is-selected', nextSelected);
+          chip.setAttribute('aria-pressed', nextSelected ? 'true' : 'false');
+        });
+      });
+
+      section.addEventListener('mouseleave', () => {
+        pausedByUser = false;
+        startTour();
+      });
+
+      if (!reduceMotion && 'IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              startTour();
+            } else {
+              stopTour();
+            }
+          });
+        }, { threshold: 0.25 });
+        observer.observe(section);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initHowItWorksRoute);
+    } else {
+      initHowItWorksRoute();
+    }
+
+    // Compact FAQ progressive disclosure
+    function initFaqCompactToggle() {
+      const list = document.querySelector('#faq .home-faq-list[data-faq-compact="true"]');
+      const btn = document.querySelector('#faq [data-faq-more-btn]');
+      if (!list || !btn) return;
+      const items = list.querySelectorAll('.home-faq-item');
+      if (items.length <= 3) {
+        btn.style.display = 'none';
+        return;
+      }
+      btn.addEventListener('click', () => {
+        const expanded = list.classList.toggle('is-expanded');
+        btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initFaqCompactToggle);
+    } else {
+      initFaqCompactToggle();
+    }
   })();

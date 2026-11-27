@@ -53,6 +53,7 @@ class StaticViewSitemap(LocalizedSitemap):
             items.append("events_landing")
         if is_specialists_section_enabled():
             items.append("specialist_list")
+            items.append("specialist_landing")
         return items
 
     def location(self, item):
@@ -62,19 +63,27 @@ class StaticViewSitemap(LocalizedSitemap):
 class ParentGuideSitemap(LocalizedSitemap):
     """Complete editorial answers remain discoverable with an empty catalog."""
 
+    HUB = "__hub__"  # /parents/: the index of every guide
+
     def items(self):
         from .parent_guide_content import GUIDE_PAGES
-        return list(GUIDE_PAGES)
+        return ([self.HUB] if GUIDE_PAGES else []) + list(GUIDE_PAGES)
 
     def location(self, item):
+        if item == self.HUB:
+            return reverse('parent_guide_index')
         return reverse('parent_guide', kwargs={'slug': item})
 
     def get_languages_for_item(self, item):
         from .parent_guide_content import GUIDE_PAGES
+        if item == self.HUB:
+            return [code for code, _label in settings.LANGUAGES]
         return list(GUIDE_PAGES[item]['translations'])
 
     def lastmod(self, item):
         from .parent_guide_content import GUIDE_PAGES
+        if item == self.HUB:
+            return max(date.fromisoformat(guide['updated']) for guide in GUIDE_PAGES.values())
         return date.fromisoformat(GUIDE_PAGES[item]['updated'])
 
 
@@ -154,6 +163,24 @@ class SpecialistSitemap(LocalizedSitemap):
 
     def lastmod(self, obj):
         return obj.updated_at
+
+
+class EventCollectionSitemap(LocalizedSitemap):
+    """Afisha collections with enough events to be useful (others are noindex)."""
+
+    def items(self):
+        if not is_events_section_enabled():
+            return []
+        from catalog.services.event_collections import category_rows, indexable_collections
+        self._categories = category_rows()
+        return [(collection, last) for collection, _count, last in indexable_collections()]
+
+    def location(self, item):
+        from django.utils.translation import get_language
+        return item[0].path(get_language(), getattr(self, "_categories", None))
+
+    def lastmod(self, item):
+        return item[1]
 
 
 class EventSitemap(LocalizedSitemap):

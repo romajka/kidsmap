@@ -1,0 +1,29 @@
+{% load i18n %}
+{# Photo stack in the hero: the same swipeable stack as on the place page. #}
+<div class="home-hero-stack">
+  <div class="km-pstack{% if hero_gallery_photos|length == 1 %} km-pstack--single{% endif %}" data-km-pstack tabindex="0"
+       aria-roledescription="{% if request.LANGUAGE_CODE == 'az' %}foto dəstəsi{% elif request.LANGUAGE_CODE == 'en' %}photo stack{% else %}стопка фото{% endif %}"
+       aria-label="{% trans 'Галерея фотографий' %}: {{ hero_gallery_photos|length }}"
+       data-l-open="{% if request.LANGUAGE_CODE == 'az' %}Şəkli aç{% elif request.LANGUAGE_CODE == 'en' %}Open photo{% else %}Открыть фото{% endif %}"
+       data-l-close="{% if request.LANGUAGE_CODE == 'az' %}Bağla{% elif request.LANGUAGE_CODE == 'en' %}Close{% else %}Закрыть{% endif %}"
+       data-l-prev="{% trans 'Предыдущее фото' %}" data-l-next="{% trans 'Следующее фото' %}">
+    <div class="km-pstack__deck">
+      {% for item in hero_gallery_photos %}
+      <a class="km-pstack__card" href="{{ item.image_url }}" data-km-pstack-card data-index="{{ forloop.counter0 }}" style="--i:{{ forloop.counter0 }}" draggable="false">
+        <img src="{{ item.image_responsive_url|default:item.image_url }}"
+          {% if item.image_srcset %}srcset="{{ item.image_srcset }}" sizes="(max-width: 760px) 86vw, 460px" width="{{ item.image_width }}" height="{{ item.image_height }}"{% endif %}
+          alt="{{ item.label }}" draggable="false" decoding="async"
+          {% if forloop.first %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+      </a>
+      {% endfor %}
+    </div>
+    {% if hero_gallery_photos|length > 1 %}
+    <div class="km-pstack__bar">
+      <button type="button" class="km-pstack__btn" data-km-pstack-prev aria-label="{% trans 'Предыдущее фото' %}"><span class="material-symbols-rounded" aria-hidden="true">arrow_back</span></button>
+      <span class="km-pstack__count" aria-live="polite"><b data-km-pstack-current>1</b> / {{ hero_gallery_photos|length }}</span>
+      <button type="button" class="km-pstack__btn" data-km-pstack-next aria-label="{% trans 'Следующее фото' %}"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></button>
+    </div>
+    <span class="km-pstack__hint" aria-hidden="true"><span class="material-symbols-rounded">swipe</span>{% if request.LANGUAGE_CODE == 'az' %}Sürüşdürün{% elif request.LANGUAGE_CODE == 'en' %}Swipe{% else %}Листайте{% endif %}</span>
+    {% endif %}
+  </div>
+</div>

@@ -76,6 +76,9 @@
             <span>{{ content.secondary_cta }}</span>
           </a>
         </div>
+        {% if is_specialists_section_enabled %}
+          <p class="add-place-hero__note add-place-hero__specialists"><a href="{% url 'specialist_landing' %}">{% if CURRENT_LANGUAGE == "az" %}Müəllim və ya mütəxəssissiniz? Mütəxəssis kartı yaradın{% elif CURRENT_LANGUAGE == "en" %}Are you a teacher or specialist? Create a specialist profile{% else %}Вы педагог или специалист? Создайте карточку специалиста{% endif %} →</a></p>
+        {% endif %}
 
         <p class="add-place-hero__note">
           <span class="dot"></span>

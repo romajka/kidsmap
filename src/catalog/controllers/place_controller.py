@@ -87,7 +87,11 @@ class PlaceController:
             timeline_places = list(qs.order_by("-created_at")[:5])
             qs = qs.exclude(id__in=[place.id for place in timeline_places])
         else:
-            map_page = build_map_page(qs, language_code, filters)
+            from catalog.services.public_cache import cached
+            map_page = cached(
+                'catalog_map', (language_code, created_after, filters.selected()),
+                lambda: build_map_page(qs, language_code, filters),
+            )
             map_places = map_page["points"]
 
         if not force_new_only and not showing_events:
@@ -144,25 +148,34 @@ class PlaceController:
         else:
             results_count_label = f"Найдено мест: {total_results}"
 
-        public_filter_options = build_public_place_filter_options(
+        from catalog.services.public_cache import cached
+        filter_option_args = dict(
             language_code=language_code,
             selected_category=selected.get("category", ""),
             selected_subcategory=selected.get("subcategory", ""),
             selected_district=selected.get("district", ""),
             selected_metro=selected.get("metro", ""),
         )
+        public_filter_options = cached(
+            'filter_options', filter_option_args,
+            lambda: build_public_place_filter_options(**filter_option_args),
+        )
         district_options = public_filter_options.districts
         metro_options = public_filter_options.metro
 
         # Hero stats use the same public sources as the home page (no hand-written
         # "65+ places" / "17 categories" that drift from the real catalogue).
-        catalog_places_total = public_place_queryset(Place.objects.all()).count()
+        catalog_places_total = cached(
+            'catalog_places_total', (), lambda: public_place_queryset(Place.objects.all()).count())
         catalog_categories_total = len(public_filter_options.categories)
 
         # Public recommendations follow the same eligibility as the sitemap.
-        catalog_seo_pages = build_seo_landing_visibility(
-            self.settings_repository.get_catalog_settings()
-        ).pages(language_code, indexable_only=True)
+        catalog_seo_pages = cached(
+            'catalog_seo_pages', (language_code,),
+            lambda: build_seo_landing_visibility(
+                self.settings_repository.get_catalog_settings()
+            ).pages(language_code, indexable_only=True),
+        )
 
         context = {
             "catalog_seo_pages": catalog_seo_pages,
@@ -807,13 +820,16 @@ class PlaceController:
         from math import cos, radians, sqrt
         from catalog.services.public_presentation import prepare_cards
 
-        base = public_place_queryset(Place.objects.exclude(pk=place.pk))
-        if place.lat is None or place.lng is None:
-            if not place.category_id:
-                return []
-            picked = list(base.filter(category_id=place.category_id).order_by("-published_at", "-pk")[:limit])
-            distances = {}
-        else:
+        from catalog.services.public_cache import cached
+
+        def pick_nearby():
+            # Scans the whole published catalogue: shared, cached per place and data version.
+            base = public_place_queryset(Place.objects.exclude(pk=place.pk))
+            if place.lat is None or place.lng is None:
+                if not place.category_id:
+                    return []
+                ids = base.filter(category_id=place.category_id).order_by("-published_at", "-pk").values_list("pk", flat=True)[:limit]
+                return [(pk, None) for pk in ids]
             lat0, lng0 = float(place.lat), float(place.lng)
             k = cos(radians(lat0))
             scored = []
@@ -823,10 +839,20 @@ class PlaceController:
                 # A same-category place is treated as ~1.5 km closer.
                 scored.append((km - (1.5 if category_id and category_id == place.category_id else 0), km, pk))
             scored.sort()
-            top = scored[:limit]
-            distances = {pk: km for _, km, pk in top}
-            by_pk = {item.pk: item for item in base.filter(pk__in=distances).select_related("category")}
-            picked = [by_pk[pk] for _, _, pk in top if pk in by_pk]
+            return [(pk, km) for _, km, pk in scored[:limit]]
+
+        ranked = cached(
+            "nearby_places",
+            (place.pk, str(place.lat), str(place.lng), place.category_id, limit),
+            pick_nearby,
+        )
+        distances = {pk: km for pk, km in ranked if km is not None}
+        # Publication is re-checked on every request, so a stale id is simply dropped.
+        by_pk = {
+            item.pk: item
+            for item in public_place_queryset(Place.objects.filter(pk__in=[pk for pk, _ in ranked])).select_related("category")
+        }
+        picked = [by_pk[pk] for pk, _ in ranked if pk in by_pk]
         cards = prepare_cards(picked, language_code)
         for card in cards:
             card.is_liked = card.pk in liked_ids

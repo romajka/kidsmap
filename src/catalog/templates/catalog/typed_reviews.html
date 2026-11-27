@@ -161,7 +161,7 @@
   </section>
 
   {% if not request.user.is_authenticated %}
-    <section class="typed-reviews__section typed-reviews__guest" data-review-guest>
+    <section class="typed-reviews__section typed-reviews__guest" id="write-review" data-review-guest>
       <h2>{% if language == 'ru' %}Поделитесь впечатлениями{% elif language == 'en' %}Share your experience{% else %}Təəssüratlarınızı bölüşün{% endif %}</h2>
       <p>{% if language == 'ru' %}Войдите, чтобы оставить отзыв.{% elif language == 'en' %}Sign in to leave a review.{% else %}Rəy yazmaq üçün daxil olun.{% endif %}</p>
       <form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation>
@@ -172,7 +172,7 @@
   {% endif %}
 
   {% if request.user.is_authenticated %}
-    <section class="typed-reviews__section typed-reviews__own-section" aria-labelledby="own-review">
+    <section class="typed-reviews__section typed-reviews__own-section" id="write-review" aria-labelledby="own-review">
       <div class="typed-reviews__section-head">
         <h2 id="own-review" class="typed-reviews__section-title">
           <span>{% if language == 'ru' %}Мой отзыв{% elif language == 'en' %}My review{% else %}Mənim rəyim{% endif %}</span>

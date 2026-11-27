@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load static public_breadcrumbs %}
+
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block structured_data %}
+  <script type="application/ld+json">{{ webpage_schema_json|safe }}</script>
+  <script type="application/ld+json">{{ faq_schema_json|safe }}</script>
+{% endblock %}
+
+{% block extra_head %}
+  <link rel="preload" as="image" type="image/webp"
+        imagesrcset="{% static 'img/specialist-landing/web/01-hero-640.webp' %} 640w, {% static 'img/specialist-landing/web/01-hero-960.webp' %} 960w, {% static 'img/specialist-landing/web/01-hero-1280.webp' %} 1280w"
+        imagesizes="(max-width: 899px) 92vw, 600px">
+  <link rel="stylesheet" href="{% static 'css/pages/specialist_landing.css' %}?v=20261127_spl2" />
+{% endblock %}
+
+{% block content %}
+<div class="spl">
+  {% section_breadcrumbs content.crumb %}
+
+  {# 1. First screen #}
+  <section class="spl-hero" aria-labelledby="spl-title">
+    <div class="spl-hero__text">
+      <p class="spl-eyebrow">{{ content.eyebrow }}</p>
+      <h1 id="spl-title" class="spl-hero__title">{% for word in content.title.split %}<span class="w" style="--w:{{ forloop.counter0 }}">{{ word }}</span>{% if not forloop.last %} {% endif %}{% endfor %}</h1>
+      <p class="spl-hero__lead">{{ content.lead }}</p>
+      <ul class="spl-badges">
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>{{ content.badge_free }}</li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>{{ content.badge_check }}</li>
+      </ul>
+      <div class="spl-actions">
+        <a class="spl-btn spl-btn--primary" href="{% url 'owner_specialist_create' %}" data-spl-cta="hero">{{ content.cta }}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        <a class="spl-btn spl-btn--ghost" href="#spl-steps">{{ content.cta_more }}</a>
+      </div>
+    </div>
+
+    <div class="spl-hero__art">
+      <span class="spl-spark spl-spark--1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg></span><span class="spl-spark spl-spark--2" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg></span><span class="spl-spark spl-spark--3" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg></span>
+      <img class="spl-hero__img"
+           src="{% static 'img/specialist-landing/web/01-hero-960.webp' %}"
+           srcset="{% static 'img/specialist-landing/web/01-hero-640.webp' %} 640w, {% static 'img/specialist-landing/web/01-hero-960.webp' %} 960w, {% static 'img/specialist-landing/web/01-hero-1280.webp' %} 1280w, {% static 'img/specialist-landing/web/01-hero-1600.webp' %} 1600w"
+           sizes="(max-width: 899px) 92vw, 600px"
+           width="1600" height="1200" alt="" fetchpriority="high" decoding="async">
+
+      {# Illustration of how a profile looks; not a real person #}
+      <div class="spl-sample-float" aria-hidden="true"><div class="spl-sample">
+        <span class="spl-sample__label">{{ content.sample }}</span>
+        <div class="spl-sample__head">
+          <span class="spl-sample__photo"></span>
+          <span>
+            <b class="spl-sample__name">{{ content.sample_name }}</b>
+            <span class="spl-sample__role">{{ content.sample_role }}</span>
+          </span>
+          <span class="spl-sample__check"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+        </div>
+        <div class="spl-sample__chips">{% for chip in content.sample_chips %}<span style="--n:{{ forloop.counter }}">{{ chip }}</span>{% endfor %}</div>
+        <div class="spl-sample__row">
+          <span class="spl-sample__stars">★★★★★ <small>{{ content.sample_reviews }}</small></span>
+          <b class="spl-sample__price">{{ content.sample_price }}</b>
+        </div>
+        <span class="spl-sample__btn">{{ content.sample_btn }}</span>
+      </div></div>
+    </div>
+  </section>
+
+  {# 2. Real numbers from the catalog #}
+  <section class="spl-stats spl-reveal" aria-label="KidsMap">
+    <p><b data-count="{{ stats.places }}">{{ stats.places }}</b><span>{{ content.stat_places }}</span></p>
+    {% if stats.specialists %}<p><b data-count="{{ stats.specialists }}">{{ stats.specialists }}</b><span>{{ content.stat_specialists }}</span></p>{% endif %}
+    <p><b data-count="{{ stats.directions }}">{{ stats.directions }}</b><span>{{ content.stat_directions }}</span></p>
+    <p><b>3</b><span>{{ content.stat_languages }}</span></p>
+  </section>
+
+  {# 3. Who it is for #}
+  <section class="spl-section" aria-labelledby="spl-who">
+    <header class="spl-head spl-reveal">
+      <h2 id="spl-who">{{ content.who_title }}</h2>
+      <p>{{ content.who_lead }}</p>
+    </header>
+    <ul class="spl-tiles">
+      {% for tile in tiles %}
+        <li class="spl-tile spl-reveal" style="--i:{{ forloop.counter0 }}">
+          <img src="{% static 'img/specialist-landing/web/'|add:tile.image|add:'-400.webp' %}"
+               srcset="{% static 'img/specialist-landing/web/'|add:tile.image|add:'-400.webp' %} 400w, {% static 'img/specialist-landing/web/'|add:tile.image|add:'-800.webp' %} 800w"
+               sizes="(max-width: 559px) 44vw, (max-width: 899px) 30vw, 300px"
+               width="800" height="800" alt="" loading="lazy" decoding="async">
+          <h3>{{ tile.title }}</h3>
+          <p>{{ tile.text }}</p>
+          <a href="{{ tile.url }}">{{ content.tile_link }}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+        </li>
+      {% endfor %}
+    </ul>
+    <p class="spl-more spl-reveal">{{ who_more }}</p>
+  </section>
+
+  {# 4. How it works #}
+  <section class="spl-section" id="spl-steps" aria-labelledby="spl-steps-title">
+    <header class="spl-head spl-reveal"><h2 id="spl-steps-title">{{ content.steps_title }}</h2></header>
+    <div class="spl-steps-wrap">
+    <svg class="spl-steps__path" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true"><path d="M60 30 C250 -10 330 70 500 30 S760 -10 940 30"/></svg>
+    <ol class="spl-steps">
+      {% for step in content.steps %}
+        <li class="spl-step spl-reveal" style="--i:{{ forloop.counter0 }}">
+          <span class="spl-step__art">
+            {% if forloop.counter == 1 %}
+              <img src="{% static 'img/specialist-landing/web/03-step1-500.webp' %}" srcset="{% static 'img/specialist-landing/web/03-step1-500.webp' %} 500w, {% static 'img/specialist-landing/web/03-step1-1000.webp' %} 1000w" sizes="(max-width: 899px) 80vw, 340px" width="1000" height="800" alt="" loading="lazy" decoding="async">
+            {% elif forloop.counter == 2 %}
+              <img class="spl-step__shield" src="{% static 'img/specialist-landing/03-step2.svg' %}" width="512" height="512" alt="" loading="lazy" decoding="async">
+            {% else %}
+              <img src="{% static 'img/specialist-landing/web/03-step3-500.webp' %}" srcset="{% static 'img/specialist-landing/web/03-step3-500.webp' %} 500w, {% static 'img/specialist-landing/web/03-step3-1000.webp' %} 1000w" sizes="(max-width: 899px) 80vw, 340px" width="1000" height="800" alt="" loading="lazy" decoding="async">
+            {% endif %}
+          </span>
+          <span class="spl-step__num" aria-hidden="true">{{ forloop.counter }}</span>
+          <h3>{{ step.0 }}</h3>
+          <p>{{ step.1 }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+    </div>
+  </section>
+
+  {# 5. What the profile includes #}
+  <section class="spl-section" aria-labelledby="spl-get">
+    <header class="spl-head spl-reveal"><h2 id="spl-get">{{ content.get_title }}</h2></header>
+    <ul class="spl-benefits">
+      {% for icon, title, text in content.benefits %}
+        <li class="spl-benefit spl-reveal" style="--i:{{ forloop.counter0 }}">
+          <img src="{% static 'img/specialist-landing/'|add:icon|add:'.svg' %}" width="512" height="512" alt="" loading="lazy" decoding="async">
+          <div><h3>{{ title }}</h3><p>{{ text }}</p></div>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  {# 6. Questions #}
+  <section class="spl-section spl-faq" aria-labelledby="spl-faq">
+    <header class="spl-head spl-reveal"><h2 id="spl-faq">{{ content.faq_title }}</h2></header>
+    <div class="spl-faq__list">
+      {% for q, a in content.faq %}
+        <details class="spl-reveal" style="--i:{{ forloop.counter0 }}"{% if forloop.first %} open{% endif %}>
+          <summary>{{ q }}<span aria-hidden="true"></span></summary>
+          <p>{{ a }}</p>
+        </details>
+      {% endfor %}
+    </div>
+    <p class="spl-rules"><a href="{% url 'listing_rules' %}">{{ content.rules }}</a></p>
+  </section>
+
+  {# 7. Final call #}
+  <section class="spl-final spl-reveal" aria-labelledby="spl-final">
+    <span class="spl-confetti" aria-hidden="true">{% for c in "0123456789abcdefghij" %}<i style="left:{% cycle 4 12 21 30 38 47 55 63 71 80 88 95 9 26 42 59 75 91 17 67 %}%;background:{% cycle "#f2c14e" "#e98f86" "#8fd0f0" "#a8d59b" "#b9a3db" %};animation-delay:{% cycle ".0" ".15" ".3" ".1" ".25" ".4" ".05" ".35" %}s;--fall:{% cycle 380 460 420 520 400 %}px"></i>{% endfor %}</span>
+    <div class="spl-final__text">
+      <h2 id="spl-final">{{ content.final_title }}</h2>
+      <p>{{ content.final_lead }}</p>
+      <a class="spl-btn spl-btn--primary" href="{% url 'owner_specialist_create' %}" data-spl-cta="final">{{ content.cta }}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+      <small>{{ content.final_note }}</small>
+    </div>
+    <img class="spl-final__img" src="{% static 'img/specialist-landing/web/05-final-600.webp' %}"
+         srcset="{% static 'img/specialist-landing/web/05-final-600.webp' %} 600w, {% static 'img/specialist-landing/web/05-final-1200.webp' %} 1200w"
+         sizes="(max-width: 899px) 86vw, 520px" width="1200" height="1000" alt="" loading="lazy" decoding="async">
+  </section>
+  <div class="spl-baku" aria-hidden="true"><img src="{% static 'img/specialist-landing/04-baku.svg' %}" width="2400" height="600" alt="" loading="lazy" decoding="async"></div>
+</div>
+{% endblock %}
+
+{% block extra_body %}<script src="{% static 'js/specialist_landing.js' %}?v=20261127_spl2" defer></script>{% endblock %}

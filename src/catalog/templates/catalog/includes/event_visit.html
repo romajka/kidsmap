@@ -9,9 +9,9 @@
     {% firstof event_venue.address related_place_presentation.address as visit_address %}
     {% if visit_address %}
       <p>{{ visit_address }}</p>
-      <div class="event-visit-links">
-        <a href="https://www.google.com/maps/search/?api=1&amp;query={{ visit_address|urlencode }}" target="_blank" rel="noopener noreferrer">Google Maps<span class="material-symbols-rounded" aria-hidden="true">north_east</span></a>
-        <a href="https://2gis.az/baku/search/{{ visit_address|urlencode }}" target="_blank" rel="noopener noreferrer">2GIS<span class="material-symbols-rounded" aria-hidden="true">north_east</span></a>
+      <div class="event-visit-links event-visit-links--stub">
+        <a class="event-map-btn" href="https://www.google.com/maps/search/?api=1&amp;query={{ visit_address|urlencode }}" target="_blank" rel="noopener noreferrer"><span class="material-symbols-rounded" aria-hidden="true">map</span>Google Maps</a>
+        <a class="event-map-btn" href="https://2gis.az/baku/search/{{ visit_address|urlencode }}" target="_blank" rel="noopener noreferrer"><span class="material-symbols-rounded" aria-hidden="true">explore</span>2GIS</a>
       </div>
     {% else %}
       <p>{% if language == 'az' %}Dəqiq ünvanı təşkilatçıdan öyrənin.{% elif language == 'en' %}Contact the organizer for the exact address.{% else %}Точный адрес уточните у организатора.{% endif %}</p>

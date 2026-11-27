@@ -1027,11 +1027,11 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/", follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "home-hero-slider-single")
-        self.assertContains(response, "home-hero-photo-side-top")
-        self.assertContains(response, "home-hero-photo-side-bottom")
+        self.assertContains(response, "home-hero-stack")
+        self.assertContains(response, "data-km-pstack-card")
+        self.assertContains(response, "km-pstack--single")
         self.assertNotContains(response, "data-home-hero-slider-track")
-        self.assertNotContains(response, "data-home-hero-slider-prev")
+        self.assertNotContains(response, "data-km-pstack-next")
 
     def test_home_page_includes_website_schema_with_search_action(self):
         response = self.client.get("/")
@@ -1528,7 +1528,7 @@ class TestPublicPagesSmoke(TestCase):
             self.assertIn("css/site.css", paths)
             self.assertIn("img/logo.svg", paths)
             self.assertIn("fonts/chiron/ChironGoRoundTC-PublicSubset.woff2", paths)
-            self.assertIn("js/bg_scene.js", paths)
+            self.assertIn("js/doodle_background.js", paths)
             self.assertIn("admin/css/pages/kidsmap_changelist.css", paths)
             self.assertIn("admin/css/kidsmap_taxonomy.css", paths)
             self.assertIn("admin/js/kidsmap_place_changelist.js", paths)
@@ -2548,13 +2548,11 @@ class TestCatalogEnhancements(TestCase):
         response = self.client.get(place.get_absolute_url(), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "data-place-gallery")
-        self.assertContains(response, "data-place-gallery-main")
-        self.assertContains(response, "swiper-wrapper")
-        self.assertContains(response, "place-gallery__backdrop")
-        self.assertContains(response, "place-gallery__image")
-        self.assertContains(response, "data-place-gallery-thumb")
-        self.assertContains(response, "static/js/place_gallery.js")
+        # Photos are a hand-held stack in the poster (static/js/place_stack.js), not a Swiper slider.
+        self.assertContains(response, "data-km-pstack")
+        self.assertContains(response, "data-km-pstack-card")
+        self.assertContains(response, "static/js/place_stack.js")
+        self.assertNotContains(response, "swiper-bundle")
 
     def test_catalog_card_does_not_render_redundant_more_details_block(self):
         create_quality_place(
