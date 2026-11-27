@@ -322,6 +322,16 @@ def _immediate(target,kind,patch,explicit):
     return SCHEDULE & patch.keys()
 
 
+def _require_place_coordinates(place):
+    # Read the coordinate verdict from the shared readiness contract, while
+    # preserving unrelated legacy quality compatibility on existing cards.
+    from catalog.services.place_readiness import PlaceReadinessData, evaluate_readiness
+    readiness = evaluate_readiness(PlaceReadinessData(lat=place.lat, lng=place.lng))
+    for issue in readiness.issues:
+        if issue.code == 'coordinates':
+            raise ValidationError(issue.message, code=issue.quality_code)
+
+
 @transaction.atomic
 def propose(*,actor,target_type,target_id,patch,schema_version,expected_version,revision_version=0,submit=True,explicit_save=True):
     if not isinstance(submit,bool) or not isinstance(explicit_save,bool):raise ValidationError('Save flags must be boolean.')
@@ -375,6 +385,11 @@ def propose(*,actor,target_type,target_id,patch,schema_version,expected_version,
         for k in rebase_fields:base[k]=live[k]
         for k in immediate:pending.pop(k,None)
     pending.update({k:v for k,v in incoming.items() if k not in immediate});pending={k:v for k,v in pending.items() if v!=base.get(k)}
+    if submit and target_type == 'place':
+        candidate = copy.copy(target)
+        candidate.lat = pending.get('lat', target.lat)
+        candidate.lng = pending.get('lng', target.lng)
+        _require_place_coordinates(candidate)
     if revision is None:revision=VolunteerPlaceRevision(**{target_type:target},author=actor)
     if not (revision.pk and platform_has_action(user=actor,action='place.publish')):revision.author=actor
     revision.schema_version=SCHEMA_VERSION;revision.base_content_version=target.content_version;revision.base_snapshot=base;revision.dependencies=dependencies(target,target_type);revision.payload=pending;revision.changed_fields=sorted(pending);revision.status='pending' if submit else 'draft';revision.version=actual+1;revision.review_note='' if submit else revision.review_note;revision.reviewed_by=None if submit else revision.reviewed_by;revision.save();return revision
@@ -429,6 +444,7 @@ def review(*,actor,revision_id,version,approve,note='',final_reject=False):
         for name,value in patch.items():
             if name not in {'pricing_plans','nested_pricing','structured_schedule','gallery','location_override'}:field=target._meta.get_field(name);setattr(candidate,field.attname,field.to_python(value) if not field.is_relation else value)
         if kind=='place':
+            _require_place_coordinates(candidate)
             from catalog.services.place_readiness import evaluate_place_readiness,publication_blocked_message
             # Existing published cards retain their compatibility path.
             if not target.is_public:
@@ -481,6 +497,7 @@ def publish(*,actor,place_id,expected_version,note=''):
     revision=VolunteerPlaceRevision.objects.filter(place=place).first()
     if revision and revision.status=='pending':return review(actor=actor,revision_id=revision.pk,version=revision.version,approve=True,note=note)
     from catalog.services.place_readiness import evaluate_place_readiness,publication_blocked_message
+    _require_place_coordinates(place)
     readiness=evaluate_place_readiness(place)
     if not place.is_public and not readiness.is_ready:raise ValidationError(publication_blocked_message(readiness))
     source_version = place.content_version

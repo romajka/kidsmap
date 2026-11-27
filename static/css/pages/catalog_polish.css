@@ -711,3 +711,372 @@
 .page-place_list .catalog-layout .filters-catalog .km-btn-reset::before {
   display: none !important;
 }
+
+/* ==========================================================================
+   Segmented View Switcher (List / Map)
+   ========================================================================== */
+.page-place_list .results-view-mode {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: #f1f5f9 !important;
+  padding: 3px !important;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  gap: 2px !important;
+}
+
+.page-place_list .results-view-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 12px !important;
+  border-radius: 9px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: #64748b !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  transition: all 0.16s ease !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+.page-place_list .results-view-btn:hover {
+  color: #1e293b !important;
+  background: rgba(255, 255, 255, 0.6) !important;
+}
+
+.page-place_list .results-view-btn.is-active {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  font-weight: 700 !important;
+}
+
+.page-place_list .results-view-btn--map.is-active {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.28) !important;
+}
+
+.page-place_list .results-view-btn__icon {
+  width: 15px !important;
+  height: 15px !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  stroke: currentColor !important;
+}
+
+.page-place_list .results-view-btn--map.is-active .results-view-btn__icon {
+  stroke: #ffffff !important;
+}
+
+.page-place_list .results-view-btn .results-map-count {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  padding: 0 5px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  line-height: 1 !important;
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+  transition: all 0.16s ease !important;
+}
+
+.page-place_list .results-view-btn--map.is-active .results-map-count {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   Horizontal Category Quick Strip & Layout Grid Containment
+   ========================================================================== */
+.page-place_list .catalog-layout {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.page-place_list .catalog-layout .catalog-content-column {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.page-place_list .catalog-layout .catalog-top-stack {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.page-place_list .catalog-layout .catalog-main-column {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.page-place_list .catalog-category-strip-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin-bottom: 12px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.page-place_list .catalog-category-strip {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow-x: auto !important;
+  padding: 3px 2px 6px !important;
+  scrollbar-width: none !important;
+  -webkit-overflow-scrolling: touch !important;
+  box-sizing: border-box !important;
+}
+
+.page-place_list .catalog-category-strip::-webkit-scrollbar {
+  display: none !important;
+}
+
+.page-place_list .catalog-category-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  padding: 6px 13px !important;
+  border-radius: 999px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  user-select: none !important;
+}
+
+.page-place_list .catalog-category-chip:hover {
+  border-color: #cbd5e1 !important;
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 6px rgba(15, 23, 42, 0.06) !important;
+}
+
+.page-place_list .catalog-category-chip.is-active {
+  background: #10b981 !important;
+  border-color: #059669 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.28) !important;
+}
+
+.page-place_list .catalog-category-chip__icon {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  font-size: 12px !important;
+  overflow: hidden !important;
+}
+
+.page-place_list .catalog-category-chip__icon--all {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+.page-place_list .catalog-category-chip.is-active .catalog-category-chip__icon {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+
+.page-place_list .catalog-category-chip__icon svg,
+.page-place_list .catalog-category-chip__icon img {
+  width: 13px !important;
+  height: 13px !important;
+  object-fit: contain !important;
+}
+
+.page-place_list .catalog-category-chip__count {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 17px !important;
+  height: 17px !important;
+  padding: 0 5px !important;
+  border-radius: 999px !important;
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+.page-place_list .catalog-category-chip.is-active .catalog-category-chip__count {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   Place Card District & Metro Location Badges
+   ========================================================================== */
+.page-place_list .grid:not(.results-list-mode) .card-location,
+.page-place_list .grid:not(.results-list-mode) .place-card .card-location,
+.page-place_list .card-location {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 5px !important;
+  height: auto !important;
+  min-height: 24px !important;
+  margin: 0 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+.page-place_list .km-loc-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 2.5px 7px !important;
+  border-radius: 6px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  transition: all 0.15s ease !important;
+}
+
+.page-place_list .km-loc-badge__icon {
+  width: 11.5px !important;
+  height: 11.5px !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+}
+
+.page-place_list .km-loc-badge__text {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 180px !important;
+}
+
+/* District Badge: Nature emerald tone */
+.page-place_list .km-loc-badge--district {
+  background: #f0fdf4 !important;
+  border: 1px solid #dcfce7 !important;
+  color: #15803d !important;
+}
+
+.page-place_list .km-loc-badge--district .km-loc-badge__icon {
+  stroke: #16a34a !important;
+}
+
+/* Metro Badge: Modern indigo/violet tone */
+.page-place_list .km-loc-badge--metro {
+  background: #f5f3ff !important;
+  border: 1px solid #ede9fe !important;
+  color: #6d28d9 !important;
+}
+
+.page-place_list .km-loc-badge--metro .km-loc-badge__icon {
+  stroke: #7c3aed !important;
+}
+
+/* Address Badge: Subtle slate */
+.page-place_list .km-loc-badge--address {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+.page-place_list .km-loc-badge--address .km-loc-badge__icon {
+  stroke: #64748b !important;
+}
+
+/* ==========================================================================
+   Category Select Trigger Polish
+   ========================================================================== */
+.page-place_list #custom-select-category .km-custom-select__value {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.page-place_list #custom-select-category .km-custom-select__trigger-icon {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.page-place_list #custom-select-category .km-custom-select__trigger-text {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Mobile responsive rules */
+@media (max-width: 760px) {
+  .page-place_list .results-toolbar-actions .results-view-mode {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 !important;
+    justify-self: end !important;
+    align-self: center !important;
+    padding: 2px !important;
+    border-radius: 10px !important;
+  }
+
+  .page-place_list .results-view-btn {
+    height: 29px !important;
+    min-height: 29px !important;
+    padding: 0 8px !important;
+    font-size: 12px !important;
+    gap: 4px !important;
+    border-radius: 8px !important;
+  }
+
+  .page-place_list .results-view-btn__icon {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .page-place_list .results-view-btn .results-map-count {
+    min-width: 16px !important;
+    height: 16px !important;
+    font-size: 10px !important;
+    padding: 0 4px !important;
+  }
+}

@@ -1,14 +1,14 @@
 (function () {
-  function formatDuration(milliseconds) {
+  function formatDuration(milliseconds, labels) {
     var totalMinutes = Math.round(milliseconds / 60000);
     if (totalMinutes <= 0) return "";
     var days = Math.floor(totalMinutes / 1440);
     var hours = Math.floor((totalMinutes % 1440) / 60);
     var minutes = totalMinutes % 60;
     var parts = [];
-    if (days) parts.push(days + " д.");
-    if (hours) parts.push(hours + " ч.");
-    if (minutes) parts.push(minutes + " мин.");
+    if (days) parts.push(days + " " + (labels.durationDay || "d"));
+    if (hours) parts.push(hours + " " + (labels.durationHour || "h"));
+    if (minutes) parts.push(minutes + " " + (labels.durationMinute || "min"));
     return parts.join(" ");
   }
 
@@ -18,6 +18,8 @@
     var summary = document.querySelector('[data-event-datetime-summary]');
     if (!start || !end || start.dataset.eventDateTimeBound === "1") return;
 
+    var labels = Object.assign({}, start.closest('form')?.dataset || {}, summary?.dataset || {});
+
     function sync() {
       var startPicker = start._flatpickr;
       var endPicker = end._flatpickr;
@@ -26,11 +28,12 @@
       if (endPicker) endPicker.set("minDate", startDate || null);
       if (!summary) return;
       if (!startDate || !endDate) {
-        summary.textContent = "Выберите начало и окончание — система покажет продолжительность.";
+        summary.textContent = labels.durationEmpty || "";
+        summary.classList.remove("is-error");
         return;
       }
       var duration = endDate.getTime() - startDate.getTime();
-      summary.textContent = duration > 0 ? "Продолжительность: " + formatDuration(duration) : "Окончание должно быть позже начала.";
+      summary.textContent = duration > 0 ? (labels.durationLabel ? labels.durationLabel + ": " : "") + formatDuration(duration, labels) : (labels.durationInvalid || "");
       summary.classList.toggle("is-error", duration <= 0);
     }
 

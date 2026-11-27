@@ -188,6 +188,17 @@ def save_working_revision(*, user, place_id, data, files, source):
         form.add_error(None, exc)
         return place, revision, form
 
+    requires_submission = action == "submit" or (
+        source == PlaceChangeAudit.SOURCE_ADMIN and revision and revision.status == "pending"
+    )
+    if requires_submission:
+        from catalog.services.place_readiness import evaluate_form_readiness
+        coordinate_issues = [issue for issue in evaluate_form_readiness(form, place).issues if issue.code == "coordinates"]
+        if coordinate_issues:
+            for issue in coordinate_issues:
+                form.add_error(issue.field, issue.message)
+            return place, revision, form
+
     old_working_snapshot = copy.deepcopy(
         {**content_snapshot(place), **revision.payload} if revision and revision.status != VolunteerPlaceRevision.Status.APPROVED else content_snapshot(place)
     )

@@ -4,6 +4,7 @@
   {% translate "до" as label_age_to %}
   {% translate "лет" as suffix_years %}
   {% translate "мин" as suffix_minutes %}
+  {% translate "Длительность урока" as label_duration %}
 
   <div class="km-pf-group" data-pf-group="age">
     <div class="km-pf-group__head">
@@ -18,32 +19,43 @@
         {% include "admin/catalog/place/form/_field.html" with field=form.age_to label=label_age_to suffix=suffix_years %}
       </div>
 
-      <details class="km-pf-disclosure"{% if form.age_open_ended.value or form.age_open_ended.errors or form.offers_adult_classes.value or form.lesson_duration_minutes.value or form.offers_adult_classes.errors or form.lesson_duration_minutes.errors %} open{% endif %}><summary>{% translate "Особенности места" %}</summary>
-      <div class="km-pf-age__flags">
-        <label class="km-pf-check" for="{{ form.age_open_ended.id_for_label }}">
-          {{ form.age_open_ended }}
-          <span class="km-pf-check__box" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg></span>
-          <span class="km-pf-check__copy">
-            <strong>{% translate "Нет максимального возраста" %}</strong>
-            <small>{% translate "Поле «до» отключается" %}</small>
-          </span>
-        </label>
-      </div>
+      <details class="km-pf-disclosure km-pf-disclosure--features"{% if form.age_open_ended.value or form.age_open_ended.errors or form.offers_adult_classes.value or form.lesson_duration_minutes.value or form.offers_adult_classes.errors or form.lesson_duration_minutes.errors or form.lesson_format.value or form.lessons_per_week.value or form.lessons_per_month.value %} open{% endif %}>
+        <summary class="km-pf-disclosure__summary">
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+          <div class="km-pf-disclosure__header-copy">
+            <span class="km-pf-disclosure__title">{% translate "Особенности места" %}</span>
+            <span class="km-pf-disclosure__note">{% translate "Ограничения возраста, формат занятий и параметры расписания" %}</span>
+          </div>
+        </summary>
 
-        <label class="km-pf-check" for="{{ form.offers_adult_classes.id_for_label }}">
-          {{ form.offers_adult_classes }}
-          <span class="km-pf-check__box" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg></span>
-          <span class="km-pf-check__copy">
-            <strong>{% translate "Есть программы для взрослых" %}</strong>
-            <small>{% translate "На готовность не влияет" %}</small>
-          </span>
-        </label>
-      <div class="km-pf-age__duration">
-        {% include "admin/catalog/place/form/_field.html" with field=form.lesson_duration_minutes optional=True suffix=suffix_minutes %}
-        {% include "admin/catalog/place/form/_field.html" with field=form.lesson_format optional=True %}
-        {% include "admin/catalog/place/form/_field.html" with field=form.lessons_per_week optional=True %}
-        {% include "admin/catalog/place/form/_field.html" with field=form.lessons_per_month optional=True %}
-      </div>
+        <div class="km-pf-disclosure__body">
+          <div class="km-pf-features-toggles">
+            <label class="km-pf-check km-pf-check--card" for="{{ form.age_open_ended.id_for_label }}">
+              {{ form.age_open_ended }}
+              <span class="km-pf-check__box" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg></span>
+              <span class="km-pf-check__copy">
+                <strong>{% translate "Нет максимального возраста" %}</strong>
+                <small>{% translate "Поле «до» отключается" %}</small>
+              </span>
+            </label>
+
+            <label class="km-pf-check km-pf-check--card" for="{{ form.offers_adult_classes.id_for_label }}">
+              {{ form.offers_adult_classes }}
+              <span class="km-pf-check__box" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg></span>
+              <span class="km-pf-check__copy">
+                <strong>{% translate "Есть программы для взрослых" %}</strong>
+                <small>{% translate "На готовность не влияет" %}</small>
+              </span>
+            </label>
+          </div>
+
+          <div class="km-pf-lessons-grid">
+            {% include "admin/catalog/place/form/_field.html" with field=form.lesson_duration_minutes label=label_duration optional=True suffix=suffix_minutes %}
+            {% include "admin/catalog/place/form/_field.html" with field=form.lesson_format optional=True %}
+            {% include "admin/catalog/place/form/_field.html" with field=form.lessons_per_week optional=True %}
+            {% include "admin/catalog/place/form/_field.html" with field=form.lessons_per_month optional=True %}
+          </div>
+        </div>
       </details>
     </div>
   </div>

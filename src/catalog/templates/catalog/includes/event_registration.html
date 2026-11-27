@@ -1,0 +1,5 @@
+{% if event.occurrence_state != 'cancelled' and not event.has_ended %}{% with registration=event.registration %}{% if registration.url %}
+<a class="{{ registration_class }}" href="{{ registration.url }}" data-event-registration-kind="{{ registration.kind }}" {% if registration.kind != 'phone' %}target="_blank" rel="noopener noreferrer"{% endif %}>
+<span class="material-symbols-rounded" aria-hidden="true">{% if registration.kind == 'phone' %}call{% elif registration.kind == 'whatsapp' %}chat{% else %}open_in_new{% endif %}</span><span>{{ registration.label }}</span>
+</a>
+{% endif %}{% endwith %}{% endif %}

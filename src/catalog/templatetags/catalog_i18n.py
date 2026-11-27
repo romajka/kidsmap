@@ -112,3 +112,14 @@ def parent_review_label(value) -> str:
         return 'parent review' if count == 1 else 'parent reviews'
     form = _plural_form(count, 'ru')
     return {'one': 'отзыв родителей', 'few': 'отзыва родителей', 'many': 'отзывов родителей'}[form]
+
+
+@register.filter
+def clean_public_note(value) -> str:
+    """Strip internal developer/seed markers (such as seed:catalog-demo:09) from public notes."""
+    if not value:
+        return ""
+    lines = str(value).strip().splitlines()
+    filtered = [l for l in lines if not l.startswith("seed:")]
+    nl = chr(10)
+    return nl.join(filtered)

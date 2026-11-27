@@ -14,9 +14,9 @@
 {% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=20261022_contacts" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=20261027_address_polish1" />
   <link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=3" />
-  <link rel="stylesheet" href="{% static 'css/pages/detail_polish.css' %}?v=20261020_release_r1" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail_polish.css' %}?v=20261027_unified_layout_v1" />
 {% endblock %}
 
 {% block content %}
@@ -38,7 +38,7 @@
       {% if place.operating_state == 'closed' and place.operating_state_approved_at %}<p class="public-notice" data-operating-state="closed">{% if language == 'ru' %}Это место закрыто. Карточка сохранена для истории; расписание и цены больше не актуальны.{% elif language == 'en' %}This place is closed. This page is kept for its history; schedules and prices are no longer current.{% else %}Bu məkan bağlanıb. Səhifə tarixçə üçün saxlanılır; cədvəl və qiymətlər artıq aktual deyil.{% endif %}</p>{% endif %}
       {% if presentation.translation_fallback %}<p class="public-notice" data-translation-fallback>{% if language == 'ru' %}Часть текста показана на азербайджанском. Перевод пока не добавлен.{% elif language == 'en' %}Some text is shown in Azerbaijani. A translation is not available yet.{% else %}Mətnin bir hissəsi azərbaycanca göstərilir. Tərcümə hələ yoxdur.{% endif %}</p>{% endif %}
 
-      <div class="detail-hero">
+      <div class="detail-body">
 
         <div class="detail-hero__media">
           {% if gallery %}
@@ -120,241 +120,7 @@
           {% endif %}
         </div>
 
-        <div class="detail-decision">
 
-          <div class="detail-decision__head">
-            <div class="detail-decision__idents">
-              {% if place.category %}
-                <span class="detail-chip">
-                  {{ place.get_category_display }}{% if place.subcategory %} · {{ place.subcategory.name_i18n }}{% endif %}
-                </span>
-              {% endif %}
-
-              {% if place.district or place.metro %}
-                <p class="detail-decision__line">
-                  <span class="detail-decision__ico" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.9"/></svg>
-                  </span>
-                  <span>{% if place.district %}{{ place.district_i18n }}{% endif %}{% if place.district and place.metro %} · {% endif %}{% if place.metro %}<strong>{{ place.metro_i18n }}</strong>{% endif %}</span>
-                </p>
-              {% endif %}
-
-              <p class="detail-decision__line">
-                <span class="detail-decision__ico detail-decision__ico--star" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 4 2.47 5.01 5.53.8-4 3.9.94 5.5L12 16.62l-4.94 2.6.94-5.5-4-3.9 5.53-.8L12 4Z"/></svg>
-                </span>
-                {% if place.rating_count %}
-                  <span>
-                    <strong>{{ place.rating_avg|floatformat:1 }}</strong> ·
-                    <a href="#reviews">{{ place.rating_count|review_count }}</a>
-                  </span>
-                {% else %}
-                  <span>{% trans "Пока нет отзывов" %} — <a href="#review-form">{% trans "напишите первым" %}</a></span>
-                {% endif %}
-              </p>
-              {% include "catalog/includes/favorite_social_proof.html" %}
-            </div>
-
-            {% if request.user.is_authenticated %}
-              <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
-                {% csrf_token %}
-                <button
-                  type="submit"
-                  class="like-btn detail-fav-btn{% if place.is_liked %} active{% endif %}"
-                  aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}"
-                  title="{% if place.is_liked %}{% trans 'Убрать из избранного' %}{% else %}{% trans 'Добавить в избранное' %}{% endif %}"
-                  aria-label="{% if place.is_liked %}{% trans 'Убрать из избранного' %}{% else %}{% trans 'Добавить в избранное' %}{% endif %}"
-                  data-favorite-add-label="{% trans 'Добавить в избранное' %}"
-                  data-favorite-remove-label="{% trans 'Убрать из избранного' %}"
-                >
-                  <span class="detail-fav-btn__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 20.25 4.875 13.5a4.74 4.74 0 0 1 0-6.75 4.94 4.94 0 0 1 6.938 0L12 7.05l.188-.3a4.94 4.94 0 0 1 6.937 0 4.74 4.74 0 0 1 0 6.75L12 20.25Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  </span>
-                </button>
-              </form>
-            {% else %}
-              <button
-                type="button"
-                class="like-btn detail-fav-btn"
-                aria-pressed="false"
-                title="{% trans 'Добавить в избранное' %}"
-                aria-label="{% trans 'Добавить в избранное' %}"
-                data-auth-required-trigger
-                data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
-                data-auth-required-url="{% url 'account_login' %}?next={{ place.get_absolute_url|urlencode }}"
-              >
-                <span class="detail-fav-btn__icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 20.25 4.875 13.5a4.74 4.74 0 0 1 0-6.75 4.94 4.94 0 0 1 6.938 0L12 7.05l.188-.3a4.94 4.94 0 0 1 6.937 0 4.74 4.74 0 0 1 0 6.75L12 20.25Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-              </button>
-            {% endif %}
-          </div>
-
-          <div class="detail-decision__facts">
-            {% if pricing_summary.has_price or place.price_range_display %}
-              <p class="detail-decision__price">
-                <span class="detail-decision__price-value">{% if pricing_summary.has_price %}{{ pricing_summary.formatted_price_amount }}{% else %}{{ place.price_range_display }}{% endif %}</span>
-                {% if pricing_summary.plans %}
-                  <span class="detail-decision__price-note">{{ pricing_summary.tariff_count|tariff_count }}</span>
-                {% endif %}
-              </p>
-            {% else %}
-              <p class="detail-decision__price">
-                <span class="detail-decision__price-value detail-decision__price-value--soft">{% trans "Цена уточняется" %}</span>
-              </p>
-            {% endif %}
-
-            <div class="detail-decision__grid">
-              {% if place.age_display %}
-                <div class="detail-decision__cell">
-                  <span class="detail-decision__ico" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7.25" r="3.25" stroke="currentColor" stroke-width="1.9"/><path d="M6.75 18.25c.92-2.65 2.82-3.98 5.25-3.98s4.33 1.33 5.25 3.98" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
-                  </span>
-                  <span class="detail-decision__cell-body">
-                    <span class="detail-label">{% trans "Возраст" %}</span>
-                    <strong>{{ place.age_display }}</strong>
-                  </span>
-                </div>
-              {% endif %}
-              <div class="detail-decision__cell">
-                <span class="detail-decision__ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none"><rect x="4.75" y="4.75" width="14.5" height="14.5" rx="2.5" stroke="currentColor" stroke-width="1.9"/><path d="M9 9.5h2M13 9.5h2M9 13.5h2M13 13.5h2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
-                </span>
-                <span class="detail-decision__cell-body">
-                  <span class="detail-label">{% trans "Формат" %}</span>
-                  <strong>{% if pricing_summary.format_label %}{{ pricing_summary.format_label }}{% elif place.is_temporary %}{% trans "Временное мероприятие" %}{% else %}{% trans "Постоянное место" %}{% endif %}</strong>
-                </span>
-              </div>
-            </div>
-
-            {% if pricing_summary.open_status or pricing_summary.schedule_rows %}
-              <p class="detail-decision__line">
-                <span class="detail-decision__ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.75V12l2.75 1.75" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-                <span class="detail-decision__schedule">
-                  {% if pricing_summary.open_status %}
-                    <span class="detail-open{% if not pricing_summary.open_status.is_open %} detail-open--closed{% endif %}">
-                      <span class="detail-open__dot" aria-hidden="true"></span>{{ pricing_summary.open_status.label }}{% if pricing_summary.open_status.time %} · {{ pricing_summary.open_status.time }}{% endif %}
-                    </span>
-                  {% endif %}
-                  {% if pricing_summary.schedule_rows %}
-                    <span class="detail-decision__schedule-summary">
-                      {% for row in pricing_summary.schedule_rows|slice:":2" %}{% if row.days %}{{ row.days }} {% endif %}{{ row.time }}{% if not forloop.last %} · {% endif %}{% endfor %}
-                    </span>
-                  {% endif %}
-                </span>
-              </p>
-            {% endif %}
-
-            {% if place.address %}
-              <p class="detail-decision__line">
-                <span class="detail-decision__ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.9"/></svg>
-                </span>
-                <span>{{ place.address_i18n }}</span>
-              </p>
-            {% endif %}
-          </div>
-
-          <div class="detail-decision__cta">
-            {% if presentation.contacts.has_phone %}
-              {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--primary" phone_index=0 %}
-            {% endif %}
-
-            <div class="detail-decision__cta-row">
-              {% if presentation.contacts.has_whatsapp %}
-                {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--soft" phone_index=0 whatsapp=True %}
-              {% endif %}
-              {% if map_open_url %}
-                <a
-                  class="detail-cta detail-cta--ghost"
-                  href="{{ map_open_url }}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-track-event="directions_click"
-                  data-track-place-id="{{ place.id }}"
-                  data-track-source="place-detail-hero"
-                  title="{% trans 'Проложить маршрут' %}"
-                  aria-label="{% trans 'Проложить маршрут' %}"
-                >
-                  <span class="detail-cta__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="m4.75 8.5 4.75-2.25 5 2.25 4.75-2.25v9.25L14.5 17.75l-5-2.25-4.75 2.25V8.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 6.25v9.25M14.5 8.5v9.25" stroke="currentColor" stroke-width="1.8"/></svg>
-                  </span>
-                  <span class="detail-cta__label">{% trans "Маршрут" %}</span>
-                </a>
-              {% endif %}
-              {% if place.instagram %}
-                <a
-                  class="detail-cta detail-cta--ghost"
-                  href="{{ place.instagram_url }}"
-                  target="_blank"
-                  rel="noopener"
-                  data-track-event="social_click"
-                  data-track-place-id="{{ place.id }}"
-                  data-track-source="place-detail-hero"
-                  title="Instagram"
-                  aria-label="Instagram"
-                >
-                  <span class="detail-cta__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none"><rect x="4.75" y="4.75" width="14.5" height="14.5" rx="4.25" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.35" stroke="currentColor" stroke-width="1.8"/><circle cx="16.55" cy="7.45" r="1" fill="currentColor"/></svg>
-                  </span>
-                  <span class="detail-cta__label">Instagram</span>
-                </a>
-              {% endif %}
-            </div>
-          </div>
-
-          {% if presentation.organization %}
-            <div class="detail-org-banner">
-              {% if organizations_section_enabled %}
-              <a class="public-place-org detail-org-badge" href="{{ presentation.organization.url }}" lang="{{ presentation.organization.name_language }}" title="{{ presentation.organization.name }}">
-                <div class="detail-org-badge__left">
-                  <span class="detail-org-badge__icon">
-                    <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
-                  </span>
-                  <div class="detail-org-badge__text">
-                    <span class="detail-org-badge__label">{% if language == 'az' %}Şəbəkə filialı{% elif language == 'en' %}Network branch{% else %}Филиал сети{% endif %}</span>
-                    <strong class="detail-org-badge__name">{{ presentation.organization.name }}</strong>
-                  </div>
-                </div>
-                <span class="material-symbols-rounded detail-org-badge__arrow" aria-hidden="true">arrow_forward</span>
-              </a>
-              {% else %}
-              <div class="detail-org-badge detail-org-badge--static" lang="{{ presentation.organization.name_language }}">
-                <div class="detail-org-badge__left">
-                  <span class="detail-org-badge__icon">
-                    <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
-                  </span>
-                  <div class="detail-org-badge__text">
-                    <span class="detail-org-badge__label">{% if language == 'az' %}Şəbəkə filialı{% elif language == 'en' %}Network branch{% else %}Филиал сети{% endif %}</span>
-                    <strong class="detail-org-badge__name">{{ presentation.organization.name }}</strong>
-                  </div>
-                </div>
-              </div>
-              {% endif %}
-            </div>
-          {% endif %}
-
-          {% if presentation.description %}
-            <p class="detail-decision__lead" lang="{{ presentation.description_language }}">{{ presentation.description }}</p>
-            <a class="detail-decision__more" href="#about">
-              {% trans "О месте" %}
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="M12 5v14m0 0-5-5m5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
-          {% endif %}
-        </div>
-      </div>
-
-      <nav class="detail-section-nav" aria-label="{% if language == 'ru' %}Разделы страницы{% elif language == 'en' %}On this page{% else %}Səhifənin bölmələri{% endif %}">
-        {% if activities %}<a href="#activities">{% if language == 'ru' %}Занятия{% elif language == 'en' %}Activities{% else %}Məşğələlər{% endif %}</a>{% endif %}
-        {% if presentation.description %}<a href="#about">{% trans "О месте" %}</a>{% endif %}
-        {% if pricing_summary.has_price or pricing_summary.plans or pricing_summary.schedule_rows or place.extra_conditions_i18n or place.additional_info_i18n %}<a href="#pricing">{% if language == 'ru' %}Цены{% elif language == 'en' %}Prices{% else %}Qiymətlər{% endif %}</a>{% endif %}
-        <a href="#map">{% if language == 'ru' %}Адрес{% elif language == 'en' %}Location{% else %}Ünvan{% endif %}</a>
-        <a href="#reviews">{% trans "Отзывы" %}</a>
-      </nav>
-
-      <div class="detail-body">
 
         <div class="detail-main">
           {% if activities %}<section id="activities" class="detail-card public-place-offers" aria-labelledby="activities-heading">
@@ -370,7 +136,7 @@
           {% endif %}
 
           {% if pricing_summary.has_price or pricing_summary.plans or pricing_summary.schedule_rows or place.extra_conditions_i18n or place.additional_info_i18n %}
-            <section id="pricing" class="detail-card">
+            <section id="pricing" class="detail-card detail-card--pricing">
               <div class="detail-card__head">
                 <h2 class="detail-card__title">{{ pricing_summary.strings.title }}</h2>
                 {% if pricing_summary.plans %}
@@ -382,6 +148,21 @@
                 <p class="detail-note">{{ pricing_summary.strings.subtitle }}</p>
               {% endif %}
 
+              {% if not pricing_summary.plans and pricing_summary.format_label %}
+                <div class="detail-pricing-meta">
+                  <span class="detail-pricing-meta__item">
+                    <span class="detail-label">{% trans "Формат" %}:</span>
+                    <strong>{{ pricing_summary.format_label }}</strong>
+                  </span>
+                  {% if place.lesson_duration_display %}
+                    <span class="detail-pricing-meta__item">
+                      <span class="detail-label">{% trans "Длительность" %}:</span>
+                      <strong>{{ place.lesson_duration_display }}</strong>
+                    </span>
+                  {% endif %}
+                </div>
+              {% endif %}
+
               {% if pricing_summary.plans %}
                 <div class="detail-plans" id="pricing-plans-container">
                   {% for plan in pricing_summary.plans %}
@@ -390,11 +171,21 @@
                     {% endifchanged %}{% endif %}
                     <div class="detail-plans__row{% if forloop.counter > 3 %} detail-plans__row--hidden{% endif %}"{% if forloop.counter > 3 %} hidden{% endif %}>
                       <span class="detail-plans__body">
-                        <strong class="detail-plans__name">{{ plan.title }}</strong>
+                        <span class="detail-plans__title-row">
+                          <strong class="detail-plans__name">{{ plan.title }}</strong>
+                          {% if plan.lesson_format %}
+                            <span class="detail-plans__badge">
+                              {% if plan.lesson_format == 'individual' %}{% trans "Индивидуальные" %}
+                              {% elif plan.lesson_format == 'group' %}{% trans "Групповые" %}
+                              {% elif plan.lesson_format == 'open_visit' %}{% trans "Свободное посещение" %}
+                              {% else %}{{ plan.lesson_format }}{% endif %}
+                            </span>
+                          {% endif %}
+                        </span>
                         {% if plan.details %}<span class="detail-plans__details">{{ plan.details }}</span>{% endif %}
                         {% if plan.options or plan.required_fees %}
                           <span class="detail-plans__options">
-                            {% for option in plan.options %}<span>{{ option.title }} · {{ option.price_str }}{% if option.details %} · {{ option.details }}{% endif %}{% if option.age_from != None or option.age_to != None %} · {{ option.age_from|default:"0" }}–{{ option.age_to|default:"+" }}{% endif %}</span>{% endfor %}
+                            {% for option in plan.options %}<span>{{ option.title }} · {{ option.price_str }}{% if option.details %} · {{ option.details }}{% endif %}{% if option.age_from != None or option.age_to != None %} · {{ option.age_from|default:"0" }}–{{ option.age_to|default:"+" }}{% if language == 'ru' %} лет{% elif language == 'en' %} yrs{% else %} yaş{% endif %}{% endif %}</span>{% endfor %}
                             {% for fee in plan.required_fees %}<span class="detail-plans__required-fee">{{ fee.title }} · {{ fee.price_str }}{% if fee.details %} · {{ fee.details }}{% endif %}</span>{% endfor %}
                           </span>
                         {% endif %}
@@ -427,19 +218,30 @@
           {% endif %}
 
           {% if pricing_summary.schedule_week or pricing_summary.schedule_rows %}
-            <section id="schedule" class="detail-card">
+            <section id="schedule" class="detail-card detail-card--schedule">
               <div class="detail-card__head">
                 <h2 class="detail-card__title">{% trans "Расписание" %}</h2>
-                {% if pricing_summary.schedule_type_label %}
-                  <span class="detail-badge">{{ pricing_summary.schedule_type_label }}</span>
-                {% endif %}
+                <div class="detail-schedule__badges">
+                  {% if pricing_summary.open_status and pricing_summary.open_status.label %}
+                    <span class="detail-schedule__status{% if pricing_summary.open_status.is_open %} detail-schedule__status--open{% else %} detail-schedule__status--closed{% endif %}">
+                      <span class="detail-schedule__status-dot" aria-hidden="true"></span>
+                      {{ pricing_summary.open_status.label }}
+                    </span>
+                  {% endif %}
+                  {% if pricing_summary.schedule_type_label %}
+                    <span class="detail-card__aside">{{ pricing_summary.schedule_type_label }}</span>
+                  {% endif %}
+                </div>
               </div>
 
               {% if pricing_summary.schedule_week %}
                 <ul class="detail-week">
                   {% for day in pricing_summary.schedule_week %}
                     <li class="detail-week__day{% if day.is_today %} detail-week__day--today{% endif %}{% if day.is_closed %} detail-week__day--closed{% endif %}"{% if day.is_today %} aria-current="date"{% endif %}>
-                      <span class="detail-week__label">{{ day.label }}{% if day.is_today %} · {% trans "сегодня" %}{% endif %}</span>
+                      <span class="detail-week__label">
+                        {% if day.is_today %}<span class="detail-week__today-dot" aria-hidden="true"></span>{% endif %}
+                        {{ day.label }}{% if day.is_today %} · {% trans "сегодня" %}{% endif %}
+                      </span>
                       <span class="detail-week__time">
                         {% for line in day.lines %}{{ line }}{% if not forloop.last %}<br />{% endif %}{% endfor %}
                       </span>
@@ -458,67 +260,107 @@
               {% endif %}
 
               {% if pricing_summary.schedule_note %}
-                <p class="detail-note detail-note--muted">{{ pricing_summary.schedule_note }}</p>
+                <p class="detail-schedule__note">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                  <span>{{ pricing_summary.schedule_note }}</span>
+                </p>
               {% endif %}
             </section>
           {% endif %}
 
-          <section id="facts" class="detail-card">
-            <h2 class="detail-card__title">{% trans "Основные сведения" %}</h2>
+          <section id="facts" class="detail-card detail-card--facts">
+            <h2 class="detail-card__title">
+              <span class="material-symbols-rounded detail-card__title-icon" aria-hidden="true">info</span>
+              <span>{% trans "Основные сведения" %}</span>
+            </h2>
             {% if place.is_temporary %}
               {% include "catalog/includes/temporary_event_badge.html" with place=place language=language variant="detail" %}
             {% endif %}
             <div class="detail-facts">
               {% if place.age_display %}
                 <div class="detail-facts__item">
-                  <span class="detail-label">{% trans "Возраст" %}</span>
-                  <strong>{{ place.age_display }}</strong>
+                  <span class="detail-label detail-facts__label">
+                    <span class="material-symbols-rounded" aria-hidden="true">child_care</span>
+                    <span>{% trans "Возраст" %}</span>
+                  </span>
+                  <strong class="detail-facts__value">{{ place.age_display }}</strong>
                 </div>
               {% endif %}
               {% if place.offers_adult_classes %}
                 <div class="detail-facts__item">
-                  <span class="detail-label">{% trans "Взрослые группы" %}</span>
-                  <strong>{% trans "Да" %}</strong>
+                  <span class="detail-label detail-facts__label">
+                    <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+                    <span>{% trans "Взрослые группы" %}</span>
+                  </span>
+                  <strong class="detail-facts__value">{% trans "Да" %}</strong>
                 </div>
               {% endif %}
               <div class="detail-facts__item">
-                <span class="detail-label">{% trans "Формат" %}</span>
-                <strong>{% if place.is_temporary %}{% trans "Временное мероприятие" %}{% else %}{% trans "Постоянное место" %}{% endif %}</strong>
+                <span class="detail-label detail-facts__label">
+                  <span class="material-symbols-rounded" aria-hidden="true">apartment</span>
+                  <span>{% trans "Тип места" %}</span>
+                </span>
+                <strong class="detail-facts__value">{% if place.is_temporary %}{% trans "Временное мероприятие" %}{% else %}{% trans "Постоянное место" %}{% endif %}</strong>
               </div>
               {% if place.is_temporary and place.temporary_start or place.temporary_end %}
-                <div class="detail-facts__item">
-                  <span class="detail-label">{% trans "Период" %}</span>
-                  <strong>{% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}{% if place.temporary_start and place.temporary_end %} — {% endif %}{% if place.temporary_end %}{{ place.temporary_end|date:"d.m.Y H:i" }}{% endif %}</strong>
+                <div class="detail-facts__item detail-facts__item--wide">
+                  <span class="detail-label detail-facts__label">
+                    <span class="material-symbols-rounded" aria-hidden="true">event</span>
+                    <span>{% trans "Период" %}</span>
+                  </span>
+                  <strong class="detail-facts__value">{% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}{% if place.temporary_start and place.temporary_end %} — {% endif %}{% if place.temporary_end %}{{ place.temporary_end|date:"d.m.Y H:i" }}{% endif %}</strong>
                 </div>
               {% endif %}
               {% if place.category %}
                 <div class="detail-facts__item">
-                  <span class="detail-label">{% trans "Категория" %}</span>
-                  <strong>{{ place.get_category_display }}</strong>
+                  <span class="detail-label detail-facts__label">
+                    <span class="material-symbols-rounded" aria-hidden="true">category</span>
+                    <span>{% trans "Категория" %}</span>
+                  </span>
+                  <strong class="detail-facts__value">{{ place.get_category_display }}</strong>
                 </div>
               {% endif %}
               {% if place.subcategory %}
                 <div class="detail-facts__item">
-                  <span class="detail-label">{% trans "Подкатегория" %}</span>
-                  <strong>{{ place.subcategory.name_i18n }}</strong>
+                  <span class="detail-label detail-facts__label">
+                    <span class="material-symbols-rounded" aria-hidden="true">label</span>
+                    <span>{% trans "Подкатегория" %}</span>
+                  </span>
+                  <strong class="detail-facts__value">{{ place.subcategory.name_i18n }}</strong>
                 </div>
               {% endif %}
               {% if place.metro %}
                 <div class="detail-facts__item">
-                  <span class="detail-label">{% trans "Метро" %}</span>
-                  <strong>{{ place.metro_i18n }}</strong>
+                  <span class="detail-label detail-facts__label">
+                    <span class="material-symbols-rounded" aria-hidden="true">subway</span>
+                    <span>{% trans "Метро" %}</span>
+                  </span>
+                  <strong class="detail-facts__value detail-facts__value--metro">
+                    <span class="detail-facts__metro-badge">M</span>
+                    <span>{{ place.metro_i18n }}</span>
+                  </strong>
                 </div>
               {% endif %}
               {% if place.lesson_duration_display %}
                 <div class="detail-facts__item">
-                  <span class="detail-label">{% trans "Длительность" %}</span>
-                  <strong>{{ place.lesson_duration_display }}</strong>
+                  <span class="detail-label detail-facts__label">
+                    <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+                    <span>{% trans "Длительность" %}</span>
+                  </span>
+                  <strong class="detail-facts__value">{{ place.lesson_duration_display }}</strong>
                 </div>
               {% endif %}
               {% if place.address %}
                 <div class="detail-facts__item detail-facts__item--wide">
-                  <span class="detail-label">{% trans "Адрес" %}</span>
-                  <strong>{{ place.address_i18n }}</strong>
+                  <span class="detail-label detail-facts__label">
+                    <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+                    <span>{% trans "Адрес" %}</span>
+                  </span>
+                  <strong class="detail-facts__value">{{ place.address_i18n }}</strong>
                 </div>
               {% endif %}
             </div>
@@ -792,19 +634,39 @@
           </section>
 
           {% if map_embed_url %}
-            <section id="map" class="detail-card">
+            <section id="map" class="detail-card detail-card--map">
               <div class="detail-card__head">
-                <h2 class="detail-card__title">{% trans "На карте" %}</h2>
+                <h2 class="detail-card__title">
+                  <span class="material-symbols-rounded detail-card__title-icon" aria-hidden="true">map</span>
+                  <span>{% trans "На карте" %}</span>
+                </h2>
                 {% if map_open_url %}
-                  <a class="detail-card__action" href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer" data-track-event="directions_click" data-track-place-id="{{ place.id }}" data-track-source="place-detail">
-                    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" aria-hidden="true"><path d="m4.75 8.5 4.75-2.25 5 2.25 4.75-2.25v9.25L14.5 17.75l-5-2.25-4.75 2.25V8.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-                    {% trans "Проложить маршрут" %}
+                  <a class="detail-card__action detail-map__directions-btn" href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer" data-track-event="directions_click" data-track-place-id="{{ place.id }}" data-track-source="place-detail">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="m4.75 8.5 4.75-2.25 5 2.25 4.75-2.25v9.25L14.5 17.75l-5-2.25-4.75 2.25V8.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 6.25v9.25M14.5 8.5v9.25" stroke="currentColor" stroke-width="1.8"/></svg>
+                    <span>{% trans "Проложить маршрут" %}</span>
                   </a>
                 {% endif %}
               </div>
+
               {% if place.address %}
-                <p class="detail-note">{{ place.address_i18n }}</p>
+                <div class="detail-map__location-bar">
+                  <div class="detail-map__location-info">
+                    <span class="material-symbols-rounded detail-map__location-icon" aria-hidden="true">location_on</span>
+                    <span class="detail-map__address-text">{{ place.address_i18n }}</span>
+                    {% if place.metro %}
+                      <span class="detail-map__metro-pill">
+                        <span class="detail-map__metro-icon">M</span>
+                        <span>{{ place.metro_i18n }}</span>
+                      </span>
+                    {% endif %}
+                  </div>
+                  <button type="button" class="detail-map__copy-btn" data-copy-address="{{ place.address_i18n }}" title="{% trans 'Скопировать адрес' %}">
+                    <svg class="km-copy-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span class="km-copy-text">{% trans "Скопировать" %}</span>
+                  </button>
+                </div>
               {% endif %}
+
               <div
                 id="detail-map"
                 class="detail-map"
@@ -820,12 +682,32 @@
               <div hidden id="detail-map-icon-svg">
                 {% include "catalog/includes/category_icon.html" with code=place.category_code|default:'ALL' %}
               </div>
+
               {% if place.lat and place.lng %}
-                <p class="detail-note detail-note--muted">{{ place.lat }}, {{ place.lng }}</p>
+                <div class="detail-map__footer">
+                  <div class="detail-map__coords" title="{% trans 'Координаты' %}">
+                    <span class="material-symbols-rounded" aria-hidden="true">my_location</span>
+                    <span>{{ place.lat }}, {{ place.lng }}</span>
+                  </div>
+                  <div class="detail-map__app-links">
+                    <a class="detail-map__app-chip" href="https://www.google.com/maps/search/?api=1&query={{ place.lat }},{{ place.lng }}" target="_blank" rel="noopener noreferrer">
+                      <span>Google Maps</span>
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </a>
+                    <a class="detail-map__app-chip" href="https://2gis.az/baku/search/{{ place.lat }}%2C{{ place.lng }}" target="_blank" rel="noopener noreferrer">
+                      <span>2GIS</span>
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </a>
+                    <a class="detail-map__app-chip" href="https://yandex.com/maps/?ll={{ place.lng }}%2C{{ place.lat }}&z=16" target="_blank" rel="noopener noreferrer">
+                      <span>Яндекс Карты</span>
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </a>
+                  </div>
+                </div>
               {% endif %}
             </section>
           {% else %}
-            <section id="map" class="detail-card">
+            <section id="map" class="detail-card detail-card--map">
               <div class="km-map-fallback-card">
                 <span class="material-symbols-rounded km-map-fallback-icon" aria-hidden="true">location_off</span>
                 <h3 class="km-map-fallback-title">
@@ -853,75 +735,271 @@
 
         <aside class="detail-side">
 
-          <section class="detail-card detail-card--tight">
-            <h2 class="detail-card__title detail-card__title--sm">{% trans "Контакты" %}</h2>
-            <div class="detail-contacts">
-              {% if presentation.contacts.source == 'organization' %}<p class="public-muted" data-contact-source="organization">{% if language == 'ru' %}Источник контактов: организация{% elif language == 'en' %}Contact source: organization{% else %}Əlaqə mənbəyi: təşkilat{% endif %}</p>{% endif %}
-              {% if presentation.contacts.has_phone %}
-                {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__row detail-contacts__row--primary" phone_index=0 %}
-                {% if presentation.contacts.phones|length > 1 %}
-                  <div class="detail-contacts__secondary" aria-label="{% trans 'Дополнительные номера' %}">
+          <div class="detail-decision">
+
+          <div class="detail-decision__head">
+            <div class="detail-decision__idents">
+              {% if place.category %}
+                <span class="detail-chip">
+                  {{ place.get_category_display }}{% if place.subcategory %} · {{ place.subcategory.name_i18n }}{% endif %}
+                </span>
+              {% endif %}
+
+              {% if place.district or place.metro %}
+                <p class="detail-decision__line">
+                  <span class="detail-decision__ico" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.9"/></svg>
+                  </span>
+                  <span>{% if place.district %}{{ place.district_i18n }}{% endif %}{% if place.district and place.metro %} · {% endif %}{% if place.metro %}<strong>{{ place.metro_i18n }}</strong>{% endif %}</span>
+                </p>
+              {% endif %}
+
+              <p class="detail-decision__line">
+                <span class="detail-decision__ico detail-decision__ico--star" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 4 2.47 5.01 5.53.8-4 3.9.94 5.5L12 16.62l-4.94 2.6.94-5.5-4-3.9 5.53-.8L12 4Z"/></svg>
+                </span>
+                {% if place.rating_count %}
+                  <span>
+                    <strong>{{ place.rating_avg|floatformat:1 }}</strong> ·
+                    <a href="#reviews">{{ place.rating_count|review_count }}</a>
+                  </span>
+                {% else %}
+                  <span>{% trans "Пока нет отзывов" %} — <a href="#review-form">{% trans "напишите первым" %}</a></span>
+                {% endif %}
+              </p>
+              {% include "catalog/includes/favorite_social_proof.html" %}
+            </div>
+
+            {% if request.user.is_authenticated %}
+              <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  class="like-btn detail-fav-btn{% if place.is_liked %} active{% endif %}"
+                  aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}"
+                  title="{% if place.is_liked %}{% trans 'Убрать из избранного' %}{% else %}{% trans 'Добавить в избранное' %}{% endif %}"
+                  aria-label="{% if place.is_liked %}{% trans 'Убрать из избранного' %}{% else %}{% trans 'Добавить в избранное' %}{% endif %}"
+                  data-favorite-add-label="{% trans 'Добавить в избранное' %}"
+                  data-favorite-remove-label="{% trans 'Убрать из избранного' %}"
+                >
+                  <span class="detail-fav-btn__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 20.25 4.875 13.5a4.74 4.74 0 0 1 0-6.75 4.94 4.94 0 0 1 6.938 0L12 7.05l.188-.3a4.94 4.94 0 0 1 6.937 0 4.74 4.74 0 0 1 0 6.75L12 20.25Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </button>
+              </form>
+            {% else %}
+              <button
+                type="button"
+                class="like-btn detail-fav-btn"
+                aria-pressed="false"
+                title="{% trans 'Добавить в избранное' %}"
+                aria-label="{% trans 'Добавить в избранное' %}"
+                data-auth-required-trigger
+                data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
+                data-auth-required-url="{% url 'account_login' %}?next={{ place.get_absolute_url|urlencode }}"
+              >
+                <span class="detail-fav-btn__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 20.25 4.875 13.5a4.74 4.74 0 0 1 0-6.75 4.94 4.94 0 0 1 6.938 0L12 7.05l.188-.3a4.94 4.94 0 0 1 6.937 0 4.74 4.74 0 0 1 0 6.75L12 20.25Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+              </button>
+            {% endif %}
+          </div>
+
+          <div class="detail-decision__facts">
+            {% if pricing_summary.has_price or place.price_range_display %}
+              <p class="detail-decision__price">
+                <span class="detail-decision__price-value">{% if pricing_summary.has_price %}{{ pricing_summary.formatted_price_amount }}{% else %}{{ place.price_range_display }}{% endif %}</span>
+                {% if pricing_summary.plans %}
+                  <span class="detail-decision__price-note">{{ pricing_summary.tariff_count|tariff_count }}</span>
+                {% endif %}
+              </p>
+            {% else %}
+              <p class="detail-decision__price">
+                <span class="detail-decision__price-value detail-decision__price-value--soft">{% trans "Цена уточняется" %}</span>
+              </p>
+            {% endif %}
+
+            <div class="detail-decision__grid">
+              {% if place.age_display %}
+                <div class="detail-decision__cell">
+                  <span class="detail-decision__ico" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7.25" r="3.25" stroke="currentColor" stroke-width="1.9"/><path d="M6.75 18.25c.92-2.65 2.82-3.98 5.25-3.98s4.33 1.33 5.25 3.98" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+                  </span>
+                  <span class="detail-decision__cell-body">
+                    <span class="detail-label">{% trans "Возраст" %}</span>
+                    <strong>{{ place.age_display }}</strong>
+                  </span>
+                </div>
+              {% endif %}
+              <div class="detail-decision__cell">
+                <span class="detail-decision__ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><rect x="4.75" y="4.75" width="14.5" height="14.5" rx="2.5" stroke="currentColor" stroke-width="1.9"/><path d="M9 9.5h2M13 9.5h2M9 13.5h2M13 13.5h2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+                </span>
+                <span class="detail-decision__cell-body">
+                  <span class="detail-label">{% trans "Тип места" %}</span>
+                  <strong>{% if place.is_temporary %}{% trans "Временное мероприятие" %}{% else %}{% trans "Постоянное место" %}{% endif %}</strong>
+                </span>
+              </div>
+            </div>
+
+            {% if pricing_summary.open_status or pricing_summary.schedule_rows %}
+              <p class="detail-decision__line">
+                <span class="detail-decision__ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.9"/><path d="M12 7.75V12l2.75 1.75" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="detail-decision__schedule">
+                  {% if pricing_summary.open_status %}
+                    <span class="detail-open{% if not pricing_summary.open_status.is_open %} detail-open--closed{% endif %}">
+                      <span class="detail-open__dot" aria-hidden="true"></span>{{ pricing_summary.open_status.label }}{% if pricing_summary.open_status.time %} · {{ pricing_summary.open_status.time }}{% endif %}
+                    </span>
+                  {% endif %}
+                  {% if pricing_summary.schedule_rows %}
+                    <span class="detail-decision__schedule-summary">
+                      {% for row in pricing_summary.schedule_rows|slice:":2" %}{% if row.days %}{{ row.days }} {% endif %}{{ row.time }}{% if not forloop.last %} · {% endif %}{% endfor %}
+                    </span>
+                  {% endif %}
+                </span>
+              </p>
+            {% endif %}
+
+            {% if place.address %}
+              <p class="detail-decision__line">
+                <span class="detail-decision__ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.9"/></svg>
+                </span>
+                <a href="#map" class="detail-decision__address-link detail-contacts__row--address" title="{% trans 'Показать на карте' %}">{{ place.address_i18n }}</a>
+              </p>
+            {% endif %}
+          </div>
+
+          <div class="detail-decision__cta">
+            {% if presentation.contacts.has_phone %}
+              {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--primary" phone_index=0 %}
+              {% if presentation.contacts.phones|length > 1 %}
+                <div class="detail-contacts__secondary" aria-label="{% trans 'Дополнительные номера' %}">
+                  <div class="detail-contacts__secondary-top">
                     <span class="detail-contacts__secondary-label">{% trans "Дополнительные номера" %}</span>
+                    <span class="detail-contacts__secondary-count">+{{ presentation.contacts.phones|length|add:"-1" }}</span>
+                  </div>
+                  <div class="detail-contacts__secondary-items">
                     {% for phone in presentation.contacts.phones|slice:"1:" %}
                       {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__secondary-link" phone_index=forloop.counter %}
                     {% endfor %}
                   </div>
-                {% endif %}
-              {% endif %}
-
-              {% if presentation.contacts.has_whatsapp %}
-                {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__row detail-contacts__row--whatsapp" whatsapp=True %}
-              {% endif %}
-
-              {% if place.instagram %}
-                <a class="detail-contacts__row" href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer" data-track-event="social_click" data-track-place-id="{{ place.id }}" data-track-source="place-detail">
-                  <span class="detail-contacts__icon detail-contacts__icon--instagram" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none"><rect x="4.75" y="4.75" width="14.5" height="14.5" rx="4.25" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.35" stroke="currentColor" stroke-width="1.8"/><circle cx="16.55" cy="7.45" r="1" fill="currentColor"/></svg>
-                  </span>
-                  <span class="detail-contacts__body">
-                    <span class="detail-label">Instagram</span>
-                    <strong>{{ place.instagram }}</strong>
-                  </span>
-                </a>
-              {% endif %}
-
-              {% if presentation.contacts.website_url %}
-                <a class="detail-contacts__row" href="{{ presentation.contacts.website_url }}" target="_blank" rel="noopener noreferrer" data-track-event="website_click" data-track-place-id="{{ place.id }}" data-track-source="place-detail">
-                  <span class="detail-contacts__icon detail-contacts__icon--website" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.8"/><path d="M3.9 12h16.2M12 3.75c2.1 2.28 3.15 5 3.15 8.25S14.1 17.97 12 20.25c-2.1-2.28-3.15-5-3.15-8.25S9.9 6.03 12 3.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  </span>
-                  <span class="detail-contacts__body">
-                    <span class="detail-label">{% trans "Сайт" %}</span>
-                    <strong class="detail-contacts__website">{{ presentation.contacts.website_url|cut:"https://"|cut:"http://" }}</strong>
-                  </span>
-                </a>
-              {% endif %}
-
-              {% if place.address %}
-                <div class="detail-contacts__row detail-contacts__row--static">
-                  <span class="detail-contacts__icon detail-contacts__icon--address" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.8"/></svg>
-                  </span>
-                  <span class="detail-contacts__body">
-                    <span class="detail-label">{% trans "Адрес" %}</span>
-                    <strong>{{ place.address_i18n }}</strong>
-                    {% if map_open_url %}
-                      <a class="detail-contacts__link" href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer" data-track-event="directions_click" data-track-place-id="{{ place.id }}" data-track-source="place-detail">{% trans "Проложить маршрут" %}</a>
-                    {% endif %}
-                  </span>
                 </div>
               {% endif %}
+            {% endif %}
 
-              {% for link in presentation.contacts.public_links %}
-                <a class="detail-contacts__row" href="{{ link.url }}" target="_blank" rel="noopener noreferrer" data-place-public-link>
-                  <span class="detail-contacts__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg></span><span class="detail-contacts__body"><strong>{{ link.label }}</strong><span class="detail-contacts__website">{{ link.url|cut:"https://"|cut:"http://" }}</span></span>
+            <div class="detail-decision__cta-row">
+              {% if presentation.contacts.has_whatsapp %}
+                {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--soft" phone_index=0 whatsapp=True %}
+              {% endif %}
+              {% if presentation.contacts.website_url %}
+                <a
+                  class="detail-cta detail-cta--ghost"
+                  href="{{ presentation.contacts.website_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-track-event="website_click"
+                  data-track-place-id="{{ place.id }}"
+                  data-track-source="place-detail-hero"
+                  title="{% trans 'Перейти на сайт' %}"
+                  aria-label="{% trans 'Перейти на сайт' %}"
+                >
+                  <span class="detail-cta__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.8"/><path d="M3.9 12h16.2M12 3.75c2.1 2.28 3.15 5 3.15 8.25S14.1 17.97 12 20.25c-2.1-2.28-3.15-5-3.15-8.25S9.9 6.03 12 3.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="detail-cta__label">{% trans "Сайт" %}</span>
+                </a>
+              {% endif %}
+              {% if map_open_url %}
+                <a
+                  class="detail-cta detail-cta--ghost"
+                  href="{{ map_open_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-track-event="directions_click"
+                  data-track-place-id="{{ place.id }}"
+                  data-track-source="place-detail-hero"
+                  title="{% trans 'Проложить маршрут' %}"
+                  aria-label="{% trans 'Проложить маршрут' %}"
+                >
+                  <span class="detail-cta__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="m4.75 8.5 4.75-2.25 5 2.25 4.75-2.25v9.25L14.5 17.75l-5-2.25-4.75 2.25V8.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 6.25v9.25M14.5 8.5v9.25" stroke="currentColor" stroke-width="1.8"/></svg>
+                  </span>
+                  <span class="detail-cta__label">{% trans "Маршрут" %}</span>
+                </a>
+              {% endif %}
+              {% if place.instagram %}
+                <a
+                  class="detail-cta detail-cta--ghost"
+                  href="{{ place.instagram_url }}"
+                  target="_blank"
+                  rel="noopener"
+                  data-track-event="social_click"
+                  data-track-place-id="{{ place.id }}"
+                  data-track-source="place-detail-hero"
+                  title="Instagram"
+                  aria-label="Instagram"
+                >
+                  <span class="detail-cta__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><rect x="4.75" y="4.75" width="14.5" height="14.5" rx="4.25" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.35" stroke="currentColor" stroke-width="1.8"/><circle cx="16.55" cy="7.45" r="1" fill="currentColor"/></svg>
+                  </span>
+                  <span class="detail-cta__label">Instagram</span>
+                </a>
+              {% endif %}
+            {% for link in presentation.contacts.public_links %}
+                <a
+                  class="detail-cta detail-cta--ghost"
+                  href="{{ link.url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-place-public-link
+                  title="{{ link.label }}"
+                  aria-label="{{ link.label }}"
+                >
+                  <span class="detail-cta__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg>
+                  </span>
+                  <span class="detail-cta__label">{{ link.label }}</span>
                 </a>
               {% endfor %}
-              {% if not presentation.contacts.has_contact and not place.instagram and not place.address and not presentation.contacts.website_url and not presentation.contacts.public_links %}
-                <p class="detail-contacts__empty" role="status">{% trans "Контактные данные уточняются." %}</p>
+            </div>
+          </div>
+
+          {% if presentation.organization %}
+            <div class="detail-org-banner">
+              {% if organizations_section_enabled %}
+              <a class="public-place-org detail-org-badge" href="{{ presentation.organization.url }}" lang="{{ presentation.organization.name_language }}" title="{{ presentation.organization.name }}">
+                <div class="detail-org-badge__left">
+                  <span class="detail-org-badge__icon">
+                    <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
+                  </span>
+                  <div class="detail-org-badge__text">
+                    <span class="detail-org-badge__label">{% if language == 'az' %}Şəbəkə filialı{% elif language == 'en' %}Network branch{% else %}Филиал сети{% endif %}</span>
+                    <strong class="detail-org-badge__name">{{ presentation.organization.name }}</strong>
+                  </div>
+                </div>
+                <span class="material-symbols-rounded detail-org-badge__arrow" aria-hidden="true">arrow_forward</span>
+              </a>
+              {% else %}
+              <div class="detail-org-badge detail-org-badge--static" lang="{{ presentation.organization.name_language }}">
+                <div class="detail-org-badge__left">
+                  <span class="detail-org-badge__icon">
+                    <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
+                  </span>
+                  <div class="detail-org-badge__text">
+                    <span class="detail-org-badge__label">{% if language == 'az' %}Şəbəkə filialı{% elif language == 'en' %}Network branch{% else %}Филиал сети{% endif %}</span>
+                    <strong class="detail-org-badge__name">{{ presentation.organization.name }}</strong>
+                  </div>
+                </div>
+              </div>
               {% endif %}
             </div>
-          </section>
+          {% endif %}
+
+          
+        </div>
 
           <section class="detail-card detail-card--tight detail-share" data-share-panel data-share-url="{{ request.build_absolute_uri }}">
             <h2 class="detail-card__title detail-card__title--sm">{% trans "Поделиться с родителями" %}</h2>
@@ -1009,6 +1087,47 @@
           }
         });
       }
+
+      // Smooth scroll to map from contacts address card
+      document.addEventListener('click', function(e) {
+        const addressLink = e.target.closest('a.detail-contacts__row--address[href="#map"]');
+        if (!addressLink) return;
+        const target = document.getElementById('map');
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          history.pushState(null, '', '#map');
+        }
+      });
+
+      // Copy address handler
+      document.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-copy-address]');
+        if (!btn) return;
+        e.preventDefault();
+        const text = btn.getAttribute('data-copy-address');
+        if (!text) return;
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+        }
+        btn.classList.add('is-copied');
+        const textSpan = btn.querySelector('.km-copy-text');
+        const originalText = textSpan ? textSpan.textContent : '';
+        if (textSpan) textSpan.textContent = '{% trans "Скопировано!" %}';
+        setTimeout(function() {
+          btn.classList.remove('is-copied');
+          if (textSpan) textSpan.textContent = originalText;
+        }, 2000);
+      });
 
       // Review composer: rating, prompt chips, length meter and submit gating.
       const form = document.querySelector("[data-review-form]");

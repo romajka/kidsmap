@@ -9,7 +9,7 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-  <link rel="stylesheet" href="{% static 'css/pages/owner_event.css' %}?v=20261007event1" />
+  <link rel="stylesheet" href="{% static 'css/pages/owner_event.css' %}?v=20261026event1" />
 {% endblock %}
 
 {% block content %}
@@ -27,9 +27,7 @@
         {% endif %}
       </div>
       <h1>{% if event %}{% if CURRENT_LANGUAGE == "az" %}Tədbiri redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit event{% else %}Редактировать мероприятие{% endif %}{% else %}{% if CURRENT_LANGUAGE == "az" %}Yeni tədbir yarat{% elif CURRENT_LANGUAGE == "en" %}Create new event{% else %}Новое мероприятие{% endif %}{% endif %}</h1>
-      <p class="auth-subtitle">
-        {% if CURRENT_LANGUAGE == "az" %}3 mərhələli ardıcıl forma: əsas məlumatlar, məkan və foto ilə önbaxış.{% elif CURRENT_LANGUAGE == "en" %}A 3-step sequential form: main details, venue, and photo with live preview.{% else %}Последовательная форма в 3 шага: данные и дата, формат и место, фото и предпросмотр перед отправкой.{% endif %}
-      </p>
+
     </div>
 
     <form
@@ -60,8 +58,7 @@
 
       <div class="km-event-notice" data-event-save-status role="status" aria-live="polite">{% trans "Изменения не сохранены." %}</div>
       {% if event %}<p class="helptext">{% trans "Статус:" %} {{ event.get_status_display }} · {{ event.updated_at|date:'d.m.Y H:i' }}</p>{% endif %}
-      <p class="helptext">{% trans "Черновику нужны организатор и категория. Даты можно оставить пустыми целиком; если начать ввод, заполните весь интервал. Отправка требует всех отмеченных полей и фото. Карта необязательна." %}</p>
-      <p class="helptext">{% trans "Название и описание сохраняются на азербайджанском (AZ). Язык интерфейса не создаёт переводы." %}</p>
+      <p class="helptext">{% if CURRENT_LANGUAGE == 'az' %}Əsas mətn AZ dilindədir. Tərcümələr istəyə bağlıdır. Qaralamanı istənilən addımda saxlayın.{% elif CURRENT_LANGUAGE == 'en' %}Main text is in Azerbaijani. Translations are optional. Save a draft at any step.{% else %}Основной текст — на азербайджанском. Переводы необязательны. Черновик можно сохранить на любом шаге.{% endif %}</p>
       <section class="km-event-notice" data-event-recovery hidden>
         <h2>{% trans "Есть несохранённая копия в этой вкладке" %}</h2>
         <p data-recovery-message></p><dl data-recovery-diff></dl>
@@ -69,7 +66,9 @@
         <button type="button" class="btn-secondary" data-recovery-discard>{% trans "Оставить серверные данные" %}</button>
       </section>
       {% if event_error_code == 'stale_version' %}<div class="km-event-notice" role="alert">{% trans "Сохранение заблокировано: версия изменилась. Ваш ввод остаётся в форме. После обновления сравните копию с сервером; автоматической перезаписи нет." %}<p>{{ event_current.name_az }} · {{ event_current.updated_at|date:'d.m.Y H:i' }}</p><a href="{% url 'owner_event_edit' event.id %}">{% trans "Загрузить актуальную версию" %}</a></div>{% endif %}
+      {% if event_possible_duplicate %}<p class="km-event-notice" role="status">{% if CURRENT_LANGUAGE == 'az' %}Eyni təşkilatçı, ad və tarixlə tədbir var. Dublikat olmadığını yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}An event with the same organizer, title and date exists. Check that this is intentional.{% else %}Уже есть событие с теми же организатором, названием и датой. Проверьте, что создаёте его намеренно.{% endif %}</p>{% endif %}
       {{ event_requirements|json_script:'event-requirements' }}
+      {{ form.event_ui_config|json_script:'event-ui-config' }}
       {% csrf_token %}
       {{ form.expected_updated_at }}
       {{ form.start_datetime }}
@@ -150,10 +149,10 @@
             <div class="km-organizer-card">
               <div class="km-organizer-header">
                 <h3 class="km-organizer-title">{% if CURRENT_LANGUAGE == "az" %}Təşkilatçı kimdir?{% elif CURRENT_LANGUAGE == "en" %}Who is the organizer?{% else %}От кого публикуется мероприятие?{% endif %} <strong class="km-required">*</strong></h3>
-                <p class="km-organizer-hint">{% trans "Организатор — ваша действующая организация или профиль специалиста с подтверждённой связью с вашим аккаунтом. Автор предложения профиля не получает эти права." %}</p>
+
               </div>
-              {% if event %}
-              <div data-organizer-locked><strong>{{ event.organizer_organization|default:event.organizer_specialist }}</strong><p class="helptext">{% trans "Организатор закреплён за мероприятием и не меняется при редактировании. Площадка выбирается отдельно." %}</p></div>
+              {% if event or form.single_organizer %}
+              <div data-organizer-locked><strong>{% if event %}{{ event.organizer_organization|default:event.organizer_specialist }}{% else %}{{ form.single_organizer }}{% endif %}</strong><p class="helptext">{% trans "Организатор закреплён за мероприятием и не меняется при редактировании. Площадка выбирается отдельно." %}</p></div>
               <input type="hidden" name="organizer_organization" value="{{ form.organizer_organization.value|default:'' }}">
               <input type="hidden" name="organizer_specialist" value="{{ form.organizer_specialist.value|default:'' }}">
               {% else %}
@@ -253,30 +252,26 @@
 
             <div class="km-event-grid">
               <label class="km-field-group">
-                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Yaş aralığı (başlanğıc, il){% elif CURRENT_LANGUAGE == "en" %}Age from (yrs){% else %}Возраст от (лет){% endif %} <strong class="km-required">*</strong></span>
+                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Yaş aralığı (başlanğıc, il){% elif CURRENT_LANGUAGE == "en" %}Age from (yrs){% else %}Возраст от (лет){% endif %}</span>
                 {{ form.age_from }}
                 {% for error in form.age_from.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
               </label>
 
               <label class="km-field-group">
-                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Yaş aralığı (son, il){% elif CURRENT_LANGUAGE == "en" %}Age to (yrs){% else %}Возраст до (лет){% endif %} <strong class="km-required">*</strong></span>
+                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Yaş aralığı (son, il){% elif CURRENT_LANGUAGE == "en" %}Age to (yrs){% else %}Возраст до (лет){% endif %}</span>
                 {{ form.age_to }}
                 {% for error in form.age_to.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
               </label>
 
-              <label class="km-field-group km-event-full">
-                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Qiymət və iştirak şərtləri{% elif CURRENT_LANGUAGE == "en" %}Price and conditions{% else %}Стоимость и условия участия{% endif %} <strong class="km-required">*</strong></span>
-                {{ form.price_text }}
-                <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Məsələn: 15 AZN, Pulsuz, Giriş sərbəstdir, Əvvəlcədən qeydiyyatla.{% elif CURRENT_LANGUAGE == "en" %}E.g.: 15 AZN, Free, Free admission, By registration.{% else %}Например: 15 AZN, Бесплатно, Вход свободный, По предварительной записи.{% endif %}</small>
-                {% for error in form.price_text.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
-              </label>
-
-              <label class="km-field-group km-event-full">
-                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Əlaqə telefonu / WhatsApp{% elif CURRENT_LANGUAGE == "en" %}Phone / WhatsApp{% else %}Телефон / WhatsApp для записи{% endif %} <strong class="km-required">*</strong></span>
-                {{ form.phone }}
-                {% for error in form.phone.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
-              </label>
-
+              <label class="km-field-group km-event-full"><span class="km-field-label">{{ form.price_mode.label }}</span>{{ form.price_mode }}{% for error in form.price_mode.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
+              <label class="km-field-group" data-event-choice-field="price_amount"><span class="km-field-label">{{ form.price_amount.label }}</span>{{ form.price_amount }}{% for error in form.price_amount.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
+              <label class="km-field-group" data-event-choice-field="price_amount_max"><span class="km-field-label">{{ form.price_amount_max.label }}</span>{{ form.price_amount_max }}{% for error in form.price_amount_max.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
+              <label class="km-field-group" data-event-choice-field="price_currency"><span class="km-field-label">{{ form.price_currency.label }}</span>{{ form.price_currency }}{% for error in form.price_currency.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
+              <label class="km-field-group km-event-full" data-event-choice-field="price_text"><span class="km-field-label">{% trans "Стоимость и условия" %}</span>{{ form.price_text }}{% for error in form.price_text.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
+              <label class="km-field-group km-event-full"><span class="km-field-label">{{ form.registration_method.label }}</span>{{ form.registration_method }}{% for error in form.registration_method.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
+              <label class="km-field-group" data-event-choice-field="phone"><span class="km-field-label">{{ form.phone.label }}</span>{{ form.phone }}{% for error in form.phone.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
+              <label class="km-field-group" data-event-choice-field="whatsapp"><span class="km-field-label">{{ form.whatsapp.label }}</span>{{ form.whatsapp }}{% for error in form.whatsapp.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
+              <label class="km-field-group km-event-full" data-event-choice-field="registration_url"><span class="km-field-label">{{ form.registration_url.label }}</span>{{ form.registration_url }}{% for error in form.registration_url.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
               <label class="km-field-group km-event-full">
                 <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Qısa təsvir{% elif CURRENT_LANGUAGE == "en" %}Short description{% else %}Краткое описание мероприятия{% endif %} (AZ) <strong class="km-required">*</strong></span>
                 {{ form.description_az }}
@@ -285,6 +280,15 @@
               </label>
             </div>
 
+            <details class="km-event-translations" {% if form.name_ru.errors or form.name_en.errors or form.description_ru.errors or form.description_en.errors %}open{% endif %}>
+              <summary>{% if CURRENT_LANGUAGE == 'az' %}Tərcümələr · RU / EN{% elif CURRENT_LANGUAGE == 'en' %}Translations · RU / EN{% else %}Переводы · RU / EN{% endif %}</summary>
+              <div class="km-event-grid">
+                <label class="km-field-group km-event-full"><span class="km-field-label">Название · RU</span>{{ form.name_ru }}{% for error in form.name_ru.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
+                <label class="km-field-group km-event-full"><span class="km-field-label">Описание · RU</span>{{ form.description_ru }}{% for error in form.description_ru.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
+                <label class="km-field-group km-event-full"><span class="km-field-label">Title · EN</span>{{ form.name_en }}{% for error in form.name_en.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
+                <label class="km-field-group km-event-full"><span class="km-field-label">Description · EN</span>{{ form.description_en }}{% for error in form.description_en.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
+              </div>
+            </details>
             <div class="km-event-step-actions">
               <button type="submit" name="form_action" value="save_draft" class="btn-secondary btn-save-draft" formnovalidate>
                 <i class="fas fa-bookmark" aria-hidden="true"></i>
@@ -374,7 +378,7 @@
               </div>
 
               <!-- Map container -->
-              <div class="km-map-container" data-venue-block="map">
+              <details class="km-map-container" data-venue-block="map"><summary>{% if CURRENT_LANGUAGE == 'az' %}Xəritədə göstər · istəyə bağlı{% elif CURRENT_LANGUAGE == 'en' %}Set map location · optional{% else %}Указать на карте · необязательно{% endif %}</summary>
                 {% include "pages/includes/owner_place_map_picker.html" with form=form event_optional_map=True %}
                   <div class="km-map-fallback-card" data-event-map-fallback {% if google_maps_api_key %}hidden{% endif %}>
                     <div class="km-map-fallback-icon"><i class="fas fa-map-marked-alt" aria-hidden="true"></i></div>
@@ -383,7 +387,7 @@
                       <p>{% if CURRENT_LANGUAGE == "az" %}Xəritə servisi hazırda cavab vermir, lakin xəritə tədbirin dərci üçün məcburi deyil. Yuxarıda dəqiq ünvanı qeyd etməyiniz kifayətdir ki, valideynlər tədbiri asanlıqla tapsınlar.{% elif CURRENT_LANGUAGE == "en" %}The map service is currently unavailable, but a map point is not mandatory to publish the event. Providing an accurate address above is sufficient for parents to find the event.{% else %}Сервис интерактивной карты сейчас недоступен, однако отметка на карте НЕ обязательна для публикации мероприятия. Достаточно указать точный адрес выше, и карточка будет корректно отображаться в каталоге и поиске.{% endif %}</p>
                     </div>
                   </div>
-              </div>
+              </details>
             </div>
 
             <div class="km-event-step-actions">
@@ -507,19 +511,10 @@
           </section>
         </div>
 
-        <aside class="owner-event-side">
-          <article class="owner-event-help-card">
-            <h2>{% if CURRENT_LANGUAGE == "az" %}Nə vaxt tədbir seçməli?{% elif CURRENT_LANGUAGE == "en" %}When to choose an event?{% else %}Когда выбирать мероприятие?{% endif %}</h2>
-            <ul>
-              <li>{% if CURRENT_LANGUAGE == "az" %}Müəyyən tarix və saat var{% elif CURRENT_LANGUAGE == "en" %}There is a specific date and time{% else %}Есть конкретная дата и время{% endif %}</li>
-              <li>{% if CURRENT_LANGUAGE == "az" %}Afişa və qısa 3 addımlı forma{% elif CURRENT_LANGUAGE == "en" %}Cover and short 3-step form{% else %}Афиша и удобная форма в 3 шага{% endif %}</li>
-              <li>{% if CURRENT_LANGUAGE == "az" %}Dərcdən sonra taymer göstərilir{% elif CURRENT_LANGUAGE == "en" %}A countdown is shown after publication{% else %}После публикации показывается таймер{% endif %}</li>
-              <li>{% if CURRENT_LANGUAGE == "az" %}Qaralama hər addımda saxlanıla bilər{% elif CURRENT_LANGUAGE == "en" %}Draft can be saved at any step{% else %}Черновик можно сохранить на каждом шаге{% endif %}</li>
-            </ul>
-          </article>
-        </aside>
+
       </div>
     </form>
+    {% if event %}<form method="post" action="{% url 'owner_event_repeat' event.pk %}" class="event-repeat-action">{% csrf_token %}<input type="hidden" name="expected_updated_at" value="{{ event.updated_at|date:'c' }}"><button class="btn-secondary" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Oxşar tədbir yarat{% elif CURRENT_LANGUAGE == 'en' %}Create similar event{% else %}Создать похожее{% endif %}</button></form>{% endif %}
   </section>
 {% endblock %}
 
@@ -527,8 +522,8 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="{% static 'js/kidsmap_datetime_picker.js' %}"></script>
   <script src="{% static 'js/temporary_event_timer.js' %}"></script>
-  <script src="{% static 'js/owner_event_form.js' %}?v=20261007event1" defer></script>
-  <script src="{% static 'js/owner_event_recovery.js' %}?v=20261007event1" defer></script>
+  <script src="{% static 'js/owner_event_form.js' %}?v=20261026event1" defer></script>
+  <script src="{% static 'js/owner_event_recovery.js' %}?v=20261026event1" defer></script>
   <script src="{% static 'js/owner_place_map_picker.js' %}"></script>
   {% if google_maps_api_key %}
     <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitOwnerMapPickers"></script>

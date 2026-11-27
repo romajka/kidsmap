@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from catalog.services.event_queries import BAKU, EventPeriod, _day, _midnight, parse_event_period, query_public_events
 
-FILTER_KEYS = ('q', 'category', 'age_from', 'age_to', 'format', 'district', 'free', 'sort')
+FILTER_KEYS = ('q', 'category', 'age', 'age_from', 'age_to', 'format', 'district', 'free', 'sort')
 PERIOD_KEYS = ('month', 'date', 'date_from', 'date_to', 'date_filter')
 
 

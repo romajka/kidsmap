@@ -121,7 +121,7 @@ class VolunteerAccessTests(TestCase):
 
     def test_new_submission_is_private_and_cannot_spoof_author_or_publish(self):
         response = self.client.post('/admin/volunteer/add/', {**self.editor_data('/admin/volunteer/add/'),
-            'name_az': 'Volunteer new place', 'category': 'EDU',
+            'name_az': 'Volunteer new place', 'category': 'EDU', 'lat': '40.4', 'lng': '49.8',
             'action': 'submit', 'revision_version': 0,
             'status': 'published', 'is_active': 'on', 'created_by': 999,
             'owner': 999, 'is_verified': 'on',
@@ -254,7 +254,7 @@ class VolunteerAccessTests(TestCase):
             self.assertNotContains(response, 'Требуется доработка карточки')
 
     def test_published_changes_stay_private_until_review(self):
-        place = Place.objects.create(name='Before', name_az='Before', category='EDU', created_by=self.user)
+        place = Place.objects.create(name='Before', name_az='Before', category='EDU', created_by=self.user, lat=40.4, lng=49.8)
         response = self.client.post(f'/admin/volunteer/{place.pk}/edit/', {**self.editor_data(f'/admin/volunteer/{place.pk}/edit/'),
             'name_az': 'After', 'category': 'EDU', 'action': 'submit', 'revision_version': 0,
         })
@@ -665,7 +665,7 @@ class VolunteerAccessTests(TestCase):
         self.assertEqual(revision.status, 'pending')
 
     def test_not_ready_cannot_publish_by_direct_post(self):
-        place = Place.objects.create(created_by=self.user, name='Incomplete', category='EDU', status='draft', is_active=False)
+        place = Place.objects.create(created_by=self.user, name='Incomplete', category='EDU', status='draft', is_active=False, lat=40.4, lng=49.8)
         revision = self.submit(place, name_az='Incomplete')
         self.root_login()
         response = self.client.post(f'/admin/volunteer/review/{place.pk}/', {'action': 'approve', 'version': revision.version})

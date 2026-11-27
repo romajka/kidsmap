@@ -1253,6 +1253,19 @@ def owner_event_submit_review(request, pk):
 
 
 @require_POST
+def owner_event_repeat(request, pk):
+    require_events_section_enabled()
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+    result = owner_events_controller.repeat_event(request=request, pk=pk)
+    if result.ok:
+        messages.success(request, result.message)
+        return redirect('owner_event_edit', pk=result.event.pk)
+    messages.error(request, result.message)
+    return redirect('owner_event_manage', pk=pk)
+
+
+@require_POST
 def owner_event_delete(request, pk):
     require_events_section_enabled()
     if not request.user.is_authenticated:
@@ -2732,6 +2745,61 @@ def specialist_list(request):
 
     filter_options = build_public_specialist_filter_options(language_code=language)
 
+    SPECIALIST_VISUALS = {
+        "speech_therapist": {"icon": "record_voice_over", "color_bg": "#ede9fe", "color_text": "#7c3aed"},
+        "psychologist": {"icon": "psychology", "color_bg": "#e0f2fe", "color_text": "#0284c7"},
+        "child_psychologist": {"icon": "psychology_alt", "color_bg": "#e0f2fe", "color_text": "#0284c7"},
+        "sports_psychologist": {"icon": "sports_score", "color_bg": "#e0f2fe", "color_text": "#0284c7"},
+        "sports_coach": {"icon": "sports_soccer", "color_bg": "#ccfbf1", "color_text": "#0f766e"},
+        "personal_trainer": {"icon": "fitness_center", "color_bg": "#ccfbf1", "color_text": "#0f766e"},
+        "posture_correction_specialist": {"icon": "accessibility_new", "color_bg": "#ccfbf1", "color_text": "#0f766e"},
+        "physical_rehab_specialist": {"icon": "assist_walker", "color_bg": "#ccfbf1", "color_text": "#0f766e"},
+        "tutor": {"icon": "school", "color_bg": "#fef3c7", "color_text": "#b45309"},
+        "primary_teacher": {"icon": "history_edu", "color_bg": "#fef3c7", "color_text": "#b45309"},
+        "school_prep_teacher": {"icon": "draw", "color_bg": "#fef3c7", "color_text": "#b45309"},
+        "math_tutor": {"icon": "calculate", "color_bg": "#fef3c7", "color_text": "#b45309"},
+        "exam_prep_tutor": {"icon": "assignment", "color_bg": "#fef3c7", "color_text": "#b45309"},
+        "english_teacher": {"icon": "translate", "color_bg": "#fef3c7", "color_text": "#b45309"},
+        "russian_teacher": {"icon": "translate", "color_bg": "#fef3c7", "color_text": "#b45309"},
+        "azerbaijani_teacher": {"icon": "translate", "color_bg": "#fef3c7", "color_text": "#b45309"},
+        "pathologist": {"icon": "extension", "color_bg": "#fae8ff", "color_text": "#a21caf"},
+        "early_development_specialist": {"icon": "child_care", "color_bg": "#ffe4e6", "color_text": "#be123c"},
+        "sensory_integration": {"icon": "fingerprint", "color_bg": "#fae8ff", "color_text": "#a21caf"},
+        "neuropediatrician": {"icon": "neurology", "color_bg": "#e0f7fa", "color_text": "#00838f"},
+        "pediatrician": {"icon": "medical_services", "color_bg": "#e0f7fa", "color_text": "#00838f"},
+        "physiotherapist": {"icon": "health_and_safety", "color_bg": "#e0f7fa", "color_text": "#00838f"},
+        "rehab_specialist": {"icon": "healing", "color_bg": "#e0f7fa", "color_text": "#00838f"},
+        "music_teacher": {"icon": "music_note", "color_bg": "#fce7f3", "color_text": "#be185d"},
+        "drawing_teacher": {"icon": "palette", "color_bg": "#fed7aa", "color_text": "#c2410c"},
+        "acting_teacher": {"icon": "theater_comedy", "color_bg": "#fed7aa", "color_text": "#c2410c"},
+        "programming_mentor": {"icon": "code", "color_bg": "#dbeafe", "color_text": "#1d4ed8"},
+        "robotics_teacher": {"icon": "smart_toy", "color_bg": "#dbeafe", "color_text": "#1d4ed8"},
+        "career_guidance_specialist": {"icon": "explore", "color_bg": "#e2e8f0", "color_text": "#475569"},
+    }
+
+    specialization_chips = []
+    for spec in filter_options.specializations:
+        val = spec["value"]
+        visual = SPECIALIST_VISUALS.get(val, {"icon": "school", "color_bg": "#f1f5f9", "color_text": "#475569"})
+        chip_params = specialist_query_params.copy()
+        chip_params["specialization"] = val
+        chip_url = f"?{chip_params.urlencode()}"
+        specialization_chips.append({
+            "value": val,
+            "label": spec["label"],
+            "count": spec.get("count", 0),
+            "url": chip_url,
+            "icon": visual["icon"],
+            "color_bg": visual["color_bg"],
+            "color_text": visual["color_text"],
+            "is_active": (spec_code == val),
+        })
+
+    specialization_chips.sort(
+        key=lambda c: (0 if (c["count"] > 0 or c["is_active"]) else 1, -c["count"])
+    )
+    all_specializations_url = rebuild_url("specialization")
+
     # Count specialists matching the current filters
     count = qs.count()
     if language == "az":
@@ -2892,6 +2960,8 @@ def specialist_list(request):
             "min_rating": min_rating,
         },
         "filter_options": filter_options,
+        "specialization_chips": specialization_chips,
+        "all_specializations_url": all_specializations_url,
         "active_filter_chips": active_filter_chips,
         "specialist_query_without_page": specialist_query_params.urlencode(),
         "reset_filters_url": request.path,

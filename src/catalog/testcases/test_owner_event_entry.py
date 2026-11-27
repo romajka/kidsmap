@@ -23,7 +23,7 @@ class OwnerEventEntryTests(TestCase):
         data.update(extra);return data
 
     def event(self,**extra):
-        values={'category':self.category,'organizer_organization':self.org,'event_format':'online','name_az':'Synthetic event','description_az':'Synthetic description','start_datetime':timezone.now()+timedelta(days=3),'end_datetime':timezone.now()+timedelta(days=3,hours=1)}
+        values={'category':self.category,'organizer_organization':self.org,'event_format':'online','name_az':'Synthetic event','description_az':'Synthetic description','price_mode':'unknown','phone':'+994501234567','photo':'events/synthetic.jpg','start_datetime':timezone.now()+timedelta(days=3),'end_datetime':timezone.now()+timedelta(days=3,hours=1)}
         values.update(extra);return event_domain.create_event(actor=self.user,values={k+'_id' if k in ('category','organizer_organization') else k:v.pk if k in ('category','organizer_organization') else v for k,v in values.items()})
 
     def test_draft_without_category_is_addressable_form_error(self):

@@ -1,324 +1,152 @@
 {% extends "admin/change_form.html" %}
 {% load i18n admin_modify static %}
-
 {% block extrahead %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_admin_form_shell.css' %}?v=8">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_location.css' %}?v=1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_event_form.css' %}?v=20261026">
   <script src="{% static 'admin/js/kidsmap_admin_form_shell.js' %}?v=16" defer></script>
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_event_form.css' %}?v=1">
-  <script src="{% static 'admin/js/kidsmap_event_readiness.js' %}?v=1" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
   <script src="{% static 'js/kidsmap_datetime_picker.js' %}?v=2" defer></script>
   <script src="{% static 'admin/js/kidsmap_event_datetime.js' %}?v=1" defer></script>
+  <script src="{% static 'admin/js/kidsmap_event_editor.js' %}?v=20261026" defer></script>
   {% if google_maps_api_key %}<script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=2" defer></script><script defer src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitAdminPlaceLocation"></script>{% endif %}
 {% endblock %}
-
+{% block content_title %}{% endblock %}
 {% block submit_buttons_top %}{% endblock %}
 {% block submit_buttons_bottom %}{% endblock %}
-
 {% block content %}
-  {# The shared photo inline renders SVG icon references. #}
-  <div id="content-main" class="km-place-form-page">
-    {{ km_event_form_summary.progress_items|json_script:"km-admin-progress-config" }}
-    <form
-      {% if has_file_field %}enctype="multipart/form-data"{% endif %}
-      {% if form_url %}action="{{ form_url }}"{% endif %}
-      method="post"
-      id="{{ opts.model_name }}_form"
-      novalidate
-      data-event-readiness
-      data-server-ready="{{ km_event_form_summary.server_ready|yesno:'true,false' }}"
-      data-progress-review-label="{% translate 'Требуется серверная проверка' %}"
-      data-km-admin-form
-      data-progress-ready-label="{{ km_event_form_summary.readiness_label }}"
-      data-progress-ready-tone="{{ km_event_form_summary.readiness_tone }}"
-      data-progress-complete-label="{% translate 'Готово к публикации' %}"
-      data-progress-complete-tone="good"
-      data-progress-incomplete-label="{% translate 'Нужна доработка' %}"
-      data-progress-incomplete-tone="warn"
-      data-progress-empty-text="{% translate 'Ключевые поля заполнены. Можно переходить к финальной проверке и публикации.' %}"
-      data-rejected-status="{{ adminform.form.instance.STATUS_REJECTED|default:'rejected' }}"
-    >
-      {% csrf_token %}
-      {{ adminform.form.expected_updated_at }}
-      {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
-      {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
-
-      <div class="km-place-form-shell">
-        <header class="km-place-form-hero">
-          <div class="km-place-form-hero__copy">
-            <p class="km-place-form-hero__eyebrow">
-              {% if add %}{% translate "Новая карточка" %}{% else %}{% translate "Редактирование мероприятия" %}{% endif %}
-            </p>
-            <h1 class="km-place-form-hero__title">
-              {% if add %}
-                {% translate "Новое мероприятие" %}
-              {% else %}
-                {{ original|default:km_event_form_summary.title }}
-              {% endif %}
-            </h1>
-            <p class="km-place-form-hero__subtitle">
-              {% blocktranslate trimmed %}
-                Соберите мероприятие по шагам: основное, тексты, даты, контакты и публикация. Служебные поля вынесены ниже, чтобы не мешать ежедневному сценарию редактирования.
-              {% endblocktranslate %}
-            </p>
-          </div>
-          <div class="km-place-form-hero__progress">
-            <div
-              class="km-place-progress-ring"
-              aria-hidden="true"
-              style="--km-place-progress: {{ km_event_form_summary.completion_pct }};"
-              data-progress-ring
-            >
-              <span data-progress-pct>{{ km_event_form_summary.completion_pct }}%</span>
-            </div>
-            <div class="km-place-form-hero__progress-copy">
-              <strong>{% translate "Заполненность" %}</strong>
-              <span data-progress-hero-copy>
-                {% translate "Готово" %}
-                <span data-progress-done>{{ km_event_form_summary.completed }}</span>
-                {% translate "из" %}
-                <span data-progress-total>{{ km_event_form_summary.total }}</span>
-                {% translate "ключевых пунктов" %}
-              </span>
-            </div>
-          </div>
-        </header>
-
-        {% if errors %}
-          <div class="km-place-form-alert km-place-form-alert--danger">
-            <strong>{% translate "Форма содержит ошибки" %}.</strong>
-            <span>
-              {% blocktranslate count counter=errors|length %}
-                Исправьте проблему ниже и сохраните мероприятие ещё раз.
-              {% plural %}
-                Исправьте проблемы ниже и сохраните мероприятие ещё раз.
-              {% endblocktranslate %}
-            </span>
-            {{ adminform.form.non_field_errors }}
-          </div>
-        {% endif %}
-
-        <div class="km-place-form-layout">
-          <div class="km-place-form-main">
-            <nav class="km-place-form-steps" aria-label="{% translate 'Шаги формы' %}">
-              {% for section in km_event_form_sections %}
-                <a
-                  href="#{{ section.id }}"
-                  class="km-place-form-step"
-                  data-km-admin-step-link
-                  data-step-tooltip="{{ section.description }}"
-                  aria-label="{{ section.step }}. {{ section.title }}. {{ section.description }}"
-                >
-                  <span class="km-place-form-step__index">{{ section.step }}</span>
-                  <span class="km-place-form-step__body" title="{{ section.description }}">
-                    <strong>{{ section.title }}</strong>
-                  </span>
-                </a>
-              {% endfor %}
-            </nav>
-
-            <div class="km-place-form-sections">
-              {% for section in km_event_form_sections %}
-                <section id="{{ section.id }}" class="km-place-section" data-km-admin-section>
-                  <header class="km-place-section__head">
-                    <span class="km-place-section__step">{{ section.step }}</span>
-                    <div>
-                      <h2 class="km-place-section__title">{{ section.title }}</h2>
-                      <p class="km-place-section__description">{{ section.description }}</p>
-                      {% if section.id == "media" %}
-                        <p class="km-place-section__hint">
-                          {% translate "Публикуйте мероприятие только после проверки дат, описания и основной картинки." %}
-                        </p>
-                      {% endif %}
-                    </div>
-                  </header>
-                  <div class="km-place-section__body">
-                    {% if section.id == "location" %}
-                      {% include "admin/catalog/event/location_section.html" with adminform=adminform %}
-                    {% elif section.id == "media" %}
-                      {% include "admin/catalog/event/media_section.html" with adminform=adminform gallery_inline=km_event_gallery_inline add=add %}
-                    {% else %}
-                      {% for fieldset in section.fieldsets %}
-                        {% include "admin/includes/fieldset.html" with heading_level=3 prefix="event-section" id_prefix=forloop.parentloop.counter0 id_suffix=forloop.counter0 %}
-                      {% endfor %}
-                    {% endif %}
-                    {% if section.id == "schedule" %}
-                      <p class="km-event-datetime-summary" data-event-datetime-summary aria-live="polite"></p>
-                    {% endif %}
-                  </div>
-                </section>
-              {% endfor %}
-
-              {% for section in km_event_secondary_sections %}
-                <details class="km-place-secondary" {% if not add %}open{% endif %}>
-                  <summary class="km-place-secondary__summary">
-                    <span>{{ section.title }}</span>
-                    <small>{{ section.description }}</small>
-                  </summary>
-                  <div class="km-place-secondary__body">
-                    {% for fieldset in section.fieldsets %}
-                      {% include "admin/includes/fieldset.html" with heading_level=3 prefix="event-secondary" id_prefix=forloop.parentloop.counter0 id_suffix=forloop.counter0 %}
-                    {% endfor %}
-                  </div>
-                </details>
-              {% endfor %}
-            </div>
-
-            <div class="km-place-form-mobile-actions">
-              <button type="submit" name="_continue" class="km-place-form-mobile-button km-place-form-mobile-button--success">
-                {% translate 'Сохранить и продолжить' %}
-              </button>
-              {% if km_event_form_summary.visibility.is_public %}
-                <button
-                  type="submit"
-                  name="_unpublish_event"
-                  class="km-place-form-mobile-button km-place-form-mobile-button--warn"
-                >
-                  {% translate 'Снять с публикации' %}
-                </button>
-              {% else %}
-                <button
-                  type="submit"
-                  id="km-publish-mobile-btn"
-                  name="_publish_event"
-                  class="km-place-form-mobile-button km-place-form-mobile-button--success"
-                  {% if km_event_form_summary.missing %}disabled{% endif %}
-                >
-                  {% translate 'Опубликовать на сайте' %}
-                </button>
-              {% endif %}
-              <button
-                type="submit"
-                name="_save_draft"
-                class="km-place-form-mobile-button {% if add %}km-place-form-mobile-button--success{% else %}km-place-form-mobile-button--draft{% endif %}"
-              >
-                {% translate 'Сохранить черновик' %}
-              </button>
-            </div>
-
-            {% block admin_change_form_document_ready %}
-              <script id="django-admin-form-add-constants"
-                      src="{% static 'admin/js/change_form.js' %}"
-                      {% if adminform and add %}
-                          data-model-name="{{ opts.model_name }}"
-                      {% endif %}
-                      async>
-              </script>
-            {% endblock %}
-            {% prepopulated_fields_js %}
-          </div>
-
-          <aside class="km-place-form-sidebar">
-            <div class="km-place-sidebar-card km-place-sidebar-card--summary">
-              <div class="km-place-sidebar-header">
-                <div class="km-place-sidebar-eyebrow">{% translate "Сводка карточки" %}</div>
-              </div>
-              <p class="km-place-sidebar-card__title">{{ km_event_form_summary.title }}</p>
-
-              <div class="km-place-sidebar-status-row">
-                <div class="km-place-sidebar-status-item">
-                  <span class="km-place-sidebar-status-label">{% translate "Видимость" %}</span>
-                  <span class="km-place-sidebar-badge km-place-sidebar-badge--{{ km_event_form_summary.visibility.tone }}">
-                    {{ km_event_form_summary.visibility.label }}
-                  </span>
-                </div>
-                <div class="km-place-sidebar-status-item">
-                  <span class="km-place-sidebar-status-label">{% translate "Готовность" %}</span>
-                  <span class="km-place-sidebar-badge km-place-sidebar-badge--{{ km_event_form_summary.readiness_tone }}" data-progress-readiness>
-                    {{ km_event_form_summary.readiness_label }}
-                  </span>
-                </div>
-              </div>
-
-              <div class="km-place-sidebar-progress">
-                <div class="km-place-sidebar-progress__bar">
-                  <span style="width: {{ km_event_form_summary.completion_pct }}%;" data-progress-bar></span>
-                </div>
-                <div class="km-place-sidebar-progress__meta">
-                  <strong data-progress-pct>{{ km_event_form_summary.completion_pct }}%</strong>
-                  <span data-progress-sidebar-copy>
-                    <span data-progress-done>{{ km_event_form_summary.completed }}</span> / <span data-progress-total>{{ km_event_form_summary.total }}</span>
-                  </span>
-                </div>
-              </div>
-
-              {% if km_event_form_summary.state_badges %}
-                <div class="km-place-sidebar-badges">
-                  {% for badge in km_event_form_summary.state_badges %}
-                    <span class="km-place-sidebar-badge km-place-sidebar-badge--{{ badge.tone }}">{{ badge.label }}</span>
-                  {% endfor %}
-                </div>
-              {% endif %}
-
-              {% if km_event_form_summary.meta_items %}
-                <dl class="km-place-sidebar-meta">
-                  {% for item in km_event_form_summary.meta_items %}
-                    <div>
-                      <dt>{{ item.label }}</dt>
-                      <dd>{{ item.value }}</dd>
-                    </div>
-                  {% endfor %}
-                </dl>
-              {% endif %}
-
-              {% if km_event_form_summary.error_count %}
-                <div class="km-place-sidebar-errors">
-                  <span class="km-place-sidebar-badge km-place-sidebar-badge--danger">
-                    {% blocktranslate count counter=km_event_form_summary.error_count trimmed %}
-                      {{ counter }} ошибка
-                    {% plural %}
-                      {{ counter }} ошибки
-                    {% endblocktranslate %}
-                  </span>
-                </div>
-              {% endif %}
-
-              {% if km_event_form_summary.publication_errors %}
-                <details class="km-place-sidebar-checklist-wrap" data-event-server-errors>
-                  <summary>{% translate "Требования публикации" %}</summary>
-                  {% for error in km_event_form_summary.publication_errors %}{{ error }}{% endfor %}
-                </details>
-              {% endif %}
-              <details class="km-place-sidebar-checklist-wrap">
-                <summary>{% translate "Что ещё заполнить" %}</summary>
-                <ul class="km-place-sidebar-checklist" data-progress-missing-list {% if not km_event_form_summary.missing %}hidden{% endif %}>
-                  {% for item in km_event_form_summary.missing %}
-                    <li><a href="#{{ item.field_id }}" class="km-place-sidebar-missing-link">{{ item.label }}</a></li>
-                  {% endfor %}
-                </ul>
-                <p class="km-place-sidebar-empty" data-progress-empty {% if km_event_form_summary.missing %}hidden{% endif %}>
-                  {% translate "Ключевые поля заполнены." %}
-                </p>
-              </details>
-            </div>
-
-            <div class="km-place-sidebar-card km-place-sidebar-card--actions">
-              <div class="km-place-sidebar-action-buttons">
-                <button type="submit" name="_continue" class="km-btn--sidebar km-btn--primary-save">
-                  <i class="fas fa-save"></i> {% translate 'Сохранить и продолжить' %}
-                </button>
-                <button type="submit" name="_save_draft" class="km-btn--sidebar km-btn--draft">
-                  <i class="fas fa-file"></i> {% translate 'Сохранить черновик' %}
-                </button>
-                <div class="km-place-visibility-actions">
-                  {% if km_event_form_summary.visibility.is_public %}
-                    <button type="submit" name="_unpublish_event" class="km-btn--sidebar km-btn--warn">
-                      <i class="fas fa-eye-slash"></i> {% translate 'Снять с публикации' %}
-                    </button>
-                  {% else %}
-                    <button type="submit" id="km-publish-btn" name="_publish_event" class="km-btn--sidebar km-btn--success-alt" {% if km_event_form_summary.missing %}disabled{% endif %}>
-                      <i class="fas fa-globe"></i> {% translate 'Опубликовать' %}
-                    </button>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
+{% with form=adminform.form %}
+<div id="content-main" class="km-event-editor">
+  <header class="km-event-editor__heading">
+    <div><h1>{{ km_event_form_summary.title }}</h1><span class="km-event-status">{{ km_event_form_summary.visibility.label }}</span></div>
+    {% if original.is_public %}<a class="km-event-button" href="{{ original.get_absolute_url }}" target="_blank" rel="noopener">{% translate 'Посмотреть на сайте' %}</a>{% endif %}
+  </header>
+  {% if km_event_review_mode %}
+  <section class="km-event-review" aria-labelledby="km-event-review-title">
+    <h2 id="km-event-review-title">{% translate 'Проверка мероприятия' %}</h2>
+    <div class="km-event-review__layout">
+      {% if original.photo %}<img src="{{ original.photo.url }}" alt="{{ original.name_i18n }}" class="km-event-review__photo">{% endif %}
+      <div>
+        <dl class="km-event-review__facts">
+          <div><dt>{% translate 'Организатор' %}</dt><dd>{{ original.organizer_organization|default:original.organizer_specialist }}</dd></div>
+          <div><dt>{% translate 'Дата и время' %}</dt><dd>{{ original.start_datetime|date:'d.m.Y H:i' }} — {{ original.end_datetime|date:'d.m.Y H:i' }}</dd></div>
+          <div><dt>{% translate 'Возраст' %}</dt><dd>{{ original.age_display|default:'—' }}</dd></div>
+          <div><dt>{% translate 'Цена' %}</dt><dd>{{ original.price_display }}</dd></div>
+          <div><dt>{% translate 'Площадка' %}</dt><dd>{% if original.event_format == 'online' %}{% translate 'Онлайн' %}{% else %}{{ original.related_place|default:original.address }}{% endif %}</dd></div>
+          <div><dt>{% translate 'Способ записи' %}</dt><dd>{% with registration=original.registration %}{% if registration.url %}<a href="{{ registration.url }}" target="_blank" rel="noopener noreferrer">{{ registration.label }}</a>{% else %}—{% endif %}{% endwith %}</dd></div>
+        </dl>
+        <p class="km-event-review__description">{{ original.description_az|linebreaksbr }}</p>
+        {% if original.moderation_note %}<p><strong>{% translate 'Комментарий для модератора' %}:</strong> {{ original.moderation_note }}</p>{% endif %}
+      </div>
+    </div>
+    {% if not km_event_form_summary.server_ready %}<div class="km-event-alert"><strong>{% translate 'Проверьте обязательные поля' %}</strong><ul>{% for item in km_event_form_summary.missing %}<li>{{ item.message }}</li>{% endfor %}</ul>{% for error in km_event_form_summary.publication_errors %}{{ error }}{% endfor %}</div>{% endif %}
+    <form method="post" action="{{ km_event_review_url }}" class="km-event-review__decision">
+      {% csrf_token %}<input type="hidden" name="expected_updated_at" value="{{ original.updated_at|date:'c' }}">
+      <label for="km-event-review-reason">{% translate 'Что нужно исправить' %}</label>
+      <textarea id="km-event-review-reason" name="reason" rows="2" maxlength="2000" required></textarea>
+      <div class="km-event-button-row">
+        <button type="submit" name="decision" value="approve" formnovalidate {% if not km_event_form_summary.server_ready %}disabled{% endif %} class="km-event-button km-event-button--primary">{% translate 'Одобрить и опубликовать' %}</button>
+        <button type="submit" name="decision" value="return" class="km-event-button">{% translate 'Вернуть на исправление' %}</button>
       </div>
     </form>
-  </div>
+  </section>
+  {% endif %}
+  {% if km_event_review_mode %}<details class="km-event-edit-wrap"><summary>{% translate 'Исправить данные мероприятия' %}</summary>{% else %}<div class="km-event-edit-wrap">{% endif %}
+    <form method="post" enctype="multipart/form-data" id="event_form" novalidate data-km-admin-form data-event-editor
+      data-unsaved-label="{% translate 'Изменения не сохранены' %}" data-saved-label="{% translate 'Сохранено на сервере' %}"
+      data-check-label="{% translate 'Данные будут проверены при сохранении' %}"
+      data-venue-url="{% url 'admin:catalog_event_venue_facts' %}"
+      data-phone-missing="{% translate 'У площадки не указан телефон' %}">
+      {% csrf_token %}{{ form.expected_updated_at }}
+      {{ km_event_ui_config|json_script:'km-event-ui-config' }}
+      {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+      {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+      {% if errors %}<div class="km-event-alert km-event-alert--error" role="alert" tabindex="-1" data-event-errors>
+        <strong>{% translate 'Проверьте поля' %}</strong>{{ form.non_field_errors }}
+        <ul>{% for field in form %}{% if field.errors %}<li><a href="#{{ field.id_for_label }}">{{ field.label }}: {{ field.errors|striptags }}</a></li>{% endif %}{% endfor %}</ul>
+      </div>{% endif %}
+      {% if km_event_form_summary.duplicate_warning %}<p class="km-event-alert" role="status">{% translate 'Похожее мероприятие уже есть у этого организатора на выбранное время. Проверьте, что это новое событие.' %}</p>{% endif %}
+      <nav class="km-event-editor__nav" aria-label="{% translate 'Разделы мероприятия' %}"><a href="#event-basics">{% translate 'Событие' %}</a><a href="#event-schedule">{% translate 'Когда и где' %}</a><a href="#event-media">{% translate 'Фото и запись' %}</a></nav>
+      <section id="event-basics" class="km-event-panel">
+        <h2>{% translate 'Событие' %}</h2>
+        <div class="km-event-grid">
+          <div class="km-event-field km-event-field--wide">
+            <label for="km-event-organizer-type">{% translate 'Кто проводит' %}</label>
+            <select id="km-event-organizer-type" data-event-organizer-type><option value="organization">{% translate 'Организация' %}</option><option value="specialist" {% if form.organizer_specialist.value %}selected{% endif %}>{% translate 'Специалист' %}</option></select>
+          </div>
+          <div class="km-event-field km-event-field--wide" data-event-organizer="organization">{{ form.organizer_organization.label_tag }}{{ form.organizer_organization }}{{ form.organizer_organization.errors }}</div>
+          <div class="km-event-field km-event-field--wide" data-event-organizer="specialist">{{ form.organizer_specialist.label_tag }}{{ form.organizer_specialist }}{{ form.organizer_specialist.errors }}</div>
+          {% include 'admin/catalog/event/field.html' with field=form.name_az %}
+          {% include 'admin/catalog/event/field.html' with field=form.category %}
+          {% include 'admin/catalog/event/field.html' with field=form.description_az wide=True %}
+        </div>
+        <details class="km-event-extra" {% if km_event_translation_errors %}open{% endif %}>
+          <summary>{% translate 'Добавить переводы RU / EN' %}</summary>
+          <div class="km-event-grid">{% include 'admin/catalog/event/field.html' with field=form.name_ru %}{% include 'admin/catalog/event/field.html' with field=form.name_en %}{% include 'admin/catalog/event/field.html' with field=form.description_ru %}{% include 'admin/catalog/event/field.html' with field=form.description_en %}</div>
+        </details>
+      </section>
+      <section id="event-schedule" class="km-event-panel">
+        <h2>{% translate 'Когда и где' %}</h2>
+        <div class="km-event-grid">
+          {% include 'admin/catalog/event/field.html' with field=form.start_datetime %}{% include 'admin/catalog/event/field.html' with field=form.end_datetime %}
+          <p class="km-event-help km-event-field--wide" data-event-datetime-summary aria-live="polite"
+            data-duration-day="{% translate 'д.' %}" data-duration-hour="{% translate 'ч.' %}" data-duration-minute="{% translate 'мин.' %}"
+            data-duration-label="{% translate 'Продолжительность' %}"
+            data-duration-empty="{% translate 'Выберите начало и окончание — увидите продолжительность.' %}"
+            data-duration-invalid="{% translate 'Окончание должно быть позже начала.' %}"></p>
+          {% include 'admin/catalog/event/field.html' with field=form.age_from %}{% include 'admin/catalog/event/field.html' with field=form.age_to %}
+          <p class="km-event-help km-event-field--wide">{% translate 'Верхнюю границу можно не указывать. Если возраст неизвестен, оставьте поля пустыми.' %}</p>
+          {% include 'admin/catalog/event/field.html' with field=form.price_mode wide=True %}
+          <div class="km-event-field km-event-field--wide km-event-grid" data-event-price-values>{% include 'admin/catalog/event/field.html' with field=form.price_amount %}<div data-event-price-max>{% include 'admin/catalog/event/field.html' with field=form.price_amount_max %}</div>{% include 'admin/catalog/event/field.html' with field=form.price_currency %}</div>
+          {% include 'admin/catalog/event/field.html' with field=form.price_text wide=True %}
+          {% include 'admin/catalog/event/field.html' with field=form.event_format wide=True %}
+        </div>
+        <div data-event-physical>
+          {% include 'admin/catalog/event/field.html' with field=form.related_place wide=True %}
+          <p class="km-event-help" role="status" data-event-venue-status></p>
+          {% include 'admin/catalog/event/location_section.html' %}
+        </div>
+      </section>
+      <section id="event-media" class="km-event-panel">
+        <h2>{% translate 'Фото и запись' %}</h2>
+        {% include 'admin/catalog/event/media_section.html' with gallery_inline=km_event_gallery_inline %}
+        <div class="km-event-grid">
+          {% include 'admin/catalog/event/field.html' with field=form.registration_method wide=True %}
+          {% include 'admin/catalog/event/field.html' with field=form.phone %}
+          <div class="km-event-field"><button type="button" class="km-event-button" data-event-copy-phone>{% translate 'Использовать телефон площадки' %}</button></div>
+          {% include 'admin/catalog/event/field.html' with field=form.whatsapp %}{% include 'admin/catalog/event/field.html' with field=form.registration_url %}
+        </div>
+        <details class="km-event-extra"><summary>{% translate 'Дополнительные контакты и комментарий' %}</summary><div class="km-event-grid">{% include 'admin/catalog/event/field.html' with field=form.instagram %}{% include 'admin/catalog/event/field.html' with field=form.website %}{% include 'admin/catalog/event/field.html' with field=form.moderation_note wide=True %}</div></details>
+      </section>
+      <details class="km-event-extra km-event-service" {% if km_event_service_errors %}open{% endif %}>
+        <summary>{% translate 'Служебные настройки' %}</summary>
+        <div class="km-event-grid">{% include 'admin/catalog/event/field.html' with field=form.owner %}{% include 'admin/catalog/event/field.html' with field=form.status %}{% include 'admin/catalog/event/field.html' with field=form.rejection_reason wide=True %}{% include 'admin/catalog/event/field.html' with field=form.published_at %}
+          {% if original %}<p>{{ original.slug }} · {{ original.created_at|date:'d.m.Y H:i' }}</p>{% endif %}
+        </div>
+      </details>
+      <details class="km-event-requirements" {% if not km_event_form_summary.server_ready %}open{% endif %}>
+        <summary>{% translate 'Перед публикацией' %}</summary>
+        {% if km_event_form_summary.missing %}<ul>{% for item in km_event_form_summary.missing %}<li><a href="#{{ item.field_id }}">{{ item.message }}</a></li>{% endfor %}</ul>{% endif %}
+        {% for error in km_event_form_summary.publication_errors %}{{ error }}{% endfor %}
+        {% if km_event_form_summary.server_ready %}<p>{% translate 'Можно опубликовать' %}</p>{% endif %}
+      </details>
+      <footer class="km-event-actions">
+        <span role="status" aria-live="polite" data-event-save-state>{% if add %}{% translate 'Изменения не сохранены' %}{% else %}{% translate 'Сохранено на сервере' %}{% endif %}</span>
+        <div class="km-event-button-row">
+          <button type="submit" name="_continue" class="km-event-button km-event-button--primary" title="Ctrl+S / ⌘S">{% translate 'Сохранить' %}</button>
+          <button type="submit" name="_save" class="km-event-button km-event-button--secondary">{% translate 'Сохранить и закрыть' %}</button>
+          {% if original.is_public and original.get_absolute_url %}<a class="km-event-button km-event-button--ghost" href="{{ original.get_absolute_url }}" target="_blank" rel="noopener">{% translate 'На сайте ↗' %}</a>{% endif %}
+          {% if km_event_form_summary.visibility.is_public %}<button type="submit" name="_unpublish_event" class="km-event-button">{% translate 'Снять с публикации' %}</button>
+          {% else %}<button type="submit" name="_publish_event" class="km-event-button km-event-button--accent">{% if original.status == 'pending' %}{% translate 'Одобрить и опубликовать' %}{% else %}{% translate 'Опубликовать' %}{% endif %}</button>{% endif %}
+        </div>
+      </footer>
+      {% block admin_change_form_document_ready %}<script id="django-admin-form-add-constants" src="{% static 'admin/js/change_form.js' %}" {% if add %}data-model-name="{{ opts.model_name }}"{% endif %} async></script>{% endblock %}
+      {% prepopulated_fields_js %}
+    </form>
+  {% if km_event_review_mode %}</details>{% else %}</div>{% endif %}
+  {% if original and km_event_repeat_url %}<form method="post" action="{{ km_event_repeat_url }}" class="km-event-repeat" data-event-repeat-form>{% csrf_token %}<input type="hidden" name="expected_updated_at" value="{{ original.updated_at|date:'c' }}"><button class="km-event-button" type="submit">{% translate 'Создать похожее' %}</button><small>{% translate 'Новый черновик с пустой датой. Это мероприятие останется без изменений.' %}</small></form>{% endif %}
+</div>
+{% endwith %}
 {% endblock %}

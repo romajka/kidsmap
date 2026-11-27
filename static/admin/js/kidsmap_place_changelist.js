@@ -321,6 +321,110 @@
     }
 
     /* --------------------------------------------------------------------------
+       2b. Quick Review Actions (1-click Approve / Reject / Hide)
+       -------------------------------------------------------------------------- */
+    document.addEventListener('click', function (e) {
+      var reviewActionBtn = e.target.closest('[data-review-action]');
+      if (!reviewActionBtn) return;
+
+      var action = reviewActionBtn.getAttribute('data-review-action');
+      var reviewId = reviewActionBtn.getAttribute('data-review-id');
+      if (!action || !reviewId) return;
+
+      if (action === 'approve_selected' || action === 'reject_selected' || action === 'hide_selected') {
+        var form = document.getElementById('changelist-form');
+        if (!form) return;
+
+        var targetCb = form.querySelector('tbody input.action-select[value="' + reviewId + '"]');
+        if (!targetCb) return;
+
+        if (action === 'reject_selected') {
+          if (!window.confirm('Вы уверены, что хотите отклонить этот отзыв?')) {
+            return;
+          }
+        } else if (action === 'hide_selected') {
+          if (!window.confirm('Вы уверены, что хотите скрыть этот отзыв с сайта?')) {
+            return;
+          }
+        }
+
+        e.preventDefault();
+
+        var allCheckboxes = form.querySelectorAll('tbody input.action-select');
+        Array.prototype.slice.call(allCheckboxes).forEach(function (cb) {
+          cb.checked = false;
+        });
+
+        targetCb.checked = true;
+
+        var actionSelect = form.querySelector('select[name="action"]');
+        if (actionSelect) {
+          actionSelect.value = action;
+        } else {
+          var hidden = document.createElement('input');
+          hidden.type = 'hidden';
+          hidden.name = 'action';
+          hidden.value = action;
+          form.appendChild(hidden);
+        }
+
+        form.submit();
+      }
+    });
+
+    /* --------------------------------------------------------------------------
+       2c. Quick Specialist Actions (1-click Publish / Reject / Draft)
+       -------------------------------------------------------------------------- */
+    document.addEventListener('click', function (e) {
+      var specActionBtn = e.target.closest('[data-specialist-action]');
+      if (!specActionBtn) return;
+
+      var action = specActionBtn.getAttribute('data-specialist-action');
+      var specId = specActionBtn.getAttribute('data-specialist-id');
+      if (!action || !specId) return;
+
+      if (action === 'mark_published' || action === 'mark_rejected' || action === 'mark_draft') {
+        var form = document.getElementById('changelist-form');
+        if (!form) return;
+
+        var targetCb = form.querySelector('tbody input.action-select[value="' + specId + '"]');
+        if (!targetCb) return;
+
+        if (action === 'mark_rejected') {
+          if (!window.confirm('Отклонить профиль этого специалиста?')) {
+            return;
+          }
+        } else if (action === 'mark_draft') {
+          if (!window.confirm('Снять этого специалиста с публикации и перевести в черновик?')) {
+            return;
+          }
+        }
+
+        e.preventDefault();
+
+        var allCheckboxes = form.querySelectorAll('tbody input.action-select');
+        Array.prototype.slice.call(allCheckboxes).forEach(function (cb) {
+          cb.checked = false;
+        });
+
+        targetCb.checked = true;
+
+        var actionSelect = form.querySelector('select[name="action"]');
+        if (actionSelect) {
+          actionSelect.value = action;
+        } else {
+          var hidden = document.createElement('input');
+          hidden.type = 'hidden';
+          hidden.name = 'action';
+          hidden.value = action;
+          form.appendChild(hidden);
+        }
+
+        form.submit();
+      }
+    });
+
+    /* --------------------------------------------------------------------------
        3. Readiness Popover (1d)
        -------------------------------------------------------------------------- */
     function closePopover() {

@@ -569,6 +569,10 @@
       }
       if (headerCoordChip) {
         headerCoordChip.dataset.tone = coords ? "good" : "warn";
+        var headerLabel = qs("[data-pf-coords-chip-text]", headerCoordChip);
+        if (headerLabel) headerLabel.textContent = coords
+          ? headerCoordChip.dataset.filledLabel
+          : headerCoordChip.dataset.missingLabel;
         setIcon(qs("[data-pf-coords-chip-icon]", headerCoordChip), coords ? "place" : "location_off");
       }
     }
@@ -1923,6 +1927,19 @@
       var isDigit = (event.keyCode >= 48 && event.keyCode <= 57 && !event.shiftKey) ||
         (event.keyCode >= 96 && event.keyCode <= 105);
       if (!isDigit) event.preventDefault();
+    });
+
+    /* Global shortcut: Ctrl+S / Cmd+S to quickly save changes */
+    window.addEventListener("keydown", function (event) {
+      if ((event.ctrlKey || event.metaKey) && (event.key === "s" || event.key === "S" || event.keyCode === 83)) {
+        if (!event.altKey && !event.shiftKey) {
+          event.preventDefault();
+          var primaryBtn = qs('button[name="_continue"]', root);
+          if (primaryBtn && !primaryBtn.disabled) {
+            primaryBtn.click();
+          }
+        }
+      }
     });
 
     /* First paint & listeners ---------------------------------------------- */

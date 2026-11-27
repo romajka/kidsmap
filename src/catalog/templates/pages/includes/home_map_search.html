@@ -79,6 +79,34 @@
           </div>
         </div>
 
+{% if map_places %}
+        <button
+          type="button"
+          class="home-search-filter-btn{% if request.GET.district or request.GET.category or home_age_from or home_age_to %} has-active-filters is-active{% endif %}"
+          data-home-filter-toggle
+          aria-expanded="{% if request.GET.district or request.GET.category or home_age_from or home_age_to %}true{% else %}false{% endif %}"
+          aria-controls="home-search-refine"
+          title="{% if request.LANGUAGE_CODE == 'az' %}Filtrlər{% elif request.LANGUAGE_CODE == 'en' %}Filters{% else %}Фильтры{% endif %}"
+          aria-label="{% if request.LANGUAGE_CODE == 'az' %}Filtrləri aç / bağla{% elif request.LANGUAGE_CODE == 'en' %}Toggle filters{% else %}Открыть / скрыть фильтры{% endif %}"
+        >
+          <span class="home-search-filter-btn__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="21" x2="4" y2="14"></line>
+              <line x1="4" y1="10" x2="4" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12" y2="3"></line>
+              <line x1="20" y1="21" x2="20" y2="16"></line>
+              <line x1="20" y1="12" x2="20" y2="3"></line>
+              <line x1="1" y1="14" x2="7" y2="14"></line>
+              <line x1="9" y1="8" x2="15" y2="8"></line>
+              <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+          </span>
+          <span class="home-search-filter-btn__label">{% if request.LANGUAGE_CODE == 'az' %}Filtrlər{% elif request.LANGUAGE_CODE == 'en' %}Filters{% else %}Фильтры{% endif %}</span>
+          <span class="home-search-filter-btn__badge" data-home-filter-badge aria-hidden="true" {% if not request.GET.district and not request.GET.category and not home_age_from and not home_age_to %}hidden{% endif %}></span>
+        </button>
+{% endif %}
+
         <button class="btn home-search-show-map-btn" type="submit" data-home-show-map-btn
           aria-label="{{ hero_cta_text }}">
 {% if map_places %}
@@ -127,8 +155,8 @@
       </div>
 
       {% if map_places %}
-      <details class="home-search-refine" open aria-label="{% if request.LANGUAGE_CODE == 'az' %}Sürətli filtrlər{% elif request.LANGUAGE_CODE == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
-                <summary class="home-refine-toggle" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Filtrlər{% elif request.LANGUAGE_CODE == 'en' %}Filters{% else %}Фильтры{% endif %}">
+      <details class="home-search-refine" open id="home-search-refine" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Sürətli filtrlər{% elif request.LANGUAGE_CODE == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
+        <summary class="home-refine-toggle" style="display: none !important;" aria-hidden="true">
           <div class="home-refine-toggle__left">
             <span class="home-refine-toggle__icon" aria-hidden="true">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -365,24 +393,60 @@
       <script>
       (function(){
         try {
-          var refine = document.querySelector('.home-search-refine');
+          var refine = document.getElementById('home-search-refine') || document.querySelector('.home-search-refine');
+          var filterBtn = document.querySelector('[data-home-filter-toggle]');
           if (!refine) return;
+
           var p = new URLSearchParams(window.location.search);
           var hasFilter = Boolean(p.get('district') || p.get('category') || p.get('age_from') || p.get('age_to') || p.get('age'));
-          if (!hasFilter) {
-            refine.removeAttribute('open');
-          }
 
-          var toggle = refine.querySelector('.home-refine-toggle');
-          if (toggle) {
-            toggle.addEventListener('click', function(e) {
-              if (refine.open && !refine.classList.contains('is-closing')) {
-                e.preventDefault();
+          function setFilterOpenState(open, animate) {
+            if (open) {
+              refine.setAttribute('open', '');
+              if (filterBtn) {
+                filterBtn.setAttribute('aria-expanded', 'true');
+                filterBtn.classList.add('is-active');
+              }
+            } else {
+              if (animate && refine.hasAttribute('open')) {
                 refine.classList.add('is-closing');
                 setTimeout(function() {
                   refine.removeAttribute('open');
                   refine.classList.remove('is-closing');
-                }, 240);
+                }, 200);
+              } else {
+                refine.removeAttribute('open');
+              }
+              if (filterBtn) {
+                filterBtn.setAttribute('aria-expanded', 'false');
+                filterBtn.classList.remove('is-active');
+              }
+            }
+          }
+
+          if (!hasFilter) {
+            setFilterOpenState(false, false);
+          } else {
+            setFilterOpenState(true, false);
+          }
+
+          if (filterBtn) {
+            filterBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              var isOpen = refine.hasAttribute('open');
+              setFilterOpenState(!isOpen, true);
+            });
+          }
+
+          var form = refine.closest('form');
+          if (form) {
+            form.addEventListener('change', function() {
+              var fd = new FormData(form);
+              var active = Boolean(fd.get('district') || fd.get('category') || fd.get('age_from') || fd.get('age_to'));
+              if (filterBtn) {
+                filterBtn.classList.toggle('has-active-filters', active);
+                var badge = filterBtn.querySelector('[data-home-filter-badge]');
+                if (badge) badge.hidden = !active;
               }
             });
           }

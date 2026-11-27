@@ -5,7 +5,8 @@ from django.contrib import admin, messages
 from django.contrib.admin.utils import display_for_field
 from django.db import models
 from django.db.models import Count, Q
-from django.utils.html import format_html, mark_safe
+from django.utils.html import format_html, format_html_join, mark_safe
+from .ui_utils import render_action_menu, render_row_actions_container
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -451,7 +452,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     change_list_template = "admin/catalog/specialist/change_list.html"
     km_primary_filters = ("status", "is_active", "consultation_format")
     
-    list_display = ("profile_column", "directions_column", "owner", "format_badge", "status_badge", "documents_count", "rating_column", "updated_at")
+    list_display = ("profile_column", "directions_column", "owner", "format_badge", "status_badge", "documents_count", "rating_column", "row_actions")
     list_filter = (QueueSortParameter, "status", "is_active", "consultation_format", "specializations")
     search_fields = ("name", "name_alt", "bio_ru", "bio_az", "bio_en")
     readonly_fields = ("owner", "verified_person_user", "identity_verification_date", "created_by",
@@ -716,18 +717,44 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
 
     @admin.display(description=_("Профиль"), ordering="name")
     def profile_column(self, obj):
+        change_url = reverse("admin:catalog_specialist_change", args=[obj.pk])
         if obj.photo:
             photo = format_html('<img src="{}" alt="" class="km-admin-spec-photo">', obj.photo.url)
         else:
             photo = format_html(
-                '<span class="km-admin-spec-photo km-admin-spec-photo--empty"><i class="fas fa-user-tie"></i>{}</span>',
-                "",
+                '<span class="km-admin-spec-photo km-admin-spec-photo--empty" title="{}">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-person"></use></svg>'
+                '</span>',
+                obj.name,
             )
+            
+        sub_badges = []
+        if obj.name_alt:
+            sub_badges.append(format_html('<span class="km-spec-alt-title">{}</span>', obj.name_alt))
+        if getattr(obj, "is_verified", False) or getattr(obj, "person_verified_at", None):
+            sub_badges.append(format_html('<span class="km-verified-chip" title="{}"><svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-check_circle"></use></svg> {}</span>', _("Личность подтверждена"), _("Верифицирован")))
+        elif obj.status == Specialist.STATUS_PUBLISHED:
+            public_url = obj.get_absolute_url() if hasattr(obj, "get_absolute_url") else ""
+            if public_url:
+                sub_badges.append(format_html('<a href="{}" class="km-spec-site-link" target="_blank" rel="noopener noreferrer">{} ↗</a>', public_url, _("На сайте")))
+        if getattr(obj, "created_at", None):
+            sub_badges.append(format_html('<span class="km-spec-date-chip" title="{}"><i class="far fa-clock"></i> {}</span>', _("Дата создания / подачи"), obj.created_at.strftime('%d.%m.%Y')))
+                
+        sub_html = format_html_join(" ", "{}", ((b,) for b in sub_badges)) if sub_badges else format_html('<small class="km-spec-slug">{}</small>', obj.slug)
+        
         return format_html(
-            '<div class="km-admin-spec-profile">{}<div><strong>{}</strong><small>{}</small></div></div>',
+            '<div class="km-admin-spec-profile">'
+            '{}'
+            '<div class="km-admin-spec-info">'
+            '<a class="km-admin-spec-name" href="{}" title="{}"><strong>{}</strong></a>'
+            '<div class="km-admin-spec-sub">{}</div>'
+            '</div>'
+            '</div>',
             photo,
+            change_url,
+            _("Проверить и редактировать профиль специалиста"),
             obj.name,
-            obj.slug,
+            sub_html,
         )
 
     @admin.display(description=_("Направления"))
@@ -735,33 +762,208 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         items = list(obj.specializations.all()[:3])
         if not items:
             return format_html('<span class="km-admin-muted">{}</span>', _("Не выбрано"))
+        total = obj.specializations.count()
+        more_badge = ""
+        if total > 3:
+            more_badge = format_html('<span class="km-spec-tag km-spec-tag--more">+{}</span>', total - 3)
+        tags_html = format_html_join("", '<span class="km-spec-tag" title="{}">{}</span>', ((item.name_i18n(), item.name_i18n()) for item in items))
         return format_html(
-            '<div class="km-admin-spec-tags">{}</div>',
-            format_html("".join('<span>{}</span>' for _ in items), *(item.name_i18n() for item in items)),
+            '<div class="km-admin-spec-tags">{}{}</div>',
+            tags_html,
+            more_badge,
+        )
+
+    @admin.display(description=_("Владелец профиля"), ordering="owner")
+    def owner(self, obj):
+        if not obj.owner:
+            return format_html('<span class="km-admin-muted">{}</span>', _("Без владельца"))
+        user = obj.owner
+        name = user.get_full_name() or user.username
+        handle = f"@{user.username}" if user.username else ""
+        return format_html(
+            '<div class="km-spec-owner-cell">'
+            '<span class="km-spec-owner-avatar"><i class="fas fa-user"></i></span>'
+            '<div class="km-spec-owner-info">'
+            '<strong>{}</strong>'
+            '<small>{}</small>'
+            '</div>'
+            '</div>',
+            name,
+            handle or user.email or "",
         )
 
     @admin.display(description=_("Формат"), ordering="consultation_format")
     def format_badge(self, obj):
-        icon = "fa-video" if obj.consultation_format == Specialist.FORMAT_ONLINE else "fa-map-marker-alt"
-        if obj.consultation_format == Specialist.FORMAT_BOTH:
+        fmt = str(obj.consultation_format or "").strip().lower()
+        if fmt == Specialist.FORMAT_BOTH:
             icon = "fa-laptop-house"
-        return format_html('<span class="km-admin-spec-badge"><i class="fas {}"></i>{}</span>', icon, obj.get_consultation_format_display())
+            label = _("Онлайн и очно")
+            tone = "both"
+        elif fmt in (Specialist.FORMAT_OFFLINE, "in_person"):
+            icon = "fa-map-marker-alt"
+            label = _("Только очно")
+            tone = "offline"
+        elif fmt == Specialist.FORMAT_ONLINE:
+            icon = "fa-video"
+            label = _("Только онлайн")
+            tone = "online"
+        else:
+            icon = "fa-user-clock"
+            label = obj.get_consultation_format_display() or _("Уточняется")
+            tone = "muted"
+            
+        return format_html(
+            '<span class="km-admin-spec-badge km-format-{}"><i class="fas {}"></i>{}</span>',
+            tone,
+            icon,
+            label,
+        )
 
     @admin.display(description=_("Статус"), ordering="status")
     def status_badge(self, obj):
-        return format_html('<span class="km-status-badge km-status-{}">{}</span>', obj.status, obj.get_status_display())
-
+        status_tones = {
+            Specialist.STATUS_PUBLISHED: "good",
+            Specialist.STATUS_PENDING: "warn",
+            Specialist.STATUS_REJECTED: "danger",
+            Specialist.STATUS_DRAFT: "muted",
+        }
+        tone = status_tones.get(obj.status, "muted")
+        label = obj.get_status_display()
+        return format_html(
+            '<span class="km-status-pill km-status-pill--{}">'
+            '<span class="km-status-dot"></span>'
+            '{}'
+            '</span>',
+            tone,
+            label,
+        )
 
     @admin.display(description=_("Документы"))
     def documents_count(self, obj):
         count = obj.documents.count()
-        return format_html('<span class="km-admin-spec-badge"><i class="fas fa-file-alt"></i>{}</span>', count)
+        change_url = reverse("admin:catalog_specialist_change", args=[obj.pk])
+        doc_url = f"{change_url}#km-sec-10"
+        if count > 0:
+            return format_html(
+                '<a href="{}" class="km-spec-doc-badge km-spec-doc-badge--has" title="{}">'
+                '<svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-description"></use></svg> '
+                '{} {}</a>',
+                doc_url,
+                _("Перейти к дипломам и сертификатам (секция 10)"),
+                count,
+                _("док."),
+            )
+        return format_html(
+            '<a href="{}" class="km-spec-doc-badge km-spec-doc-badge--empty" title="{}">'
+            '<svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-description"></use></svg> '
+            '{}</a>',
+            doc_url,
+            _("Загрузить документы специалиста (секция 10)"),
+            _("Нет док."),
+        )
 
-    @admin.display(description=_("Рейтинг"), ordering="rating_avg")
+    @admin.display(description=_("Отзывы и оценка"), ordering="rating_avg")
     def rating_column(self, obj):
         if not obj.rating_count:
             return format_html('<span class="km-admin-muted">{}</span>', _("Нет отзывов"))
-        return format_html('<span class="km-admin-spec-badge"><i class="fas fa-star"></i>{} ({})</span>', obj.rating_avg, obj.rating_count)
+        rating_val = f"{float(obj.rating_avg or 0):.1f}"
+        return format_html(
+            '<div class="km-spec-rating-cell">'
+            '<span class="km-spec-rating-stars"><i class="fas fa-star text-warning"></i> <strong>{}</strong></span>'
+            '<span class="km-spec-rating-count">({} {})</span>'
+            '</div>',
+            rating_val,
+            int(obj.rating_count or 0),
+            _("отз."),
+        )
+
+    @admin.display(description=_("Действия"))
+    def row_actions(self, obj):
+        change_url = reverse("admin:catalog_specialist_change", args=[obj.pk])
+        buttons = []
+        
+        # Primary "Проверить" action
+        buttons.append(
+            format_html(
+                '<a class="km-admin-action km-admin-action--primary" href="{}" title="{}">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-edit"></use></svg>'
+                '<span>{}</span></a>',
+                change_url,
+                _("Проверить все 12 секций анкеты специалиста"),
+                _("Проверить"),
+            )
+        )
+        
+        # Moderation quick actions:
+        if obj.status == Specialist.STATUS_PENDING:
+            buttons.append(
+                format_html(
+                    '<button type="button" class="km-admin-action km-admin-action--good" data-specialist-action="mark_published" data-specialist-id="{}" title="{}">'
+                    '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg>'
+                    '<span>{}</span></button>',
+                    obj.pk,
+                    _("Одобрить и опубликовать профиль специалиста"),
+                    _("Одобрить"),
+                )
+            )
+            buttons.append(
+                format_html(
+                    '<button type="button" class="km-admin-action km-admin-action--warn" data-specialist-action="mark_rejected" data-specialist-id="{}" title="{}">'
+                    '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-close"></use></svg>'
+                    '<span>{}</span></button>',
+                    obj.pk,
+                    _("Отклонить профиль специалиста"),
+                    _("Отклонить"),
+                )
+            )
+        elif obj.status == Specialist.STATUS_PUBLISHED:
+            buttons.append(
+                format_html(
+                    '<button type="button" class="km-admin-action km-admin-action--muted" data-specialist-action="mark_draft" data-specialist-id="{}" title="{}">'
+                    '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-visibility_off"></use></svg>'
+                    '<span>{}</span></button>',
+                    obj.pk,
+                    _("Снять с публикации и перевести в черновик"),
+                    _("В черновик"),
+                )
+            )
+        elif obj.status in (Specialist.STATUS_DRAFT, Specialist.STATUS_REJECTED):
+            buttons.append(
+                format_html(
+                    '<button type="button" class="km-admin-action km-admin-action--good" data-specialist-action="mark_published" data-specialist-id="{}" title="{}">'
+                    '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg>'
+                    '<span>{}</span></button>',
+                    obj.pk,
+                    _("Опубликовать специалиста"),
+                    _("Опубликовать"),
+                )
+            )
+            
+        public_url = obj.get_absolute_url() if hasattr(obj, "get_absolute_url") else ""
+        if public_url and obj.status == Specialist.STATUS_PUBLISHED:
+            buttons.append(
+                format_html(
+                    '<a class="km-admin-action km-admin-action--ghost" href="{}" target="_blank" rel="noopener" title="{}">'
+                    '<i class="fas fa-external-link-alt" style="margin-right: 4px;"></i>'
+                    '<span>{}</span></a>',
+                    public_url,
+                    _("Открыть публичный профиль на сайте"),
+                    _("На сайте ↗"),
+                )
+            )
+
+        menu_items = [
+            (f"{change_url}#km-sec-10", _("Документы и дипломы"), ""),
+            (f"{change_url}#km-sec-8", _("Места работы и приёма"), ""),
+        ]
+        if public_url:
+            menu_items.insert(0, (public_url, _("Страница на сайте ↗"), ""))
+        delete_url = reverse("admin:catalog_specialist_delete", args=[obj.pk])
+        menu_items.append((delete_url, _("Удалить"), "km-admin-action-menu__link--danger"))
+        
+        buttons_html = mark_safe(" ".join(buttons))
+        menu_html = render_action_menu(menu_items)
+        return render_row_actions_container(buttons_html, menu_html)
     
     fieldsets = (
         (

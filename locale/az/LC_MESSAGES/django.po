@@ -3232,10 +3232,9 @@ msgid "Долгота"
 msgstr "Uzunluq"
 
 #: src/catalog/domain_admin/place.py:538
-#, fuzzy
 #| msgid "Время окончания должно быть позже времени начала."
 msgid "Окончание мероприятия должно быть позже начала."
-msgstr "Bitmə vaxtı başlama vaxtından sonra olmalıdır."
+msgstr "Tədbirin bitmə vaxtı başlama vaxtından sonra olmalıdır."
 
 #: src/catalog/domain_admin/place.py:555
 #: src/catalog/domain_admin/place.py:1153
@@ -3275,10 +3274,9 @@ msgstr ""
 "olunur."
 
 #: src/catalog/domain_admin/place.py:603
-#, fuzzy
 #| msgid "например 12"
 msgid "Напр., +994 50 123 45 67"
-msgstr "məsələn 12"
+msgstr "Məs., +994 50 123 45 67"
 
 #: src/catalog/domain_admin/place.py:616
 #: src/catalog/domain_admin/place.py:2611
@@ -3320,19 +3318,17 @@ msgid "Не опубликованы"
 msgstr "Dərc olunmayıb"
 
 #: src/catalog/domain_admin/place.py:673 src/catalog/domain_admin/place.py:778
-#, fuzzy
 #| msgid "Не указан"
 msgid "Не удалено"
-msgstr "Qeyd olunmayıb"
+msgstr "Silinməyib"
 
 #: src/catalog/domain_admin/place.py:674 src/catalog/domain_admin/place.py:779
 #: src/catalog/domain_admin/place.py:1287
 #: src/catalog/domain_admin/place.py:3223
 #: src/catalog/domain_admin/place.py:3260
-#, fuzzy
 #| msgid "Проверено"
 msgid "В удаленных"
-msgstr "Yoxlanılıb"
+msgstr "Silinmişlərdə"
 
 #: src/catalog/domain_admin/place.py:688
 #: src/catalog/domain_admin/place.py:3485
@@ -3389,28 +3385,24 @@ msgid "Сортировка"
 msgstr "Sıralama"
 
 #: src/catalog/domain_admin/place.py:758
-#, fuzzy
 #| msgid "Сначала новые"
 msgid "Создано: сначала новые"
-msgstr "Əvvəlcə yenilər"
+msgstr "Yaradılma: əvvəlcə yenilər"
 
 #: src/catalog/domain_admin/place.py:759
-#, fuzzy
 #| msgid "На карте"
 msgid "Создано: сначала старые"
-msgstr "Xəritədə"
+msgstr "Yaradılma: əvvəlcə köhnələr"
 
 #: src/catalog/domain_admin/place.py:760
-#, fuzzy
 #| msgid "Обновлено"
 msgid "Обновлено: сначала новые"
-msgstr "Yenilənib"
+msgstr "Yenilənmə: əvvəlcə yenilər"
 
 #: src/catalog/domain_admin/place.py:761
-#, fuzzy
 #| msgid "Обновлено"
 msgid "Обновлено: сначала старые"
-msgstr "Yenilənib"
+msgstr "Yenilənmə: əvvəlcə köhnələr"
 
 #: src/catalog/domain_admin/place.py:762
 #: src/catalog/domain_admin/place.py:4693
@@ -10966,10 +10958,9 @@ msgid "Запрос повышения"
 msgstr "Keçirilmə müddəti"
 
 #: src/catalog/models/staff_role.py:98
-#, fuzzy
 #| msgid "Дата модерации"
 msgid "Дата и время"
-msgstr "Moderasiya tarixi"
+msgstr "Tarix və vaxt"
 
 #: src/catalog/models/staff_role.py:102
 msgid "История роли сотрудника"
@@ -11075,10 +11066,9 @@ msgid "Код подтверждения отправлен"
 msgstr "Təsdiq kodu email ünvanınıza göndərildi."
 
 #: src/catalog/models/user.py:121
-#, fuzzy
 #| msgid "Опубликовано"
 msgid "Запланировано"
-msgstr "Dərc olunub"
+msgstr "Planlaşdırılıb"
 
 #: src/catalog/models/user.py:123
 #, fuzzy
@@ -17303,10 +17293,8 @@ msgid "Сортировка отзывов"
 msgstr "Rəylərin sıralanması"
 
 #: src/catalog/templates/pages/site_reviews.html:114
-#, fuzzy
-#| msgid "Пока нет отзывов. Будьте первым!"
 msgid "Пока нет отзывов с текстом."
-msgstr "Hələ rəy yoxdur. İlk siz yazın!"
+msgstr "Hələ mətnli rəy yoxdur."
 
 #: src/catalog/templates/pages/site_reviews.html:115
 msgid ""
@@ -24113,3 +24101,167 @@ msgstr "0 / 0"
 #. Organization flow consistency and progressive workspace.
 msgid "%(start)s–%(end)s из %(total)s"
 msgstr "%(start)s–%(end)s / %(total)s"
+
+#. Event entry efficiency and moderation.
+msgid "Вернуть на исправление"
+msgstr "Düzəlişə qaytar"
+
+#. Event entry efficiency and moderation.
+msgid "Верхнюю границу можно не указывать. Если возраст неизвестен, оставьте поля пустыми."
+msgstr "Yuxarı yaş həddi vacib deyil. Yaş məlum deyilsə, sahələri boş saxlayın."
+
+#. Event entry efficiency and moderation.
+msgid "Владелец, статус и история записи"
+msgstr "Sahib, status və qeyd tarixçəsi"
+
+#. Event entry efficiency and moderation.
+msgid "Выберите начало и окончание — увидите продолжительность."
+msgstr "Başlama və bitmə vaxtını seçin — müddəti görəcəksiniz."
+
+#. Event entry efficiency and moderation.
+msgid "Данные будут проверены при сохранении"
+msgstr "Məlumatlar saxlanılarkən yoxlanılacaq"
+
+#. Event entry efficiency and moderation.
+msgid "Дата, возраст, стоимость и площадка."
+msgstr "Tarix, yaş, qiymət və məkan."
+
+#. Event entry efficiency and moderation.
+msgid "Диапазон цен"
+msgstr "Qiymət aralığı"
+
+#. Event entry efficiency and moderation.
+msgid "Добавить переводы RU / EN"
+msgstr "RU / EN tərcümələri əlavə et"
+
+#. Event entry efficiency and moderation.
+msgid "Дополнительные контакты и комментарий"
+msgstr "Əlavə əlaqə məlumatları və qeyd"
+
+#. Event entry efficiency and moderation.
+msgid "Исправить данные мероприятия"
+msgstr "Tədbirin məlumatlarını düzəlt"
+
+#. Event entry efficiency and moderation.
+msgid "Когда и где"
+msgstr "Nə vaxt və harada"
+
+#. Event entry efficiency and moderation.
+msgid "Комментарий для модератора"
+msgstr "Moderator üçün qeyd"
+
+#. Event entry efficiency and moderation.
+msgid "Кто проводит"
+msgstr "Kim təşkil edir"
+
+#. Event entry efficiency and moderation.
+msgid "Можно опубликовать"
+msgstr "Dərc etmək olar"
+
+#. Event entry efficiency and moderation.
+msgid "Необязательно"
+msgstr "İstəyə bağlı"
+
+#. Event entry efficiency and moderation.
+msgid "Новый черновик с пустой датой. Это мероприятие останется без изменений."
+msgstr "Tarixi boş olan yeni qaralama yaradılacaq. Bu tədbir dəyişməyəcək."
+
+#. Event entry efficiency and moderation.
+msgid "Обложка и способ связи с организатором."
+msgstr "Üz qabığı və təşkilatçı ilə əlaqə üsulu."
+
+#. Event entry efficiency and moderation.
+msgid "Окончание должно быть позже начала."
+msgstr "Bitmə vaxtı başlama vaxtından sonra olmalıdır."
+
+#. Event entry efficiency and moderation.
+msgid "Организатор"
+msgstr "Təşkilatçı"
+
+#. Event entry efficiency and moderation.
+msgid "Организатор, название и описание."
+msgstr "Təşkilatçı, ad və təsvir."
+
+#. Event entry efficiency and moderation.
+msgid "Переводы RU / EN"
+msgstr "RU / EN tərcümələri"
+
+#. Event entry efficiency and moderation.
+msgid "Перед публикацией"
+msgstr "Dərcdən əvvəl"
+
+#. Event entry efficiency and moderation.
+msgid "Перенесено"
+msgstr "Başqa tarixə keçirilib"
+
+#. Event entry efficiency and moderation.
+msgid "Площадка"
+msgstr "Məkan"
+
+#. Event entry efficiency and moderation.
+msgid "Похожее мероприятие уже есть у этого организатора на выбранное время. Проверьте, что это новое событие."
+msgstr "Bu təşkilatçının seçilmiş vaxtda oxşar tədbiri var. Yeni tədbir yaratdığınızı yoxlayın."
+
+#. Event entry efficiency and moderation.
+msgid "Прежняя цена"
+msgstr "Əvvəlki qiymət"
+
+#. Event entry efficiency and moderation.
+msgid "Проверка мероприятия"
+msgstr "Tədbirin yoxlanılması"
+
+#. Event entry efficiency and moderation.
+msgid "Проверьте поля"
+msgstr "Sahələri yoxlayın"
+
+#. Event entry efficiency and moderation.
+msgid "Продолжительность"
+msgstr "Müddət"
+
+#. Event entry efficiency and moderation.
+msgid "Разделы мероприятия"
+msgstr "Tədbirin bölmələri"
+
+#. Event entry efficiency and moderation.
+msgid "Служебные настройки"
+msgstr "Xidməti parametrlər"
+
+#. Event entry efficiency and moderation.
+msgid "Создать похожее"
+msgstr "Oxşar tədbir yarat"
+
+#. Event entry efficiency and moderation.
+msgid "Способ записи"
+msgstr "Qeydiyyat üsulu"
+
+#. Event entry efficiency and moderation.
+msgid "Ссылка для записи"
+msgstr "Qeydiyyat keçidi"
+
+#. Event entry efficiency and moderation.
+msgid "У площадки не указан телефон"
+msgstr "Məkanın telefon nömrəsi göstərilməyib"
+
+#. Event entry efficiency and moderation.
+msgid "Уточнить стоимость"
+msgstr "Qiyməti dəqiqləşdirin"
+
+#. Event entry efficiency and moderation.
+msgid "Фиксированная цена"
+msgstr "Sabit qiymət"
+
+#. Event entry efficiency and moderation.
+msgid "Фото и запись"
+msgstr "Foto və qeydiyyat"
+
+#. Event entry efficiency and moderation.
+msgid "Что нужно исправить"
+msgstr "Nəyi düzəltmək lazımdır"
+
+#. Event entry efficiency and moderation.
+msgid "д."
+msgstr "gün"
+
+#. Event entry efficiency and moderation.
+msgid "Создан похожий черновик. Укажите новые даты."
+msgstr "Oxşar qaralama yaradıldı. Yeni tarixləri daxil edin."

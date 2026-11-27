@@ -3,6 +3,7 @@
 {{ form.editor_error_targets|json_script:'km-editor-error-targets' }}
 {{ form.editor_errors|json_script:'km-editor-errors' }}
 <div class="pw pc" data-permanent-place-root data-place-mode="continuous">
+  {% include "admin/catalog/includes/km_icon_sprite.html" %}
   <header class="pw-header pc-header"><a href="{% url 'owner_places_dashboard' %}">← {{ ui.places }}</a><p class="pw-eyebrow">KidsMap · {{ ui.title }}</p><h1>{% if place %}{{ place.name_i18n }}{% else %}{{ ui.title }}{% endif %}</h1><p>{{ ui.intro }}</p></header>
   {{ rules|json_script:'pw-rules' }}{{ readiness|json_script:'pc-readiness' }}{{ form.server_draft_fields|json_script:'pc-draft-fields' }}{{ ui|json_script:'pw-copy' }}{{ form.offering_choices|json_script:'pc-offering-choices' }}{{ form.saved_gallery_preview|json_script:'pc-gallery-preview' }}
   {{ form.pricing_editor_contract|json_script:'km-pricing-editor-contract' }}
@@ -46,7 +47,70 @@
         {% if part.number == 5 %}{% include 'pages/includes/place_localized_notes.html' %}{% endif %}
         {% if part.number == 4 %}<p class="pc-note">{{ ui.optional_map }}</p>{% include 'pages/includes/permanent_place_map.html' %}{% endif %}
         {% if part.number == 5 %}<p class="pc-note" data-pc-contact-hint aria-live="polite">{% if rules.contact_policy.inherited %}{{ ui.contact_inherited }}{% elif rules.contact_required %}{{ ui.contact_required }}{% else %}{{ ui.contact_optional }}{% endif %}</p><div data-pw-field="structured_schedule">{% include 'includes/place_schedule_editor.html' with editor_id='pw-schedule' variant='owner' %}<span class="pw-client-error"></span></div>{% endif %}
-        {% if part.number == 3 %}        <div class="pw-pricing" data-tariff-editor data-can-verify="0">{% include "catalog/includes/place_price_policy.html" %}<h3 data-tariff-heading>{{ ui.common_ticket }}</h3><p class="pw-help" data-tariff-description>{{ ui.plans_hint }}</p><div data-pw-field="pricing_plans"><input type="hidden" name="pricing_plans" data-tariff-input value="{{ form.pricing_plans.value|default:'[]' }}">{% for error in form.pricing_plans.errors %}<p class="pw-error">{{ error }}</p>{% endfor %}<span class="pw-client-error" aria-live="polite"></span></div><div data-tariff-list></div><button type="button" class="pw-add" data-tariff-add>＋ {{ ui.add_plan }}</button></div>
+        {% if part.number == 3 %}
+        <div
+          class="km-pf-tariffs pw-pricing"
+          data-tariff-editor
+          data-can-verify="0"
+          data-format-label="{% translate 'Формат' %}"
+          data-group-label="{% translate 'Групповые' %}"
+          data-individual-label="{% translate 'Индивидуальные' %}"
+          data-payment-label="{% translate 'Тип оплаты' %}"
+          data-open-visit-label="{% translate 'Свободное посещение' %}"
+          data-per-lesson-label="{% translate 'За занятие' %}"
+          data-per-month-label="{% translate 'За месяц' %}"
+          data-package-label="{% translate 'Пакет' %}"
+          data-per-visit-label="{% translate 'За посещение' %}"
+          data-entry-ticket-label="{% translate 'Входной билет' %}"
+          data-week-label="{% translate 'Занятий в неделю' %}"
+          data-month-label="{% translate 'Занятий в месяц' %}"
+          data-package-sessions-label="{% translate 'Занятий в пакете' %}"
+          data-price-label="{% translate 'Цена (AZN)' %}"
+          data-title-az-label="{% translate 'Название тарифа (AZ)' %}"
+          data-title-ru-label="{% translate 'Название тарифа (RU)' %}"
+          data-title-en-label="{% translate 'Название тарифа (EN)' %}"
+          data-active-label="{% translate 'Активен' %}"
+          data-remove-label="{% translate 'Удалить' %}"
+          data-up-label="{% translate 'Выше' %}"
+          data-down-label="{% translate 'Ниже' %}"
+          data-choose-label="{% translate 'Выберите' %}"
+        >
+          {% include "catalog/includes/place_price_policy.html" %}
+          <h3 data-tariff-heading>{{ ui.common_ticket }}</h3>
+          <p class="pw-help" data-tariff-description>{{ ui.plans_hint }}</p>
+
+          <div class="km-pf-tariffs__list" data-tariff-list></div>
+
+          <div class="km-pf-tariffs__empty" data-tariff-empty hidden>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-sell"></use></svg>
+            <p data-tariff-empty-title>{% translate "Тарифы не добавлены" %}</p>
+            <small data-tariff-empty-desc>{% translate "Добавьте хотя бы один тариф или отметьте место как бесплатное — без этого карточку нельзя опубликовать." %}</small>
+          </div>
+
+          <div class="km-pf-tariffs__free-state" data-tariff-free-state hidden>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check_circle"></use></svg>
+            <div>
+              <strong>{% translate "Место полностью бесплатное" %}</strong>
+              <p>{% translate "Для этого места вход и все основные занятия бесплатны. Добавление тарифных планов не требуется." %}</p>
+            </div>
+          </div>
+
+          <div class="km-pf-tariffs__foot">
+            <button type="button" class="km-pf-btn km-pf-btn--dashed pw-add" data-tariff-add>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg><span data-tariff-add-label>{{ ui.add_plan }}</span>
+            </button>
+            <p class="km-pf-tariffs__computed" data-tariff-computed>
+              <strong data-tariff-computed-value>—</strong>
+              <span>{% translate "рассчитано автоматически из тарифов" %}</span>
+            </p>
+          </div>
+
+          <div data-pw-field="pricing_plans">
+            <input type="hidden" name="pricing_plans" data-tariff-input value="{{ form.pricing_plans.value|default:'[]' }}">
+            {% for error in form.pricing_plans.errors %}<p class="pw-error">{{ error }}</p>{% endfor %}
+            <span class="pw-client-error" aria-live="polite"></span>
+          </div>
+        </div>
 <p class="pc-note">{{ ui.activity_explain }}</p>
         <details class="pw-details"{% if form.nested_pricing.errors %} open{% endif %}><summary>{{ ui.directions_title }}</summary><p class="pw-help">{% translate "Сначала сохраните место. Занятия и группы можно добавить отдельно." %}</p><div class="pc-offerings" data-pc-offerings>
           <div data-pc-activity-list></div>

@@ -4,6 +4,7 @@ from django.utils.translation import gettext as _
 
 AZERBAIJAN_REGIONS_MAP = {
     "baku": {"ru": "Баку", "az": "Bakı", "en": "Baku"},
+    "xirdalan": {"ru": "Хырдалан", "az": "Xırdalan", "en": "Khirdalan"},
     "absheron": {"ru": "Абшерон", "az": "Abşeron", "en": "Absheron"},
     "agdjabedi": {"ru": "Агджабеди", "az": "Ağcabədi", "en": "Agdjabedi"},
     "agdam": {"ru": "Агдам", "az": "Ağdam", "en": "Agdam"},
@@ -95,6 +96,10 @@ BAKU_DISTRICTS_MAP = {
 }
 
 LEGACY_MAPPING = {
+    "xırdalan": "xirdalan",
+    "xirdalan": "xirdalan",
+    "khirdalan": "xirdalan",
+    "хырдалан": "xirdalan",
     "шамахы": "shamakhi",
     "шамаха": "shamakhi",
     "шемаха": "shamakhi",

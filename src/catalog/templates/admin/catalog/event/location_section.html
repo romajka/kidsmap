@@ -14,24 +14,19 @@
        data-map-not-ready-label="{% translate 'Не готово для карты' %}"
        data-map-open-label="{% translate 'Скрыть карту' %}"
        data-map-closed-label="{% translate 'Указать на карте' %}">
-    <div class="km-place-location__hero">
-      <div class="km-place-location__hero-icon" aria-hidden="true"><i class="fas fa-map-marker-alt"></i></div>
-      <div class="km-place-location__hero-copy">
-        <h3 class="km-place-location__title">{% translate "Адрес и координаты" %}</h3>
-        <p class="km-place-location__subtitle">{% translate "Укажите адрес или выберите точку на карте. Координаты сохранятся вместе с мероприятием." %}</p>
-      </div>
-    </div>
+    {% with field=form.address %}<div class="km-location-field km-location-field--address km-place-location__field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
+    <details class="km-event-extra"><summary>{% translate "Адрес и координаты" %}</summary>
     <div class="km-location-grid km-location-grid--three">
       {% with field=form.region %}<div class="km-location-field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
       {% with field=form.district %}<div class="km-location-field" data-km-admin-district-box>{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
       {% with field=form.metro %}<div class="km-location-field" data-km-admin-metro-box>{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
     </div>
-    {% with field=form.address %}<div class="km-location-field km-location-field--address km-place-location__field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
-    <div class="km-place-location__coord-grid" style="display:none">
+
+    <div class="km-event-grid">
       {% with field=form.lat %}<div>{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
       {% with field=form.lng %}<div>{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
     </div>
-    <div class="km-place-location__actions">
+    {% if google_maps_api_key %}<div class="km-place-location__actions">
       <button type="button" class="km-place-location__action km-place-location__action--primary" data-km-place-location-search><i class="fas fa-search" aria-hidden="true"></i><span>{% translate "Рассчитать по адресу" %}</span></button>
       <button type="button" class="km-place-location__action km-place-location__action--secondary" data-km-place-location-toggle aria-expanded="{% if obj.has_coordinates %}true{% else %}false{% endif %}"><i class="fas fa-map" aria-hidden="true"></i><span>{% if obj.has_coordinates %}{% translate "Скрыть карту" %}{% else %}{% translate "Указать на карте" %}{% endif %}</span></button>
       <button type="button" class="km-place-location__action km-place-location__action--ghost" data-km-place-location-locate><i class="fas fa-location-arrow" aria-hidden="true"></i><span>{% translate "Моё местоположение" %}</span></button>
@@ -42,11 +37,6 @@
       <div class="km-place-location__map" data-km-place-location-map aria-label="{% translate 'Карта выбора координат' %}"></div>
       <div class="km-place-location__found" data-km-place-location-found hidden><strong data-km-place-location-found-text></strong></div>
     </div>
-    <div class="km-location-grid km-location-grid--three">
-      {% with field=form.phone %}<div class="km-location-field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
-      {% with field=form.instagram %}<div class="km-location-field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
-      {% with field=form.website %}<div class="km-location-field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
-    </div>
-    {% with field=form.moderation_note %}<div class="km-location-field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
+    {% endif %}</details>
   </div>
 {% endwith %}

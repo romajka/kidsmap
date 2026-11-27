@@ -3,12 +3,13 @@ from django.contrib.admin import AdminSite
 from django.contrib.auth import get_user_model
 from django.test import TestCase, RequestFactory
 from django.utils import timezone, translation
-from catalog.models import Event, Organization
+from catalog.models import Category, Event, Organization
 from catalog.domain_admin.place import EventAdmin
 from catalog.testcases import admin as legacy_admin
 
 class EventAdminReadinessTests(TestCase):
     def setUp(self):
+        Category.objects.get_or_create(code='EDU', defaults={'name_az': 'Synthetic category'})
         self.actor = get_user_model().objects.create_superuser('event-readiness', 'event@example.invalid', 'synthetic')
         self.admin = EventAdmin(Event, AdminSite())
         self.request = RequestFactory().get('/admin/catalog/event/add/')
@@ -22,7 +23,7 @@ class EventAdminReadinessTests(TestCase):
         start = timezone.now() + timedelta(days=20)
         values = dict(name='Synthetic event', name_az='Synthetic event', category_id='EDU',
                       description_az='Synthetic description', organizer_organization=self.org,
-                      event_format='online', status='draft', start_datetime=start,
+                      event_format='online', status='draft', price_mode='unknown', start_datetime=start,
                       end_datetime=start+timedelta(hours=1), phone='+994501234567', photo='events/synthetic.jpg')
         values.update(changes)
         return Event.objects.create(**values)

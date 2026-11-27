@@ -1,32 +1,260 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_urls static admin_modify %}
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=20261007spec5">{% endblock %}
-{% block extrahead %}{{ block.super }}<script src="{% url 'admin:jsi18n' %}"></script>{{ media }}<script src="{% static 'admin/js/specialist_admin.js' %}?v=20261007spec5" defer></script>{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=20261026_spec_v2">
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="{% url 'admin:jsi18n' %}"></script>
+{{ media }}
+<script src="{% static 'admin/js/specialist_admin.js' %}?v=20261026_spec_v2" defer></script>
+{% endblock %}
+
 {% block content %}
 <div class="km-specialist-form-page km-specialist-admin-page">
-<form data-has-errors="{{ errors|yesno:'true,false' }}" action="{{ form_url }}" method="post" enctype="multipart/form-data" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}
-{% if original %}<input type="hidden" name="expected_updated_at" value="{{ specialist_expected_updated_at }}">{% endif %}
-{% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
-{% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
-<div class="km-specialist-header"><div class="km-specialist-header__title"><h1>{% if add %}{% translate 'Добавить профиль специалиста' %}{% else %}{{ original.name }}{% endif %}</h1><p>{% translate 'Автор предложения, подтверждённый специалист и организация — разные стороны. Место приёма указывается отдельно от сотрудничества.' %}</p></div></div>
-{% if errors %}<div class="km-error-banner" role="alert" tabindex="-1" data-specialist-errors><h2>{% translate 'Проверьте поля формы.' %}</h2>{{ adminform.form.non_field_errors }}<ul>
-{% for section in specialist_sections %}{% if section.fieldset %}{% for line in section.fieldset %}{% for field in line %}{% for error in field.field.errors %}<li><a href="#{{ field.field.id_for_label|default:field.field.auto_id }}">{{ section.title }} · {{ field.field.label }}: {{ error }}</a></li>{% endfor %}{% endfor %}{% endfor %}{% endif %}{% endfor %}
-{% for inline in inline_admin_formsets %}{% for row in inline %}{% for field in row.form.visible_fields %}{% for error in field.errors %}<li><a href="#{{ field.id_for_label }}">{{ inline.opts.verbose_name }} {{ forloop.parentloop.parentloop.counter }} · {{ field.label }}: {{ error }}</a></li>{% endfor %}{% endfor %}{{ row.form.non_field_errors }}{% endfor %}{{ inline.formset.non_form_errors }}{% endfor %}
-</ul></div>{% endif %}
-<div class="km-specialist-layout"><nav class="km-specialist-nav" aria-label="{% translate 'Разделы формы' %}"><div class="km-specialist-nav__inner"><ul class="km-nav-list">{% for section in specialist_sections %}<li><a href="#{{ section.id }}" class="km-nav-item" data-section="{{ section.id }}">{{ section.title }}</a></li>{% endfor %}</ul></div></nav>
-<div class="km-specialist-content" id="km-content">
-<div class="km-specialist-jump"><label for="specialist-section-jump">{% translate 'Раздел формы' %}</label><select id="specialist-section-jump">{% for section in specialist_sections %}<option value="{{ section.id }}">{{ section.title }}</option>{% endfor %}</select></div>
-{% for section in specialist_sections %}<section class="km-specialist-section" id="{{ section.id }}"><div class="km-section-header"><h2 tabindex="-1">{{ section.title }}</h2></div><div class="km-section-body">
-{% if section.number == 3 %}<label for="specialist-direction-search">{% translate 'Поиск направлений' %}</label><input type="search" id="specialist-direction-search" data-specialist-direction-search><p role="status" aria-live="polite" data-specialist-direction-count data-found="{% translate 'Найдено' %}" data-selected="{% translate 'Выбрано' %}"></p>{% endif %}
-{% if section.fieldset %}{% for line in section.fieldset %}<div class="km-form-row {% if line.fields|length > 1 %}km-form-row--multi{% endif %}">{% for field in line %}<div class="km-field {% if field.field.name == 'specializations' %}km-field--specializations{% endif %}">{% if field.is_readonly and field.field.name == 'owner' %}<label>{% translate 'Прежний владелец (не подтверждает личность)' %}</label>{% elif field.is_readonly and field.field.name == 'created_by' %}<label>{% translate 'Автор предложения' %}</label>{% elif field.is_readonly and field.field.name == 'verified_person_user' %}<label>{% translate 'Подтверждённый специалист (аккаунт человека)' %}</label>{% else %}{{ field.label_tag }}{% endif %}{% if field.is_readonly %}<div class="readonly">{{ field.contents }}</div>{% else %}{{ field.field }}{% endif %}{{ field.errors }}{% if field.field.help_text %}<p class="help" id="{{ field.field.id_for_label }}_helptext">{{ field.field.help_text }}</p>{% endif %}</div>{% endfor %}</div>{% endfor %}
-{% elif section.inline %}<div class="km-inline-body" id="{% if section.number == 10 %}documents-group-wrapper{% else %}practice_locations-group-wrapper{% endif %}">{% with inline_admin_formset=section.inline %}{% include inline_admin_formset.opts.template %}{% endwith %}</div>
-{% elif section.unavailable %}<p>{% translate 'Изменение мест приёма недоступно вашей роли.' %}</p>
-{% elif section.private %}<p>{% translate 'Документы личности приватны. Их проверка доступна только специально уполномоченному проверяющему.' %}</p>{% endif %}
-</div></section>{% endfor %}
-</div></div>
-<div class="km-specialist-sticky-footer"><span role="status" aria-live="polite" data-specialist-save-status data-error="{% translate 'Изменения не сохранены. Проверьте ошибки.' %}" data-dirty="{% translate 'Есть несохранённые изменения' %}" data-saving="{% translate 'Сохранение… Дождитесь ответа сервера.' %}">{% if original %}{% translate 'Сохранено на сервере' %}: {{ original.updated_at }}{% else %}{% translate 'Новый профиль ещё не сохранён' %}{% endif %}</span>{% submit_row %}</div>
-</form>
-<script id="django-admin-form-add-constants" src="{% static 'admin/js/change_form.js' %}" {% if adminform and add %}data-model-name="{{ opts.model_name }}"{% endif %} async></script>
-<script id="django-admin-prepopulated-fields-constants" src="{% static 'admin/js/prepopulate_init.js' %}" data-prepopulated-fields="[]"></script>
+  <form data-has-errors="{{ errors|yesno:'true,false' }}" action="{{ form_url }}" method="post" enctype="multipart/form-data" id="{{ opts.model_name }}_form" novalidate>
+    {% csrf_token %}
+    {% if original %}<input type="hidden" name="expected_updated_at" value="{{ specialist_expected_updated_at }}">{% endif %}
+    {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+    {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+
+    {# Hero Specialist Profile Banner #}
+    <div class="km-specialist-header">
+      <div class="km-specialist-profile-hero">
+        <div class="km-specialist-hero__avatar">
+          {% if original.photo %}
+            <img src="{{ original.photo.url }}" alt="{{ original.name }}" class="km-hero-photo">
+          {% else %}
+            <div class="km-hero-photo-placeholder">
+              <i class="fas fa-user-md" aria-hidden="true"></i>
+            </div>
+          {% endif %}
+        </div>
+        <div class="km-specialist-hero__details">
+          <div class="km-specialist-hero__title-row">
+            <h1 class="km-specialist-hero__name">{% if add %}{% translate 'Добавить профиль специалиста' %}{% else %}{{ original.name }}{% endif %}</h1>
+            {% if not add and original and original.slug %}
+              <a href="{% url 'specialist_detail' original.slug %}" target="_blank" rel="noopener noreferrer" class="km-btn-view-site" title="{% translate 'Открыть публичную страницу специалиста' %}">
+                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                <span>{% translate 'Смотреть на сайте' %}</span>
+              </a>
+            {% endif %}
+          </div>
+
+          {% if not add and original %}
+            <div class="km-specialist-hero__badges">
+              {% if original.status == 'published' %}
+                <span class="km-status-pill km-status-pill--published"><i class="fas fa-check-circle" aria-hidden="true"></i> {% translate 'Опубликован' %}</span>
+              {% elif original.status == 'pending' %}
+                <span class="km-status-pill km-status-pill--pending"><i class="fas fa-clock" aria-hidden="true"></i> {% translate 'На модерации' %}</span>
+              {% elif original.status == 'rejected' %}
+                <span class="km-status-pill km-status-pill--rejected"><i class="fas fa-times-circle" aria-hidden="true"></i> {% translate 'Отклонён' %}</span>
+              {% else %}
+                <span class="km-status-pill km-status-pill--draft"><i class="fas fa-pencil-alt" aria-hidden="true"></i> {% translate 'Черновик' %}</span>
+              {% endif %}
+
+              {% if original.is_active %}
+                <span class="km-status-pill km-status-pill--active"><i class="fas fa-eye" aria-hidden="true"></i> {% translate 'В каталоге' %}</span>
+              {% else %}
+                <span class="km-status-pill km-status-pill--inactive"><i class="fas fa-eye-slash" aria-hidden="true"></i> {% translate 'Скрыт' %}</span>
+              {% endif %}
+
+              {% if original.person_verified_at or original.verified_person_user %}
+                <span class="km-status-pill km-status-pill--verified"><i class="fas fa-user-shield" aria-hidden="true"></i> {% translate 'Личность подтверждена' %}</span>
+              {% else %}
+                <span class="km-status-pill km-status-pill--unverified"><i class="fas fa-user-clock" aria-hidden="true"></i> {% translate 'Не подтверждён' %}</span>
+              {% endif %}
+
+              {% if original.consultation_format == 'online' %}
+                <span class="km-status-pill km-status-pill--format"><i class="fas fa-laptop" aria-hidden="true"></i> {% translate 'Онлайн' %}</span>
+              {% elif original.consultation_format == 'offline' %}
+                <span class="km-status-pill km-status-pill--format"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> {% translate 'Очно' %}</span>
+              {% elif original.consultation_format == 'both' %}
+                <span class="km-status-pill km-status-pill--format"><i class="fas fa-globe" aria-hidden="true"></i> {% translate 'Онлайн и очно' %}</span>
+              {% endif %}
+
+              {% if original.rating_count %}
+                <span class="km-status-pill km-status-pill--rating"><i class="fas fa-star" aria-hidden="true"></i> {{ original.rating_avg }} ({{ original.rating_count }})</span>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          <div class="km-specialist-hero__notice">
+            <i class="fas fa-info-circle km-notice-icon" aria-hidden="true"></i>
+            <span>{% translate 'Автор предложения, подтверждённый специалист и организация — разные стороны. Место приёма указывается отдельно от сотрудничества.' %}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Errors banner #}
+    {% if errors %}
+      <div class="km-error-banner" role="alert" tabindex="-1" data-specialist-errors>
+        <h2>{% translate 'Проверьте поля формы.' %}</h2>
+        {{ adminform.form.non_field_errors }}
+        <ul>
+          {% for section in specialist_sections %}
+            {% if section.fieldset %}
+              {% for line in section.fieldset %}
+                {% for field in line %}
+                  {% for error in field.field.errors %}
+                    <li><a href="#{{ field.field.id_for_label|default:field.field.auto_id }}">{{ section.title }} · {{ field.field.label }}: {{ error }}</a></li>
+                  {% endfor %}
+                {% endfor %}
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+          {% for inline in inline_admin_formsets %}
+            {% for row in inline %}
+              {% for field in row.form.visible_fields %}
+                {% for error in field.errors %}
+                  <li><a href="#{{ field.id_for_label }}">{{ inline.opts.verbose_name }} {{ forloop.parentloop.parentloop.counter }} · {{ field.label }}: {{ error }}</a></li>
+                {% endfor %}
+              {% endfor %}
+              {{ row.form.non_field_errors }}
+            {% endfor %}
+            {{ inline.formset.non_form_errors }}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    {# Main 2-column layout: Sticky Nav + Content #}
+    <div class="km-specialist-layout">
+      <nav class="km-specialist-nav" aria-label="{% translate 'Разделы формы' %}">
+        <div class="km-specialist-nav__inner">
+          <div class="km-nav-header">
+            <span class="km-nav-header__title"><i class="fas fa-layer-group" aria-hidden="true"></i> {% translate 'Разделы анкеты' %}</span>
+            <span class="km-nav-header__count">12</span>
+          </div>
+          <ul class="km-nav-list">
+            {% for section in specialist_sections %}
+              <li>
+                <a href="#{{ section.id }}" class="km-nav-item" data-section="{{ section.id }}">
+                  <span class="km-nav-num">{{ section.number }}</span>
+                  <span class="km-nav-icon">
+                    {% if section.number == 1 %}<i class="fas fa-id-card" aria-hidden="true"></i>
+                    {% elif section.number == 2 %}<i class="fas fa-camera" aria-hidden="true"></i>
+                    {% elif section.number == 3 %}<i class="fas fa-shapes" aria-hidden="true"></i>
+                    {% elif section.number == 4 %}<i class="fas fa-child" aria-hidden="true"></i>
+                    {% elif section.number == 5 %}<i class="fas fa-language" aria-hidden="true"></i>
+                    {% elif section.number == 6 %}<i class="fas fa-laptop-house" aria-hidden="true"></i>
+                    {% elif section.number == 7 %}<i class="fas fa-receipt" aria-hidden="true"></i>
+                    {% elif section.number == 8 %}<i class="fas fa-map-marked-alt" aria-hidden="true"></i>
+                    {% elif section.number == 9 %}<i class="fas fa-user-graduate" aria-hidden="true"></i>
+                    {% elif section.number == 10 %}<i class="fas fa-file-signature" aria-hidden="true"></i>
+                    {% elif section.number == 11 %}<i class="fas fa-address-book" aria-hidden="true"></i>
+                    {% elif section.number == 12 %}<i class="fas fa-shield-alt" aria-hidden="true"></i>
+                    {% else %}<i class="fas fa-circle" aria-hidden="true"></i>{% endif %}
+                  </span>
+                  <span class="km-nav-text">{{ section.title }}</span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </nav>
+
+      <div class="km-specialist-content" id="km-content">
+        <div class="km-specialist-jump">
+          <label for="specialist-section-jump">{% translate 'Раздел формы' %}</label>
+          <select id="specialist-section-jump">
+            {% for section in specialist_sections %}
+              <option value="{{ section.id }}">{{ section.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {% for section in specialist_sections %}
+          <section class="km-specialist-section" id="{{ section.id }}">
+            <div class="km-section-header">
+              <span class="km-section-header__num">{{ section.number }}</span>
+              <h2 tabindex="-1">{{ section.title }}</h2>
+            </div>
+            <div class="km-section-body km-section-body--sec{{ section.number }}">
+              {% if section.number == 3 %}
+                <div class="km-specialist-search-box">
+                  <i class="fas fa-search km-search-icon" aria-hidden="true"></i>
+                  <input type="search" id="specialist-direction-search" data-specialist-direction-search placeholder="{% translate 'Поиск направлений деятельности…' %}" aria-label="{% translate 'Поиск направлений' %}">
+                  <span role="status" aria-live="polite" data-specialist-direction-count data-found="{% translate 'Найдено' %}" data-selected="{% translate 'Выбрано' %}" class="km-direction-count-pill"></span>
+                </div>
+              {% endif %}
+
+              {% if section.fieldset %}
+                {% for line in section.fieldset %}
+                  <div class="km-form-row {% if line.fields|length > 1 %}km-form-row--multi{% endif %}">
+                    {% for field in line %}
+                      <div class="km-field km-field--{{ field.field.name }} {% if field.is_readonly %}km-field--readonly{% endif %} {% if field.field.name == 'specializations' %}km-field--specializations{% endif %}">
+                        {% if field.is_readonly and field.field.name == 'owner' %}
+                          <label><i class="fas fa-user-clock" aria-hidden="true"></i> {% translate 'Прежний владелец (не подтверждает личность)' %}</label>
+                        {% elif field.is_readonly and field.field.name == 'created_by' %}
+                          <label><i class="fas fa-user-pen" aria-hidden="true"></i> {% translate 'Автор предложения' %}</label>
+                        {% elif field.is_readonly and field.field.name == 'verified_person_user' %}
+                          <label><i class="fas fa-user-check" aria-hidden="true"></i> {% translate 'Подтверждённый специалист (аккаунт человека)' %}</label>
+                        {% elif field.is_readonly and field.field.name == 'identity_verification_date' %}
+                          <label><i class="fas fa-calendar-check" aria-hidden="true"></i> {% translate 'Дата подтверждения личности' %}</label>
+                        {% else %}
+                          {{ field.label_tag }}
+                        {% endif %}
+
+                        {% if field.is_readonly %}
+                          <div class="readonly">{{ field.contents }}</div>
+                        {% else %}
+                          {{ field.field }}
+                        {% endif %}
+
+                        {{ field.errors }}
+                        {% if field.field.help_text %}
+                          <p class="help" id="{{ field.field.id_for_label }}_helptext">{{ field.field.help_text }}</p>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endfor %}
+              {% elif section.inline %}
+                <div class="km-inline-body" id="{% if section.number == 10 %}documents-group-wrapper{% else %}practice_locations-group-wrapper{% endif %}">
+                  {% with inline_admin_formset=section.inline %}
+                    {% include inline_admin_formset.opts.template %}
+                  {% endwith %}
+                </div>
+              {% elif section.unavailable %}
+                <div class="km-section-notice km-section-notice--warning">
+                  <i class="fas fa-lock" aria-hidden="true"></i>
+                  <span>{% translate 'Изменение мест приёма недоступно вашей роли.' %}</span>
+                </div>
+              {% elif section.private %}
+                <div class="km-section-notice km-section-notice--info">
+                  <i class="fas fa-user-shield" aria-hidden="true"></i>
+                  <span>{% translate 'Документы личности приватны. Их проверка доступна только специально уполномоченному проверяющему.' %}</span>
+                </div>
+              {% endif %}
+            </div>
+          </section>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# Sticky footer with server status and submit buttons #}
+    <div class="km-specialist-sticky-footer">
+      <div class="km-footer-status">
+        <i class="fas fa-cloud-check km-footer-cloud-icon" aria-hidden="true"></i>
+        <span role="status" aria-live="polite" data-specialist-save-status data-error="{% translate 'Изменения не сохранены. Проверьте ошибки.' %}" data-dirty="{% translate 'Есть несохранённые изменения' %}" data-saving="{% translate 'Сохранение… Дождитесь ответа сервера.' %}">
+          {% if original %}{% translate 'Сохранено на сервере' %}: {{ original.updated_at }}{% else %}{% translate 'Новый профиль ещё не сохранён' %}{% endif %}
+        </span>
+      </div>
+      <div class="km-footer-actions">
+        {% submit_row %}
+        {% if original and original.status == 'published' %}
+          <a href="{{ original.get_absolute_url }}" target="_blank" rel="noopener noreferrer" class="km-btn km-btn--sidebar" style="border: 1.5px solid #acc4b5; background: #fff; color: #174a2b; font-size: 13px; font-weight: 600; border-radius: 9px; padding: 8px 14px; min-height: 38px; display: inline-flex; align-items: center; text-decoration: none;">{% translate "На сайте ↗" %}</a>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+
+  <script id="django-admin-form-add-constants" src="{% static 'admin/js/change_form.js' %}" {% if adminform and add %}data-model-name="{{ opts.model_name }}"{% endif %} async></script>
+  <script id="django-admin-prepopulated-fields-constants" src="{% static 'admin/js/prepopulate_init.js' %}" data-prepopulated-fields="[]"></script>
 </div>
 {% endblock %}

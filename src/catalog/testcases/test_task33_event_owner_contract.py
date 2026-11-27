@@ -21,12 +21,13 @@ class EventOwnerContractTests(TestCase):
         data={'name_az':'Online event','category':self.category.code,'organizer_organization':str(self.org.pk),'event_format':'online','event_date':'2035-02-04','start_time_input':'00:00','end_time_input':'01:00','form_action':'save_draft'}
         data.update(extra);return data
 
-    def test_form_limits_organizer_and_requires_explicit_choice_even_draft(self):
+    def test_form_limits_organizer_and_defaults_single_eligible_choice(self):
         form=OwnerEventForm(user=self.user,data=self.data(organizer_organization=str(self.foreign.pk)),draft_save_only=True)
         self.assertFalse(form.is_valid())
         self.assertIn('organizer_organization',form.errors)
         form=OwnerEventForm(user=self.user,data=self.data(organizer_organization=''),draft_save_only=True)
-        self.assertFalse(form.is_valid())
+        self.assertTrue(form.is_valid(),form.errors)
+        self.assertEqual(form.cleaned_data['organizer_organization'],self.org)
 
     def test_online_form_uses_baku_even_under_foreign_timezone_override(self):
         with timezone.override(ZoneInfo('America/New_York')):
@@ -109,7 +110,7 @@ class EventOwnerContractTests(TestCase):
         data={'name':'Online','name_az':'Online','description_az':'Online description','category':self.category.code,
             'organizer_organization':self.org.pk,'event_format':'online','status':'published',
             'expected_updated_at':event.updated_at.isoformat(),
-            'start_datetime':'2035-02-04 00:00','end_datetime':'2035-02-04 01:00','phone':'+994501234567'}
+            'start_datetime':'2035-02-04 00:00','end_datetime':'2035-02-04 01:00','phone':'+994501234567','price_mode':'unknown'}
         with timezone.override(ZoneInfo('America/New_York')):
             form=EventAdminForm(instance=event,data=data)
             self.assertTrue(form.is_valid(),form.errors)

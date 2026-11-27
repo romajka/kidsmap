@@ -19,6 +19,7 @@
             data-gallery-card-state="{% if inline_admin_form.original or form.instance.image %}filled{% else %}empty{% endif %}"
             draggable="true"
           >
+            <span class="km-photo-card__order-badge" aria-hidden="true"></span>
             <button type="button" class="km-photo-card__remove" data-gallery-remove aria-label="{% translate 'Удалить фото' %}">
               <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
             </button>

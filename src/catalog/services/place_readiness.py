@@ -15,6 +15,7 @@ stored card and to the form the editor is looking at right now.
 from __future__ import annotations
 
 from dataclasses import dataclass, field as dataclass_field
+from math import isfinite
 from typing import Callable
 
 from django.utils.translation import gettext_lazy as _
@@ -221,7 +222,7 @@ def _check_coordinates(data: PlaceReadinessData):
             "missing_coordinates",
             _("Поставьте точку на карте или обновите координаты по адресу. Адрес координаты не заменяет."),
         )
-    if not (-90 <= data.lat <= 90) or not (-180 <= data.lng <= 180):
+    if not (isfinite(data.lat) and isfinite(data.lng) and -90 <= data.lat <= 90 and -180 <= data.lng <= 180):
         return ("invalid_coordinates", _("Координаты вне допустимого диапазона — поставьте точку на карте заново."))
     return None
 
@@ -461,9 +462,8 @@ def _advice_cover_photo_as_main(data: PlaceReadinessData) -> ReadinessIssue | No
     )
 
 
-# Quality advice: shown to the editor, never counted in the twelve and never a
-# reason to refuse publication.
-PLACE_READINESS_REQUIREMENTS = tuple(item for item in PLACE_READINESS_REQUIREMENTS if item.code not in {"photo", "coordinates"})
+# Photos remain optional; coordinates are mandatory for physical places.
+PLACE_READINESS_REQUIREMENTS = tuple(item for item in PLACE_READINESS_REQUIREMENTS if item.code != "photo")
 
 PLACE_READINESS_ADVICE = (
     _advice_short_description,
@@ -476,8 +476,6 @@ def evaluate_readiness(data: PlaceReadinessData) -> PlaceReadiness:
 
     items = []
     for requirement in PLACE_READINESS_REQUIREMENTS:
-        if requirement.code in {"photo", "coordinates"}:
-            continue
         failure = requirement.check(data)
         issue = None
         if failure is not None:

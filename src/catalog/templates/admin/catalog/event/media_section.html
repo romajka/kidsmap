@@ -26,7 +26,7 @@
       </div>
       <div class="km-media-main__bottom">
         <div class="km-media-main__actions">
-          {% if obj.pk and obj.get_absolute_url %}<a class="km-media-main__view" href="{{ obj.get_absolute_url }}" target="_blank" rel="noopener">{% translate "Посмотреть как на сайте" %}</a>{% endif %}
+          {% if obj.is_public %}<a class="km-media-main__view" href="{{ obj.get_absolute_url }}" target="_blank" rel="noopener">{% translate "Посмотреть на сайте" %}</a>{% endif %}
           <button type="button" class="km-media-main__pick" data-main-photo-pick>{% translate "Выбрать фото" %}</button>
           <button type="button" class="km-media-main__clear" data-main-photo-clear>{% translate "Удалить" %}</button>
         </div>
@@ -34,14 +34,14 @@
       </div>
     </div>
 
-    <section class="km-gallery-section" aria-labelledby="km-event-gallery-title">
-      <div class="km-gallery-section__head">
+    <details class="km-gallery-section km-event-extra" aria-labelledby="km-event-gallery-title">
+      <summary class="km-gallery-section__head">
         <div>
           <h3 id="km-event-gallery-title" class="km-gallery-section__title">{% translate "Дополнительные фото" %}</h3>
           <p class="km-gallery-section__description">{% translate "Добавьте до 10 фотографий мероприятия. Их можно перетаскивать для изменения порядка." %}</p>
         </div>
         <div class="km-gallery-section__status"><span class="km-gallery-section__counter">{% translate "Загружено" %}</span><strong class="km-gallery-section__counter-value" data-gallery-count-value>0 / 10</strong></div>
-      </div>
+      </summary>
       <div class="km-gallery-empty-state" data-gallery-empty-state style="display:none">
         <p class="km-gallery-empty-state__text">{% translate "Дополнительные фото не добавлены" %}</p>
         <p class="km-gallery-empty-state__meta" data-gallery-count-empty>{% translate "Сейчас загружено 0 из 10 фото" %}</p>
@@ -50,11 +50,7 @@
       {% if gallery_inline %}
         {% include "admin/catalog/place/placephoto_inline.html" with inline_admin_formset=gallery_inline %}
       {% endif %}
-    </section>
+    </details>
 
-    <div class="km-media-event-status">
-      <div class="form-group">{{ form.status.label_tag }}{{ form.status }}{{ form.status.errors }}</div>
-      {% if not add %}<div class="form-group">{{ form.published_at.label_tag }}{{ form.published_at }}{{ form.published_at.errors }}</div>{% endif %}
-    </div>
   </div>
 {% endwith %}

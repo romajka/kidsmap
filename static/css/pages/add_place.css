@@ -702,23 +702,119 @@
 }
 
 @media (max-width: 600px) {
+  .page-add_place .site-shell,
+  .page-for_business .site-shell {
+    width: calc(100% - 20px);
+    margin: 10px auto 40px;
+  }
+
+  .add-place-wrapper {
+    gap: 16px;
+  }
+
   .add-place-hero__content {
     max-width: 100%;
-    padding: 24px 18px;
+    padding: 20px 16px;
   }
 
   .add-place-hero__actions {
     width: 100%;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .add-place-btn-primary,
   .add-place-btn-secondary {
     width: 100%;
+    min-height: 44px;
     justify-content: center;
   }
 
   .add-place-stats-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
+  .add-place-stat-box {
+    padding: 12px 14px;
+    border-radius: 14px;
+    gap: 12px;
+  }
+
+  .add-place-stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 20px;
+  }
+
+  .add-place-stat-value {
+    font-size: 20px;
+  }
+
+  .add-place-stat-label {
+    font-size: 12.5px;
+  }
+
+  .add-place-steps-grid {
+    gap: 12px;
+  }
+
+  .add-place-step-card {
+    padding: 14px 14px;
+    border-radius: 14px;
+    gap: 10px;
+  }
+
+  .add-place-step-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    font-size: 17px;
+  }
+
+  .add-place-details-grid {
+    gap: 12px;
+  }
+
+  .add-place-detail-card {
+    padding: 16px 14px;
+    border-radius: 16px;
+    gap: 12px;
+  }
+
+  .add-place-detail-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    font-size: 22px;
+  }
+
+  .add-place-detail-title {
+    font-size: 16.5px;
+  }
+
+  .add-place-detail-list li {
+    font-size: 13.5px;
+    gap: 8px;
+  }
+
+  .add-place-bottom-cta {
+    padding: 20px 16px;
+    border-radius: 18px;
+    gap: 18px;
+  }
+
+  .add-place-cta-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .add-place-cta-btn-white,
+  .add-place-cta-btn-outline {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
 }

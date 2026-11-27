@@ -1,3 +1,98 @@
+/* Filter button next to search CTA in primary row */
+body.page-home .home-search-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 50px;
+  min-height: 50px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: #f7f9f5;
+  border: 1.5px solid rgba(15, 23, 42, 0.09);
+  color: #15221b;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  user-select: none;
+}
+
+body.page-home .home-search-filter-btn:hover {
+  background: #ffffff;
+  border-color: rgba(19, 111, 56, 0.35);
+  color: var(--home-green, #136f38);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(19, 111, 56, 0.1);
+}
+
+body.page-home .home-search-filter-btn:active {
+  transform: scale(0.98);
+}
+
+body.page-home .home-search-filter-btn.is-active,
+body.page-home .home-search-filter-btn[aria-expanded="true"] {
+  background: #eaf8ee;
+  border-color: #0d8a52;
+  color: #0d8a52;
+  box-shadow: 0 0 0 3px rgba(13, 138, 82, 0.12);
+}
+
+body.page-home .home-search-filter-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--home-green, #136f38);
+  transition: transform 0.2s ease;
+}
+
+body.page-home .home-search-filter-btn.is-active .home-search-filter-btn__icon {
+  color: #0d8a52;
+}
+
+body.page-home .home-search-filter-btn__label {
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+body.page-home .home-search-filter-btn__badge {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0d8a52;
+  box-shadow: 0 0 0 2px #ffffff;
+}
+
+body.page-home .home-search-filter-btn__badge[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  body.page-home .home-search-filter-btn {
+    height: 44px !important;
+    min-height: 44px !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+  }
+  body.page-home .home-search-filter-btn__label {
+    display: none !important;
+  }
+  body.page-home .home-search-filter-btn__badge {
+    top: 7px;
+    right: 7px;
+  }
+}
+
 /* Quick Access Filter Bar (Compact & Expandable Accordion) */
 body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine {
   margin-top: 10px;

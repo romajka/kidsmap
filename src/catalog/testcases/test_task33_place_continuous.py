@@ -28,12 +28,12 @@ class ContinuousPlaceFormTests(TestCase):
         self.assertContains(response, 'data-pc-add-activity')
         self.assertContains(response, 'name="publication_token"')
 
-    def test_submission_summary_does_not_make_map_and_photos_mandatory(self):
+    def test_submission_summary_requires_map_but_photos_remain_optional(self):
         response = self.client.get(reverse('owner_place_create') + '?type=permanent')
         summary = response.context['form'].submission_readiness
-        self.assertEqual(summary['required_count'], 10)
+        self.assertEqual(summary['required_count'], 11)
         self.assertNotIn('photo', [item['code'] for item in summary['items']])
-        self.assertNotIn('coordinates', [item['code'] for item in summary['items']])
+        self.assertIn('coordinates', [item['code'] for item in summary['items']])
         self.assertTrue(summary['issues'])
 
     def test_submission_summary_counts_group_tariff_without_general_ticket(self):
@@ -45,7 +45,7 @@ class ContinuousPlaceFormTests(TestCase):
             'name_az': 'Rəsm mərkəzi', 'description_az': 'Uşaqlar üçün rəsm dərsləri.',
             'category': 'EDU', 'subcategory': str(subcategory.pk), 'nature': 'business',
             'age_from': '0', 'age_to': '12', 'region': 'baku', 'district': 'baku_yasamal',
-            'address': 'QA küçəsi 1', 'schedule_mode': 'always_open',
+            'lat': '40.4', 'lng': '49.8', 'address': 'QA küçəsi 1', 'schedule_mode': 'always_open',
             'website': 'https://example.invalid', 'pricing_plans': '[]',
             'nested_pricing': json.dumps({'pricing_schema_version': 2, 'activities': [{
                 'name_az': 'Rəsm', 'description_az': 'Rəsm dərsləri', 'groups': [{
@@ -112,7 +112,7 @@ class ContinuousPlaceFormTests(TestCase):
         self.place.refresh_from_db()
         self.assertEqual(self.place.nature, original_nature)
 
-    def test_public_space_can_submit_without_organization_photo_coordinates_or_contact(self):
+    def test_public_space_can_submit_with_point_without_organization_photo_or_contact(self):
         import json
         from catalog.testcases.utils import ensure_quality_subcategory
         from catalog.models import Category, Subcategory
@@ -125,6 +125,7 @@ class ContinuousPlaceFormTests(TestCase):
             'category': category.pk, 'subcategory': str(subcategory.pk),
             'nature': 'public_space', 'age_from': '0', 'age_to': '18',
             'region': 'baku', 'district': 'baku_yasamal', 'address': 'Bakı, park girişi',
+            'lat': '40.4', 'lng': '49.8',
             'schedule_mode': 'always_open',
             'pricing_plans': json.dumps([{'product_type': 'admission', 'price_kind': 'free', 'is_active': True}]),
             'phone1': '', 'phone2': '', 'phone3': '', 'website': '',
@@ -135,7 +136,7 @@ class ContinuousPlaceFormTests(TestCase):
         self.assertEqual(candidate['name_az'], 'Yeni ictimai park')
         self.assertNotIn('nature', candidate)
         self.assertFalse(candidate.get('photo'))
-        self.assertIsNone(candidate.get('lat'))
+        self.assertEqual(candidate.get('lat'), 40.4)
         self.assertIsNone(created.organization_id)
 
     def test_business_needs_one_allowed_contact_and_does_not_need_translation(self):
@@ -147,7 +148,7 @@ class ContinuousPlaceFormTests(TestCase):
             'description_az': 'Uşaqlar üçün maraqlı dərslər və rahat mühit təqdim edən mərkəz.',
             'category': 'EDU', 'subcategory': str(subcategory.pk), 'nature': 'business',
             'age_from': '5', 'age_to': '12', 'region': 'baku', 'district': 'baku_yasamal',
-            'address': 'Bakı, mərkəz küçəsi 1', 'schedule_mode': 'always_open',
+            'lat': '40.4', 'lng': '49.8', 'address': 'Bakı, mərkəz küçəsi 1', 'schedule_mode': 'always_open',
             'pricing_plans': json.dumps([{'product_type':'lesson','price_kind':'exact','price':'20','is_active':True}]),
         }
         missing = self.client.post(reverse('owner_place_create'), payload)
@@ -174,7 +175,7 @@ class ContinuousPlaceFormTests(TestCase):
             'description_az':'Uşaqlar üçün böyük açıq park və ümumi giriş biletləri.',
             'nature':'public_space','category':category.pk,'subcategory':str(subcategory.pk),
             'age_from':'0','age_to':'18','region':'baku','district':'baku_yasamal',
-            'address':'Bakı, park yolu 1','schedule_mode':'always_open','pricing_plans':json.dumps(plans),
+            'lat': '40.4', 'lng': '49.8', 'address':'Bakı, park yolu 1','schedule_mode':'always_open','pricing_plans':json.dumps(plans),
         })
         self.assertEqual(response.status_code,302,response.context['form'].errors if response.context else response.content[:100])
         candidate = VolunteerPlaceRevision.objects.get(payload__name_az='Ümumi biletli park').payload
@@ -203,7 +204,7 @@ class ContinuousPlaceFormTests(TestCase):
             'description_az': 'Uşaqlar üçün rəsm dərsləri və yaradıcılıq mərkəzi.',
             'category': 'EDU', 'subcategory': str(subcategory.pk), 'nature': 'business',
             'age_from': '5', 'age_to': '8', 'region': 'baku', 'district': 'baku_yasamal',
-            'address': 'Bakı, rəsm küçəsi 1', 'schedule_mode': 'always_open',
+            'lat': '40.4', 'lng': '49.8', 'address': 'Bakı, rəsm küçəsi 1', 'schedule_mode': 'always_open',
             'website': 'https://example.org', 'pricing_plans': '[]',
             'nested_pricing': json.dumps(nested),
         })

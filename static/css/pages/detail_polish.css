@@ -54,3 +54,95 @@
 @media (prefers-reduced-motion: reduce) {
  .detail-page *, .detail-page *::before, .detail-page *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Unified place detail layout: single cohesive grid with sticky sidebar */
+.detail-page .detail-body {
+  display: grid;
+  grid-template-areas:
+    "media    sidebar"
+    "main     sidebar";
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 424px);
+  gap: 24px;
+  margin-top: 20px;
+  align-items: start;
+}
+
+.detail-page .detail-hero__media {
+  grid-area: media;
+  min-width: 0;
+  margin-bottom: 24px;
+}
+
+.detail-page .detail-main {
+  grid-area: main;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.detail-page .detail-side {
+  grid-area: sidebar;
+  min-width: 0;
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-page .detail-decision {
+  box-shadow: none;
+  gap: 16px;
+}
+
+.detail-decision__address-link {
+  color: var(--detail-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--tint-turf-300, #a8d59b);
+  text-underline-offset: 3px;
+  transition: color .15s ease, text-decoration-color .15s ease;
+}
+
+.detail-decision__address-link:hover {
+  color: var(--brand-turf);
+  text-decoration-color: var(--brand-turf);
+}
+
+.detail-page .detail-section-nav {
+  display: none !important;
+}
+
+@media (max-width: 980px) {
+  .detail-page .detail-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .detail-page .detail-hero__media {
+    order: 1;
+    margin-bottom: 0;
+  }
+  .detail-page .detail-side {
+    order: 2;
+    position: static;
+    display: contents;
+  }
+  .detail-page .detail-decision {
+    order: 2;
+  }
+  .detail-page .detail-main {
+    order: 3;
+    gap: 0;
+  }
+  .detail-page .detail-share {
+    order: 4;
+  }
+  .detail-page .detail-disclaimer {
+    order: 5;
+  }
+  .detail-page .detail-sponsor-slot {
+    order: 6;
+  }
+}
+

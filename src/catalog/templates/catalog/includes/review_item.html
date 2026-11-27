@@ -16,7 +16,19 @@
 
   {% if show_place_link and review.place %}
     <a class="review-place-card" href="{{ review.place.get_absolute_url }}" aria-label="{% blocktrans with name=review.place.name_i18n %}Открыть страницу места: {{ name }}{% endblocktrans %}">
-      <span class="review-place-card__icon" aria-hidden="true"></span>
+      {% if review.place.has_public_image and review.place.public_image_url %}
+        <span class="review-place-card__thumb" aria-hidden="true">
+          <img class="review-place-card__img" src="{{ review.place.public_image_url }}" alt="{{ review.place.name_i18n }}" loading="lazy" decoding="async">
+        </span>
+      {% else %}
+        <span class="review-place-card__thumb review-place-card__thumb--category{% if review.place.category %} cat-{{ review.place.category.code|lower }}{% endif %}" aria-hidden="true"{% if review.place.category %} style="--cat-bg: {{ review.place.category.resolved_color_bg|default:'#e8f5e9' }}; --cat-color: {{ review.place.category.resolved_color_text|default:'#2e7d32' }};"{% endif %}>
+          {% if review.place.category %}
+            {% include "catalog/includes/category_visual_icon.html" with code=review.place.category_code icon_file_url=review.place.category.icon_file_url icon_is_svg=review.place.category.icon_is_svg icon_is_font=review.place.category.icon_is_font_class icon_name=review.place.category.icon_name %}
+          {% else %}
+            <span class="review-place-card__icon" aria-hidden="true"></span>
+          {% endif %}
+        </span>
+      {% endif %}
       <span class="review-place-card__copy">
         <span class="review-place-card__label">{% trans "Отзыв о месте" %}</span>
         <strong>{{ review.place.name_i18n }}</strong>

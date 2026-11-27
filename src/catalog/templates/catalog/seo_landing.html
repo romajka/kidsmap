@@ -12,13 +12,60 @@
 
 {% block content %}
   {% include "catalog/includes/breadcrumbs.html" with items=seo_breadcrumb_items %}
-  <section class="panel">
-    <h1>{{ seo_page.title }}</h1>
-    <p>{{ seo_page.intro }}</p>
-    <p class="seo-landing-results-count">{{ seo_matching_count_label }}</p>
-    <p>
-      <a class="btn" href="{% url 'place_list' %}{{ seo_page.catalog_query }}">{% trans "Перейти в каталог" %}</a>
-    </p>
+  <section class="panel seo-landing-hero">
+    <div class="seo-landing-hero__main">
+      <div class="seo-landing-hero__header">
+        <span class="seo-landing-hero__badge">
+          <svg class="seo-landing-hero__badge-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Yoxlanılmış seçim{% elif request.LANGUAGE_CODE == 'en' %}Verified selection{% else %}Проверенная подборка{% endif %}</span>
+        </span>
+        <h1 class="seo-landing-hero__title">{{ seo_page.title }}</h1>
+      </div>
+      <p class="seo-landing-hero__intro">{{ seo_page.intro }}</p>
+
+      <div class="seo-landing-hero__highlights">
+        <span class="seo-hero-pill seo-hero-pill--count" title="{{ seo_matching_count_label }}">
+          <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+          <strong class="seo-landing-results-count">{{ seo_matching_count_label }}</strong>
+        </span>
+        {% if seo_aggregate and seo_aggregate.age_range_label %}
+          <span class="seo-hero-pill seo-hero-pill--age" title="{{ seo_aggregate.labels.age }}">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="4"></circle><path d="M5.5 21a8.38 8.38 0 0 1 13 0"></path></svg>
+            <span>{{ seo_aggregate.age_range_label }}</span>
+          </span>
+        {% endif %}
+        {% if seo_aggregate and seo_aggregate.price_range_label %}
+          <span class="seo-hero-pill seo-hero-pill--price" title="{{ seo_aggregate.labels.price }}">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+            <span>{{ seo_aggregate.price_range_label }}</span>
+          </span>
+        {% endif %}
+      </div>
+
+      {% if seo_aggregate.districts %}
+        <div class="seo-landing-hero__districts">
+          <span class="seo-landing-hero__districts-label">{{ seo_aggregate.labels.districts }}:</span>
+          <ul class="seo-landing-hero__district-chips" aria-label="{{ seo_aggregate.labels.districts }}">
+            {% for district in seo_aggregate.districts %}
+              <li class="seo-district-chip">{{ district }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <div class="seo-landing-hero__actions">
+        <a class="btn seo-landing-hero__cta" href="{% url 'place_list' %}{{ seo_page.catalog_query }}">
+          <span>{% trans "Перейти в каталог" %}</span>
+          <span class="seo-landing-hero__cta-arrow" aria-hidden="true">→</span>
+        </a>
+        {% if seo_aggregate.rows %}
+          <a class="link-btn seo-landing-hero__compare-link" href="#comparison-table">
+            <svg viewBox="0 0 20 20" width="15" height="15" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+            <span>{{ seo_aggregate.labels.comparison_title }}</span>
+          </a>
+        {% endif %}
+      </div>
+    </div>
   </section>
 
   {% if seo_aggregate %}
@@ -68,8 +115,14 @@
       </div>
     </section>
 
-    <section class="panel seo-landing-comparison">
-      <h2>{{ seo_aggregate.labels.comparison_title }}</h2>
+    <section class="panel seo-landing-comparison" id="comparison-table">
+      <div class="seo-landing-comparison__header-row">
+        <h2>{{ seo_aggregate.labels.comparison_title }}</h2>
+        <div class="seo-table-swipe-hint" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8L22 12L18 16"/><path d="M6 12H22"/></svg>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Cədvəli sağa sürüşdürün{% elif request.LANGUAGE_CODE == 'en' %}Swipe horizontally to see all columns{% else %}Листайте таблицу вправо{% endif %}</span>
+        </div>
+      </div>
       {% if seo_aggregate.rows %}
         <div class="seo-landing-comparison__scroll">
           <table class="seo-landing-comparison__table">

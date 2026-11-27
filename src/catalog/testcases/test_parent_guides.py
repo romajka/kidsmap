@@ -97,6 +97,65 @@ class ParentGuideTests(TestCase):
         self.assertIn('category=', response.context['guide_catalog_url'])
         self.assertFalse(any(item['key'] == 'play-centers' for item in response.context['guide_quick_choices']))
 
+    def test_duplicate_venue_records_do_not_take_two_card_or_rain_answer_slots(self):
+        for i in range(5):
+            create_quality_place(name=f'Other museum {i}', name_az=f'Digər muzey {i}',
+                category='museums-culture')
+        museum = create_quality_place(name='', name_az='Synthetic Art Museum',
+            name_ru='Тестовый музей искусств', category='museums-culture',
+            website='https://museum.example/', address='Niyazi küçəsi 11/9, Bakı',
+            lat=40.363203, lng=49.831753)
+        duplicate = create_quality_place(name='', name_az='Synthetic Art Museum',
+            name_ru='Тестовый музей искусств', category='museums-culture',
+            website='https://museum.example/', address='Niyazi küçəsi 11/9, Bakı, Azərbaycan',
+            lat=40.363859, lng=49.831218)
+        for prefix in ('', '/ru', '/en'):
+            with self.subTest(prefix=prefix):
+                response = self.client.get(prefix + '/parents/baku-with-kids/')
+                cards = response.context['guide_places']
+                self.assertEqual(len(cards), 6)
+                self.assertEqual(len({museum.pk, duplicate.pk} & {p['id'] for p in cards}), 1)
+                rain = next(item for item in response.context['guide_faq'] if item.get('key') == 'rain')
+                self.assertEqual(len(rain['places']), 3)
+                self.assertEqual(len({museum.pk, duplicate.pk} & {p['id'] for p in rain['places']}), 1)
+
+    def test_separate_branches_with_the_same_name_and_website_remain_in_guide(self):
+        branches = [create_quality_place(name='', name_az='Synthetic Museum',
+            category='museums-culture', website='https://museum.example/',
+            address=address, lat=lat, lng=49.83) for address, lat in
+            (('Bakı, Birinci küçə 1', 40.36), ('Bakı, İkinci küçə 2', 40.40))]
+        cards = self.client.get('/ru/parents/baku-with-kids/').context['guide_places']
+        self.assertEqual({p['id'] for p in cards}, {p.pk for p in branches})
+
+    def test_free_answer_uses_public_tariffs_and_keeps_three_current_local_options(self):
+        from catalog.models import PricingPlan
+        free_places = []
+        for i in range(4):
+            park = create_quality_place(name=f'Free tariff park {i}', name_az=f'Pulsuz park {i}',
+                category='parks-playgrounds', price_mode=Place.PRICE_MODE_TARIFFS)
+            PricingPlan.objects.create(place=park, product_type='admission', charge_role='primary',
+                price_kind='free', price=0, is_active=True)
+            free_places.append(park)
+        mixed = create_quality_place(name='Mixed museum', category='museums-culture',
+            with_pricing_plan=True)
+        PricingPlan.objects.create(place=mixed, product_type='admission', charge_role='primary',
+            price_kind='free', price=0, is_active=True)
+        create_quality_place(name='Missing price', category='museums-culture',
+            price_from=None, price_to=None)
+        create_quality_place(name='Paid services', category='FUN', price_mode=Place.PRICE_MODE_FREE_ENTRY)
+        create_quality_place(name='Private free park', category='parks-playgrounds',
+            price_mode=Place.PRICE_MODE_FREE, status=Place.STATUS_DRAFT)
+        other_city = create_quality_place(name='Other city free park', category='parks-playgrounds',
+            price_mode=Place.PRICE_MODE_FREE)
+        Place.objects.filter(pk=other_city.pk).update(district='ganja',
+            address='Gəncə şəhəri, park', lat=40.6828, lng=46.3606)
+        for prefix in ('', '/ru', '/en'):
+            with self.subTest(prefix=prefix):
+                response = self.client.get(prefix + '/parents/baku-with-kids/')
+                answer = next(item for item in response.context['guide_faq'] if item.get('key') == 'free')
+                self.assertEqual([p['id'] for p in answer['places']], [p.pk for p in reversed(free_places[1:])])
+                self.assertNotContains(response, answer['empty_text'])
+
     def test_place_selection_represents_directions_before_filling_with_newer_museums(self):
         park = create_quality_place(name='Park fixture', category='parks-playgrounds')
         play = create_quality_place(name='Play fixture', category='FUN',
@@ -284,3 +343,25 @@ class ParentGuideTests(TestCase):
         response = self.client.head('/parents/sport/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'')
+
+    def test_parent_guides_root_redirects_to_flagship_guide(self):
+        for path, expected_target in (
+            ('/parents/', '/parents/baku-with-kids/'),
+            ('/ru/parents/', '/ru/parents/baku-with-kids/'),
+            ('/en/parents/', '/en/parents/baku-with-kids/'),
+        ):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertRedirects(response, expected_target, status_code=302, target_status_code=200)
+
+    def test_parent_guides_root_with_foreign_query_canonicalizes_and_redirects(self):
+        response = self.client.get('/ru/parents/?ref=search', follow=True)
+        self.assertEqual(
+            response.redirect_chain,
+            [('/ru/parents/', 301), ('/ru/parents/baku-with-kids/', 302)],
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_parent_guides_root_post_is_not_allowed(self):
+        self.assertEqual(self.client.post('/parents/', {}).status_code, 405)
+
