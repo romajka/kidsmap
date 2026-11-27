@@ -921,8 +921,8 @@ class TestPublicPagesSmoke(TestCase):
         content = response.content.decode()
         ordered_markers = (
             'class="home-hero panel',
-            'class="home-places-rail"',
             'id="home-map-section"',
+            'class="home-places-rail"',
             'class="home-steps panel home-steps-lite',
             'id="add-place"',
             'class="panel home-faq-panel"',
@@ -965,8 +965,8 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "static/js/home_map.js")
-        self.assertContains(response, 'data-home-map-google-key="test-key"', html=False)
-        self.assertNotContains(response, "maps.googleapis.com/maps/api/js?key=test-key")
+        self.assertContains(response, 'id="home-map-sdk" rel="preload" as="script"', html=False)
+        self.assertContains(response, "maps.googleapis.com/maps/api/js?key=test-key")
         self.assertNotContains(response, "kidsMapInitHomeMap")
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
@@ -982,12 +982,8 @@ class TestPublicPagesSmoke(TestCase):
 
         ru_response = self.client.get("/ru/", follow=True)
         en_response = self.client.get("/en/", follow=True)
-        source = (settings.BASE_DIR / "static/js/home_map.js").read_text(encoding="utf-8")
-
-        self.assertContains(ru_response, 'data-home-map-language="ru"', html=False)
-        self.assertContains(en_response, 'data-home-map-language="en"', html=False)
-        self.assertIn("&language=", source)
-        self.assertIn("&region=AZ", source)
+        self.assertContains(ru_response, "&amp;language=ru&amp;region=AZ")
+        self.assertContains(en_response, "&amp;language=en&amp;region=AZ")
 
     def test_home_page_versions_interactive_static_assets(self):
         response = self.client.get("/", follow=True)

@@ -20,14 +20,23 @@
 {% endif %}
 {% endwith %}
 <link rel="preload" as="image" media="(max-width: 767px)" fetchpriority="high" href="{% static '3d/mappy-idle.webp' %}" />
+{% if map_places %}
+<link rel="preload" as="image" href="{% static 'img/baku-map-preview.webp' %}" media="(max-width: 767px)" fetchpriority="high" />
+{% if google_maps_api_key %}
+<link rel="preconnect" href="https://maps.googleapis.com" />
+<link rel="preconnect" href="https://maps.gstatic.com" crossorigin />
+<link id="home-map-sdk" rel="preload" as="script" fetchpriority="low"
+  href="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&amp;loading=async&amp;libraries=marker&amp;language={{ request.LANGUAGE_CODE|urlencode }}&amp;region=AZ&amp;callback=kidsMapHomeMapGoogleLoaded" />
+{% endif %}
+{% endif %}
 {% endblock %}
 {% block extra_head %}
 <template data-scripts-near="[data-guide-slider]"><script defer src="{% static 'js/home_guide_slider.js' %}?v=20261119_manual"></script></template>
 <link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20261127_first_paint" />
 <link rel="stylesheet" href="{% static 'css/pages/home_search.css' %}?v=20261103_mobile_compact" />
 <link rel="stylesheet" href="{% static 'css/pages/home_layout.css' %}?v=20261117_desktop_search_cards" />
-<link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261123_list_scroll" />
-<link rel="stylesheet" href="{% static 'css/pages/home_map_fx.css' %}?v=20261120_fx5" />
+<link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261127_map_preview" />
+<link rel="stylesheet" href="{% static 'css/pages/home_map_fx.css' %}?v=20261127_map_preview" />
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_mobile_intro" />
 <link rel="stylesheet" href="{% static 'css/pages/home_specialists.css' %}?v=20261124_spx3" />
 <link rel="stylesheet" href="{% static 'css/pages/home_refresh.css' %}?v=20261119_stage1" />
@@ -36,6 +45,22 @@
 {% if upcoming_events or home_map_events or map_places %}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2" />{% endif %}
 {% include "pages/includes/editorial_styles.html" %}
 <link rel="stylesheet" href="{% static 'css/pages/home_how_it_works.css' %}?v=20261125_hiw" />
+<link rel="stylesheet" href="{% static 'css/pages/home_sections.css' %}?v=20261125_compact">
+{% if map_places %}
+<link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20261120_popup_anchor" />
+<script defer src="{% static 'js/map_tools.js' %}"></script>
+<script defer src="{% static 'js/home_map.js' %}?v=20261127_map_preview"
+  data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
+  data-home-map-route-label="{% trans 'Маршрут' %}"
+  data-home-map-unavailable-label="{% trans 'Карта временно недоступна.' %}"
+  data-home-map-tiles-unavailable-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritənin fonu müvəqqəti əlçatan deyil. Məkanlara kataloqda baxa bilərsiniz.{% elif request.LANGUAGE_CODE == 'en' %}The map background is temporarily unavailable. You can view places in the catalog.{% else %}Фон карты временно недоступен. Места можно посмотреть в каталоге.{% endif %}"
+  data-home-map-leaflet-css="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  data-home-map-leaflet-css-integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  data-home-map-leaflet-js="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  data-home-map-leaflet-js-integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"
+  referrerpolicy="no-referrer"></script>
+<script src="{% static 'js/home_map_fx.js' %}?v=20261127_map_preview" defer></script>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -185,18 +210,16 @@
   </div>
 </section>
 
+{% if map_places %}
+{% include "pages/includes/home_map_explorer.html" %}
+{% endif %}
+
 {% include "catalog/includes/home_places_rail.html" %}
 {% include "pages/includes/home_specialists.html" %}
 
 
 {% include "pages/includes/home_events.html" %}
 {% include "pages/includes/home_parent_guide.html" %}
-
-{% if map_places %}
-{% include "pages/includes/home_map_explorer.html" %}
-{% endif %}
-
-
 
 <section class="home-steps panel home-steps-lite" id="how-it-works" data-active-step="0"
   aria-label="{% trans 'Как это работает' %}">
@@ -386,7 +409,6 @@
   </div>
 </section>
 
-<link rel="stylesheet" href="{% static 'css/pages/home_sections.css' %}?v=20261125_compact">
 
 <section class="panel home-faq-panel" id="faq">
   <header class="home-faq-head">
@@ -689,22 +711,7 @@
 {% if hero_gallery_slides|length > 1 %}
 <template data-scripts-near="[data-home-hero-slider]"><script src="{% static 'js/home_hero_slider.js' %}?v=20261127_first_paint"></script></template>
 {% endif %}
-<link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20261120_popup_anchor" />
-<template data-scripts-near="#home-map, [data-home-map-filter-form]">
-<script defer src="{% static 'js/map_tools.js' %}"></script>
-<script defer src="{% static 'js/home_map.js' %}?v=20261127_first_paint" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
-  data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
-  data-home-map-route-label="{% trans 'Маршрут' %}"
-  data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"
-  data-home-map-unavailable-label="{% trans 'Карта временно недоступна.' %}"
-  data-home-map-tiles-unavailable-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritənin fonu müvəqqəti əlçatan deyil. Məkanlara kataloqda baxa bilərsiniz.{% elif request.LANGUAGE_CODE == 'en' %}The map background is temporarily unavailable. You can view places in the catalog.{% else %}Фон карты временно недоступен. Места можно посмотреть в каталоге.{% endif %}"
-  data-home-map-leaflet-css="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  data-home-map-leaflet-css-integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-  data-home-map-leaflet-js="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-  data-home-map-leaflet-js-integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"
-  referrerpolicy="no-referrer"></script>
-<script src="{% static 'js/home_map_fx.js' %}?v=20261120_fx5" defer></script>
-</template>
+
 
 
 

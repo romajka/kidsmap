@@ -1,9 +1,12 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
 from django.test import TestCase
 from django.urls import reverse
 
 from catalog.controllers.home_controller import HomeController
 from catalog.models import SiteSettings, Specialist
+from catalog.services.staff_roles import VOLUNTEER_GROUP
 
 
 class HomeFeaturedSpecialistsTests(TestCase):
@@ -89,17 +92,67 @@ class HomeFeaturedSpecialistsTests(TestCase):
         self.person("Solo", is_home_featured=True)
         self.assertEqual(HomeController._specialists_block("ru")["tabs"], [])
 
-    def test_admin_actions_toggle_the_flag(self):
-        admin_user = get_user_model().objects.create_superuser("featured-admin", "a@example.com", "pw-12345")
-        self.client.force_login(admin_user)
-        person = self.person("Toggle Me")
+    def test_admin_toolbar_toggles_two_selected_specialists(self):
+        editor = get_user_model().objects.create_user("featured-editor", is_staff=True)
+        editor.user_permissions.add(Permission.objects.get(
+            content_type__app_label="catalog", codename="change_specialist",
+        ))
+        self.client.force_login(editor)
+        selected = [self.person("First selected").pk, self.person("Second selected").pk]
+        other = self.person("Not selected")
         url = reverse("admin:catalog_specialist_changelist")
-        self.client.post(url, {"action": "feature_on_home", "_selected_action": [person.pk]})
-        person.refresh_from_db()
-        self.assertTrue(person.is_home_featured)
-        self.client.post(url, {"action": "unfeature_on_home", "_selected_action": [person.pk]})
-        person.refresh_from_db()
-        self.assertFalse(person.is_home_featured)
+        page = self.client.get(url)
+        self.assertContains(page, 'data-bulk-submit="feature_on_home"')
+        self.assertContains(page, 'data-bulk-submit="unfeature_on_home"')
+
+        for action, featured in (("feature_on_home", True), ("unfeature_on_home", False)):
+            with self.subTest(action=action):
+                response = self.client.post(url, {"action": action, "_selected_action": selected})
+                self.assertRedirects(response, url, fetch_redirect_response=False)
+                self.assertEqual(
+                    Specialist.objects.filter(pk__in=selected, is_home_featured=featured).count(), 2,
+                )
+                other.refresh_from_db()
+                self.assertFalse(other.is_home_featured)
+
+    def test_users_without_change_permission_cannot_use_toolbar_actions(self):
+        viewer = get_user_model().objects.create_user("featured-viewer", is_staff=True)
+        viewer.user_permissions.add(Permission.objects.get(
+            content_type__app_label="catalog", codename="view_specialist",
+        ))
+        self.assertFalse(viewer.has_perm("catalog.change_specialist"))
+        self.client.force_login(viewer)
+        profile = self.person("Read only specialist")
+        url = reverse("admin:catalog_specialist_changelist")
+        page = self.client.get(url)
+        self.assertContains(page, profile.name)
+        self.assertNotContains(page, "data-bulk-submit=")
+
+        volunteer_group, _ = Group.objects.get_or_create(name=VOLUNTEER_GROUP)
+        viewer.groups.add(volunteer_group)
+        page = self.client.get(url)
+        self.assertNotContains(page, "data-bulk-submit=", status_code=403)
+        for action in ("feature_on_home", "unfeature_on_home"):
+            with self.subTest(action=action):
+                response = self.client.post(url, {"action": action, "_selected_action": [profile.pk]})
+                self.assertEqual(response.status_code, 403)
+        profile.refresh_from_db()
+        self.assertFalse(profile.is_home_featured)
+
+    def test_admin_toolbar_shows_localized_homepage_labels(self):
+        admin_user = get_user_model().objects.create_superuser("featured-admin")
+        self.client.force_login(admin_user)
+        for language, add, remove in (
+            ("az", "Ana səhifədə göstər", "Ana səhifədən çıxar"),
+            ("en", "Show on homepage", "Remove from homepage"),
+            ("ru", "На главную", "Убрать с главной"),
+        ):
+            with self.subTest(language=language):
+                self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = language
+                page = self.client.get(reverse("admin:catalog_specialist_changelist"))
+                self.assertEqual(page.wsgi_request.LANGUAGE_CODE, language)
+                self.assertContains(page, f"<span>{add}</span>", html=True)
+                self.assertContains(page, f"<span>{remove}</span>", html=True)
 
     def test_admin_change_form_shows_the_home_controls(self):
         admin_user = get_user_model().objects.create_superuser("featured-admin2", "b@example.com", "pw-12345")

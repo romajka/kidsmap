@@ -1,6 +1,6 @@
 /* KidsMap · Home map explorer motion layer.
- * Adds scroll reveal, staggered cards, count-up, pointer spotlight, a
- * loading veil over the map and an animated full-screen mode.
+ * Adds scroll reveal, staggered cards, count-up, pointer spotlight and
+ * full-screen mode for the map.
  * It only decorates the DOM that home_map.js renders; data, filters,
  * selection and paging stay in home_map.js. */
 (function () {
@@ -14,9 +14,9 @@
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
   const lang = (document.documentElement.lang || "az").slice(0, 2);
   const FALLBACK = {
-    az: {expand: "Tam ekran", close: "Bağla", loading: "Xəritə yüklənir…", map: "Xəritə", list: "Siyahı"},
-    ru: {expand: "На весь экран", close: "Закрыть", loading: "Загружаем карту…", map: "Карта", list: "Список"},
-    en: {expand: "Full screen", close: "Close", loading: "Loading map…", map: "Map", list: "List"},
+    az: {expand: "Tam ekran", close: "Bağla", map: "Xəritə", list: "Siyahı"},
+    ru: {expand: "На весь экран", close: "Закрыть", map: "Карта", list: "Список"},
+    en: {expand: "Full screen", close: "Close", map: "Map", list: "List"},
   };
   const fallback = FALLBACK[lang] || FALLBACK.az;
   const label = (key) => root.dataset["fx" + key.charAt(0).toUpperCase() + key.slice(1)] || fallback[key];
@@ -37,9 +37,8 @@
 
   /* ── 1. Scroll reveal ─────────────────────────────────────────────── */
   const revealTargets = [
-    ".home-map-eyebrow-row", ".home-map-head h2", ".home-map-subtitle", ".home-map-head-action",
     ".home-hero-search-area", ".home-map-result-status", ".home-explorer-tabs",
-    ".home-explorer-list-panel", ".home-explorer-map-panel", ".home-map-pagination",
+    ".home-explorer-list-panel", ".home-map-pagination",
   ];
   let order = 0;
   revealTargets.forEach((selector) => {
@@ -159,39 +158,7 @@
     panel.addEventListener("animationend", (e) => { if (e.target === panel) panel.classList.remove("kmfx-panel-in"); });
   });
 
-  /* ── 5. Loading veil over the map ─────────────────────────────────── */
-  if (container && mapEl) {
-    const veil = document.createElement("div");
-    veil.className = "kmfx-veil";
-    veil.setAttribute("aria-hidden", "true");
-    veil.innerHTML = '<span class="kmfx-veil-grid"></span><span class="kmfx-veil-radar"><i></i><i></i><i></i><b></b></span><span class="kmfx-veil-text"></span>';
-    veil.querySelector(".kmfx-veil-text").textContent = label("loading");
-    container.prepend(veil);
-    const ready = () => !!mapEl.querySelector(".gm-style, .leaflet-pane") || mapEl.classList.contains("leaflet-container") || mapEl.dataset.mapUnavailable === "1" || !!mapEl.querySelector("iframe");
-    let done = false;
-    const lift = () => {
-      if (done) return; done = true;
-      window.setTimeout(() => {
-        veil.classList.add("is-leaving");
-        container.classList.add("kmfx-map-ready");
-        // One-off focus-in; the class is dropped so no filter stays on the live map.
-        if (!reduced.matches) {
-          container.classList.add("kmfx-map-focus");
-          window.setTimeout(() => container.classList.remove("kmfx-map-focus"), 1100);
-        }
-        window.setTimeout(() => veil.remove(), 700);
-      }, 450);
-    };
-    if (ready()) lift();
-    else if (typeof MutationObserver === "function") {
-      const mo = new MutationObserver(() => { if (ready()) { mo.disconnect(); lift(); } });
-      mo.observe(mapEl, {childList: true, subtree: true, attributes: true, attributeFilter: ["class", "data-map-initialized"]});
-      // Map note / fallback text means nothing more is coming.
-      window.setTimeout(() => { if (!done && mapEl.dataset.mapInitialized !== "1" && mapEl.textContent.trim()) { mo.disconnect(); lift(); } }, 9000);
-    }
-  }
-
-  /* ── 6. Full-screen explorer ──────────────────────────────────────── */
+  /* ── 5. Full-screen explorer ──────────────────────────────────────── */
   if (!workspace || !container) return;
 
   const expandBtn = document.createElement("button");
