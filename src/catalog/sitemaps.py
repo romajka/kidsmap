@@ -53,6 +53,7 @@ class StaticViewSitemap(LocalizedSitemap):
             items.append("events_landing")
         if is_specialists_section_enabled():
             items.append("specialist_list")
+            items.append("specialist_landing")
         return items
 
     def location(self, item):

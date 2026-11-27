@@ -11,7 +11,7 @@
 {% endif %}
 {% endblock %}
 {% block image_preload %}
-{% with photo=hero_gallery_slides.0.main %}
+{% with photo=hero_gallery_photos.0 %}
 {% if photo %}
 <link rel="preload" as="image" media="(min-width: 768px)" fetchpriority="high"
   {% if photo.image_srcset %}href="{{ photo.image_responsive_url }}" imagesrcset="{{ photo.image_srcset }}" imagesizes="{{ hero_main_sizes }}"
@@ -32,7 +32,7 @@
 {% endblock %}
 {% block extra_head %}
 <template data-scripts-near="[data-guide-slider]"><script defer src="{% static 'js/home_guide_slider.js' %}?v=20261119_manual"></script></template>
-<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20261127_first_paint" />
+<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20261127_rail" />
 <link rel="stylesheet" href="{% static 'css/pages/home_search.css' %}?v=20261103_mobile_compact" />
 <link rel="stylesheet" href="{% static 'css/pages/home_layout.css' %}?v=20261117_desktop_search_cards" />
 <link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261127_map_preview" />
@@ -42,7 +42,11 @@
 <link rel="stylesheet" href="{% static 'css/pages/home_refresh.css' %}?v=20261119_stage1" />
 <link rel="stylesheet" href="{% static 'css/pages/home_hero_stage.css' %}?v=20261127_first_paint" />
 <template data-scripts-near="[data-mappy-helper]"><script defer src="{% static 'js/mappy.js' %}?v=20261119_specialists"></script></template>
-{% if upcoming_events or home_map_events or map_places %}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2" />{% endif %}
+<link rel="stylesheet" href="{% static 'css/pages/place_poster.css' %}?v=20261127_bar" />
+<link rel="stylesheet" href="{% static 'css/pages/home_hero_stack.css' %}?v=20261127_stack" />
+<script defer src="{% static 'js/place_stack.js' %}?v=20261126_poster"></script>
+<script defer src="{% static 'js/home_hero_stack.js' %}?v=20261127_stack"></script>
+{% if upcoming_events or home_map_events or map_places %}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261127_actions" />{% endif %}
 {% include "pages/includes/editorial_styles.html" %}
 <link rel="stylesheet" href="{% static 'css/pages/home_how_it_works.css' %}?v=20261125_hiw" />
 <link rel="stylesheet" href="{% static 'css/pages/home_sections.css' %}?v=20261125_compact">
@@ -61,6 +65,7 @@
   referrerpolicy="no-referrer"></script>
 <script src="{% static 'js/home_map_fx.js' %}?v=20261127_map_preview" defer></script>
 {% endif %}
+<link rel="stylesheet" href="{% static 'css/pages/home_join.css' %}?v=20261126_join" />
 {% endblock %}
 
 {% block content %}
@@ -96,69 +101,8 @@
     </div>
 
     <div class="home-hero-visual">
-    {% if hero_gallery_slides %}
-      {% if hero_gallery_slides|length > 1 %}
-      <div class="home-hero-slider is-stage" data-home-hero-slider>
-        <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
-          <div class="home-hero-slider-track" data-home-hero-slider-track>
-            {% for slide in hero_gallery_slides %}
-            <article class="home-hero-slide{% if forloop.first %} is-active{% endif %}" data-home-hero-slide aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}">
-              <div class="home-hero-slide-grid">
-                <figure class="home-hero-photo-card home-hero-photo-main">
-                  {% include "catalog/includes/hero_photo.html" with item=slide.main sizes=hero_main_sizes high_priority=forloop.first %}
-                </figure>
-
-                <figure class="home-hero-photo-card home-hero-photo-side-top">
-                  {% include "catalog/includes/hero_photo.html" with item=slide.side_top sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
-                </figure>
-
-                <figure class="home-hero-photo-card home-hero-photo-side-bottom">
-                  {% include "catalog/includes/hero_photo.html" with item=slide.side_bottom sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
-                </figure>
-              </div>
-            </article>
-            {% endfor %}
-          </div>
-        </div>
-
-        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-prev km-nav km-nav--prev" data-home-hero-slider-prev
-          aria-label="{% trans 'Предыдущие фото' %}">
-          {% include 'includes/km_nav_icon.html' with icon='arrow' %}
-        </button>
-        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-next km-nav km-nav--next" data-home-hero-slider-next
-          aria-label="{% trans 'Следующие фото' %}">
-          {% include 'includes/km_nav_icon.html' with icon='arrow' %}
-        </button>
-
-        <div class="home-hero-slider-dots" role="group" aria-label="{% trans 'Переключение фото' %}">
-          {% for slide in hero_gallery_slides %}
-          <button type="button" class="home-hero-slider-dot{% if forloop.first %} is-active{% endif %}"
-            data-home-hero-slider-dot data-slide-index="{{ forloop.counter0 }}"
-            aria-label="{% if request.LANGUAGE_CODE == 'az' %}{{ forloop.counter }}-ci şəkli göstər{% elif request.LANGUAGE_CODE == 'en' %}Show photo {{ forloop.counter }}{% else %}Показать фото {{ forloop.counter }}{% endif %}"></button>
-          {% endfor %}
-        </div>
-      </div>
-      {% else %}
-      {% with slide=hero_gallery_slides.0 %}
-      <div class="home-hero-slider home-hero-slider-single" data-home-hero-slider-single>
-        <article class="home-hero-slide home-hero-slide-single">
-          <div class="home-hero-slide-grid">
-            <figure class="home-hero-photo-card home-hero-photo-main">
-              {% include "catalog/includes/hero_photo.html" with item=slide.main sizes=hero_main_sizes high_priority=True %}
-            </figure>
-
-            <figure class="home-hero-photo-card home-hero-photo-side-top">
-              {% include "catalog/includes/hero_photo.html" with item=slide.side_top sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
-            </figure>
-
-            <figure class="home-hero-photo-card home-hero-photo-side-bottom">
-              {% include "catalog/includes/hero_photo.html" with item=slide.side_bottom sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
-            </figure>
-          </div>
-        </article>
-      </div>
-      {% endwith %}
-      {% endif %}
+    {% if hero_gallery_photos %}
+      {% include "pages/includes/home_hero_stack.html" %}
     {% endif %}
       <div class="home-hero-stats" aria-label="{% trans 'Преимущества KidsMap' %}">
         <a class="home-hero-stat km-stat-card km-stat-places km-stat-link"
@@ -365,45 +309,133 @@
 {% url 'owner_places_dashboard' as owner_dashboard_url %}
 <section class="panel home-owner-banner home-join" id="add-place" aria-labelledby="home-join-title">
   <header class="home-join__head">
-    <h2 id="home-join-title">{% trans "Помогите родителям найти вас рядом" %}</h2>
-    <p>{% if request.LANGUAGE_CODE == 'az' %}KidsMap uşaq dərnəklərini, kursları, idman bölmələrini, inkişaf mərkəzlərini və uşaqlarla işləyən mütəxəssisləri bir xəritədə toplayır. Yerləşdirmə pulsuzdur.{% elif request.LANGUAGE_CODE == 'en' %}KidsMap brings children’s clubs, courses, sports sections, development centers and specialists who work with children together on one map. Listing is free.{% else %}KidsMap собирает детские кружки, курсы, спортивные секции, центры развития и специалистов, которые работают с детьми, на одной карте. Размещение бесплатное.{% endif %}</p>
+    <div class="home-join__intro">
+      <span class="home-join__eyebrow">
+        <span class="home-join__eyebrow-dot" aria-hidden="true"></span>
+        {% trans "Бесплатное размещение" %}
+      </span>
+      <h2 id="home-join-title">{% trans "Помогите родителям найти вас рядом" %}</h2>
+      <p>{% trans "Покажите расписание, цены и живые фото там, где родители уже ищут занятия рядом с домом." %}</p>
+    </div>
+    <ul class="home-join__stats" aria-label="{% trans 'Условия размещения' %}">
+      <li class="home-join__stat">
+        <strong class="home-join__stat-val">0 AZN</strong>
+        <span class="home-join__stat-lbl">{% trans "Размещение" %}</span>
+      </li>
+      <li class="home-join__stat">
+        <strong class="home-join__stat-val">~5 min</strong>
+        <span class="home-join__stat-lbl">{% trans "Публикация" %}</span>
+      </li>
+      <li class="home-join__stat">
+        <strong class="home-join__stat-val">AZ · RU · EN</strong>
+        <span class="home-join__stat-lbl">{% trans "Языка" %}</span>
+      </li>
+    </ul>
   </header>
   <div class="home-join__cards" data-km-reveal-once>
     <article class="home-join-card home-join-card--place" style="--i:0">
-      <div class="home-join-card__head">
-        <span class="home-join-card__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>
-        </span>
-        <h3>{% if request.LANGUAGE_CODE == 'az' %}Dərnək, bölmə və ya mərkəziniz var{% elif request.LANGUAGE_CODE == 'en' %}You run a club, section or center{% else %}У вас кружок, секция или центр{% endif %}</h3>
+      <div class="home-join-card__stage" aria-hidden="true">
+        <img class="home-join-card__bg-art" src="{% static 'img/home/join-place-map.svg' %}" alt="" loading="lazy" width="320" height="220" />
+        <div class="home-join-stage__pin">
+          <span class="home-join-stage__pulse"></span>
+          <span class="home-join-stage__pin-badge">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>
+          </span>
+        </div>
+        <div class="home-join-stage__mini-card">
+          <div class="home-join-stage__mini-top">
+            <span class="home-join-stage__rating">★ 4.9</span>
+            <span class="home-join-stage__age">{% trans "4–10 лет" %}</span>
+          </div>
+          <div class="home-join-stage__mini-line"></div>
+          <div class="home-join-stage__mini-foot">
+            <span>{% trans "Рядом с вами" %}</span>
+            <strong>45 AZN</strong>
+          </div>
+        </div>
       </div>
-      <ul class="home-join-card__list">
-        <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Kataloqda və interaktiv xəritədə görünmək{% elif request.LANGUAGE_CODE == 'en' %}Be seen in the catalog and on the interactive map{% else %}Место в каталоге и на интерактивной карте{% endif %}</li>
-        <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Foto, cədvəl, qiymət və birbaşa əlaqə{% elif request.LANGUAGE_CODE == 'en' %}Photos, schedule, prices and direct contacts{% else %}Фото, расписание, цены и прямые контакты{% endif %}</li>
-        <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Valideyn rəyləri ilə etibar{% elif request.LANGUAGE_CODE == 'en' %}Trust from parent reviews{% else %}Доверие родителей через отзывы{% endif %}</li>
-      </ul>
-      {% if request.user.is_authenticated %}
-      <a class="home-join-card__cta" href="{% url 'owner_places_dashboard' %}"><span>{% if request.LANGUAGE_CODE == 'az' %}Şəxsi kabinetə keçin{% elif request.LANGUAGE_CODE == 'en' %}Go to your dashboard{% else %}Перейти в кабинет{% endif %}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      {% else %}
-      <form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation>
-        {% include "includes/auth_navigation_fields.html" with auth_next=owner_dashboard_url auth_intent_value="add_place" %}
-        <button type="submit" class="auth-navigation-button home-join-card__cta"><span>{% if request.LANGUAGE_CODE == 'az' %}Məkanınızı əlavə edin{% elif request.LANGUAGE_CODE == 'en' %}Add your place{% else %}{% trans "Добавить свое место" %}{% endif %}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-      </form>
-      {% endif %}
+      <div class="home-join-card__body">
+        <span class="home-join-card__kicker">{% trans "Для кружков и центров" %}</span>
+        <h3>{% trans "У вас кружок, секция или центр" %}</h3>
+        <ul class="home-join-card__list">
+          <li>
+            <span class="home-join-card__bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>
+            </span>
+            <span>{% trans "Место в каталоге и на интерактивной карте" %}</span>
+          </li>
+          <li>
+            <span class="home-join-card__bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </span>
+            <span>{% trans "Фото, расписание, цены и прямые контакты" %}</span>
+          </li>
+          <li>
+            <span class="home-join-card__bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>
+            </span>
+            <span>{% trans "Доверие родителей через отзывы" %}</span>
+          </li>
+        </ul>
+        <div class="home-join-card__action">
+          {% if request.user.is_authenticated %}
+          <a class="home-join-card__cta" href="{% url 'owner_places_dashboard' %}"><span>{% trans "Перейти в кабинет" %}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          {% else %}
+          <form method="post" action="{% url 'account_login' %}" class="auth-navigation-form" data-auth-navigation>
+            {% include "includes/auth_navigation_fields.html" with auth_next=owner_dashboard_url auth_intent_value="add_place" %}
+            <button type="submit" class="auth-navigation-button home-join-card__cta"><span>{% trans "Добавить свое место" %}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
     </article>
     {% if home_specialists %}
     <article class="home-join-card home-join-card--specialist" style="--i:1">
-      <div class="home-join-card__head">
-        <span class="home-join-card__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </span>
-        <h3>{% if request.LANGUAGE_CODE == 'az' %}Loqoped, repetitor və ya psixoloqsunuz{% elif request.LANGUAGE_CODE == 'en' %}You are a speech therapist, tutor or psychologist{% else %}Вы логопед, репетитор или психолог{% endif %}</h3>
+      <div class="home-join-card__stage" aria-hidden="true">
+        <img class="home-join-card__bg-art" src="{% static 'img/home/join-specialist-scene.svg' %}" alt="" loading="lazy" width="320" height="220" />
+        <div class="home-join-stage__verified">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>{% trans "Проверен KidsMap" %}</span>
+        </div>
+        <div class="home-join-stage__mini-card home-join-stage__mini-card--spec">
+          <div class="home-join-stage__mini-top">
+            <span class="home-join-stage__rating">★ 5.0</span>
+            <span class="home-join-stage__format">{% trans "Очно и онлайн" %}</span>
+          </div>
+          <div class="home-join-stage__mini-line"></div>
+          <div class="home-join-stage__mini-foot">
+            <span>KidsMap</span>
+            <strong>0 AZN</strong>
+          </div>
+        </div>
       </div>
-      <ul class="home-join-card__list">
-        <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Mütəxəssis anketi pulsuzdur{% elif request.LANGUAGE_CODE == 'en' %}A specialist profile is free{% else %}Анкета специалиста бесплатна{% endif %}</li>
-        <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}Valideynlər qiyməti, formatı və rəyləri görür{% elif request.LANGUAGE_CODE == 'en' %}Parents see your price, format and reviews{% else %}Родители видят цену, формат и отзывы{% endif %}</li>
-        <li><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% if request.LANGUAGE_CODE == 'az' %}KidsMap yoxladıqdan sonra kataloqda görünür{% elif request.LANGUAGE_CODE == 'en' %}Appears in the catalog after KidsMap reviews it{% else %}Появится в каталоге после проверки KidsMap{% endif %}</li>
-      </ul>
-      <a class="home-join-card__cta" href="{% url 'owner_specialist_create' %}"><span>{% if request.LANGUAGE_CODE == 'az' %}Mütəxəssis anketi yaradın{% elif request.LANGUAGE_CODE == 'en' %}Create a specialist profile{% else %}Создать анкету специалиста{% endif %}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <div class="home-join-card__body">
+        <span class="home-join-card__kicker">{% trans "Для детских специалистов" %}</span>
+        <h3>{% trans "Вы логопед, репетитор или психолог" %}</h3>
+        <ul class="home-join-card__list">
+          <li>
+            <span class="home-join-card__bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
+            <span>{% trans "Анкета специалиста бесплатна" %}</span>
+          </li>
+          <li>
+            <span class="home-join-card__bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </span>
+            <span>{% trans "Родители видят цену, формат и отзывы" %}</span>
+          </li>
+          <li>
+            <span class="home-join-card__bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            </span>
+            <span>{% trans "Появится в каталоге после проверки KidsMap" %}</span>
+          </li>
+        </ul>
+        <div class="home-join-card__action">
+          <a class="home-join-card__cta" href="{% url 'owner_specialist_create' %}"><span>{% trans "Создать анкету специалиста" %}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
     </article>
     {% endif %}
   </div>
@@ -705,12 +737,9 @@
 {% block extra_body %}
 {% if hero_topics %}<template data-scripts-near="[data-km-rot]"><script src="{% static 'js/home_hero_rotator.js' %}?v=20261119_stage2" defer></script></template>{% endif %}
 {% if home_specialists.mode == 'featured' %}<template data-scripts-near="[data-spx]"><script src="{% static 'js/home_specialists.js' %}?v=20261124_spx3" defer></script></template>{% endif %}
-{% if home_rail_places %}<template data-scripts-near="[data-places-rail]"><script src="{% static 'js/home_places_rail.js' %}?v=20261119_manual" defer></script></template>{% endif %}
+{% if home_rail_places %}<template data-scripts-near="[data-places-rail]"><script src="{% static 'js/home_places_rail.js' %}?v=20261127_overflow" defer></script></template>{% endif %}
 {% if upcoming_events or home_map_events %}<template data-scripts-near="[data-km-timer], [data-km-home-afisha]"><script src="{% static 'js/event_timer.js' %}?v=20261123_budget" defer></script></template>{% endif %}
 {% if upcoming_events %}<template data-scripts-near="[data-km-home-afisha], [data-event-suggest-form]"><script src="{% static 'js/home_afisha.js' %}?v=20261120_r3" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script></template>{% endif %}
-{% if hero_gallery_slides|length > 1 %}
-<template data-scripts-near="[data-home-hero-slider]"><script src="{% static 'js/home_hero_slider.js' %}?v=20261127_first_paint"></script></template>
-{% endif %}
 
 
 

@@ -4,6 +4,97 @@
    - the distance badge is centred over its card
    - every card has the same insets, rows on the same lines, the stub edge to edge
    Works on the live markup: .detail-nearby__viewport > .detail-nearby__rail > .detail-nearby__item */
+body.page-place_detail .detail-nearby__head {
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 2px dashed var(--tk-perf);
+}
+.detail-nearby__heading {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+.detail-nearby__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md, 12px);
+  background: var(--tint-turf-100, #e8f3e5);
+  color: var(--brand-spruce, #0d4924);
+}
+.detail-nearby__sub {
+  margin: 4px 0 0 46px;
+  color: var(--muted, #5b6b62);
+  font-size: .875rem;
+}
+.detail-nearby__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+}
+.detail-nearby__controls:not([hidden]) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.detail-nearby__controls[hidden] { display: none; }
+.detail-nearby__controls:not([hidden]) .detail-nearby__arrow {
+  display: inline-flex !important;
+  width: auto;
+  height: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1px solid var(--tint-line-200, #cddbd1);
+  border-radius: var(--radius-pill, 999px);
+  background: #fff;
+  color: var(--brand-spruce, #0d4924);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+.detail-nearby__arrow--next {
+  padding-inline: 14px;
+  border-color: transparent;
+  background: var(--brand-spruce, #0d4924);
+  color: #fff;
+}
+.detail-nearby__arrow .material-symbols-rounded { font-size: 18px; }
+.detail-nearby__arrow:not([aria-disabled="true"]):hover { box-shadow: 0 2px 8px rgb(13 73 36 / 25%); }
+.detail-nearby__arrow:focus-visible {
+  outline: 2px solid var(--brand-spruce, #0d4924);
+  outline-offset: 2px;
+}
+.detail-nearby__arrow[aria-disabled="true"] {
+  background: var(--tint-turf-100, #e8f3e5);
+  color: var(--muted, #5b6b62);
+  cursor: default;
+}
+.detail-nearby__dots:not(:empty) {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.detail-nearby__dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--tint-turf-200, #cde7c5);
+}
+.detail-nearby__dots .is-active {
+  width: 20px;
+  background: var(--brand-turf, #136f38);
+}
+@media (max-width: 480px) {
+  .detail-nearby__actions { flex-basis: 100%; }
+}
+
 body.page-place_detail .detail-nearby__viewport { container-type: inline-size; container-name: nearby; }
 
 body.page-place_detail .detail-nearby__rail:not(#kd-a):not(#kd-b) {
@@ -35,7 +126,14 @@ body.page-place_detail .detail-nearby__item:not(#kd-a):not(#kd-b) {
 }
 body.page-place_detail .detail-nearby__distance:not(#kd-a):not(#kd-b) {
   align-self: center !important; justify-content: center !important; max-width: 100% !important;
-  margin-inline: auto !important; white-space: nowrap !important;
+  margin-inline: auto !important; flex-wrap: wrap; text-align: center;
+}
+.detail-nearby__badge {
+  padding: 2px 6px;
+  border-radius: var(--radius-pill, 999px);
+  background: #fff;
+  color: var(--brand-spruce, #0d4924);
+  font-size: .6875rem;
 }
 body.page-place_detail .detail-nearby__item > .place-card:not(#kc-a):not(#kc-b):not(#kc-r) {
   flex: 1 1 auto !important; width: 100% !important; height: auto !important; min-height: 0 !important; margin: 0 !important;

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="jsBg" x1="0" y1="0" x2="320" y2="220" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFF7E4"/>
+      <stop offset="100%" stop-color="#F6E8C6"/>
+    </linearGradient>
+    <linearGradient id="jsArch" x1="160" y1="22" x2="290" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F1DA9F"/>
+      <stop offset="100%" stop-color="#E7C980"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Warm cream canvas -->
+  <rect width="320" height="220" rx="20" fill="url(#jsBg)"/>
+
+  <!-- Organic warm arch & botanical backdrop -->
+  <path d="M168 220V94C168 50 202 22 242 22C282 22 308 50 308 94V220H168Z" fill="url(#jsArch)" opacity="0.52"/>
+  <circle cx="72" cy="54" r="34" fill="#CDE7C5" opacity="0.5"/>
+  <circle cx="284" cy="176" r="24" fill="#A8D59B" opacity="0.38"/>
+
+  <!-- Subtle notebook / schedule lines -->
+  <rect x="24" y="34" width="96" height="128" rx="14" fill="#FCFCFC" opacity="0.72"/>
+  <rect x="38" y="54" width="54" height="7" rx="3.5" fill="#0D4924" opacity="0.16"/>
+  <rect x="38" y="70" width="68" height="7" rx="3.5" fill="#136F38" opacity="0.14"/>
+  <rect x="38" y="86" width="44" height="7" rx="3.5" fill="#0D4924" opacity="0.12"/>
+  <rect x="38" y="114" width="62" height="26" rx="8" fill="#E8F3E5"/>
+
+  <!-- Friendly specialist silhouette -->
+  <circle cx="238" cy="86" r="24" fill="#0D4924"/>
+  <path d="M196 172C196 143 215 124 238 124C261 124 280 143 280 172V186H196V172Z" fill="#136F38"/>
+  <!-- Warm collar / scarf accent -->
+  <path d="M222 126C228 136 248 136 254 126" stroke="#F6E8C6" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Decorative botanical leaves -->
+  <path d="M148 164C158 150 174 152 176 166C162 174 152 172 148 164Z" fill="#136F38" opacity="0.24"/>
+  <path d="M134 182C140 170 154 170 158 180C148 188 138 188 134 182Z" fill="#0D4924" opacity="0.18"/>
+</svg>

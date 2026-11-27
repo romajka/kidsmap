@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="jpBg" x1="0" y1="0" x2="320" y2="220" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E8F3E5"/>
+      <stop offset="100%" stop-color="#D5ECCF"/>
+    </linearGradient>
+    <linearGradient id="jpPark" x1="180" y1="20" x2="310" y2="170" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#BCE2B1"/>
+      <stop offset="100%" stop-color="#A8D59B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base map canvas -->
+  <rect width="320" height="220" rx="20" fill="url(#jpBg)"/>
+
+  <!-- Soft park & river shapes -->
+  <path d="M192 0H320V148C285 154 256 132 232 108C205 81 182 42 192 0Z" fill="url(#jpPark)" opacity="0.72"/>
+  <path d="M-10 172C48 152 106 178 164 164C212 152 260 124 330 140V230H-10V172Z" fill="#CDE7C5" opacity="0.65"/>
+
+  <!-- Stylized city blocks & roads -->
+  <path d="M0 78C76 74 134 46 218 52C264 55 294 72 320 82" stroke="#FCFCFC" stroke-width="11" stroke-linecap="round"/>
+  <path d="M68 0C72 68 58 134 84 220" stroke="#FCFCFC" stroke-width="10" stroke-linecap="round"/>
+  <path d="M196 0C188 72 214 148 206 220" stroke="#FCFCFC" stroke-width="8" stroke-linecap="round"/>
+  <path d="M0 144C82 138 158 156 268 118" stroke="#FCFCFC" stroke-width="7" stroke-linecap="round" opacity="0.88"/>
+
+  <!-- Subtle building footprints -->
+  <rect x="24" y="24" width="28" height="20" rx="6" fill="#FCFCFC" opacity="0.75"/>
+  <rect x="102" y="18" width="44" height="22" rx="7" fill="#FCFCFC" opacity="0.7"/>
+  <rect x="106" y="92" width="38" height="26" rx="7" fill="#FCFCFC" opacity="0.75"/>
+  <rect x="234" y="148" width="46" height="28" rx="8" fill="#FCFCFC" opacity="0.72"/>
+
+  <!-- Walking dashed route to the pin -->
+  <path d="M46 156C82 134 118 138 148 110C170 90 192 74 222 72" stroke="#136F38" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 7" opacity="0.75"/>
+
+  <!-- Origin dot -->
+  <circle cx="46" cy="156" r="6" fill="#FCFCFC" stroke="#136F38" stroke-width="3"/>
+
+  <!-- Botanical leaves -->
+  <path d="M276 34C286 24 298 26 300 38C288 44 278 42 276 34Z" fill="#136F38" opacity="0.22"/>
+  <path d="M262 46C268 35 280 34 284 44C275 51 266 51 262 46Z" fill="#0D4924" opacity="0.18"/>
+</svg>

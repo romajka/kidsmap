@@ -15,6 +15,7 @@
     let hovered = false;
     let visible = false;
     let automatic = false;
+    let hasOverflow = false;
     let isDragging = false;
     let isPointerDown = false;
     let hasMoved = false;
@@ -160,8 +161,10 @@
 
     function rebuild() {
       track.querySelectorAll('[data-rail-copy]').forEach((copy) => copy.remove());
-      automatic = !reduced.matches && originals.length > 1;
+      hasOverflow = viewport.scrollWidth > viewport.clientWidth;
+      automatic = hasOverflow && !reduced.matches && originals.length > 1;
       rail.classList.toggle('is-automatic', automatic);
+      rail.classList.toggle('is-static', !hasOverflow);
       if (toggle) toggle.hidden = true;
       const navGroup = rail.querySelector('.home-rail-nav-group');
       if (navGroup) navGroup.hidden = !automatic;
@@ -303,8 +306,9 @@
       if (event.pointerType === 'mouse' && event.button !== 0) return;
       if (!['mouse', 'touch', 'pen'].includes(event.pointerType)) return;
       // A new gesture must not inherit the previous drag's trailing-click guard.
+      if (isPointerDown) return;
       hasMoved = false;
-      if (event.target.closest('.card-go-btn, .like-btn, .like-form, .card-contact-toggle, [data-rail-toggle], [data-rail-prev], [data-rail-next]')) {
+      if (!hasOverflow || event.target.closest('.card-go-btn, .like-form, .card-contact-toggle')) {
         return;
       }
       if (inertiaFrame) {
@@ -323,9 +327,6 @@
       lastMoveTime = performance.now();
       velocity = 0;
       sync();
-      try {
-        viewport.setPointerCapture(event.pointerId);
-      } catch (_) {}
     });
 
     viewport.addEventListener('pointermove', (event) => {
@@ -336,6 +337,7 @@
         }
         return;
       }
+      if (event.pointerId !== activePointerId) return;
       const dx = event.clientX - startX;
       const now = performance.now();
       const dt = now - lastMoveTime;
@@ -349,6 +351,9 @@
         isDragging = true;
         hasMoved = true;
         viewport.classList.add('is-dragging');
+        try {
+          viewport.setPointerCapture(event.pointerId);
+        } catch (_) {}
         if (frame) {
           cancelAnimationFrame(frame);
           frame = 0;
@@ -378,8 +383,8 @@
       }
     });
 
-    const endDrag = () => {
-      if (!isPointerDown) return;
+    const endDrag = (event) => {
+      if (!isPointerDown || event.pointerId !== activePointerId) return;
       isPointerDown = false;
       track.style.setProperty('--rail-item-tilt', '0');
       track.style.setProperty('--rail-item-scale', '1');
@@ -439,36 +444,16 @@
       }
     };
 
-    viewport.addEventListener('pointerup', endDrag);
-    viewport.addEventListener('pointercancel', endDrag);
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('pointercancel', endDrag);
 
-    // CLICK HANDLER:
-    // Only «Перейти ›» navigates to the place. Card body/image is a grab-and-scroll surface.
+    // Suppress clicks that follow a swipe or drag.
     track.addEventListener('click', (event) => {
       if (hasMoved && event.detail !== 0) {
         event.preventDefault();
         event.stopPropagation();
-        hasMoved = false;
-        return;
       }
-
       hasMoved = false;
-
-      // If clicked «Перейти ›», allow navigation
-      if (event.target.closest('.card-go-btn')) {
-        return;
-      }
-
-      // If clicked like button or phone button, allow action
-      if (event.target.closest('.like-btn') || event.target.closest('.like-form') || event.target.closest('.card-contact-toggle')) {
-        return;
-      }
-
-      // Any other click on the card prevents navigation so user can safely grab and drag anywhere!
-      const clickedCard = event.target.closest('.card.place-card');
-      if (clickedCard) {
-        event.preventDefault();
-      }
     }, true);
 
     viewport.addEventListener('scroll', () => {

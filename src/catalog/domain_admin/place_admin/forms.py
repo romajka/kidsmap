@@ -509,6 +509,11 @@ class EventAdminForm(forms.ModelForm):
                 format=ADMIN_DATETIME_LOCAL_FORMAT,
             ),
         }
+        help_texts = {
+            "photo": _("Основное изображение мероприятия для списка и детальной страницы."),
+            "start_datetime": _("Дата и время старта. Без этого поле мероприятие нельзя опубликовать."),
+            "end_datetime": _("Дата и время окончания. Используется для определения актуальности и завершения."),
+        }
         labels = {
             "slug": _("URL-слаг"),
             "name_ru": _("Название (Русский)"),
@@ -655,21 +660,14 @@ class EventAdminForm(forms.ModelForm):
         for name in ("registration_url", "website"):
             if name in self.fields:
                 self.fields[name].widget = forms.URLInput(attrs={"class": "field", "placeholder": "https://"})
-        self.fields["photo"].help_text = _(
-            "Основное изображение мероприятия для списка и детальной страницы."
-        )
-        self.fields["start_datetime"].help_text = _(
-            "Дата и время старта. Без этого поле мероприятие нельзя опубликовать."
-        )
-        self.fields["end_datetime"].help_text = _(
-            "Дата и время окончания. Используется для определения актуальности и завершения."
-        )
-        self.fields["address"].widget.attrs.setdefault("placeholder", _("Напр., ул. Низами 10, Баку"))
-        self.fields["phone"].widget.attrs.setdefault("placeholder", _("Напр., +994 50 123 45 67"))
-        self.fields["instagram"].widget.attrs.setdefault("placeholder", _("Напр., @kidsmap"))
-        self.fields["website"].widget.attrs.setdefault("placeholder", _("Напр., https://example.com"))
-        self.fields["lat"].widget.attrs.setdefault("placeholder", _("Напр., 40.409264"))
-        self.fields["lng"].widget.attrs.setdefault("placeholder", _("Напр., 49.867092"))
+        placeholders = {
+            "address": _("Напр., ул. Низами 10, Баку"), "phone": _("Напр., +994 50 123 45 67"),
+            "instagram": _("Напр., @kidsmap"), "website": _("Напр., https://example.com"),
+            "lat": _("Напр., 40.409264"), "lng": _("Напр., 49.867092"),
+        }
+        for name, placeholder in placeholders.items():
+            if name in self.fields:
+                self.fields[name].widget.attrs.setdefault("placeholder", placeholder)
 
 
 

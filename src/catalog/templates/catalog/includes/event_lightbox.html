@@ -1,13 +1,18 @@
 {% comment %}Full-screen viewer for the hero poster and gallery photos (static/js/event_media.js).{% endcomment %}
 {% load event_editorial %}{% if event_poster or event_gallery_items %}
-<dialog class="km-lb" data-km-lb aria-modal="true" aria-labelledby="km-lb-title">
+<dialog class="km-lb" data-km-lb aria-modal="true"
+  data-loading="{% if language == 'az' %}Şəkil yüklənir…{% elif language == 'en' %}Loading photo…{% else %}Загрузка фото…{% endif %}"
+  data-load-error="{% if language == 'az' %}Şəkli yükləmək mümkün olmadı.{% elif language == 'en' %}Could not load this photo.{% else %}Не удалось загрузить фото.{% endif %}" aria-labelledby="km-lb-title">
   <div class="km-lb__bg" data-km-lb-bg aria-hidden="true"></div>
   <h2 class="visually-hidden" id="km-lb-title">{{ event.name_i18n }}</h2>
   <div class="km-lb__stage" data-km-lb-stage>
     <img class="km-lb__img" data-km-lb-img alt="" decoding="async">
   </div>
   <div class="km-lb__bar">
-    <div class="km-lb__cap" data-km-lb-cap aria-live="polite"></div>
+    <div class="km-lb__cap">
+      <div data-km-lb-cap></div>
+      <p class="km-lb__status" data-km-lb-status role="status"></p>
+    </div>
     <span class="km-lb__count" data-km-lb-count aria-live="polite"></span>
   </div>
   <button type="button" class="km-lb__btn km-lb__close km-nav km-nav--dark" data-km-lb-close aria-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}Закрыть{% endif %}">{% include 'includes/km_nav_icon.html' with icon='close' %}</button>
