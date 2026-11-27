@@ -71,8 +71,10 @@ def with_saved_location(queryset, request, model_admin):
             default=Cast(F(name), CharField()), output_field=CharField())
         for name in ('lat', 'lng')
     })
-    missing = (Q(km_list_lat__isnull=True) | Q(km_list_lat='') |
-               Q(km_list_lng__isnull=True) | Q(km_list_lng=''))
+    # SQLite's JSON key extraction exposes JSON null as the text 'null';
+    # PostgreSQL exposes it as SQL NULL. Neither is a coordinate.
+    missing = (Q(km_list_lat__isnull=True) | Q(km_list_lat__in=('', 'null')) |
+               Q(km_list_lng__isnull=True) | Q(km_list_lng__in=('', 'null')))
     return queryset.annotate(km_saved_has_coordinates=Case(
         When(missing, then=Value(False)), default=Value(True), output_field=BooleanField()))
 
