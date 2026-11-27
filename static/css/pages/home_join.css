@@ -1,0 +1,606 @@
+/* ==========================================================================
+   #add-place.home-join — Interactive KidsMap Showcase
+   Overrides legacy rules from home_refresh.css and home_sections.css
+   without modifying shared stylesheets.
+   ========================================================================== */
+
+body.page-home section#add-place.home-join {
+  position: relative;
+  margin-top: clamp(24px, 3vw, 40px);
+  margin-bottom: clamp(24px, 3vw, 40px);
+  padding: clamp(22px, 3vw, 36px) clamp(18px, 3vw, 36px);
+  border-radius: var(--radius-xl, 24px);
+  border: 1px solid rgba(19, 111, 56, 0.14);
+  background:
+    radial-gradient(540px 240px at 94% 0%, rgba(168, 213, 155, 0.24) 0%, transparent 66%),
+    radial-gradient(420px 220px at 4% 100%, rgba(205, 231, 197, 0.22) 0%, transparent 64%),
+    var(--brand-white, #fcfcfc);
+  box-shadow: 0 22px 48px -32px rgba(13, 73, 36, 0.22);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+body.page-home section#add-place.home-join::before,
+body.page-home section#add-place.home-join::after {
+  content: none;
+}
+
+/* ── Header & Trust Strip ─────────────────────────────────────────────────── */
+
+body.page-home section#add-place.home-join .home-join__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px 28px;
+  max-width: none;
+  margin-bottom: clamp(20px, 2.5vw, 28px);
+}
+
+body.page-home section#add-place.home-join .home-join__intro {
+  max-width: 600px;
+}
+
+body.page-home section#add-place.home-join .home-join__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  margin-bottom: 10px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--tint-turf-100, #e8f3e5);
+  border: 1px solid rgba(19, 111, 56, 0.16);
+  color: var(--brand-turf, #136f38);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+body.page-home section#add-place.home-join .home-join__eyebrow-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-turf, #136f38);
+  animation: kmJoinPulse 2.4s var(--ease-out-quint, ease-out) infinite;
+}
+
+body.page-home section#add-place.home-join .home-join__head h2 {
+  margin: 0;
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-size: clamp(24px, 2.6vw, 34px);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--brand-spruce, #0d4924);
+  text-wrap: balance;
+}
+
+body.page-home section#add-place.home-join .home-join__head p {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 56ch;
+  color: var(--muted, rgba(31, 41, 51, 0.76));
+}
+
+body.page-home section#add-place.home-join .home-join__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  flex-shrink: 0;
+}
+
+body.page-home section#add-place.home-join .home-join__stat {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md, 12px);
+  background: var(--tint-mist-050, #f7faf7);
+  border: 1px solid var(--tint-line-200, #e3eae4);
+  min-width: 96px;
+}
+
+body.page-home section#add-place.home-join .home-join__stat-val {
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--brand-spruce, #0d4924);
+  font-variant-numeric: tabular-nums;
+}
+
+body.page-home section#add-place.home-join .home-join__stat-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted, rgba(31, 41, 51, 0.76));
+}
+
+/* ── Cards Grid ───────────────────────────────────────────────────────────── */
+
+body.page-home section#add-place.home-join .home-join__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+body.page-home section#add-place.home-join .home-join-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  border-radius: 22px;
+  background: var(--tint-turf-050, #f3f9f2);
+  border: 1px solid rgba(19, 111, 56, 0.16);
+  box-shadow: 0 12px 28px -22px rgba(13, 73, 36, 0.24);
+  transition:
+    transform var(--dur-base, 260ms) var(--ease-out-quint, cubic-bezier(0.22, 1, 0.36, 1)),
+    box-shadow var(--dur-base, 260ms) var(--ease-out-quint, cubic-bezier(0.22, 1, 0.36, 1)),
+    border-color var(--dur-fast, 160ms) ease,
+    opacity var(--dur-slow, 420ms) var(--ease-out-quint, cubic-bezier(0.22, 1, 0.36, 1));
+  transition-delay: calc(var(--i, 0) * 90ms);
+  gap: 0;
+  overflow: hidden;
+}
+
+body.page-home section#add-place.home-join .home-join-card--specialist {
+  background: #fffaf0;
+  border-color: rgba(178, 107, 0, 0.2);
+}
+
+body.page-home section#add-place.home-join .home-join-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 44px -26px rgba(13, 73, 36, 0.34);
+  border-color: rgba(19, 111, 56, 0.36);
+}
+
+body.page-home section#add-place.home-join .home-join-card--specialist:hover {
+  border-color: rgba(178, 107, 0, 0.42);
+  box-shadow: 0 26px 44px -26px rgba(120, 74, 8, 0.26);
+}
+
+/* Scroll reveal from km_controls.js */
+body.page-home section#add-place.home-join .home-join__cards.is-waiting .home-join-card {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+body.page-home section#add-place.home-join .home-join__cards.is-arrived .home-join-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Live Visual Stage inside each Card ───────────────────────────────────── */
+
+body.page-home section#add-place.home-join .home-join-card__stage {
+  position: relative;
+  height: 176px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--tint-turf-100, #e8f3e5);
+  border: 1px solid rgba(19, 111, 56, 0.1);
+}
+
+body.page-home section#add-place.home-join .home-join-card--specialist .home-join-card__stage {
+  background: #fff7e4;
+  border-color: rgba(178, 107, 0, 0.14);
+}
+
+body.page-home section#add-place.home-join .home-join-card__bg-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--dur-slow, 420ms) var(--ease-out-quint, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+body.page-home section#add-place.home-join .home-join-card:hover .home-join-card__bg-art {
+  transform: scale(1.04);
+}
+
+/* Animated Map Pin (Card 1) */
+body.page-home section#add-place.home-join .home-join-stage__pin {
+  position: absolute;
+  top: 26px;
+  right: 36px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  transition: transform var(--dur-base, 260ms) var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+
+body.page-home section#add-place.home-join .home-join-card:hover .home-join-stage__pin {
+  transform: translateY(-6px) scale(1.08);
+}
+
+body.page-home section#add-place.home-join .home-join-stage__pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(19, 111, 56, 0.28);
+  animation: kmPinSonar 2.6s var(--ease-out-quint, ease-out) infinite;
+}
+
+body.page-home section#add-place.home-join .home-join-stage__pin-badge {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--brand-turf, #136f38);
+  color: #ffffff;
+  box-shadow: 0 10px 20px -6px rgba(13, 73, 36, 0.5);
+}
+
+/* Verified Badge (Card 2) */
+body.page-home section#add-place.home-join .home-join-stage__verified {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: var(--radius-pill, 999px);
+  background: rgba(252, 252, 252, 0.95);
+  border: 1px solid rgba(19, 111, 56, 0.2);
+  color: var(--brand-spruce, #0d4924);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px -10px rgba(13, 73, 36, 0.3);
+  transition: transform var(--dur-base, 260ms) var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+
+body.page-home section#add-place.home-join .home-join-card:hover .home-join-stage__verified {
+  transform: translateY(-3px) scale(1.03);
+}
+
+/* Floating Mini Preview Card */
+body.page-home section#add-place.home-join .home-join-stage__mini-card {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  width: min(210px, calc(100% - 28px));
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(252, 252, 252, 0.96);
+  border: 1px solid rgba(19, 111, 56, 0.14);
+  box-shadow: 0 14px 28px -14px rgba(13, 73, 36, 0.28);
+  display: grid;
+  gap: 7px;
+  transition: transform var(--dur-base, 260ms) var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+  animation: kmMiniFloat 5.2s ease-in-out infinite;
+}
+
+body.page-home section#add-place.home-join .home-join-stage__mini-card--spec {
+  border-color: rgba(178, 107, 0, 0.2);
+  animation-delay: 0.9s;
+}
+
+body.page-home section#add-place.home-join .home-join-card:hover .home-join-stage__mini-card {
+  transform: translateY(-5px) rotate(-1deg);
+}
+
+body.page-home section#add-place.home-join .home-join-stage__mini-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+body.page-home section#add-place.home-join .home-join-stage__rating {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--brand-spruce, #0d4924);
+  font-variant-numeric: tabular-nums;
+}
+
+body.page-home section#add-place.home-join .home-join-stage__age,
+body.page-home section#add-place.home-join .home-join-stage__format {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--tint-turf-100, #e8f3e5);
+  color: var(--brand-turf, #136f38);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+body.page-home section#add-place.home-join .home-join-stage__format {
+  background: #fdf0d5;
+  color: #8f5300;
+}
+
+body.page-home section#add-place.home-join .home-join-stage__mini-line {
+  height: 6px;
+  width: 72%;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--tint-line-200, #e3eae4);
+}
+
+body.page-home section#add-place.home-join .home-join-stage__mini-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--muted, rgba(31, 41, 51, 0.76));
+}
+
+body.page-home section#add-place.home-join .home-join-stage__mini-foot strong {
+  color: var(--brand-turf, #136f38);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Card Content Body ────────────────────────────────────────────────────── */
+
+body.page-home section#add-place.home-join .home-join-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  padding: 16px 10px 8px;
+  gap: 12px;
+}
+
+body.page-home section#add-place.home-join .home-join-card__kicker {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--brand-turf, #136f38);
+}
+
+body.page-home section#add-place.home-join .home-join-card--specialist .home-join-card__kicker {
+  color: #9a5b00;
+}
+
+body.page-home section#add-place.home-join .home-join-card h3 {
+  margin: 0;
+  max-width: none;
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-size: clamp(19px, 1.8vw, 22px);
+  font-weight: 800;
+  line-height: 1.22;
+  letter-spacing: -0.015em;
+  color: var(--brand-spruce, #0d4924);
+}
+
+body.page-home section#add-place.home-join .home-join-card__list {
+  display: grid;
+  gap: 10px;
+  margin: 2px 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+body.page-home section#add-place.home-join .home-join-card__list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+  line-height: 1.4;
+  color: var(--ink, #1f2933);
+}
+
+body.page-home section#add-place.home-join .home-join-card__bullet {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: var(--tint-turf-200, #cde7c5);
+  color: var(--brand-spruce, #0d4924);
+}
+
+body.page-home section#add-place.home-join .home-join-card--specialist .home-join-card__bullet {
+  background: #f8e5b8;
+  color: #7a4700;
+}
+
+body.page-home section#add-place.home-join .home-join-card__action {
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+body.page-home section#add-place.home-join .home-join-card__action form {
+  margin: 0;
+}
+
+/* ── Tactile CTA Button ───────────────────────────────────────────────────── */
+
+body.page-home section#add-place.home-join .home-join-card__cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--brand-turf, #136f38);
+  color: #ffffff;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 14.5px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 12px 24px -12px rgba(19, 111, 56, 0.55);
+  transition:
+    transform var(--dur-fast, 160ms) var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)),
+    background-color var(--dur-fast, 160ms) ease,
+    box-shadow var(--dur-fast, 160ms) ease;
+}
+
+body.page-home section#add-place.home-join .home-join-card--specialist .home-join-card__cta {
+  background: var(--brand-spruce, #0d4924);
+  box-shadow: 0 12px 24px -12px rgba(13, 73, 36, 0.5);
+}
+
+body.page-home section#add-place.home-join .home-join-card__cta::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -70%;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24), transparent);
+  transform: skewX(-20deg);
+  transition: left 520ms var(--ease-out-quint, cubic-bezier(0.22, 1, 0.36, 1));
+  pointer-events: none;
+}
+
+body.page-home section#add-place.home-join .home-join-card:hover .home-join-card__cta::after {
+  left: 135%;
+}
+
+body.page-home section#add-place.home-join .home-join-card__cta:hover {
+  transform: translateY(-2px);
+  background: var(--brand-spruce, #0d4924);
+}
+
+body.page-home section#add-place.home-join .home-join-card--specialist .home-join-card__cta:hover {
+  background: var(--brand-turf, #136f38);
+}
+
+body.page-home section#add-place.home-join .home-join-card__cta:active {
+  transform: scale(0.97);
+}
+
+body.page-home section#add-place.home-join .home-join-card__cta svg {
+  transition: transform var(--dur-fast, 160ms) var(--ease-out-quint, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+body.page-home section#add-place.home-join .home-join-card__cta:hover svg {
+  transform: translateX(4px);
+}
+
+body.page-home section#add-place.home-join .home-join-card__cta:focus-visible {
+  outline: 3px solid rgba(19, 111, 56, 0.38);
+  outline-offset: 3px;
+}
+
+/* ── Keyframes (transform + opacity only) ─────────────────────────────────── */
+
+@keyframes kmJoinPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.55;
+  }
+}
+
+@keyframes kmPinSonar {
+  0% {
+    transform: scale(0.75);
+    opacity: 0.65;
+  }
+  100% {
+    transform: scale(1.75);
+    opacity: 0;
+  }
+}
+
+@keyframes kmMiniFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 960px) {
+  body.page-home section#add-place.home-join .home-join__head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 680px) {
+  body.page-home section#add-place.home-join {
+    padding: 20px 14px;
+    border-radius: 20px;
+  }
+
+  body.page-home section#add-place.home-join .home-join__stats {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  body.page-home section#add-place.home-join .home-join__stat {
+    min-width: 0;
+    padding: 8px 9px;
+  }
+
+  body.page-home section#add-place.home-join .home-join__stat-val {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  body.page-home section#add-place.home-join .home-join__cards {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  body.page-home section#add-place.home-join .home-join-card {
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  body.page-home section#add-place.home-join .home-join-card__stage {
+    height: 152px;
+  }
+
+  body.page-home section#add-place.home-join .home-join-card__body {
+    padding: 14px 6px 6px;
+  }
+
+  body.page-home section#add-place.home-join .home-join-card__action,
+  body.page-home section#add-place.home-join .home-join-card__action form {
+    width: 100%;
+  }
+
+  body.page-home section#add-place.home-join .home-join-card__cta,
+  body.page-home section#add-place.home-join .home-join-card__action form .home-join-card__cta {
+    width: 100%;
+  }
+}
+
+/* ── Reduced Motion ───────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  body.page-home section#add-place.home-join .home-join__eyebrow-dot,
+  body.page-home section#add-place.home-join .home-join-stage__pulse,
+  body.page-home section#add-place.home-join .home-join-stage__mini-card {
+    animation: none;
+  }
+
+  body.page-home section#add-place.home-join .home-join-card,
+  body.page-home section#add-place.home-join .home-join-card__bg-art,
+  body.page-home section#add-place.home-join .home-join-stage__pin,
+  body.page-home section#add-place.home-join .home-join-stage__verified,
+  body.page-home section#add-place.home-join .home-join-stage__mini-card,
+  body.page-home section#add-place.home-join .home-join-card__cta,
+  body.page-home section#add-place.home-join .home-join-card__cta::after {
+    transition: none;
+  }
+
+  body.page-home section#add-place.home-join .home-join__cards.is-waiting .home-join-card {
+    opacity: 1;
+    transform: none;
+  }
+}
