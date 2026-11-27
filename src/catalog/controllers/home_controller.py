@@ -169,6 +169,7 @@ class HomeController:
             "hero_cta_text": site_settings.home_cta_text_i18n(language_code) or _("Начать поиск"),
             "hero_show_decor": bool(site_settings.home_hero_show_decor),
             "hero_gallery_slides": hero_gallery_slides,
+            "hero_main_sizes": "(max-width: 760px) 55vw, (max-width: 1100px) 27vw, 320px",
             "home_specialists": home_specialists,
             "hero_topics": self._hero_topics(language_code, home_specialists),
         }
