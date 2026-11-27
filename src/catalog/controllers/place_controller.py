@@ -11,7 +11,7 @@ from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext as _, ngettext, override
+from django.utils.translation import gettext as _, override
 
 from catalog.services.public_cache import cached
 from catalog.services.catalog_aggregate_scope import aggregate_places, public_place_count
@@ -35,7 +35,7 @@ from catalog.services.seo import build_catalog_seo_payload, build_place_seo_payl
 from catalog.services.seo_landing_visibility import build_seo_landing_visibility
 from catalog.services.tracking import TrackingService
 from catalog.services.features import is_events_section_enabled
-from catalog.services.event_afisha import ru_events_label as _ru_events_label
+from catalog.services.event_collections import listings_word
 from catalog.services.rating_ranking import rating_sort_is_available
 
 
@@ -374,43 +374,39 @@ class PlaceController:
         )
 
         # --- i18n strings ---
+        count_label = listings_word(page_obj.paginator.count, language_code)
         if language_code == "az":
             seo_title = "Bakıda uşaqlar üçün tədbirlər afişası | KidsMap"
             heading = "Bakıda uşaqlar üçün tədbirlər"
-            intro = "Tamaşalar, ustad dərsləri və ailəvi tədbirlər. Tarixə və uşağın yaşına görə seçin."
+            intro = "Bakıda bu gün və ya həftəsonu uşaqlarla hara getmək olar? Tamaşaları, sərgiləri və ustad dərslərini tarixə və yaşa görə seçin."
             description = (
                 "Bakıda uşaqlar üçün tamaşalar, ustad dərsləri və ailəvi tədbirlər. "
                 "Bu gün və həftəsonu üçün tədbirləri tarixə, yaşa və rayona görə seçin."
             )
-            results_count_label = f"{page_obj.paginator.count} tədbir tapıldı"
+            results_count_label = f"{count_label} tapıldı"
             stat_label = f"Dərc olunub — bu gün və sonra: {active_total}"
             search_placeholder = "Tədbir axtar..."
         elif language_code == "en":
             seo_title = "Kids’ Events in Baku — What’s On | KidsMap"
             heading = "Kids’ events in Baku"
-            intro = "Shows, workshops and family events. Find something for your child by date and age."
+            intro = "Wondering what to do with kids in Baku today or this weekend? Browse shows, exhibitions and workshops by date and age."
             description = (
                 "Find kids’ shows, workshops and family events in Baku. "
                 "Browse what’s on today or this weekend by date, age and district."
             )
-            results_count_label = f"{page_obj.paginator.count} events found"
+            results_count_label = f"{count_label} found"
             stat_label = f"Published — today and later: {active_total}"
             search_placeholder = "Search events..."
         else:
             seo_title = "Детская афиша Баку — мероприятия для детей | KidsMap"
             heading = "Детская афиша Баку"
-            intro = "Спектакли, мастер-классы и семейные события. Выбирайте по дате и возрасту ребёнка."
+            intro = "Куда пойти с детьми в Баку сегодня или на выходных? Выберите спектакль, выставку или мастер-класс по дате и возрасту ребёнка."
             description = (
                 "Спектакли, мастер-классы и семейные мероприятия в Баку. "
                 "Найдите событие на сегодня или выходные по дате, возрасту ребёнка и району."
             )
-            results_count_label = ngettext(
-                "Найдено %(total)s мероприятие",
-                "Найдено %(total)s мероприятий",
-                page_obj.paginator.count,
-            ) % {"total": page_obj.paginator.count}
             stat_label = f"Опубликовано — сегодня и далее: {active_total}"
-            results_count_label = "Найдено " + _ru_events_label(page_obj.paginator.count)
+            results_count_label = "В расписании " + count_label
             search_placeholder = "Найти мероприятие..."
 
         if events_when:

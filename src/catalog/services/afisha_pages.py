@@ -40,13 +40,13 @@ def build_with_params(request, builder, params: dict):
 
 def _item_list(request, context, name):
     items = []
-    for position, group in enumerate(context.get('event_groups') or [], start=1):
-        event = group['event']
+    page = context['page_obj']
+    for position, event in enumerate(context['events'], start=page.start_index()):
         items.append({'position': position, 'name': str(event.name_i18n()),
                       'url': build_public_absolute_uri(request, event.get_absolute_url())})
     if not items:
         return ''
-    return _build_item_list_schema(name=name, item_urls=items, total_count=context['page_obj'].paginator.count)
+    return _build_item_list_schema(name=name, item_urls=items, total_count=page.paginator.count)
 
 
 def _faq_schema(items):
@@ -102,6 +102,7 @@ def apply_hub(request, context, *, language, now):
         'afisha_hub': True,
         'afisha_answer': ec.answer_text(title, facts, language),
         'afisha_updated': facts['updated'],
+        'afisha_picks': facts['picks'],
         'afisha_faq': faq,
         'afisha_links': ec.hub_links(language, now=now, categories=categories),
         'afisha_links_title': {'az': 'Hazır seçimlər', 'ru': 'Готовые подборки', 'en': 'Quick picks'}[language],
@@ -169,9 +170,6 @@ def apply_collection(request, context, collection, *, language, now, categories)
                               'kind': 'live'})
     if facts['free'] and not collection.free:
         hero_stats.append({'value': facts['free'], 'label': free_label, 'kind': ''})
-    if facts['age_low'] is not None and facts['age_high'] is not None and len(hero_stats) < 3:
-        hero_stats.append({'value': f"{facts['age_low']}–{facts['age_high']}",
-                           'label': {'az': 'yaş', 'ru': 'лет', 'en': 'years old'}[language], 'kind': ''})
 
     context.update({
         'collection': collection,
@@ -182,6 +180,7 @@ def apply_collection(request, context, collection, *, language, now, categories)
         'collection_fallback': fallback,
         'afisha_answer': ec.answer_text(title, facts, language),
         'afisha_updated': facts['updated'],
+        'afisha_picks': facts['picks'],
         'afisha_faq': faq,
         'afisha_links': ec.related_links(collection, language, now=now, categories=categories),
         'afisha_links_title': {'az': 'Bunlara da baxın', 'ru': 'Смотрите также', 'en': 'See also'}[language],

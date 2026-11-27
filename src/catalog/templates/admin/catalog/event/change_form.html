@@ -20,6 +20,10 @@
 {% block submit_buttons_top %}{% endblock %}
 {% block submit_buttons_bottom %}{% endblock %}
 {% block content %}
+{% if change and not has_change_permission %}
+  {% include "admin/catalog/event/prompt_panel.html" %}
+  {{ block.super }}
+{% else %}
 {% with form=adminform.form %}
 <div id="content-main" class="km-event-editor">
   <header class="km-event-editor__heading">
@@ -158,4 +162,5 @@
   {% if original and km_event_repeat_url %}<form method="post" action="{{ km_event_repeat_url }}" class="km-event-repeat" data-event-repeat-form>{% csrf_token %}<input type="hidden" name="expected_updated_at" value="{{ original.updated_at|date:'c' }}"><button class="km-event-button" type="submit">{% translate 'Создать похожее' %}</button><small>{% translate 'Новый черновик с пустой датой. Это мероприятие останется без изменений.' %}</small></form>{% endif %}
 </div>
 {% endwith %}
+{% endif %}
 {% endblock %}

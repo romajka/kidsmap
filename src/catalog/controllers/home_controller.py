@@ -52,9 +52,11 @@ class HomeController:
         upcoming_events = []
         upcoming_event_groups = []
         events_quick_stats = None
+        home_event_date_urls = {}
         home_map_events = []
         if is_events_section_enabled():
             # Same public reader as /events/, so home counters match the afisha.
+            from catalog.services import event_collections
             from catalog.services.event_afisha import build_event_quick_stats, upcoming_events_for_home
             from catalog.services.event_afisha import event_map_points
             from catalog.services.event_sessions import group_sessions
@@ -63,6 +65,13 @@ class HomeController:
             # One card per show and day; its showtimes are listed on the card.
             upcoming_event_groups = group_sessions(nearest)[:8]
             events_quick_stats = build_event_quick_stats()
+            # Time-only collections are indexable once the date filter reaches the minimum.
+            afisha_url = event_collections.landing_path(language_code)
+            for period in ('today', 'tomorrow', 'weekend'):
+                if events_quick_stats[period] >= event_collections.MIN_INDEXABLE_EVENTS:
+                    home_event_date_urls[period] = event_collections.Collection(time=period).path(language_code)
+                else:
+                    home_event_date_urls[period] = f'{afisha_url}?date_filter={period}'
             home_map_events = event_map_points(language_code=language_code)
 
         from catalog.services.filtering import PlaceListFilters
@@ -153,6 +162,7 @@ class HomeController:
             "upcoming_events": upcoming_events,
             "upcoming_event_groups": upcoming_event_groups,
             "events_quick_stats": events_quick_stats,
+            "home_event_date_urls": home_event_date_urls,
             "home_map_events": home_map_events,
             "map_places": map_places,
             "home_map_page": page_metadata(map_page),

@@ -399,6 +399,22 @@
 }
 .km-afisha-hero::before { width: 220px; height: 220px; right: -60px; top: -90px; background: rgba(255, 255, 255, 0.08); animation: km-float 9s ease-in-out infinite; }
 .km-afisha-hero::after { width: 120px; height: 120px; left: 38%; bottom: -70px; background: rgba(255, 214, 107, 0.22); animation: km-float 11s ease-in-out infinite reverse; }
+/* Keep the hub's permanent illustration visible behind its title and counts. */
+.km-afisha-hero__art {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 0 auto;
+  width: 48%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 48%;
+  opacity: .57;
+  mask-image: linear-gradient(to right, transparent, black 44%);
+}
+@media (max-width: 768px) {
+  .km-afisha-hero__art { width: 55%; opacity: .42; }
+}
+.km-afisha-hero__art ~ .km-afisha-stats .km-afisha-stat:not(.km-afisha-stat--total) { background: #185e39; }
 .km-afisha-hero__copy { max-width: 620px; }
 .km-afisha-hero h1 { margin: 10px 0 6px; font-family: var(--font-display, inherit); font-size: clamp(1.7rem, 4.6vw, 2.6rem); line-height: 1.05; color: #fff; }
 .km-afisha-hero p { margin: 0; color: rgba(255, 255, 255, 0.86); font-size: 0.98rem; line-height: 1.45; }

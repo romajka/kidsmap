@@ -91,6 +91,8 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         return self.fieldsets[:-1] + ((self.fieldsets[-1][0], {"fields": ("owner", "status", "rejection_reason")}),)
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+        if obj is not None and not self.has_change_permission(request, obj):
+            return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
         adminform = context.get("adminform")
         if adminform is not None:

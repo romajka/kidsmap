@@ -194,6 +194,82 @@ class AfishaCollectionTests(TestCase):
         self.assertEqual(response.context['seo_title'], 'Театр для детей в Баку | KidsMap')
         self.assertContains(response, 'все бесплатные')
 
+    def test_answer_uses_dated_sessions_and_real_changes_in_all_languages(self):
+        start = self.now + timedelta(days=2)
+        first = self.event('Atlas', venue_label='Studio One', age_from=5, languages='ru',
+                           price_mode='fixed', price_amount=8, start_datetime=start,
+                           end_datetime=start + timedelta(hours=1))
+        self.event('Atlas', start_datetime=start + timedelta(hours=2),
+                   end_datetime=start + timedelta(hours=3))
+        second = self.event('Orchestra', start_datetime=start + timedelta(days=1),
+                            end_datetime=start + timedelta(days=1, hours=1))
+        updated = self.now - timedelta(days=8)
+        Event.objects.filter(pk__in=[first.pk, second.pk]).update(updated_at=updated)
+        Event.objects.filter(name='Atlas').update(updated_at=updated)
+        for language, hub, label, query in (
+                ('az', '/tedbirler/', '3 qeyd', 'uşaqlarla hara'),
+                ('ru', '/ru/afisha/', '3 записи', 'куда пойти с детьми'),
+                ('en', '/en/events/', '3 listings', 'what to do with kids')):
+            with self.subTest(language=language), override(language):
+                response = self.client.get(hub)
+                ctx = response.context
+                self.assertIn(query, ctx['events_intro'].lower())
+                self.assertIn(label, ctx['afisha_answer'])
+                self.assertEqual(ctx['afisha_updated'], ec.format_day(updated, language))
+                picks = ctx['afisha_picks']
+                self.assertEqual([p['url'] for p in picks],
+                                 [first.get_absolute_url(), second.get_absolute_url()])
+                self.assertContains(response, 'Studio One')
+                for detail in ('Studio One', '5+', '8 AZN', {'ru': 'Русский', 'az': 'Rus dili', 'en': 'Russian'}[language]):
+                    self.assertIn(detail, picks[0]['details'])
+                faq = next(s for s in _schemas(response) if s['@type'] == 'FAQPage')
+                self.assertIn(label, faq['mainEntity'][0]['acceptedAnswer']['text'])
+                self.assertNotRegex(str(faq), 'Проверено|Yoxlanılıb|Checked on')
+
+    def test_home_links_directly_to_populated_date_collections(self):
+        start = (self.now.astimezone(ec.BAKU) + timedelta(days=1)).replace(hour=12)
+        for i in range(3):
+            self.event(f'Show {i}', start_datetime=start, end_datetime=start + timedelta(hours=1))
+        for path, target in (('/', '/tedbirler/sabah/'), ('/ru/', '/ru/afisha/zavtra/'),
+                             ('/en/', '/en/events/tomorrow/')):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertContains(response, f'class="km-home-afisha__chip" href="{target}"')
+                self.assertContains(response, '?date_filter=today"')
+
+    def test_hub_lists_each_visible_session_in_schema_when_cards_are_grouped(self):
+        start = (self.now.astimezone(ec.BAKU) + timedelta(days=3)).replace(hour=12)
+        for hour in (0, 3):
+            dt = start + timedelta(hours=hour)
+            self.event('Studio show', venue_label='Studio One', start_datetime=dt,
+                       end_datetime=dt + timedelta(hours=1))
+        with override('ru'):
+            page = self.client.get('/ru/afisha/')
+            self.assertEqual(len(page.context['event_groups']), 1)
+            schema = next(s for s in _schemas(page) if s['@type'] == 'ItemList')
+            expected = [event.get_absolute_url() for event in page.context['events']]
+            self.assertEqual([urlsplit(item['url']).path for item in schema['itemListElement']], expected)
+            self.assertIn('2 записи', page.context['results_count_label'])
+
+    def test_collection_does_not_give_an_age_ceiling_to_mixed_open_ended_shows(self):
+        self.event('Show without upper age limit', age_from=3)
+        self.event('Younger show', age_from=4, age_to=6)
+        page = self.client.get('/ru/afisha/teatr/')
+        self.assertFalse(any(stat['label'] == 'лет' for stat in page.context['collection_stats']))
+
+    def test_running_count_and_examples_skip_finished_sessions_of_today(self):
+        now = self.now.astimezone(ec.BAKU).replace(hour=15, minute=0)
+        ended = self.event('Finished', start_datetime=now - timedelta(hours=3),
+                           end_datetime=now - timedelta(hours=2))
+        live = self.event('Exhibition', start_datetime=now - timedelta(days=2),
+                          end_datetime=now + timedelta(days=3))
+        qs = Event.objects.filter(pk__in=[ended.pk, live.pk])
+        with override('ru'):
+            facts = ec.collection_facts(qs, now=now, language='ru')
+        self.assertEqual(facts['running'], 1)
+        self.assertEqual([p['name'] for p in facts['picks']], ['Exhibition'])
+        self.assertIn('до', facts['picks'][0]['details'])
+
     def test_thin_collection_is_noindex_and_shows_nearest_events(self):
         self.event('Единственный спектакль')
         self.event('Концерт', category=self.music, start_datetime=self.now + timedelta(days=11),

@@ -1,4 +1,31 @@
-{% load i18n %}
+{% load i18n event_editor_guide %}
+{% event_editor_guide as editor_sections %}
+<details id="event-editor-guide" class="mb-3">
+  <summary class="btn btn-outline-primary">{% translate "Инструкция редактора афиши" %}</summary>
+  {% event_source_groups as source_groups %}
+  <details id="event-research-sources" class="mt-3 mb-3">
+    <summary><strong>{% translate "Где искать события и фотографии" %}</strong></summary>
+    <dl class="mt-2 mb-2">
+      {% for heading, guidance, links in source_groups %}
+        <dt>{{ heading }}</dt>
+        <dd class="mb-3">
+          <p class="mb-1">{{ guidance }}</p>
+          {% for label, url in links %}<a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ label }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}
+        </dd>
+      {% endfor %}
+    </dl>
+  </details>
+  <ul class="list-unstyled mt-3">
+    {% for heading, advice in editor_sections %}
+      <li class="mb-2">
+        <details>
+          <summary><strong>{{ heading }}</strong></summary>
+          <p class="mt-2 mb-2">{{ advice }}</p>
+        </details>
+      </li>
+    {% endfor %}
+  </ul>
+</details>
 {% if has_add_permission or has_change_permission or perms.catalog.change_event %}
 <details class="mb-3">
   <summary class="btn btn-outline-primary">

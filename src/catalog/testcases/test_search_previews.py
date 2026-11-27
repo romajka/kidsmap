@@ -149,7 +149,12 @@ class SearchPreviewTests(TestCase):
                     if not query:
                         original_image = next(row for row in parsed.schemas
                                               if row.get('@type') == 'WebPage')['primaryImageOfPage']
-                        self.assertEqual(original_image['url'], 'https://kidsmap.az' + event.photo.url)
+                        illustration = next((img for img in parsed.images if 'km-afisha-hero__art' in img.get('class', '').split()), None)
+                        self.assertIsNotNone(illustration, 'The hub needs a visible, stable editorial illustration.')
+                        self.assertEqual(original_image['url'], urljoin('https://kidsmap.az', illustration['src']))
+                        self.assertNotEqual(original_image['url'], 'https://kidsmap.az' + event.photo.url)
+                        self.assertEqual(original_image['caption'], illustration['alt'])
+                        self.assertTrue(finders.find(illustration['src'].removeprefix('/static/')))
                     self.assertFalse(any(img.get('src') == '/static/' + asset_path
                                          for img in parsed.images))
             with self.subTest(asset=asset_path):

@@ -1,17 +1,14 @@
 {% load i18n catalog_i18n event_editorial %}
 {% localized_content event 'description' as content %}
-{% if content.text %}
+{% if content.text or event_search_summary %}
   {% with story=content.text|event_story %}
     {% event_duration event language as duration %}
     <section class="event-about" aria-labelledby="event-about"><div class="event-about__ticket">
       <h2 id="event-about">{% if language == 'az' %}Tədbir haqqında{% elif language == 'en' %}About the event{% else %}О мероприятии{% endif %}</h2>
-      <ul class="event-about__facts">
-        {% for item in event.language_list %}<li><span class="material-symbols-rounded" aria-hidden="true">record_voice_over</span>{{ item.name }}</li>{% endfor %}
-        {% if event.age_display %}<li><span class="material-symbols-rounded" aria-hidden="true">child_care</span>{% blocktrans with ages=event.age_display %}{{ ages }} лет{% endblocktrans %}</li>{% endif %}
-        {% if duration %}<li><span class="material-symbols-rounded" aria-hidden="true">timer</span>{{ duration }}</li>{% endif %}
-      </ul>
-      {% if content.is_fallback %}<small class="event-about__fallback" data-source-language="{{ content.language }}">{{ content.source_label }}</small>{% endif %}
+      {% if duration %}<ul class="event-about__facts"><li><span class="material-symbols-rounded" aria-hidden="true">timer</span>{{ duration }}</li></ul>{% endif %}
       <div class="event-about__text">
+        {% if event_search_summary %}<p class="event-story__paragraph" data-event-search-summary lang="{{ language }}">{{ event_search_summary }}</p>{% endif %}
+        {% if content.is_fallback %}<small class="event-about__fallback" data-source-language="{{ content.language }}">{{ content.source_label }}</small>{% endif %}
         {% for paragraph in story.paragraphs %}<p class="event-story__paragraph" lang="{{ content.language }}">{{ paragraph }}</p>{% endfor %}
       </div>
       {% if story.links or story.credits %}
