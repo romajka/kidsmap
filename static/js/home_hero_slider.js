@@ -18,10 +18,9 @@
     if (!viewport || !track || slides.length < 2) return;
 
     var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var current = 0;
+    var current = -1;
     var paused = false;
 
-    slider.classList.add("is-stage");
     slider.style.setProperty("--stage-ms", SLIDE_MS + "ms");
     slider.setAttribute("aria-roledescription", "carousel");
     viewport.setAttribute("tabindex", "0");
@@ -34,7 +33,7 @@
 
     function show(index, direction) {
       var target = (index + slides.length) % slides.length;
-      if (target === current && slides[target].classList.contains("is-active")) return;
+      if (target === current) return;
       var leaving = slides[current];
       slides.forEach(function (slide, i) {
         var on = i === target;
@@ -45,8 +44,10 @@
           if (on) img.removeAttribute("loading");
         });
       });
-      if (leaving && leaving !== slides[target]) leaving.classList.add("is-leaving");
-      slider.setAttribute("data-dir", direction < 0 ? "back" : "forward");
+      if (leaving) {
+        leaving.classList.add("is-leaving");
+        slider.setAttribute("data-dir", direction < 0 ? "back" : "forward");
+      }
       dots.forEach(function (dot, i) {
         var on = i === target;
         dot.classList.toggle("is-active", on);
@@ -107,19 +108,12 @@
     viewport.addEventListener("dragstart", function (e) { e.preventDefault(); });
 
     if (reduce) slider.classList.add("is-still");
-    // first slide: reveal once the photos can be seen
+    // The first slide is already painted. Start its controls and autoplay clock.
     show(0, 1);
-  }
-
-  function mountSingle(slider) {
-    slider.classList.add("is-stage");
-    var slide = slider.querySelector(".home-hero-slide");
-    if (slide) slide.classList.add("is-active");
   }
 
   function boot() {
     Array.prototype.forEach.call(document.querySelectorAll("[data-home-hero-slider]"), mountHeroSlider);
-    Array.prototype.forEach.call(document.querySelectorAll("[data-home-hero-slider-single]"), mountSingle);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();

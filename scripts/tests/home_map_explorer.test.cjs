@@ -60,10 +60,15 @@ test('payload names are text and unsafe image/detail URLs are rejected',()=>{
  const t=setup([point(7,[bad])]);const list=t.d.querySelector('[data-home-map-list]');
  assert.ok(list.textContent.includes(bad.name));assert.equal(list.querySelectorAll('img,a').length,0);assert.equal(list.querySelectorAll('[onerror],[onload]').length,0);t.close();
 });
-test('list selection before provider load keeps member identity and requests lazy map reveal',()=>{
- const t=setup([point(1,[member(1),member(2)])]);let loads=0;t.w.kidsMapTriggerHomeMapLoad=()=>loads++;
- const selected=t.d.querySelector('[data-home-map-member-id="2"]');assert.ok(selected);selected.click();
- assert.equal(selected.getAttribute('aria-pressed'),'true');assert.equal(t.d.querySelector('[data-home-map-member-id="1"]').getAttribute('aria-pressed'),'false');assert.equal(loads,1);t.close();
+test('selecting a member in the mobile list reveals its map panel before the provider is ready',()=>{
+ const t=setup([point(1,[member(1),member(2)])],{mobile:true});
+ t.d.querySelector('[data-home-explorer-tab="list"]').click();
+ const panel=t.d.querySelector('[data-home-explorer-map]');
+ assert.equal(panel.hidden,true);
+ const selected=t.d.querySelector('[data-home-map-member-id="2"]');selected.click();
+ assert.equal(selected.getAttribute('aria-pressed'),'true');
+ assert.equal(t.d.querySelector('[data-home-map-member-id="1"]').getAttribute('aria-pressed'),'false');
+ assert.equal(panel.hidden,false);t.close();
 });
 test('mobile map/list tabs use roving focus and remain operable without a provider',()=>{
  const t=setup(undefined,{mobile:true});const map=t.d.querySelector('[data-home-explorer-tab="map"]'),list=t.d.querySelector('[data-home-explorer-tab="list"]');map.focus();map.dispatchEvent(new t.w.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));

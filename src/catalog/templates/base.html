@@ -5,7 +5,7 @@
 <html lang="{% firstof CURRENT_LANGUAGE LANGUAGE_CODE 'az' %}">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />{% block image_preload %}{% endblock %}
     {% if google_site_verification %}
       <meta name="google-site-verification" content="{{ google_site_verification }}" />
     {% endif %}

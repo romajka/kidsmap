@@ -10,9 +10,20 @@
 <script type="application/ld+json">{{ home_featured_schema_json|safe }}</script>
 {% endif %}
 {% endblock %}
+{% block image_preload %}
+{% with photo=hero_gallery_slides.0.main %}
+{% if photo %}
+<link rel="preload" as="image" media="(min-width: 768px)" fetchpriority="high"
+  {% if photo.image_srcset %}href="{{ photo.image_responsive_url }}" imagesrcset="{{ photo.image_srcset }}" imagesizes="{{ hero_main_sizes }}"
+  {% elif photo.image_webp_url %}href="{{ photo.image_webp_url }}" type="image/webp"
+  {% else %}href="{{ photo.image_url }}"{% endif %} />
+{% endif %}
+{% endwith %}
+<link rel="preload" as="image" media="(max-width: 767px)" fetchpriority="high" href="{% static '3d/mappy-idle.webp' %}" />
+{% endblock %}
 {% block extra_head %}
 <template data-scripts-near="[data-guide-slider]"><script defer src="{% static 'js/home_guide_slider.js' %}?v=20261119_manual"></script></template>
-<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20261105_route_r4" />
+<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20261127_first_paint" />
 <link rel="stylesheet" href="{% static 'css/pages/home_search.css' %}?v=20261103_mobile_compact" />
 <link rel="stylesheet" href="{% static 'css/pages/home_layout.css' %}?v=20261117_desktop_search_cards" />
 <link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261123_list_scroll" />
@@ -20,7 +31,7 @@
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261117_mobile_intro" />
 <link rel="stylesheet" href="{% static 'css/pages/home_specialists.css' %}?v=20261124_spx3" />
 <link rel="stylesheet" href="{% static 'css/pages/home_refresh.css' %}?v=20261119_stage1" />
-<link rel="stylesheet" href="{% static 'css/pages/home_hero_stage.css' %}?v=20261119_stage6" />
+<link rel="stylesheet" href="{% static 'css/pages/home_hero_stage.css' %}?v=20261127_first_paint" />
 <template data-scripts-near="[data-mappy-helper]"><script defer src="{% static 'js/mappy.js' %}?v=20261119_specialists"></script></template>
 {% if upcoming_events or home_map_events or map_places %}<link rel="stylesheet" href="{% static 'css/pages/afisha.css' %}?v=20261124_nav_mobile_layout_r2" />{% endif %}
 {% include "pages/includes/editorial_styles.html" %}
@@ -62,14 +73,14 @@
     <div class="home-hero-visual">
     {% if hero_gallery_slides %}
       {% if hero_gallery_slides|length > 1 %}
-      <div class="home-hero-slider" data-home-hero-slider>
+      <div class="home-hero-slider is-stage" data-home-hero-slider>
         <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
           <div class="home-hero-slider-track" data-home-hero-slider-track>
             {% for slide in hero_gallery_slides %}
-            <article class="home-hero-slide" data-home-hero-slide>
+            <article class="home-hero-slide{% if forloop.first %} is-active{% endif %}" data-home-hero-slide aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}">
               <div class="home-hero-slide-grid">
                 <figure class="home-hero-photo-card home-hero-photo-main">
-                  {% include "catalog/includes/hero_photo.html" with item=slide.main sizes="(max-width: 760px) 55vw, (max-width: 1100px) 27vw, 320px" high_priority=forloop.first %}
+                  {% include "catalog/includes/hero_photo.html" with item=slide.main sizes=hero_main_sizes high_priority=forloop.first %}
                 </figure>
 
                 <figure class="home-hero-photo-card home-hero-photo-side-top">
@@ -108,7 +119,7 @@
         <article class="home-hero-slide home-hero-slide-single">
           <div class="home-hero-slide-grid">
             <figure class="home-hero-photo-card home-hero-photo-main">
-              {% include "catalog/includes/hero_photo.html" with item=slide.main sizes="(max-width: 760px) 55vw, (max-width: 1100px) 27vw, 320px" high_priority=True %}
+              {% include "catalog/includes/hero_photo.html" with item=slide.main sizes=hero_main_sizes high_priority=True %}
             </figure>
 
             <figure class="home-hero-photo-card home-hero-photo-side-top">
@@ -676,12 +687,12 @@
 {% if upcoming_events or home_map_events %}<template data-scripts-near="[data-km-timer], [data-km-home-afisha]"><script src="{% static 'js/event_timer.js' %}?v=20261123_budget" defer></script></template>{% endif %}
 {% if upcoming_events %}<template data-scripts-near="[data-km-home-afisha], [data-event-suggest-form]"><script src="{% static 'js/home_afisha.js' %}?v=20261120_r3" defer></script><script src="{% static 'js/event_suggest.js' %}?v=20261120" defer></script></template>{% endif %}
 {% if hero_gallery_slides|length > 1 %}
-<template data-scripts-near="[data-home-hero-slider], [data-home-hero-slider-single]"><script src="{% static 'js/home_hero_slider.js' %}?v=20261119_stage1"></script></template>
+<template data-scripts-near="[data-home-hero-slider]"><script src="{% static 'js/home_hero_slider.js' %}?v=20261127_first_paint"></script></template>
 {% endif %}
 <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20261120_popup_anchor" />
 <template data-scripts-near="#home-map, [data-home-map-filter-form]">
 <script defer src="{% static 'js/map_tools.js' %}"></script>
-<script defer src="{% static 'js/home_map.js' %}?v=20261120_popup_anchor" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+<script defer src="{% static 'js/home_map.js' %}?v=20261127_first_paint" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
   data-home-map-route-label="{% trans 'Маршрут' %}"
   data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"

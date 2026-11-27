@@ -1304,12 +1304,11 @@ body.page-home :is(.home-discover-category,.home-redesign-primary,.home-redesign
   }
 }
 @keyframes home-redesign-enter { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes home-redesign-photo { 0%,100% { transform: scale(1); } 50% { transform: scale(1.045); } }
-@media (prefers-reduced-motion:no-preference) {
+@media (min-width: 768px) and (prefers-reduced-motion:no-preference) {
   body.page-home .home-hero-copy { animation: home-redesign-enter .7s both; }
-  body.page-home .home-hero-visual { animation: home-redesign-enter .9s .12s both; }
+}
+@media (prefers-reduced-motion:no-preference) {
   body.page-home .home-hero-search-panel { animation: home-redesign-enter .7s .2s both; }
-  body.page-home .home-hero-photo-main img { animation: home-redesign-photo 4.5s ease-in-out 1; }
 }
 /* Disable bubble bob when user prefers reduced motion */
 @media (prefers-reduced-motion: reduce) {
@@ -2886,9 +2885,6 @@ body.page-home .home-map-mobile-label { display: none; }
   body.page-home .home-hero-stat.km-stat-card:first-child { padding-left: 0; border-right: 1px solid var(--home-line); }
   body.page-home .home-hero-stat .km-stat-icon-wrapper { width: 28px; height: 28px; flex-basis: 28px; }
   body.page-home .home-hero-stat span { font-size: 11px; line-height: 1.25; }
-}
-@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
-  body.page-home .home-hero-visual { animation: home-redesign-enter .6s .2s ease-out both; }
 }
 @media (prefers-reduced-motion: reduce) {
   body.page-home .home-hero-slider-dot::after { transition: none; }

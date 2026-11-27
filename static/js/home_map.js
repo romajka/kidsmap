@@ -645,9 +645,6 @@
       activeMapFocusHandler(placeId, generation);
     } else {
       pendingFocusPlaceId = placeId;
-      if (typeof window.kidsMapTriggerHomeMapLoad === "function") {
-        window.kidsMapTriggerHomeMapLoad();
-      }
     }
   }
   window.kidsMapFocusPlaceOnHomeMap = requestFocusPlace;
@@ -2159,14 +2156,12 @@
     tabs.forEach((tab, index) => {
       tab.addEventListener("click", () => {
         setView(tab.dataset.homeExplorerTab, false);
-        if (view === "map") window.kidsMapTriggerHomeMapLoad?.();
       });
       tab.addEventListener("keydown", event => {
         if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
         event.preventDefault();
         const next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
         setView(tabs[next].dataset.homeExplorerTab, true);
-        if (view === "map") window.kidsMapTriggerHomeMapLoad?.();
       });
     });
     mobile.addEventListener("change", () => setView(view, false));
@@ -2438,40 +2433,30 @@
       });
     }
 
-    function triggerLoad() {
-      loadAndMount();
-      mapSection.removeEventListener("mouseenter", triggerLoad);
-      mapSection.removeEventListener("touchstart", triggerLoad);
-      window.removeEventListener("scroll", triggerLoad, true);
-    }
-
-    window.kidsMapTriggerHomeMapLoad = triggerLoad;
-
-    if (typeof window.IntersectionObserver !== "function") {
-      loadAndMount();
+    // Search and list controls are ready above. Only the map surface needs the SDK.
+    const margin = 160;
+    if (typeof window.IntersectionObserver === "function") {
+      const observer = new IntersectionObserver(entries => {
+        if (!entries.some(entry => entry.isIntersecting)) return;
+        observer.disconnect();
+        loadAndMount();
+      }, {rootMargin: margin + "px 0px"});
+      observer.observe(mapEl);
       return;
     }
 
-    const observer = new IntersectionObserver(
-      function (entries) {
-        if (entries.some(function (entry) {
-          return entry.isIntersecting;
-        })) {
-          observer.disconnect();
-          triggerLoad();
-        }
-      },
-      {
-        rootMargin: "280px 0px",
-        threshold: 0.01,
-      }
-    );
-
-    observer.observe(mapSection);
-    mapSection.addEventListener("mouseenter", triggerLoad, { passive: true });
-    mapSection.addEventListener("touchstart", triggerLoad, { passive: true, once: true });
-    window.addEventListener("scroll", triggerLoad, { passive: true, capture: true, once: true });
-    window.setTimeout(triggerLoad, 900);
+    function loadIfNear() {
+      const rect = mapEl.getBoundingClientRect();
+      if (!rect.height || rect.bottom < -margin || rect.top > window.innerHeight + margin) return;
+      window.removeEventListener("scroll", loadIfNear, true);
+      window.removeEventListener("resize", loadIfNear);
+      mapEl.removeEventListener("kidsmap:home-map-visible", loadIfNear);
+      loadAndMount();
+    }
+    window.addEventListener("scroll", loadIfNear, {passive: true, capture: true});
+    window.addEventListener("resize", loadIfNear);
+    mapEl.addEventListener("kidsmap:home-map-visible", loadIfNear);
+    loadIfNear();
   }
 
   startMapBootstrap();

@@ -2,6 +2,9 @@
    Loaded after the older home stylesheets; :not(#kmc-a) lifts rules over their selectors.
    The phone hero is untouched (its photo collage is hidden there). */
 
+/* The first screen is already visible when the shared panel reveal initializes. */
+body.page-home .home-hero.reveal-item { animation: none; }
+
 /* ---------- photo stage ---------------------------------------------------------- */
 @media (min-width: 768px) {
   body.page-home .home-hero-slider.is-stage:not(#kmc-a) { position: relative; isolation: isolate; }
@@ -31,18 +34,18 @@
   body.page-home .home-hero-slider.is-stage .home-hero-slide.is-leaving:not(#kmc-a) { visibility: visible; z-index: 1; animation: km-stage-leave .55s cubic-bezier(.4, 0, .2, 1) both; }
 
   /* each photo of the incoming slide opens from a rounded window, one after another */
-  body.page-home .home-hero-slider.is-stage .home-hero-slide.is-active .home-hero-photo-card:not(#kmc-a) {
+  body.page-home .home-hero-slider.is-stage[data-dir] .home-hero-slide.is-active .home-hero-photo-card:not(#kmc-a) {
     animation: km-stage-reveal .9s cubic-bezier(.22, 1, .36, 1) both;
   }
-  body.page-home .home-hero-slider.is-stage .home-hero-slide.is-active .home-hero-photo-side-top:not(#kmc-a) { animation-delay: .12s; }
-  body.page-home .home-hero-slider.is-stage .home-hero-slide.is-active .home-hero-photo-side-bottom:not(#kmc-a) { animation-delay: .24s; }
+  body.page-home .home-hero-slider.is-stage[data-dir] .home-hero-slide.is-active .home-hero-photo-side-top:not(#kmc-a) { animation-delay: .12s; }
+  body.page-home .home-hero-slider.is-stage[data-dir] .home-hero-slide.is-active .home-hero-photo-side-bottom:not(#kmc-a) { animation-delay: .24s; }
   body.page-home .home-hero-slider.is-stage[data-dir="back"] .home-hero-slide.is-active .home-hero-photo-card:not(#kmc-a) { animation-name: km-stage-reveal-back; }
   /* and the camera settles slowly while the slide is on */
-  body.page-home .home-hero-slider.is-stage .home-hero-slide.is-active .home-hero-photo-card img:not(#kmc-a) {
+  body.page-home .home-hero-slider.is-stage[data-dir] .home-hero-slide.is-active .home-hero-photo-card img:not(#kmc-a) {
     animation: km-stage-settle calc(var(--stage-ms, 6500ms) + 900ms) cubic-bezier(.2, .6, .3, 1) both;
   }
-  body.page-home .home-hero-slider.is-stage .home-hero-slide.is-active .home-hero-photo-side-top img:not(#kmc-a) { animation-delay: .12s; }
-  body.page-home .home-hero-slider.is-stage .home-hero-slide.is-active .home-hero-photo-side-bottom img:not(#kmc-a) { animation-delay: .24s; }
+  body.page-home .home-hero-slider.is-stage[data-dir] .home-hero-slide.is-active .home-hero-photo-side-top img:not(#kmc-a) { animation-delay: .12s; }
+  body.page-home .home-hero-slider.is-stage[data-dir] .home-hero-slide.is-active .home-hero-photo-side-bottom img:not(#kmc-a) { animation-delay: .24s; }
   body.page-home .home-hero-slider.is-stage.is-paused .home-hero-slide.is-active .home-hero-photo-card img:not(#kmc-a) { animation-play-state: paused; }
 
   /* dots: a glass pill over the photos; the active one fills like a timeline */
@@ -132,6 +135,10 @@
   body.page-home .home-hero-slider.is-stage .home-hero-slider-arrow:hover:not(#kmc-a) { background: #136f38; color: #fff; }
   body.page-home .home-hero-slider.is-stage .home-hero-slider-arrow:active:not(#kmc-a) { transform: translate(0, -50%) scale(.92); }
   body.page-home .home-hero-slider.is-stage .home-hero-slider-arrow:focus-visible:not(#kmc-a) { outline: 3px solid rgba(19, 111, 56, .45); outline-offset: 2px; opacity: 1; }
+}
+/* Use the settled crop on first paint; later slides still zoom into this position. */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  body.page-home .home-hero-slider.is-stage:not([data-dir]) .home-hero-photo-card img { transform: scale(1.02); }
 }
 /* touch screens have no hover: keep the arrows visible */
 @media (min-width: 768px) and (hover: none) {
