@@ -8,14 +8,13 @@
     if (!scriptEl) return {};
 
     return {
-      googleMapsApiKey: (scriptEl.dataset.homeMapGoogleKey || "").trim(),
+      googleMapsSrc: document.getElementById("home-map-sdk")?.href,
       googleMapsMapId: (scriptEl.dataset.homeMapGoogleMapId || "").trim(),
       leafletCss: (scriptEl.dataset.homeMapLeafletCss || "").trim(),
       leafletCssIntegrity: (scriptEl.dataset.homeMapLeafletCssIntegrity || "").trim(),
       leafletJs: (scriptEl.dataset.homeMapLeafletJs || "").trim(),
       leafletJsIntegrity: (scriptEl.dataset.homeMapLeafletJsIntegrity || "").trim(),
       routeLabel: (scriptEl.dataset.homeMapRouteLabel || "Route").trim(),
-      language: (scriptEl.dataset.homeMapLanguage || "az").trim(),
       unavailableLabel: (scriptEl.dataset.homeMapUnavailableLabel || "Map is temporarily unavailable.").trim(),
       tilesUnavailableLabel: (scriptEl.dataset.homeMapTilesUnavailableLabel || "The map background is temporarily unavailable.").trim(),
     };
@@ -467,23 +466,17 @@
       '</svg>';
   }
 
-  function renderFallback(mapEl, mapNoteEl) {
-    if (!mapEl) return;
-
-    if (mapNoteEl) {
-      mapNoteEl.hidden = true;
-      mapNoteEl.textContent = "";
-    }
-
-    const title = mapEl.dataset.fallbackTitle || "Map";
-    mapEl.innerHTML =
-      '<iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Baku%2C%20Azerbaijan&z=11&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="' +
-      escapeHtml(title) +
-      '"></iframe>';
-  }
-
   function renderMapUnavailable(mapEl, mapNoteEl) {
     if (!mapEl) return;
+    const preview = mapEl.closest("[data-home-map-preview]");
+    if (preview) {
+      preview.classList.remove("is-live");
+      preview.dataset.mapUnavailable = "1";
+      mapEl.inert = true;
+      const status = preview.querySelector(".home-map-preview-status");
+      if (status) status.hidden = false;
+      return;
+    }
     const catalogUrl = mapEl.dataset.catalogUrl || "/catalog/";
     const catalogLabel = mapEl.dataset.catalogLabel || "Открыть каталог";
     const msg = escapeHtml(SCRIPT_CONFIG.unavailableLabel);
@@ -1196,6 +1189,16 @@
     initHomeSearchAutocomplete(refreshMap);
   }
 
+  function showLiveMap(mapEl) {
+    const preview = mapEl.closest("[data-home-map-preview]");
+    if (!preview) return;
+    delete preview.dataset.mapUnavailable;
+    mapEl.inert = false;
+    preview.classList.add("is-live");
+    const status = preview.querySelector(".home-map-preview-status");
+    if (status) status.hidden = true;
+  }
+
   // Optional layers (static/js/map_event_layer.js) attach to whichever engine mounted.
   function announceHomeMap(mapEl, detail) {
     mapEl.__kidsMapMounted = detail;
@@ -1251,6 +1254,10 @@
     const map = new google.maps.Map(mapEl, mapOptions);
     mapEl.__kidsMapGoogle = map; // home_map_fx.js: one-finger panning in full screen
     announceHomeMap(mapEl, {engine: "google", map: map, mapId: SCRIPT_CONFIG.googleMapsMapId});
+    const tilesListener = map.addListener("tilesloaded", () => {
+      tilesListener.remove();
+      if (mapEl.dataset.googleAuthFailed !== "1") showLiveMap(mapEl);
+    });
     const infoWindow = new google.maps.InfoWindow();
     // Only the visitor's own pan/zoom re-orders the list; camera moves made by
     // the page (fit, card reveal, popup auto-pan) do not.
@@ -1628,12 +1635,18 @@
     });
 
     const basemap = createHomeBasemapLayer();
+    let tilesFailed = false;
     let tileStatus = null;
     basemap.on("tileerror", function () {
-      if (tileStatus) return;
+      if (tilesFailed) return;
+      tilesFailed = true;
       // Stop further requests after a rejected/offline tile. Marker/filter
       // interactions remain available; never replace the provider silently.
       map.removeLayer(basemap);
+      if (mapEl.closest("[data-home-map-preview]")) {
+        renderMapUnavailable(mapEl, mapNoteEl);
+        return;
+      }
       tileStatus = document.createElement("p");
       tileStatus.className = "home-map-note";
       tileStatus.dataset.homeMapTileStatus = "unavailable";
@@ -1645,7 +1658,10 @@
       tileStatus.append(link);
       mapEl.insertAdjacentElement("beforebegin", tileStatus);
     });
-    map.on("unload", function () { if (tileStatus) tileStatus.remove(); });
+    map.on("unload", () => tileStatus?.remove());
+    basemap.on("load", () => {
+      if (!tilesFailed) showLiveMap(mapEl);
+    });
     basemap.addTo(map);
     mapEl.addEventListener("kidsmap:home-map-visible", () => map.invalidateSize({pan:false}));
 
@@ -2370,8 +2386,14 @@
     }
 
     function loadGoogleProvider() {
-      if (!SCRIPT_CONFIG.googleMapsApiKey) return Promise.reject(new Error("Missing Google Maps API key"));
       const clusterJsHref = "https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js";
+
+      const previousAuthFailure = window.gm_authFailure;
+      window.gm_authFailure = function () {
+        mapEl.dataset.googleAuthFailed = "1";
+        renderMapUnavailable(mapEl, mapNoteEl);
+        previousAuthFailure?.();
+      };
 
       window.kidsMapHomeMapGoogleLoaded = function () {
         const clusterReady = window.markerClusterer ? Promise.resolve() : loadScript(clusterJsHref);
@@ -2384,18 +2406,11 @@
           });
       };
 
-      const src =
-        "https://maps.googleapis.com/maps/api/js?key=" +
-        encodeURIComponent(SCRIPT_CONFIG.googleMapsApiKey) +
-        "&loading=async&libraries=marker&language=" +
-        encodeURIComponent(SCRIPT_CONFIG.language) +
-        "&region=AZ&callback=kidsMapHomeMapGoogleLoaded";
-
       if (window.google && window.google.maps && window.google.maps.Map) {
         window.kidsMapHomeMapGoogleLoaded();
         return Promise.resolve();
       }
-      return loadScript(src);
+      return loadScript(SCRIPT_CONFIG.googleMapsSrc);
     }
 
     let loadStarted = false;
@@ -2412,12 +2427,13 @@
       loadStarted = true;
 
       fallbackTimer = window.setTimeout(function () {
-        if (mapEl.dataset.mapInitialized !== "1") {
+        const preview = mapEl.closest("[data-home-map-preview]");
+        if (preview ? !preview.classList.contains("is-live") : mapEl.dataset.mapInitialized !== "1") {
           renderMapUnavailable(mapEl, mapNoteEl);
         }
       }, 7000);
 
-      if (!SCRIPT_CONFIG.googleMapsApiKey) {
+      if (!SCRIPT_CONFIG.googleMapsSrc) {
         loadLeafletProvider().catch(function () {
           clearFallbackTimer();
           renderMapUnavailable(mapEl, mapNoteEl);
@@ -2426,37 +2442,12 @@
       }
 
       loadGoogleProvider().catch(function () {
-        loadLeafletProvider().catch(function () {
-          clearFallbackTimer();
-          renderMapUnavailable(mapEl, mapNoteEl);
-        });
+        clearFallbackTimer();
+        renderMapUnavailable(mapEl, mapNoteEl);
       });
     }
 
-    // Search and list controls are ready above. Only the map surface needs the SDK.
-    const margin = 160;
-    if (typeof window.IntersectionObserver === "function") {
-      const observer = new IntersectionObserver(entries => {
-        if (!entries.some(entry => entry.isIntersecting)) return;
-        observer.disconnect();
-        loadAndMount();
-      }, {rootMargin: margin + "px 0px"});
-      observer.observe(mapEl);
-      return;
-    }
-
-    function loadIfNear() {
-      const rect = mapEl.getBoundingClientRect();
-      if (!rect.height || rect.bottom < -margin || rect.top > window.innerHeight + margin) return;
-      window.removeEventListener("scroll", loadIfNear, true);
-      window.removeEventListener("resize", loadIfNear);
-      mapEl.removeEventListener("kidsmap:home-map-visible", loadIfNear);
-      loadAndMount();
-    }
-    window.addEventListener("scroll", loadIfNear, {passive: true, capture: true});
-    window.addEventListener("resize", loadIfNear);
-    mapEl.addEventListener("kidsmap:home-map-visible", loadIfNear);
-    loadIfNear();
+    loadAndMount();
   }
 
   startMapBootstrap();

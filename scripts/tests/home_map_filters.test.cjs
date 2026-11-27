@@ -56,7 +56,7 @@ test('latest filter response wins, aborted and stale results cannot overwrite th
 test('Leaflet fallback reads asset URLs and integrity from its script tag', async () => {
   const calls = [];
   const providerContext = {
-    document: {currentScript: {dataset: {
+    document: {getElementById: () => null, currentScript: {dataset: {
       homeMapLeafletCss: 'https://example.test/leaflet.css',
       homeMapLeafletCssIntegrity: 'css-integrity',
       homeMapLeafletJs: 'https://example.test/leaflet.js',

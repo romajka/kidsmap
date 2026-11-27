@@ -128,7 +128,7 @@ test('exact matched group ages are displayed verbatim without substituting broad
 // Exercise the actual Leaflet mounting branch; the provider model deliberately
 // implements only its public marker/popup/cluster lifecycle (no external SDK).
 function leafletLifecycle(initial=[point(1)],size={width:340,height:430}){
- const vm=require('node:vm'),dom=new JSDOM('<div id="map"></div><p id="note"></p>');
+ const vm=require('node:vm'),dom=new JSDOM('<div data-home-map-preview><div id="map" inert></div><p class="home-map-preview-status" hidden></p></div><p id="note"></p>');
  const d=dom.window.document,maps=[],markers=[],frames=[],viewports=[];let selected=1;
  function events(target={}){const handlers={};return Object.assign(target,{on(names,fn){names.split(' ').forEach(name=>(handlers[name]||=[]).push(fn));return this;},off(name,fn){handlers[name]=(handlers[name]||[]).filter(item=>item!==fn);return this;},fire(name,event={}){(handlers[name]||[]).forEach(fn=>fn(event));}});}
  const map=events({popup:null,addLayer(){},removeLayer(){},invalidateSize(){this.invalidations=(this.invalidations||0)+1;},setView(){},fitBounds(){},getBounds:()=>({getSouthWest:()=>({lat:40,lng:49}),getNorthEast:()=>({lat:41,lng:50})}),closePopup(){const previous=this.popup;this.popup=null;if(previous)previous.fire('popupclose');}});maps.push(map);
@@ -209,7 +209,7 @@ test('guide reduced motion suppresses reveal and hover motion',()=>{
 // Native SDK transport is substituted; the production homepage mounting and
 // camera/selection event handlers run unchanged.
 function googleLifecycle(initial=[point(1),point(2)]){
- const vm=require('node:vm'),dom=new JSDOM('<div id="map"></div><p id="note"></p>');
+ const vm=require('node:vm'),dom=new JSDOM('<div data-home-map-preview><div id="map" inert></div><p class="home-map-preview-status" hidden></p></div><p id="note"></p>');
  const d=dom.window.document,viewports=[],timers=[],markers=[],reveals=[];
  function events(target={}){const handlers={};return Object.assign(target,{addListener(name,fn){(handlers[name]||=[]).push(fn);return{remove(){handlers[name]=handlers[name].filter(item=>item!==fn);}};},fire(name){(handlers[name]||[]).slice().forEach(fn=>fn());}});}
  const map=events({zoom:12,center:{lat:40.4,lng:49.8},getCenter(){return{lat:()=>this.center.lat,lng:()=>this.center.lng};},getZoom(){return this.zoom;},setCenter(center){this.center=center;},setZoom(zoom){this.zoom=zoom;this.fire('zoom_changed');},getBounds:()=>({getSouthWest:()=>({lat:()=>40,lng:()=>49}),getNorthEast:()=>({lat:()=>41,lng:()=>50})})});
@@ -219,10 +219,32 @@ function googleLifecycle(initial=[point(1),point(2)]){
  ctx.window.kidsMapCreateGoogleMarker=()=>{const marker=events({setMap(){}});markers.push(marker);return marker;};
  ctx.CustomEvent = dom.window.CustomEvent;
  vm.createContext(ctx);
- vm.runInContext(source.slice(source.indexOf('  function announceHomeMap('), source.indexOf('  // ── Coordinate helpers')), ctx);
+ vm.runInContext(source.slice(source.indexOf('  function showLiveMap('), source.indexOf('  // ── Coordinate helpers')), ctx);
  const state={mapEl:d.getElementById('map'),mapNoteEl:d.getElementById('note'),places:initial};ctx.mountGoogleMap(state);timers.splice(0).forEach(fn=>fn());
  return{ctx,state,map,popup,viewports,select(id){ctx.activeMapFocusHandler(id);map.fire('idle');reveals.splice(0).forEach(fn=>fn());},close(){dom.window.close();}};
 }
+test('Google map keeps its preview until visible tiles finish loading',()=>{
+ const t=googleLifecycle();
+ try{
+  const preview=t.state.mapEl.parentElement;
+  assert.equal(preview.classList.contains('is-live'),false);
+  t.map.fire('idle');
+  assert.equal(preview.classList.contains('is-live'),false);
+  t.map.fire('tilesloaded');
+  assert.equal(preview.classList.contains('is-live'),true);
+  assert.equal(t.state.mapEl.inert,false);
+ } finally {t.close();}
+});
+
+test('Google authentication failure cannot replace the preview with an error overlay',()=>{
+ const t=googleLifecycle();
+ try{
+  t.state.mapEl.dataset.googleAuthFailed='1';
+  t.map.fire('tilesloaded');
+  assert.equal(t.state.mapEl.parentElement.classList.contains('is-live'),false);
+ } finally {t.close();}
+});
+
 test('Google wheel or keyboard gestures cannot turn a later card selection into a viewport filter',()=>{
  for(const gesture of ['wheel','keydown','dragstart']){
   const t=googleLifecycle();

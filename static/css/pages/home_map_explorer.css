@@ -191,6 +191,57 @@ body.page-home .home-map-explorer .home-map {
   border-radius: var(--radius-lg, 16px);
 }
 
+/* Both layers occupy the same reserved surface. Only the provider fades in. */
+body.page-home .home-map-explorer .home-map-preview {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  background: var(--tint-turf-050, #eaf1dc);
+}
+body.page-home .home-map-explorer .home-map-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.home-map-preview-credit,
+.home-map-preview-status {
+  position: absolute;
+  inset-inline-start: 12px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm, 8px);
+  background: var(--home-paper, #fff);
+  color: var(--brand-spruce, #174b39);
+}
+.home-map-preview-credit {
+  inset-block-end: 12px;
+  font-size: 11px;
+}
+.home-map-preview-status {
+  inset-block-start: 12px;
+  margin: 0;
+}
+[data-home-map-preview] .home-map {
+  position: relative;
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+[data-home-map-preview].is-live .home-map {
+  opacity: 1;
+}
+[data-home-map-preview].is-live .home-map-preview {
+  visibility: hidden;
+  transition: visibility 0s 240ms;
+}
+body.page-home .home-map-explorer.kmfx [data-home-map-preview]:not(.is-live) .kmfx-expand {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-home-map-preview] .home-map,
+  [data-home-map-preview].is-live .home-map-preview {
+    transition: none;
+  }
+}
+
 /* Cards List */
 body.page-home .home-map-explorer .home-explorer-list {
   list-style: none;
@@ -847,6 +898,10 @@ body.page-home .home-map-explorer .home-map-pagination {
 
   body.page-home .home-map-explorer .home-explorer-workspace {
     display: block;
+  }
+
+  body.page-home .home-map-explorer[data-explorer-view="map"] .home-explorer-list-panel {
+    display: none;
   }
 
   /* Compact tabs */

@@ -1,5 +1,5 @@
 {% load i18n static kidsmap_map %}
-<section class="panel home-map-panel home-map-explorer" id="home-map-section" data-home-map-explorer
+<section class="panel home-map-panel home-map-explorer" id="home-map-section" data-home-map-explorer data-explorer-view="map"
   data-select-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstər: {name}{% elif request.LANGUAGE_CODE == 'en' %}Show on map: {name}{% else %}Показать на карте: {name}{% endif %}"
   data-details-label="{% trans 'Подробнее' %}"
   data-loading-label="{% if request.LANGUAGE_CODE == 'az' %}Məkanlar yenilənir…{% elif request.LANGUAGE_CODE == 'en' %}Updating places…{% else %}Обновляем места…{% endif %}"
@@ -11,7 +11,6 @@
   data-selected-title="{% if request.LANGUAGE_CODE == 'az' %}Seçilmiş məkan{% elif request.LANGUAGE_CODE == 'en' %}Selected place{% else %}Выбранное место{% endif %}"
   data-fx-expand="{% if request.LANGUAGE_CODE == 'az' %}Tam ekran{% elif request.LANGUAGE_CODE == 'en' %}Full screen{% else %}На весь экран{% endif %}"
   data-fx-close="{% if request.LANGUAGE_CODE == 'az' %}Bağla{% elif request.LANGUAGE_CODE == 'en' %}Close{% else %}Закрыть{% endif %}"
-  data-fx-loading="{% if request.LANGUAGE_CODE == 'az' %}Xəritə yüklənir…{% elif request.LANGUAGE_CODE == 'en' %}Loading map…{% else %}Загружаем карту…{% endif %}"
   {% include "pages/includes/home_map_event_labels.html" %}>
 
   <div class="home-map-head">
@@ -82,8 +81,14 @@
     </div>
 
     <div class="home-explorer-map-panel" id="home-explorer-map-panel" data-home-explorer-map role="tabpanel" aria-labelledby="home-explorer-map-tab">
-      <div class="home-map-container">
-        <div id="home-map" data-map-endpoint="{% url 'public_map' %}" class="home-map" data-details-label="{% trans 'Подробнее' %}"
+      <div class="home-map-container" data-home-map-preview>
+        <div class="home-map-preview">
+          <img src="{% static 'img/baku-map-preview.webp' %}" width="720" height="900" decoding="async"
+            alt="{% if request.LANGUAGE_CODE == 'az' %}Bakı xəritəsi{% elif request.LANGUAGE_CODE == 'en' %}Map of Baku{% else %}Карта Баку{% endif %}">
+          <a class="home-map-preview-credit" href="https://opendata.az/en/@azerbaycan-respublikasinin-ekologiya-ve-tebii-servetler-nazirliyi/azerbaycanin-rayonlari">© Open Data Azerbaijan</a>
+          <p class="home-map-preview-status" role="status" hidden>{% trans 'Карта временно недоступна.' %}</p>
+        </div>
+        <div id="home-map" inert data-map-endpoint="{% url 'public_map' %}" class="home-map" data-details-label="{% trans 'Подробнее' %}"
           data-age-range-label="{% if request.LANGUAGE_CODE == 'az' %}{from}–{to} yaş{% elif request.LANGUAGE_CODE == 'en' %}Ages {from}–{to}{% else %}{from}–{to} лет{% endif %}"
           data-age-from-label="{% if request.LANGUAGE_CODE == 'az' %}{from}+ yaş{% elif request.LANGUAGE_CODE == 'en' %}Ages {from}+{% else %}от {from} лет{% endif %}"
           data-age-to-label="{% if request.LANGUAGE_CODE == 'az' %}0–{to} yaş{% elif request.LANGUAGE_CODE == 'en' %}Up to age {to}{% else %}до {to} лет{% endif %}"
@@ -99,11 +104,6 @@
     </div>
   </div>
 
-  <noscript>
-    <iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed&hl={{ request.LANGUAGE_CODE|urlencode }}"
-      loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-      title="{% trans 'Карта детских мест по Азербайджану' %}"></iframe>
-  </noscript>
   {{ map_places|map_points_json:"home-map-data" }}
   {{ home_map_page|json_script:"home-map-page" }}
   {% if home_map_events %}{{ home_map_events|json_script:"home-map-events" }}{% endif %}
