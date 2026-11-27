@@ -11,7 +11,7 @@ from .ui_utils import render_action_menu, render_row_actions_container
 from django.utils import timezone
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext
+from django.utils.translation import ngettext, pgettext_lazy
 from django.urls import reverse
 from .queue_sorting import QueueSortingAdminMixin, QueueSortParameter
 from .moderation_actor import ModerationActorAdminMixin
@@ -795,11 +795,27 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             },
         )
 
-    def _bulk_actions(self):
+    def _bulk_actions(self, request):
+        if not self._can_moderate(request.user):
+            return ()
         return (
             {"name": "mark_published", "label": _("Опубликовать"), "tone": "good", "icon": "fas fa-bullhorn", "description": _("Опубликовать выбранные профили.")},
             {"name": "mark_draft", "label": _("В черновик"), "tone": "muted", "icon": "far fa-file-alt", "description": _("Снять выбранные профили с публикации.")},
             {"name": "mark_pending", "label": _("На модерацию"), "tone": "warn", "icon": "fas fa-hourglass-half", "description": _("Отправить выбранные профили на проверку.")},
+            {
+                "name": "feature_on_home",
+                "label": pgettext_lazy("specialist homepage bulk action", "На главную"),
+                "tone": "good",
+                "icon": "fas fa-star",
+                "description": _("Показывать выбранных на главной"),
+            },
+            {
+                "name": "unfeature_on_home",
+                "label": _("Убрать с главной"),
+                "tone": "muted",
+                "icon": "far fa-star",
+                "description": _("Убрать выбранных с главной"),
+            },
         )
 
     def get_urls(self):
@@ -910,7 +926,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             "specialist_dashboard_stats": self._dashboard_stats(request, counts=counts),
             "km_primary_quick_filters": quick_filters[:5],
             "km_secondary_quick_filters": quick_filters[5:],
-            "specialist_bulk_actions": self._bulk_actions(),
+            "specialist_bulk_actions": self._bulk_actions(request),
             "km_changelist_reset_url": "?",
             "km_search_label": _("Поиск по имени специалиста"),
             "km_search_placeholder": _("Имя специалиста..."),
