@@ -13,7 +13,7 @@ from collections import Counter
 from dataclasses import asdict, dataclass, replace
 
 from django.core.cache import cache
-from django.db.models import Count, Max, Min, Q
+from django.db.models import Case, Count, Max, Q, When
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import Truncator
@@ -553,33 +553,34 @@ def seo_title(collection, language, categories=None) -> str:
     return build_branded_seo_title(heading(collection, language, categories))
 
 
-def events_word(count, language) -> str:
+def listings_word(count, language) -> str:
     if language == 'az':
-        return f'{count} tədbir'
+        return f'{count} qeyd'
     if language == 'en':
-        return f'{count} event' + ('' if count == 1 else 's')
-    from catalog.services.event_afisha import ru_events_label
-    return ru_events_label(count)
+        return f'{count} listing' + ('' if count == 1 else 's')
+    from catalog.services.event_afisha import ru_plural
+    return f'{count} ' + ru_plural(count, 'запись', 'записи', 'записей')
 
 
 def meta_description(title, language, count) -> str:
     language = afisha_language(language)
     if language == 'az':
-        text = (f'{title}: {events_word(count, "az")}. Tarixlər, yaş, qiymət və ünvanlar bir yerdə. '
-                'Siyahı avtomatik yenilənir.') if count else f'{title}. Yeni tədbirlər əlavə olunduqca siyahı yenilənir.'
+        text = f'{title}. Tarixləri, məkanları, bilet qiymətlərini və yaş hədlərini müqayisə edin.'
     elif language == 'en':
-        text = (f'{title}: {events_word(count, "en")}. Dates, ages, prices and venues in one place. '
-                'Updated automatically.') if count else f'{title}. The list updates as new events are added.'
+        text = f'{title}. Compare dates, venues, ticket prices and ages to plan your family outing.'
     else:
-        text = (f'{title}: {events_word(count, "ru")}. Даты, возраст, цены и адреса в одном месте. '
-                'Подборка обновляется автоматически.') if count else f'{title}. Подборка пополняется по мере появления событий.'
+        text = f'{title}. Выберите, куда пойти с ребёнком: в расписании — даты, площадки, возраст и цены.'
+    if not count:
+        text = {'az': f'{title}. Hazırda bu seçimdə tədbir yoxdur.',
+                'en': f'{title}. No events are currently listed for this selection.',
+                'ru': f'{title}. Сейчас в этой подборке нет событий.'}[language]
     return Truncator(text).chars(158, truncate='…')
 
 
 HERO_INTRO = {
-    'az': 'Yalnız aktual tədbirlər: keçmişlər siyahıdan özü çıxır. Tarixi, yaşı və yeri müqayisə edin.',
-    'ru': 'Только актуальные события — прошедшие исчезают сами. Сравнивайте даты, возраст и место.',
-    'en': 'Only events you can still attend — past ones drop off automatically. Compare dates, ages and venues.',
+    'az': 'Uşağınıza uyğun tədbir seçmək üçün tarixlərə, yaş hədlərinə və məkanlara baxın.',
+    'ru': 'Сравните время, площадки и возраст участников, чтобы выбрать событие для ребёнка.',
+    'en': 'Compare times, venues and ages to choose an event for your child.',
 }
 
 
@@ -602,123 +603,113 @@ def format_day(value, language) -> str:
     return f'{local.day} {MONTH_NAMES["az"][local.month - 1].lower()} {local.year}'
 
 
-def _venue(event, language):
-    label = (getattr(event, 'venue_label', '') or '').strip()
-    if label:
-        return label
-    place = getattr(event, 'related_place', None) if getattr(event, 'related_place_id', None) else None
-    if place is not None and hasattr(place, 'name_i18n'):
-        return str(place.name_i18n(language) or '').strip()
-    return ''
+def _schedule_picks(queryset, now, language):
+    """Two attendable options, preferring the next start and different titles."""
+    options = queryset.filter(end_datetime__gt=now).order_by(
+        Case(When(start_datetime__gt=now, then=0), default=1), 'start_datetime', 'pk',
+    )
+    first = options.first()
+    if first is None:
+        return []
+    name_field = f'name_{language}' if getattr(first, f'name_{language}') else 'name'
+    second = options.exclude(**{name_field + '__iexact': getattr(first, name_field)}).first()
+    picks = []
+    with override(language):
+        for event in (first, second):
+            if event is None:
+                continue
+            when = _format_moment(event.start_datetime, language)
+            if event.start_datetime <= now:
+                end = _format_moment(event.end_datetime, language)
+                when = {'az': f'Bitmə vaxtı · {end}', 'ru': f'идёт до {end}', 'en': f'on until {end}'}[language]
+            snapshot = event.public_venue(language)
+            venue = snapshot.get('label') or event.venue_label or snapshot.get('address') or event.address_i18n(language)
+            if event.event_format == 'online':
+                venue = {'az': 'Onlayn', 'ru': 'Онлайн', 'en': 'Online'}[language]
+            price = event.price_display if event.price_mode not in ('unknown', 'legacy') or event.is_free else ''
+            langs = ', '.join(entry['name'] for entry in event.language_list)
+            details = ' · '.join(part for part in (when, venue, event.age_display, langs, price) if part)
+            picks.append({'name': event.name_i18n(language), 'url': event.get_absolute_url(), 'details': details})
+    return picks
 
 
 def collection_facts(queryset, *, now, language) -> dict:
-    """Numbers for the answer card and FAQ, read from the collection's own events."""
+    """Published schedule facts, including the actual last edit among listed records."""
     from catalog.services.event_presentation import LEGACY_FREE_PATTERN
     language = afisha_language(language)
     base = queryset.order_by()
-    total = base.count()
-    free = base.filter(Q(price_mode='free') | Q(price_mode='legacy', price_text__iregex=LEGACY_FREE_PATTERN)).count()
-    ages = base.aggregate(low=Min('age_from'), high=Max('age_to'))
-    upcoming = queryset.filter(start_datetime__gt=now).order_by('start_datetime', 'pk').first()
-    nearest = None
-    if upcoming is not None:
-        nearest = {'name': upcoming.name_i18n(language), 'when': _format_moment(upcoming.start_datetime, language),
-                   'venue': _venue(upcoming, language), 'url': upcoming.get_absolute_url()}
-    return {'total': total, 'free': free, 'running': base.filter(start_datetime__lte=now).count(),
-            'age_low': ages['low'], 'age_high': ages['high'], 'nearest': nearest,
-            'updated': format_day(now, language)}
-
-
-def _age_range(low, high, language):
-    if low is None and high is None:
-        return ''
-    if language == 'ru':
-        return ' '.join(part for part in (f'от {low}' if low is not None else '', f'до {high}' if high is not None else '') if part) + ' лет'
-    if language == 'en':
-        return f'{low}–{high}' if low is not None and high is not None else (f'{low}+' if low is not None else f'up to {high}')
-    return (f'{low}–{high} yaş' if low is not None and high is not None
-            else (f'{low} yaşdan' if low is not None else f'{high} yaşa qədər'))
+    free = Q(price_mode='free') | Q(price_mode='legacy', price_text__iregex=LEGACY_FREE_PATTERN)
+    ages = Q(age_from__isnull=False) | Q(age_to__isnull=False)
+    facts = base.aggregate(total=Count('pk'), free=Count('pk', filter=free),
+                           ages_listed=Count('pk', filter=ages), updated=Max('updated_at'),
+                           running=Count('pk', filter=Q(start_datetime__lte=now, end_datetime__gt=now)))
+    facts['updated'] = format_day(facts['updated'], language) if facts['updated'] else ''
+    facts['picks'] = _schedule_picks(base, now, language) if facts['total'] else []
+    return facts
 
 
 def answer_text(title, facts, language) -> str:
-    """2–3 factual sentences: the paragraph search engines and AI assistants quote."""
+    """Count schedule entries, including separate performances of the same show."""
     language = afisha_language(language)
-    total, free, nearest = facts['total'], facts['free'], facts['nearest']
-    ages = _age_range(facts['age_low'], facts['age_high'], language)
+    total, free = facts['total'], facts['free']
     if not total:
         return {
-            'az': f'«{title}» seçimində hazırda tədbir yoxdur. Aşağıda afişanın ən yaxın tədbirləri var; yeniləri burada avtomatik görünəcək.',
-            'ru': f'В подборке «{title}» сейчас нет мероприятий. Ниже — ближайшие события афиши; новые появятся здесь автоматически.',
-            'en': f'There are no events in “{title}” right now. The nearest events are below; new ones appear here automatically.',
+            'az': f'«{title}» seçimində hazırda tədbir yoxdur.',
+            'ru': f'В подборке «{title}» сейчас нет мероприятий.',
+            'en': f'There are no events in “{title}” right now.',
         }[language]
-    venue = f', {nearest["venue"]}' if nearest and nearest['venue'] else ''
+    count = listings_word(total, language)
     if language == 'ru':
-        free_part = ', все бесплатные' if free == total else (f', из них бесплатных — {free}' if free else '')
-        out = [f'{title}: {events_word(total, "ru")}{free_part}.']
-        if nearest:
-            out.append(f'Ближайшее — «{nearest["name"]}», {nearest["when"]}{venue}.')
-        if ages:
-            out.append(f'Возраст участников — {ages}.')
-    elif language == 'en':
-        free_part = ', all free' if free == total else (f', {free} of them free' if free else '')
-        out = [f'{title}: {events_word(total, "en")}{free_part}.']
-        if nearest:
-            out.append(f'Next up: “{nearest["name"]}”, {nearest["when"]}{venue}.')
-        if ages:
-            out.append(f'Suitable ages: {ages}.')
-    else:
-        free_part = ', hamısı pulsuz' if free == total else (f', onlardan {free} pulsuz' if free else '')
-        out = [f'{title}: {events_word(total, "az")}{free_part}.']
-        if nearest:
-            out.append(f'Ən yaxını — «{nearest["name"]}», {nearest["when"]}{venue}.')
-        if ages:
-            out.append(f'Uşaqların yaşı — {ages}.')
-    return ' '.join(out)
+        extra = ', все бесплатные' if free == total else (f', из них бесплатных — {free}' if free else '')
+        return f'В расписании {count}{extra}.'
+    if language == 'en':
+        extra = ', all free' if free == total else (f', including {free} free' if free else '')
+        return f'{count} on the schedule{extra}.'
+    extra = ', hamısı pulsuzdur' if free == total else (f', pulsuz girişlə: {free}' if free else '')
+    return f'Afişada {count} var{extra}.'
 
 
 def faq_items(collection, title, facts, language) -> list:
     """Questions parents ask, answered only from the collection's own data."""
     language = afisha_language(language)
     total, free = facts['total'], facts['free']
-    ages = _age_range(facts['age_low'], facts['age_high'], language)
     ask_free = not (collection is not None and collection.free)
     hub = collection is None
     items = []
     if language == 'ru':
         items.append({'q': 'Сколько детских мероприятий сейчас в афише Баку?' if hub else f'Сколько мероприятий в подборке «{title}»?',
-                      'a': f'Сейчас {events_word(total, "ru")}. Список обновляется автоматически: прошедшие события исчезают, новые появляются после модерации. Проверено {facts["updated"]}.'})
+                      'a': f'В расписании {listings_word(total, "ru")}. Каждый сеанс одной программы учитывается отдельно.'})
         if ask_free:
             items.append({'q': 'Есть ли бесплатные мероприятия?',
                           'a': (f'Да, бесплатных — {free}. Все бесплатные события афиши собраны в отдельной подборке.' if free
-                                else 'Здесь бесплатных сейчас нет. Загляните в подборку бесплатных мероприятий — она обновляется каждый день.')})
-        if ages:
+                                else 'В этой подборке сейчас нет событий с подтверждённым бесплатным входом.')})
+        if facts['ages_listed']:
             items.append({'q': 'Для какого возраста эти мероприятия?',
-                          'a': f'Возраст указан в каждой карточке; в этой подборке — {ages}. Подобрать событие под возраст ребёнка можно в фильтрах афиши.'})
+                          'a': 'Возраст зависит от программы. В карточке указаны рекомендации по возрасту, если их предоставил организатор.'})
         items.append({'q': 'Как записаться или купить билет?',
                       'a': 'Откройте карточку мероприятия: там указан способ записи — сайт организатора, WhatsApp или звонок. KidsMap не продаёт билеты и не берёт комиссию; цену и условия уточняйте у организатора.'})
     elif language == 'en':
         items.append({'q': 'How many kids’ events are on in Baku right now?' if hub else f'How many events are in “{title}”?',
-                      'a': f'Right now: {events_word(total, "en")}. The list updates automatically — past events drop off and new ones appear after moderation. Checked on {facts["updated"]}.'})
+                      'a': f'The schedule includes {listings_word(total, "en")}. Each performance of a show is counted separately.'})
         if ask_free:
             items.append({'q': 'Are there free events?',
                           'a': (f'Yes — {free} free. All free events are also collected on a separate page.' if free
-                                else 'Not in this selection right now. See the free events page — it is updated daily.')})
-        if ages:
+                                else 'No event in this selection currently lists confirmed free admission.')})
+        if facts['ages_listed']:
             items.append({'q': 'What ages are these events for?',
-                          'a': f'Each card shows the age range; in this selection: {ages}. You can match events to your child’s age with the afisha filters.'})
+                          'a': 'Age guidance varies by event. Open a listing to see the ages provided by its organizer.'})
         items.append({'q': 'How do I sign up or buy a ticket?',
                       'a': 'Open the event card: it shows how to register — the organizer’s website, WhatsApp or a phone call. KidsMap does not sell tickets or charge fees; confirm the price and conditions with the organizer.'})
     else:
         items.append({'q': 'Hazırda Bakıda uşaqlar üçün neçə tədbir var?' if hub else f'«{title}» seçimində neçə tədbir var?',
-                      'a': f'Hazırda {events_word(total, "az")}. Siyahı avtomatik yenilənir: keçmiş tədbirlər çıxır, yeniləri moderasiyadan sonra əlavə olunur. Yoxlanılıb: {facts["updated"]}.'})
+                      'a': f'Afişada {listings_word(total, "az")} var. Eyni proqramın hər seansı ayrıca sayılır.'})
         if ask_free:
             items.append({'q': 'Pulsuz tədbirlər varmı?',
                           'a': (f'Bəli, {free} pulsuz tədbir var. Bütün pulsuz tədbirlər ayrıca seçimdə toplanıb.' if free
-                                else 'Bu seçimdə hazırda pulsuz tədbir yoxdur. Pulsuz tədbirlər seçiminə baxın — hər gün yenilənir.')})
-        if ages:
+                                else 'Bu seçimdə hazırda pulsuz giriş göstərilən tədbir yoxdur.')})
+        if facts['ages_listed']:
             items.append({'q': 'Tədbirlər hansı yaş üçündür?',
-                          'a': f'Yaş hər kartda göstərilib; bu seçimdə — {ages}. Uşağın yaşına uyğun tədbiri afişanın filtrləri ilə seçə bilərsiniz.'})
+                          'a': 'Yaş həddi proqramdan asılıdır. Təşkilatçının bildirdiyi yaş həddi tədbirin səhifəsində göstərilir.'})
         items.append({'q': 'Necə qeydiyyatdan keçmək və ya bilet almaq olar?',
                       'a': 'Tədbirin kartını açın: qeydiyyat üsulu orada göstərilib — təşkilatçının saytı, WhatsApp və ya zəng. KidsMap bilet satmır və komissiya almır; qiyməti və şərtləri təşkilatçıdan dəqiqləşdirin.'})
     return items

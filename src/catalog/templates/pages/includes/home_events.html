@@ -9,9 +9,9 @@
     </div>
     <nav class="km-home-afisha__chips" aria-label="{% if language == 'az' %}Tarix üzrə{% elif language == 'en' %}By date{% else %}По дате{% endif %}">
       {% if st.running %}<a class="km-home-afisha__chip km-home-afisha__chip--live" href="{{ afisha_url }}"><i aria-hidden="true"></i><b>{{ st.running }}</b>{% if language == 'az' %}indi gedir{% elif language == 'en' %}on now{% else %}идут сейчас{% endif %}</a>{% endif %}
-      <a class="km-home-afisha__chip" href="{{ afisha_url }}?date_filter=today"><b>{{ st.today }}</b>{% if language == 'az' %}bu gün{% elif language == 'en' %}today{% else %}сегодня{% endif %}</a>
-      <a class="km-home-afisha__chip" href="{{ afisha_url }}?date_filter=tomorrow"><b>{{ st.tomorrow }}</b>{% if language == 'az' %}sabah{% elif language == 'en' %}tomorrow{% else %}завтра{% endif %}</a>
-      <a class="km-home-afisha__chip" href="{{ afisha_url }}?date_filter=weekend"><b>{{ st.weekend }}</b>{% if language == 'az' %}həftəsonu{% elif language == 'en' %}weekend{% else %}в выходные{% endif %}</a>
+      <a class="km-home-afisha__chip" href="{{ home_event_date_urls.today }}"><b>{{ st.today }}</b>{% if language == 'az' %}bu gün{% elif language == 'en' %}today{% else %}сегодня{% endif %}</a>
+      <a class="km-home-afisha__chip" href="{{ home_event_date_urls.tomorrow }}"><b>{{ st.tomorrow }}</b>{% if language == 'az' %}sabah{% elif language == 'en' %}tomorrow{% else %}завтра{% endif %}</a>
+      <a class="km-home-afisha__chip" href="{{ home_event_date_urls.weekend }}"><b>{{ st.weekend }}</b>{% if language == 'az' %}həftəsonu{% elif language == 'en' %}weekend{% else %}в выходные{% endif %}</a>
     </nav>
     <div class="km-home-afisha__cta">
       <a class="km-ev-btn km-ev-btn--primary km-ev-btn--lg" href="{{ afisha_url }}"><span>{% if language == 'az' %}Bütün afişa{% elif language == 'en' %}All events{% else %}Вся афиша{% endif %}</span>{% if st.total %}<span class="km-ev-btn__badge">{{ st.total }}</span>{% endif %}<span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>

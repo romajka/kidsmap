@@ -6,6 +6,7 @@ from urllib.parse import urlsplit
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 
+from catalog.services.locations import normalize_to_key
 from catalog.services.phone_numbers import contact_copy, normalize_phone, normalize_whatsapp
 
 
@@ -75,6 +76,58 @@ def registration(event):
         'whatsapp': contact_copy('Записаться в WhatsApp', 'WhatsApp ilə yazılmaq', 'Register via WhatsApp'),
         'link': contact_copy('Записаться', 'Qeydiyyatdan keçmək', 'Register')}
     return {'url': _registration_url(event), 'label': labels.get(method, ''), 'kind': method}
+
+
+def public_detail_venue(event, language):
+    """Resolve one venue for the detail header, visit panel and Event schema.
+
+    Current Place geography can disprove a match, but never supplies the
+    occurrence's address or coordinates. Those belong to its approved snapshot.
+    """
+    if event.event_format == event.FORMAT_ONLINE:
+        return {}, None
+    venue = event.public_venue(language)
+    if not event.related_place_id:
+        return venue, None
+
+    from catalog.services.public_presentation import present
+    place = event.related_place
+    shown = present(place, language)
+    if not shown["visible"] or not shown["name"]:
+        return venue, None
+
+    def normalize(value):
+        return " ".join(str(value or "").casefold().split())
+
+    saved_name = normalize(venue.get("label"))
+    names = {normalize(value) for value in (place.name, place.name_az, place.name_ru, place.name_en)}
+    if saved_name and saved_name not in names:
+        return venue, None
+    saved_address = normalize(venue.get("address"))
+    current_address = normalize(place.address_i18n(language))
+    if saved_address and current_address and saved_address != current_address:
+        return venue, None
+    saved_district = normalize_to_key(venue.get("district"))
+    current_district = normalize_to_key(place.district)
+    if saved_district and current_district and saved_district != current_district:
+        return venue, None
+    same_point = False
+    if all(venue.get(field) is not None and getattr(place, field) is not None for field in ("lat", "lng")):
+        try:
+            same_point = all(
+                abs(float(venue[field]) - float(getattr(place, field))) <= 0.00001
+                for field in ("lat", "lng")
+            )
+        except (TypeError, ValueError):
+            return venue, None
+        if not same_point:
+            return venue, None
+    # A district alone cannot identify a venue. An empty legacy snapshot can
+    # safely reuse just the public name the visitor sees in the hero.
+    same_address = saved_address and saved_address == current_address
+    if any(venue.values()) and not (saved_name or same_address or same_point):
+        return venue, None
+    return {**venue, "label": shown["name"]}, shown
 
 
 def detail_errors(event, original=None):

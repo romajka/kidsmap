@@ -17,6 +17,12 @@
   {% endif %}
   {% with st=events_quick_stats %}
   <header class="km-afisha-hero" id="events-hero">
+    {% if afisha_hub %}
+    <img class="km-afisha-hero__art" src="{{ seo_image_url }}"
+         srcset="{% static 'img/events/family-afisha-small.webp' %} 480w, {{ seo_image_url }} 1429w"
+         sizes="(max-width: 768px) 55vw, (max-width: 1200px) 48vw, 570px"
+         width="1429" height="1100" alt="{{ seo_image_alt }}">
+    {% endif %}
     <div class="km-afisha-hero__copy">
       <span class="km-afisha-eyebrow"><span class="material-symbols-rounded" aria-hidden="true">celebration</span>{% if language == 'az' %}Uşaqlar üçün afişa{% elif language == 'en' %}Kids’ events{% else %}Афиша для детей{% endif %}</span>
       <h1>{{ events_heading }}</h1>
@@ -42,7 +48,8 @@
     <span class="km-afisha-answer__icon" aria-hidden="true"><span class="material-symbols-rounded">tips_and_updates</span></span>
     <div>
       <p class="km-afisha-answer__text">{{ afisha_answer }}</p>
-      <span class="km-afisha-answer__meta"><span class="km-afisha-answer__pulse" aria-hidden="true"></span>{% if language == 'az' %}Yenilənib{% elif language == 'en' %}Updated{% else %}Обновлено{% endif %} {{ afisha_updated }}</span>
+      {% for pick in afisha_picks %}<p class="km-afisha-answer__text"><a href="{{ pick.url }}">{{ pick.name }}</a> · {{ pick.details }}</p>{% endfor %}
+      {% if afisha_updated %}<span class="km-afisha-answer__meta"><span class="km-afisha-answer__pulse" aria-hidden="true"></span>{% if language == 'az' %}Məlumatların son yenilənməsi{% elif language == 'en' %}Listings last edited{% else %}Последнее изменение карточек{% endif %} · {{ afisha_updated }}</span>{% endif %}
     </div>
   </section>
   {% endif %}

@@ -7,11 +7,16 @@ event page and ticket link. Nothing here writes data.
 from __future__ import annotations
 
 from datetime import datetime, time, timedelta
+from itertools import islice
+import re
+from urllib.parse import urlsplit
 
+from django.db.models import Q
 from django.utils import timezone
 
 from .event_afisha import is_long_event
-from .event_queries import BAKU
+from .event_queries import BAKU, query_public_events
+from .slugs import build_ascii_slug
 
 
 def _title(event) -> str:
@@ -92,6 +97,69 @@ def sibling_sessions(event, *, now=None):
         sessions.append(_session(event, now))
     sessions.sort(key=lambda item: (item['start'], item['event'].pk))
     return sessions
+
+
+def _production_venue(event):
+    snapshot = event.venue_snapshot if isinstance(event.venue_snapshot, dict) else {}
+    address = snapshot.get('address') or event.address or ''
+    return _venue(event), ' '.join(str(address).casefold().split())
+
+
+def _production_sources(event):
+    """Identify show pages supplied by the editor; a venue homepage proves nothing."""
+    slugs = {build_ascii_slug(name, fallback='') for name in
+             (event.name, event.name_az, event.name_ru, event.name_en) if name}
+    urls = [event.website]
+    if event.registration_method == 'link':
+        urls.append(event.registration_url)
+    sources = set()
+    for value in urls:
+        try:
+            parsed = urlsplit(value or '')
+            host = parsed.hostname
+        except ValueError:
+            continue
+        if parsed.scheme not in ('https', 'http') or not host or parsed.username or parsed.password:
+            continue
+        path = parsed.path.rstrip('/')
+        if host in ('iticket.az', 'www.iticket.az'):
+            # The last numeric component is the individually ticketed showtime.
+            match = re.fullmatch(r'/(?:(?:az|en|ru)/)?(events/[a-z0-9-]+/[a-z0-9-]+)(?:/[0-9]+)?', path)
+            if match:
+                sources.add(('iticket.az', '/' + match[1]))
+        elif not parsed.query:
+            parts = path.rsplit('/', 2)
+            if len(parts) == 3 and parts[-2] in ('article', 'event', 'events', 'shows', 'productions', 'repertoire') and parts[-1] in slugs:
+                sources.add((host, path))
+    return sources
+
+
+def other_show_dates(event, *, listed=(), now=None):
+    """Nearest upcoming sessions with matching show source, venue, organizer and title."""
+    key = session_key(event)
+    sources = _production_sources(event) if key else set()
+    if not sources:
+        return []
+    now = now or timezone.now()
+    # Narrow to URLs with a common show path before parsing the exact host and path.
+    source_filter = Q()
+    for _, path in sources:
+        source_filter |= Q(website__contains=path) | Q(registration_url__contains=path)
+    candidates = (query_public_events(now=now).select_related(None)
+                  .filter(source_filter, start_datetime__gt=now, event_format=event.event_format,
+                          organizer_organization_id=event.organizer_organization_id,
+                          organizer_specialist_id=event.organizer_specialist_id,
+                          related_place_id=event.related_place_id)
+                  .exclude(pk__in=[event.pk, *(slot['event'].pk for slot in listed)])
+                  .only('name', 'name_az', 'name_ru', 'name_en', 'start_datetime', 'end_datetime',
+                        'slug', 'languages', 'event_format', 'related_place_id', 'venue_snapshot',
+                        'venue_label', 'address', 'organizer_organization_id', 'organizer_specialist_id',
+                        'registration_method', 'registration_url', 'website'))
+    venue = _production_venue(event)
+    matched = (other for other in candidates.iterator() if not is_long_event(other)
+               and _title(other) == key[0] and _production_venue(other) == venue
+               and sources.intersection(_production_sources(other)))
+    return list(islice(matched, 6))
 
 
 def by_day(groups, *, now=None, first_day=None):

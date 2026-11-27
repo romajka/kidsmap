@@ -633,9 +633,15 @@ def build_event_seo_payload(event, request, language_code, *, public_context):
     """Serialize the very same approved occurrence facts rendered by Event SSR."""
     from zoneinfo import ZoneInfo
     from math import isfinite
+    from catalog.services.event_search import occurrence_copy, ticket_offer, venue_geography
+
     baku = ZoneInfo('Asia/Baku')
+    online = public_context['event_online']
+    venue = {} if online else public_context['event_venue']
+    geography = venue_geography(venue, language_code) if not online else {}
+    title, summary, languages = occurrence_copy(event, language_code, venue, geography, online)
     schema = {'@context': 'https://schema.org', '@type': 'Event',
-        'name': event.name_i18n(language_code), 'description': event.description_i18n(language_code),
+        'name': event.name_i18n(language_code), 'description': event.description_i18n(language_code) or summary,
         'url': _absolute_uri(request, event.get_absolute_url()),
         'startDate': event.start_datetime.astimezone(baku).isoformat(),
         'endDate': event.end_datetime.astimezone(baku).isoformat(),
@@ -654,12 +660,13 @@ def build_event_seo_payload(event, request, language_code, *, public_context):
         # Online is known; a join URL is not. Never invent physical geography.
         schema['location'] = {'@type':'VirtualLocation'}
     else:
-        venue = public_context['event_venue']
         location = {'@type':'Place'}
         if venue.get('label'):
             location['name'] = venue['label']
-        if venue.get('address'):
-            location['address'] = {'@type':'PostalAddress', 'streetAddress': venue['address']}
+        if venue.get('address') or geography:
+            location['address'] = {'@type': 'PostalAddress', **geography}
+            if venue.get('address'):
+                location['address']['streetAddress'] = venue['address']
         try:
             lat, lng = float(venue['lat']), float(venue['lng'])
             if isfinite(lat) and isfinite(lng) and -90 <= lat <= 90 and -180 <= lng <= 180:
@@ -668,6 +675,17 @@ def build_event_seo_payload(event, request, language_code, *, public_context):
             pass
         if len(location) > 1:
             schema['location'] = location
+    if languages:
+        schema['inLanguage'] = languages
+    if event.age_from is not None or event.age_to is not None:
+        low = '' if event.age_from is None else event.age_from
+        high = '' if event.age_to is None else event.age_to
+        schema['typicalAgeRange'] = f'{low}-{high}'
+    if event.is_free:
+        schema['isAccessibleForFree'] = True
+    offer = ticket_offer(event)
+    if offer:
+        schema['offers'] = offer
     history = public_context.get('event_previous_periods') or []
     if event.occurrence_state == 'rescheduled' and history:
         schema['previousStartDate'] = history[0]['start'].astimezone(baku).isoformat()
@@ -680,8 +698,9 @@ def build_event_seo_payload(event, request, language_code, *, public_context):
             'reviewBody':review.current_revision.text,
             'reviewRating':{'@type':'Rating','ratingValue':review.current_revision.rating, 'bestRating':5,'worstRating':1},
             'datePublished':review.current_revision.created_at.isoformat()} for review in reviews]
-    return {'seo_title':build_branded_seo_title(event.name_i18n(language_code)),
-            'meta_description':_truncate_text(event.description_i18n(language_code) or event.name_i18n(language_code)),
+    return {'seo_title': _normalize_text(title),
+            'meta_description': _truncate_text(summary),
+            'event_search_summary': summary,
             'seo_image_url':poster_url,
             'event_schema_json':_serialize_json_ld(schema)}
 

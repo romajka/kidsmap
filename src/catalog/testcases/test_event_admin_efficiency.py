@@ -44,6 +44,86 @@ class EventAdminEfficiencyTests(TestCase):
                 self.assertContains(response, 'https://iticket.az/ru/page/rules')
                 self.assertNotContains(response, '/home/ramin/')
 
+    def test_editor_guide_is_available_on_each_surface_and_matches_the_copyable_prompt(self):
+        from django.conf import settings
+        from django.test.html import parse_html
+
+        def elements(node):
+            for child in node.children:
+                if not isinstance(child, str):
+                    yield child
+                    yield from elements(child)
+
+        self.client.force_login(self.actor)
+        event = self.event()
+        for language, heading in (('ru', 'Инструкция редактора афиши'),
+                                  ('az', 'Afişa redaktoru üçün təlimat'),
+                                  ('en', 'Event editor guide')):
+            self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = language
+            for leaf in ('', 'add/', f'{event.pk}/change/'):
+                with self.subTest(language=language, leaf=leaf):
+                    response = self.client.get(f'/admin/catalog/event/{leaf}')
+                    self.assertContains(response, 'id="event-editor-guide"', count=1)
+                    self.assertContains(response, heading)
+                    dom = parse_html(response.content.decode())
+                    guide = next(el for el in elements(dom) if ('id', 'event-editor-guide') in el.attributes)
+                    prompt = next(el for el in elements(dom) if ('id', 'event-editor-prompt') in el.attributes)
+                    topics = [el for el in elements(guide) if el.name == 'li']
+                    directory = next((el for el in elements(guide)
+                                      if ('id', 'event-research-sources') in el.attributes), None)
+                    self.assertIsNotNone(directory, 'Source directory missing from the staff guide')
+                    groups = [
+                        {dict(link.attributes)['href'] for link in elements(block) if link.name == 'a'}
+                        for block in elements(directory) if block.name == 'dd'
+                    ]
+                    for related in (
+                        {'https://iticket.az/', 'https://birbilet.az/az', 'https://biletli.az/', 'https://tickets.invitation.az/az'},
+                        {'https://www.instagram.com/nationalartmuseum.az/', 'https://instagram.com/kukla_teatr'},
+                        {'https://www.kuklateatri.az/az/repertory', 'https://nationalartmuseum.az/activities/events/'},
+                        {'https://www.mcdonalds.az/news-notifications/24', 'https://www.mcdonalds.az/az/restaurant-locations'},
+                        {'https://citycinema.az/en/afisha', 'https://linktr.ee/termit.baku'},
+                        {'https://silkroadolympiad.org/project-olympiad/', 'https://azeristudent.az/events'},
+                    ):
+                        self.assertTrue(any(related <= urls for urls in groups))
+                    coverage_heading = {
+                        'ru': 'Как найти пробелы в афише',
+                        'az': 'Afişada çatışmayan tədbirləri necə tapmaq olar',
+                        'en': 'How to find gaps in the calendar',
+                    }[language]
+                    self.assertIn(coverage_heading, str(guide))
+                    for url in set().union(*groups):
+                        self.assertIn(url, prompt.children[0], 'Sources must travel with the copied task')
+                    for term in ('Instagram', 'Reels', 'пресс-кит', 'фото спектакля', 'Условный пример'):
+                        self.assertIn(term, prompt.children[0])
+                    self.assertIn('Поиск по названию, афише или теме', prompt.children[0])
+                    if language != 'ru':
+                        self.assertNotIn('Поиск по названию, афише или теме', str(guide))
+                    self.assertGreaterEqual(len(topics), 10)
+                    self.assertIn('Детская афиша Баку', prompt.children[0])
+                    self.assertIn('без слов', prompt.children[0])
+                    self.assertIn('https://kidsmap.az/ru/afisha/', prompt.children[0])
+                    self.assertNotIn('афишу или кадр', prompt.children[0])
+                    if language == 'ru':
+                        for topic in topics:
+                            for block in elements(topic):
+                                if block.name in ('strong', 'p'):
+                                    self.assertIn(block.children[0], prompt.children[0])
+
+    def test_view_only_staff_can_read_guide_without_copy_action(self):
+        from django.contrib.auth.models import Permission
+
+        staff = get_user_model().objects.create_user('event-reader', is_staff=True)
+        staff.user_permissions.add(Permission.objects.get(content_type__app_label='catalog', codename='view_event'))
+        self.client.force_login(staff)
+        event = self.event()
+        for path in ('/admin/catalog/event/', f'/admin/catalog/event/{event.pk}/change/'):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertContains(response, 'id="event-editor-guide"', count=1)
+                self.assertNotContains(response, 'data-copy-event-prompt')
+                self.assertNotContains(response, 'name="_publish_event"')
+                self.assertNotContains(response, 'data-event-repeat-form')
+
     def test_editor_can_select_and_reopen_multiple_event_languages(self):
         self.client.force_login(self.actor)
         event = self.event()

@@ -185,21 +185,14 @@ def events_landing(request):
             request, context["events_heading"], request.path,
         )
 
-    share_alt = {
-        "az": "KidsMap. Uşaqlar üçün afişa. Bakıda açıq havada ailəvi tədbirin illüstrasiyası.",
-        "ru": "KidsMap. Афиша для детей. Иллюстрация семейного события под открытым небом в Баку.",
-        "en": "KidsMap. Kids’ events. Illustration of an outdoor family event in Baku.",
-    }
-    language = context["language"]
-    if language not in share_alt:
-        language = "az"
-    context["social_share_image"] = {
-        "url": build_public_absolute_uri(request, static(f"img/events/share-{language}.jpg")),
-        "alt": share_alt[language],
-        "type": "image/jpeg",
-        "width": 1200,
-        "height": 630,
-    }
+    context["social_share_image"] = _event_share_image(request, language)
+    if context.get("afisha_hub"):
+        context["seo_image_url"] = static("img/events/family-afisha.webp")
+        context["seo_image_alt"] = {
+            "az": "Bakıda ailəvi tədbirdə kukla tamaşasına baxan uşaqların illüstrasiyası",
+            "ru": "Иллюстрация: семья на детском празднике с кукольным театром в Баку",
+            "en": "Illustration of a family at an outdoor puppet show in Baku",
+        }[language]
     return render(request, "catalog/events_landing.html", context)
 
 
@@ -875,7 +868,7 @@ def event_detail(request, slug, pk=None):
         .filter(current_revision__status='approved').select_related('current_revision').order_by('-moderated_at', '-pk'))
     count = len(reviews)
     rating = {'average':sum(review.current_revision.rating for review in reviews)/count if count else 0.0, 'count':count}
-    from catalog.services.public_presentation import visible, translated, public_url, present
+    from catalog.services.public_presentation import visible, translated, public_url
     from catalog.services.features import is_organizations_section_enabled, is_specialists_section_enabled
     orgs_enabled = is_organizations_section_enabled()
     specs_enabled = is_specialists_section_enabled()
@@ -906,9 +899,8 @@ def event_detail(request, slug, pk=None):
             'whatsapp': person.whatsapp or '',
         }
 
-    related_place_presentation = None
-    if event.related_place and visible(event.related_place):
-        related_place_presentation = present(event.related_place, language)
+    from catalog.services.event_presentation import public_detail_venue
+    event_venue, related_place_presentation = public_detail_venue(event, language)
 
     previous_periods = []
     for change in event.occurrence_changes.filter(kind='reschedule').order_by('-happened_at', '-pk'):
@@ -921,12 +913,14 @@ def event_detail(request, slug, pk=None):
         if start and end and timezone.is_aware(start) and timezone.is_aware(end):
             previous_periods.append({'start':start.astimezone(ZoneInfo('Asia/Baku')), 'end':end.astimezone(ZoneInfo('Asia/Baku'))})
     from catalog.services.event_images import gallery as event_gallery, poster as event_poster
-    from catalog.services.event_sessions import sibling_sessions
+    from catalog.services.event_sessions import other_show_dates, sibling_sessions
+    sessions = sibling_sessions(event) if not event.has_ended else []
     poster = event_poster(event)
     context = {'event':event, 'language':language, 'event_online':event.event_format == 'online',
         'event_poster': poster, 'event_gallery_items': event_gallery(event),
-        'event_sessions': sibling_sessions(event) if not event.has_ended else [],
-        'event_venue':event.public_venue(language),
+        'event_sessions': sessions,
+        'other_show_dates': other_show_dates(event, listed=sessions),
+        'event_venue':event_venue,
         'related_place_presentation': related_place_presentation,
         'organizations_section_enabled': orgs_enabled,
         'specialists_section_enabled': specs_enabled,

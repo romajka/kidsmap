@@ -27,7 +27,7 @@
             {% if event_online %}
               <strong>{% if language == 'az' %}Onlayn tədbir{% elif language == 'en' %}Online event{% else %}Онлайн-мероприятие{% endif %}</strong>
             {% else %}
-              {% if related_place_presentation %}<a class="event-venue-link" href="{{ related_place_presentation.url }}" lang="{{ related_place_presentation.name_language }}">{{ related_place_presentation.name }}</a>
+              {% if related_place_presentation %}<a class="event-venue-link" href="{{ related_place_presentation.url }}" lang="{{ related_place_presentation.name_language }}">{{ event_venue.label }}</a>
               {% elif event_venue.label %}<strong>{{ event_venue.label }}</strong>{% endif %}
               {% if event_venue.address %}<span class="event-poster-address">{{ event_venue.address }}</span>{% endif %}
             {% endif %}
@@ -39,6 +39,22 @@
           <p class="event-sessions__label"><span class="material-symbols-rounded" aria-hidden="true">schedule</span>{% day_month event.start_datetime language %} · {% sessions_label event_sessions|length language %}</p>
           <ul class="event-sessions__list">{% for session in event_sessions %}<li><a class="event-session{% if session.ended %} is-ended{% endif %}" href="{{ session.url }}"{% if session.event.pk == event.pk %} aria-current="true"{% endif %}>{% timezone 'Asia/Baku' %}<time datetime="{{ session.start|date:'c' }}">{{ session.start|date:'H:i' }}</time>{% endtimezone %}<span class="event-session__note">{% if session.event.pk == event.pk %}{% trans "выбран" %}{% elif session.ended %}{% trans "прошёл" %}{% else %}{% trans "выбрать" %}{% endif %}</span></a></li>{% endfor %}</ul>
         </div>
+      {% endif %}
+      {% if other_show_dates %}
+        <nav class="event-sessions" id="other-show-dates" aria-labelledby="other-show-dates-heading">
+          <h2 class="event-sessions__label" id="other-show-dates-heading">{% if language == 'az' %}Digər seanslar{% elif language == 'en' %}Other showtimes{% else %}Другие сеансы{% endif %}</h2>
+          <ul class="event-sessions__list">
+            {% timezone 'Asia/Baku' %}{% for show in other_show_dates %}
+              <li>
+                <a class="event-session" href="{{ show.get_absolute_url }}">
+                  <span class="event-session__note">{{ show.start_datetime|date:'d.m.Y' }}</span>
+                  <time datetime="{{ show.start_datetime|date:'c' }}">{{ show.start_datetime|date:'H:i' }}</time>
+                  {% if show.language_list %}<span class="event-session__note">{% for item in show.language_list %}{{ item.code|upper }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>{% endif %}
+                </a>
+              </li>
+            {% endfor %}{% endtimezone %}
+          </ul>
+        </nav>
       {% endif %}
     </div>
 

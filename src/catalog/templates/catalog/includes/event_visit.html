@@ -4,9 +4,9 @@
     <p>{% if language == 'az' %}Tədbir onlayn keçirilir.{% elif language == 'en' %}This event takes place online.{% else %}Мероприятие проходит дистанционно.{% endif %}</p>
   {% else %}
     {% if related_place_presentation %}
-      <h3><a href="{{ related_place_presentation.url }}" lang="{{ related_place_presentation.name_language }}">{{ related_place_presentation.name }}</a></h3>
+      <h3><a href="{{ related_place_presentation.url }}" lang="{{ related_place_presentation.name_language }}">{{ event_venue.label }}</a></h3>
     {% elif event_venue.label %}<h3>{{ event_venue.label }}</h3>{% endif %}
-    {% firstof event_venue.address related_place_presentation.address as visit_address %}
+    {% with visit_address=event_venue.address %}
     {% if visit_address %}
       <p>{{ visit_address }}</p>
       <div class="event-visit-links event-visit-links--stub">
@@ -15,6 +15,7 @@
     {% else %}
       <p>{% if language == 'az' %}Dəqiq ünvanı təşkilatçıdan öyrənin.{% elif language == 'en' %}Contact the organizer for the exact address.{% else %}Точный адрес уточните у организатора.{% endif %}</p>
     {% endif %}
+    {% endwith %}
   {% endif %}
 </section>
 {% if event_organizer or event.phone or event.instagram %}
