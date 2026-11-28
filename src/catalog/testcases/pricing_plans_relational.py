@@ -13,7 +13,7 @@ from django.urls import reverse
 from catalog.models import Place, PricingPlan
 from catalog.services.filtering import PlaceListFilters
 from catalog.services.pricing_plans import build_public_price_summary, normalize_pricing_plans, replace_place_pricing_plans
-from catalog.testcases.utils import create_quality_place
+from catalog.testcases.utils import create_quality_place, create_ready_place
 
 
 class RelationalPricingPlanTests(TestCase):
@@ -73,6 +73,35 @@ class RelationalPricingPlanTests(TestCase):
         self.assertEqual(summary["max_price"], Decimal("15"))
         self.assertEqual(summary["label"], "0–15 ₼")
         self.assertEqual(self.place.card_price_badge_value, "0–15 ₼")
+
+    def test_home_cards_keep_mixed_tariffs_readable_in_each_language(self):
+        mixed = create_ready_place(
+            name="Lale Zoo", name_az="Lalə Zooparkı", name_ru="Зоопарк Лале", name_en="Lale Zoo",
+            is_home_recommended=True,
+        )
+        replace_place_pricing_plans(mixed, [
+            {"product_type": "admission", "price_kind": "free"},
+            {"product_type": "lesson", "price_kind": "exact", "price": 12},
+        ])
+        comparable = create_ready_place(
+            name="Araz Museum", name_az="Araz Muzeyi", name_ru="Музей Араз", name_en="Araz Museum",
+            is_home_recommended=True,
+        )
+        replace_place_pricing_plans(comparable, [
+            {"product_type": "admission", "price_kind": "free"},
+            {"product_type": "admission", "price_kind": "exact", "price": 7},
+        ])
+
+        for path, label in (
+            ("/", "Pulsuz və ödənişli"),
+            ("/ru/", "Бесплатно и платно"),
+            ("/en/", "Free and paid"),
+        ):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual({place.pk for place in response.context["home_rail_places"]}, {mixed.pk, comparable.pk})
+                self.assertContains(response, f'<span class="card-stub-price">{label}</span>', html=True)
+                self.assertContains(response, '<span class="card-stub-price">0–7 ₼</span>', html=True)
 
     def test_on_request_disables_legacy_fallback(self):
         Place.objects.filter(pk=self.place.pk).update(price_from=30, price_to=50)

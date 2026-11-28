@@ -348,8 +348,15 @@ def present(obj, language=None, *, organizations_enabled=None, formatters=None):
             price_place.price_from = price_place.price_to = None
             for code in ('az','ru','en'):
                 setattr(price_place, 'custom_price_badge_' + code, '')
-        result['prices'] = build_public_price_summary(price_place,lang)
-        result['prices']['schema_offers'] = schema_offers(price_place,lang)
+        prices = build_public_price_summary(price_place, lang)
+        if prices['kind'] == 'mixed' and prices['max_price'] is None:
+            prices['card_label'] = {
+                'az': 'Pulsuz və ödənişli',
+                'ru': 'Бесплатно и платно',
+                'en': 'Free and paid',
+            }[lang]
+        prices['schema_offers'] = schema_offers(price_place, lang)
+        result['prices'] = prices
     return result
 
 
