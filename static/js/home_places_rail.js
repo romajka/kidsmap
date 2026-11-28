@@ -11,7 +11,7 @@
     const progressLoopThumb = rail.querySelector('[data-rail-progress-thumb-loop]');
     const originals = Array.from(track.children);
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let paused = true; // no auto-scroll: arrows, swipe and drag only
+    let paused = false;
     let hovered = false;
     let visible = false;
     let automatic = false;
@@ -56,7 +56,6 @@
       if (paused || !automatic) return;
       resumeTimeout = setTimeout(() => {
         userInteracting = false;
-        hovered = false;
         sync();
       }, delay);
     }
@@ -161,13 +160,13 @@
 
     function rebuild() {
       track.querySelectorAll('[data-rail-copy]').forEach((copy) => copy.remove());
-      hasOverflow = viewport.scrollWidth > viewport.clientWidth;
-      automatic = hasOverflow && !reduced.matches && originals.length > 1;
+      automatic = !reduced.matches && originals.length > 1;
+      hasOverflow = automatic || viewport.scrollWidth > viewport.clientWidth;
       rail.classList.toggle('is-automatic', automatic);
       rail.classList.toggle('is-static', !hasOverflow);
-      if (toggle) toggle.hidden = true;
+      if (toggle) toggle.hidden = !automatic;
       const navGroup = rail.querySelector('.home-rail-nav-group');
-      if (navGroup) navGroup.hidden = !automatic;
+      if (navGroup) navGroup.hidden = !hasOverflow;
       const prog = rail.querySelector('[data-rail-progress]');
       if (prog) prog.hidden = !automatic;
       period = 0;
@@ -194,19 +193,18 @@
     if (toggle) {
       toggle.addEventListener('click', () => {
         paused = !paused;
-        if (paused) {
-          if (resumeTimeout) clearTimeout(resumeTimeout);
-          userInteracting = false;
-        } else {
-          hovered = false;
-          userInteracting = false;
-        }
-        toggle.blur();
+        if (resumeTimeout) clearTimeout(resumeTimeout);
+        userInteracting = false;
         sync();
       });
     }
 
     function smoothSlide(delta) {
+      if (reduced.matches) {
+        viewport.scrollLeft += delta;
+        sync();
+        return;
+      }
       if (inertiaFrame) {
         cancelAnimationFrame(inertiaFrame);
         inertiaFrame = 0;
@@ -274,7 +272,7 @@
     viewport.addEventListener('pointerenter', (event) => {
       if (event.pointerType === 'mouse') {
         hovered = true;
-        scheduleAutoResume(2500);
+        sync();
       }
     });
 
@@ -330,14 +328,7 @@
     });
 
     viewport.addEventListener('pointermove', (event) => {
-      if (!isPointerDown) {
-        if (event.pointerType === 'mouse') {
-          hovered = true;
-          scheduleAutoResume(2500);
-        }
-        return;
-      }
-      if (event.pointerId !== activePointerId) return;
+      if (!isPointerDown || event.pointerId !== activePointerId) return;
       const dx = event.clientX - startX;
       const now = performance.now();
       const dt = now - lastMoveTime;
@@ -403,10 +394,10 @@
         viewport.classList.remove('is-dragging');
         offset = period ? ((viewport.scrollLeft % period) + period) % period : viewport.scrollLeft;
 
-        if (Math.abs(velocity) > 0.4) {
+        if (!reduced.matches && Math.abs(velocity) > 0.4) {
           let v = velocity;
           function runInertia() {
-            if (isPointerDown || paused) {
+            if (isPointerDown || reduced.matches) {
               inertiaFrame = 0;
               userInteracting = false;
               sync();
@@ -457,9 +448,10 @@
     }, true);
 
     viewport.addEventListener('scroll', () => {
+      if (frame) return;
       offset = period ? ((viewport.scrollLeft % period) + period) % period : viewport.scrollLeft;
       updateProgress();
-      if (!isDragging && !inertiaFrame && !paused && automatic) {
+      if (!isDragging && !inertiaFrame && userInteracting) {
         scheduleAutoResume(1800);
       }
     }, { passive: true });

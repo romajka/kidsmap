@@ -2,21 +2,63 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {JSDOM}=require(process.env.KIDSMAP_JSDOM||'jsdom');
-function setup(){
- const dom=new JSDOM(`<section data-places-rail><div data-rail-viewport><div data-rail-track>${[1,2,3,4].map(i=>`<article data-rail-original><a href="/place/${i}/">Place</a><form class="like-form" data-like-form action="/place/${i}/like/"><button class="like-btn" aria-pressed="false"><span class="like-count">0</span></button></form><button class="card-contact-toggle">Phone</button></article>`).join('')}</div></div><button data-rail-toggle><span data-rail-toggle-label></span><span data-rail-toggle-icon></span></button></section>`,{url:'http://localhost/',runScripts:'outside-only'}),w=dom.window;
- w.matchMedia=()=>({matches:false,addEventListener(){}});w.requestAnimationFrame=()=>1;w.cancelAnimationFrame=()=>{};
+function setup({width = 390, count = 4, reduced = false} = {}){
+ const cards = Array.from({length: count}, (_, index) => index + 1);
+ const dom=new JSDOM(`<section data-places-rail><div data-rail-viewport><div data-rail-track>${cards.map(i=>`<article data-rail-original><a href="/place/${i}/">Place</a><form class="like-form" data-like-form action="/place/${i}/like/"><button class="like-btn" aria-pressed="false"><span class="like-count">0</span></button></form><button class="card-contact-toggle">Phone</button></article>`).join('')}</div></div><button data-rail-toggle data-pause-label="Pause" data-resume-label="Resume" hidden><span data-rail-toggle-label></span><span data-rail-toggle-icon></span></button></section>`,{url:'http://localhost/',runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window;
+ const frames = new Map();
+ let frameId = 0;
+ w.matchMedia=()=>({matches:reduced,addEventListener(){}});
+ w.requestAnimationFrame=callback=>{const id=++frameId;frames.set(id,callback);return id;};
+ w.cancelAnimationFrame=id=>frames.delete(id);
  const v=w.document.querySelector('[data-rail-viewport]');
  // jsdom does not calculate the scrollable width of the four cards and their gaps.
  Object.defineProperties(v, {
-   clientWidth: {value: 390},
-   scrollWidth: {value: 4 * 300 + 3 * 18},
+   clientWidth: {value: width},
+   scrollWidth: {value: Math.max(width, count * 300 + (count - 1) * 18)},
  });
  for(const el of w.document.querySelectorAll('[data-rail-original]'))el.getBoundingClientRect=()=>({width:300});
  w.eval(fs.readFileSync('static/js/home_places_rail.js','utf8'));
  const pointer=(target,type,x)=>target.dispatchEvent(Object.assign(new w.MouseEvent(type,{bubbles:true,cancelable:true,clientX:x,button:0}),{pointerType:'mouse',pointerId:1}));
  const drag=()=>{pointer(v,'pointerdown',100);pointer(v,'pointermove',60);pointer(v,'pointerup',60);};
- return{dom,w,v,pointer,drag,button:w.document.querySelector('[data-rail-original] .like-btn')};
+ const advance = time => {
+  const pending = [...frames.values()];
+  frames.clear();
+  pending.forEach(callback => callback(time));
+ };
+ return{dom,w,v,pointer,drag,advance,button:w.document.querySelector('[data-rail-original] .like-btn')};
 }
+
+test('a three-card rail starts moving even when all the original cards fit',()=>{
+ const {dom,w,v,advance}=setup({width: 1120, count: 3});
+ try{
+  const toggle=w.document.querySelector('[data-rail-toggle]');
+  assert.equal(toggle.hidden,false);
+  advance(16);
+  advance(48);
+  assert.ok(v.scrollLeft>0,'autoplay should advance the rail');
+  toggle.click();
+  const pausedAt=v.scrollLeft;
+  advance(96);
+  assert.equal(v.scrollLeft,pausedAt);
+  toggle.click();
+  advance(128);
+  advance(160);
+  assert.ok(v.scrollLeft>pausedAt,'resume should continue from the paused position');
+ }finally{dom.window.close();}
+});
+
+test('a single card or a reduced-motion rail stays still without visual copies',()=>{
+ for(const options of [{count:1},{width:1120,count:3,reduced:true}]){
+  const {dom,w,v,advance}=setup(options);
+  try{
+   advance(16);
+   advance(48);
+   assert.equal(v.scrollLeft,0);
+   assert.equal(w.document.querySelectorAll('[data-rail-copy]').length,0);
+   assert.equal(w.document.querySelector('[data-rail-toggle]').hidden,true);
+  }finally{dom.window.close();}
+ }
+});
 test('hidden visual copies have no sequential keyboard targets, originals retain actions',()=>{
  const {dom,w}=setup();try{const copied=[...w.document.querySelectorAll('[data-rail-copy] a,[data-rail-copy] button')];assert.ok(copied.length>0);assert.ok(copied.every(x=>x.tabIndex===-1));assert.equal(w.document.querySelector('[data-rail-original] button').tabIndex,0);}finally{dom.window.close();}
 });

@@ -191,7 +191,7 @@
     {% if request.resolver_match.url_name == 'place_list' %}</div>{% endif %}
     <div class="card-action-stack">
       <div class="card-bottom-row">
-        <span class="card-stub-price{% if not presentation.prices.label %} is-empty{% endif %}">{% if presentation.prices.label %}{{ presentation.prices.label }}{% else %}{% trans "Цена уточняется" %}{% endif %}</span>
+        <span class="card-stub-price{% if not presentation.prices.label %} is-empty{% endif %}">{% if presentation.prices.label %}{{ presentation.prices.card_label|default:presentation.prices.label }}{% else %}{% trans "Цена уточняется" %}{% endif %}</span>
         <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">
           <span class="card-go-label">{% if request.resolver_match.url_name == 'place_list' %}{% trans "Подробнее" %}{% else %}{% trans "Перейти" %}{% endif %}</span>
           <span class="card-go-arrow" aria-hidden="true">
